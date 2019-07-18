@@ -1,0 +1,15 @@
+package com.netease.cloud.nsf.client;
+
+/**
+ * 配置持久化
+ */
+public interface ConfigStore {
+
+    <T> void save(T t);
+
+    <T> void delete(T t);
+
+    <T> void update(T t);
+
+    <T> T get(T t);
+}
