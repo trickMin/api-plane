@@ -33,7 +33,10 @@ public class BaseController {
     }
 
     public String apiReturn(int statusCode, String code, String message, Map<String, Object> params) {
+        return apiReturn(this.objectMapper, statusCode, code, message, params);
+    }
 
+    public String apiReturn(ObjectMapper objectMapper, int statusCode, String code, String message, Map<String, Object> params) {
         Map<String, Object> body = new HashMap<String, Object>();
         body.put("RequestId", LogTraceUUIDHolder.getUUIDId());
 
@@ -55,6 +58,7 @@ public class BaseController {
         } catch (IOException e) {
             logger.warn("io exception.", e);
         }
+
         return null;
     }
 

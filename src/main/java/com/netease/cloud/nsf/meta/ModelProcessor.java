@@ -1,8 +1,5 @@
 package com.netease.cloud.nsf.meta;
 
-import com.netease.cloud.nsf.meta.APIModel;
-import com.netease.cloud.nsf.meta.IstioResource;
-
 import java.util.List;
 
 /**
