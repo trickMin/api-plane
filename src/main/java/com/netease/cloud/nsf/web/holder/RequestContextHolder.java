@@ -42,16 +42,4 @@ public class RequestContextHolder {
         return (HttpServletResponse) getValue(RESPONSE_KEY);
     }
 
-    public static String getTenantId() {
-        return getRequest().getHeader("x-auth-tenantId");
-    }
-
-    public static String getProjectId() {
-        return getRequest().getHeader("x-auth-projectId");
-    }
-
-    public static String getAccountId() {
-        return getRequest().getHeader("x-auth-accountId");
-    }
-
 }

@@ -13,7 +13,6 @@ public class ExceptionHandlerErrorCode extends ErrorCode {
 	
 	public static ErrorCode UnknownException = new ErrorCode(ErrorCodeEnum.UnknownException);
 
-	
 	public static ErrorCode InvalidBodyFormat = new ErrorCode(ErrorCodeEnum.InvalidBodyFormat);
 
 	public static ErrorCode InvalidParamsError(String paramName,String paramValue){

@@ -5,7 +5,7 @@ package com.netease.cloud.nsf.client;
  **/
 public class MockConfigStore implements ConfigStore {
     @Override
-    public <T> void save(T t) {
+    public <T> void create(T t) {
         throw new UnsupportedOperationException();
     }
 

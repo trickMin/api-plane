@@ -5,7 +5,7 @@ package com.netease.cloud.nsf.client;
  */
 public interface ConfigStore {
 
-    <T> void save(T t);
+    <T> void create(T t);
 
     <T> void delete(T t);
 

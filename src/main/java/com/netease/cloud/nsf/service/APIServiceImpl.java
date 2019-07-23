@@ -4,6 +4,7 @@ import com.netease.cloud.nsf.client.ConfigClient;
 import com.netease.cloud.nsf.client.ConfigStore;
 import com.netease.cloud.nsf.meta.APIModel;
 import com.netease.cloud.nsf.meta.IstioResource;
+import com.netease.cloud.nsf.meta.ModelProcessor;
 
 import java.util.List;
 

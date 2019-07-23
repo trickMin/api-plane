@@ -6,7 +6,7 @@ import com.netease.cloud.nsf.client.MockCofigClient;
 import com.netease.cloud.nsf.client.MockConfigStore;
 import com.netease.cloud.nsf.service.APIService;
 import com.netease.cloud.nsf.service.APIServiceImpl;
-import com.netease.cloud.nsf.service.ModelProcessor;
+import com.netease.cloud.nsf.meta.ModelProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Configuration;
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/7/18
  **/
 @Configuration
-public class APIPlaneAutoConfiguration {
+public class ApiPlaneAutoConfiguration {
 
     @Bean
     public ConfigClient configClient() {

@@ -1,4 +1,4 @@
-package com.netease.cloud.nsf.service;
+package com.netease.cloud.nsf.meta;
 
 import com.netease.cloud.nsf.meta.APIModel;
 import com.netease.cloud.nsf.meta.IstioResource;
