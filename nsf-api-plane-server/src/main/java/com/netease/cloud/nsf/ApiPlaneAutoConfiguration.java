@@ -1,12 +1,12 @@
 package com.netease.cloud.nsf;
 
-import com.netease.cloud.nsf.client.ConfigClient;
-import com.netease.cloud.nsf.client.ConfigStore;
-import com.netease.cloud.nsf.client.MockCofigClient;
-import com.netease.cloud.nsf.client.MockConfigStore;
+import com.netease.cloud.nsf.core.client.ConfigClient;
+import com.netease.cloud.nsf.core.store.ConfigStore;
+import com.netease.cloud.nsf.core.client.MockConfigClient;
+import com.netease.cloud.nsf.core.store.MockConfigStore;
 import com.netease.cloud.nsf.service.APIService;
-import com.netease.cloud.nsf.service.APIServiceImpl;
-import com.netease.cloud.nsf.meta.ModelProcessor;
+import com.netease.cloud.nsf.service.impl.APIServiceImpl;
+import com.netease.cloud.nsf.core.ModelProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -18,7 +18,7 @@ public class ApiPlaneAutoConfiguration {
 
     @Bean
     public ConfigClient configClient() {
-        return new MockCofigClient();
+        return new MockConfigClient();
     }
 
     @Bean

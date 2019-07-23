@@ -1,4 +1,4 @@
-package com.netease.cloud.nsf.client;
+package com.netease.cloud.nsf.core.client;
 
 /**
  *  配置发送客户端

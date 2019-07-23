@@ -1,4 +1,4 @@
-package com.netease.cloud.nsf.client;
+package com.netease.cloud.nsf.core.store;
 
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/7/17

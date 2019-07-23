@@ -1,4 +1,4 @@
-package com.netease.cloud.nsf.client;
+package com.netease.cloud.nsf.core.store;
 
 /**
  * 配置持久化

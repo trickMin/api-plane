@@ -9,4 +9,5 @@ public interface APIService {
 
     void updateAPI(APIModel api);
 
+    void deleteAPI(String service, String name);
 }

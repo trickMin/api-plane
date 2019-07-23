@@ -1,9 +1,9 @@
-package com.netease.cloud.nsf.client;
+package com.netease.cloud.nsf.core.client;
 
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/7/17
  **/
-public class MockCofigClient implements ConfigClient {
+public class MockConfigClient implements ConfigClient {
 
     @Override
     public <T> void updateConfig(T t) {
