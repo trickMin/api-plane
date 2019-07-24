@@ -1,4 +1,4 @@
-package com.netease.cloud.nsf.client;
+package com.netease.cloud.nsf.client.istio;
 
 import com.netease.cloud.nsf.exception.ApiPlaneException;
 import com.netease.cloud.nsf.meta.ResourceEnum;
@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 
 import java.util.EnumSet;
 import java.util.List;

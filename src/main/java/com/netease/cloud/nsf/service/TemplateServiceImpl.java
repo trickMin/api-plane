@@ -3,7 +3,7 @@ package com.netease.cloud.nsf.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.netease.cloud.nsf.client.IntegratedClient;
+import com.netease.cloud.nsf.client.istio.IntegratedClient;
 import com.netease.cloud.nsf.exception.ApiPlaneException;
 import com.netease.cloud.nsf.meta.ResourceEnum;
 import com.netease.cloud.nsf.meta.template.Metadata;

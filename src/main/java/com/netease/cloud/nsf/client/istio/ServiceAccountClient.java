@@ -1,4 +1,4 @@
-package com.netease.cloud.nsf.client;
+package com.netease.cloud.nsf.client.istio;
 
 import com.netease.cloud.nsf.meta.ResourceEnum;
 import io.fabric8.kubernetes.api.model.ServiceAccount;

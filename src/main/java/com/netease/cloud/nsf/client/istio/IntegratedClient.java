@@ -1,4 +1,4 @@
-package com.netease.cloud.nsf.client;
+package com.netease.cloud.nsf.client.istio;
 
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import org.slf4j.Logger;

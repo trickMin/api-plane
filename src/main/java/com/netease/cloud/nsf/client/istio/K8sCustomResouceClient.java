@@ -1,4 +1,4 @@
-package com.netease.cloud.nsf.client;
+package com.netease.cloud.nsf.client.istio;
 
 import com.netease.cloud.nsf.meta.DoneableIstioResource;
 import com.netease.cloud.nsf.meta.IstioResource;
