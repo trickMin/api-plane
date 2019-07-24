@@ -2,7 +2,6 @@ package com.netease.cloud.nsf.core;
 
 import com.netease.cloud.nsf.meta.APIModel;
 import com.netease.cloud.nsf.meta.IstioResource;
-import istio.networking.v1alpha3.VirtualServiceOuterClass;
 
 import java.util.List;
 
