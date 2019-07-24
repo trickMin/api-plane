@@ -7,6 +7,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 
 /**
  * @auther wupenghuai@corp.netease.com
@@ -14,10 +15,18 @@ import org.springframework.context.annotation.Configuration;
  **/
 @Configuration
 public class RegularConfiguration {
+
+
     @Bean
     @Qualifier("yaml")
-    ObjectMapper objectMapper() {
+    ObjectMapper yamlObjectMapper() {
         return new ObjectMapper(new YAMLFactory()).configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                 .setSerializationInclusion(JsonInclude.Include.NON_NULL);
+    }
+
+    @Bean
+    @Primary
+    ObjectMapper jsonObjectMapper() {
+        return new ObjectMapper();
     }
 }
