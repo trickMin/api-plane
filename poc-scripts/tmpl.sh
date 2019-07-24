@@ -83,34 +83,7 @@ spec:${DR_TLS}
   subsets:
   - name: internal
     labels:
-      app: ${T_SVC}
----
-apiVersion: rbac.istio.io/v1alpha1
-kind: ServiceRole
-metadata:
-  name: ${T_SVC}-${T_NS}
-  namespace: qz
-spec:
-  rules:
-  - services:
-    - qz-egress.qz.svc.cluster.local
-    methods:
-    - GET
-    - HEAD
-    constraints:
-    - key: \"request.headers[:authority]\"
-      values: [\"${T_SVC}\"]
----
-apiVersion: rbac.istio.io/v1alpha1
-kind: ServiceRoleBinding
-metadata:
-  name: ${T_SVC}-${T_NS}-whitelist
-  namespace: qz
-spec:
-  subjects:${EGRESS_USERS}
-  roleRef:
-    kind: ServiceRole
-    name: ${T_SVC}-${T_NS}"
+      app: ${T_SVC}"
 
 CONFIG_RBAC="
 ---
@@ -123,9 +96,6 @@ spec:
   rules:
   - services:
     - ${T_SVC}.${T_NS}.svc.cluster.local
-    methods:
-    - GET
-    - HEAD
 ---
 apiVersion: rbac.istio.io/v1alpha1
 kind: ServiceRoleBinding
