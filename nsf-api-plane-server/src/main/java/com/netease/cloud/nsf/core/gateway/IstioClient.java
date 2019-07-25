@@ -26,7 +26,7 @@ public class IstioClient {
     private static final String NAMESPACE = "istio-system";
     private static final String NAME = "pilot";
 
-    private static final String GET_ENDPOINT_PATH = "/debug/endpointz";
+    private static final String GET_EDSZ_PATH = "/debug/edsz";
 
     @Autowired
     RestTemplate restTemplate;
@@ -45,7 +45,7 @@ public class IstioClient {
     }
 
     public List<String> getServiceNameList() {
-        Endpoint[] edsz = restTemplate.getForObject(getIstioUrl() + GET_ENDPOINT_PATH, Endpoint[].class);
+        Endpoint[] edsz = restTemplate.getForObject(getIstioUrl() + GET_EDSZ_PATH, Endpoint[].class);
         if (edsz == null || edsz.length == 0) return Collections.emptyList();
         return Arrays.stream(edsz)
                 .map(e -> {
