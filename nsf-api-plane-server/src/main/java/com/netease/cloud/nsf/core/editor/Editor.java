@@ -21,7 +21,23 @@ public interface Editor {
 
     void createOrUpdateValue(String path, String key, Object value);
 
+    /**
+     * 导出为json
+     * @return
+     */
     String jsonString();
 
+    /**
+     * 导出为yaml
+     * @return
+     */
     String yamlString();
+
+    /**
+     * 导出为object
+     * @param type
+     * @param <T>
+     * @return
+     */
+    <T> T object(Class<T> type);
 }

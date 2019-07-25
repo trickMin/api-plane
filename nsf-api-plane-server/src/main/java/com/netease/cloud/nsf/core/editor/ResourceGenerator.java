@@ -83,6 +83,11 @@ public class ResourceGenerator implements Editor {
         return json2yaml(jsonContext.jsonString());
     }
 
+    @Override
+    public <T> T object(Class<T> type) {
+        return jsonContext.read("$", type);
+    }
+
 
     private String yaml2json(String yaml) {
         try {
