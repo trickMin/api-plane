@@ -50,6 +50,6 @@ public class IntegratedClient {
                 return client;
             }
         }
-        throw new RuntimeException("cannot resolve the suitable istio resource client");
+        throw new RuntimeException("cannot resolve the suitable istio resource k8sClient");
     }
 }

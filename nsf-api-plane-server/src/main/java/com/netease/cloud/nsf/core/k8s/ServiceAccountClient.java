@@ -1,6 +1,6 @@
 package com.netease.cloud.nsf.core.k8s;
 
-import com.netease.cloud.nsf.meta.ResourceEnum;
+import com.netease.cloud.nsf.meta.K8sResourceEnum;
 import io.fabric8.kubernetes.api.model.ServiceAccount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,14 +30,14 @@ public class ServiceAccountClient extends AbstractK8sClient<ServiceAccount> {
 
     @Override
     public void createOrUpdate(ServiceAccount resource) {
-        client().serviceAccounts()
+        k8sClient().serviceAccounts()
                 .inNamespace(resource.getMetadata().getNamespace())
                 .createOrReplace(resource);
     }
 
     @Override
     public void delete(String kind, String name, String namespace) {
-        client().serviceAccounts()
+        k8sClient().serviceAccounts()
                 .inNamespace(name)
                 .withName(name)
                 .delete();
@@ -45,16 +45,16 @@ public class ServiceAccountClient extends AbstractK8sClient<ServiceAccount> {
 
     @Override
     public List<ServiceAccount> getList(String kind, String namespace) {
-        return client().serviceAccounts().inNamespace(namespace).list().getItems();
+        return k8sClient().serviceAccounts().inNamespace(namespace).list().getItems();
     }
 
     @Override
     public ServiceAccount get(String kind, String name, String namespace) {
-        return client().serviceAccounts().inNamespace(namespace).withName(name).get();
+        return k8sClient().serviceAccounts().inNamespace(namespace).withName(name).get();
     }
 
     @Override
     public boolean isAdapt(String kind) {
-        return ResourceEnum.ServiceAccount.equals(ResourceEnum.get(kind));
+        return K8sResourceEnum.ServiceAccount.equals(K8sResourceEnum.get(kind));
     }
 }

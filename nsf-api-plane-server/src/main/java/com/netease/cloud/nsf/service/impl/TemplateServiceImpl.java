@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.netease.cloud.nsf.core.k8s.IntegratedClient;
 import com.netease.cloud.nsf.exception.ApiPlaneException;
-import com.netease.cloud.nsf.meta.ResourceEnum;
+import com.netease.cloud.nsf.meta.K8sResourceEnum;
 import com.netease.cloud.nsf.meta.template.Metadata;
 import com.netease.cloud.nsf.meta.template.NsfExtra;
 import com.netease.cloud.nsf.meta.template.ServiceMeshTemplate;
@@ -92,7 +92,7 @@ public class TemplateServiceImpl implements TemplateService {
             for (String segment : content.split(YAML_SPLIT)) {
                 if (!segment.contains("apiVersion")) continue;
                 String kind = getKind(segment);
-                Class<? extends HasMetadata> clz = ResourceEnum.get(kind).mappingType();
+                Class<? extends HasMetadata> clz = K8sResourceEnum.get(kind).mappingType();
                 resources.add(mapper.readValue(segment, clz));
             }
         } catch (Exception e) {

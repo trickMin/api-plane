@@ -2,6 +2,7 @@ package com.netease.cloud.nsf.core.k8s;
 
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.client.KubernetesClient;
+import me.snowdrop.istio.client.IstioClient;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -12,8 +13,14 @@ public abstract class AbstractK8sClient<T extends HasMetadata> implements K8sRes
     @Autowired
     private KubernetesClient kubernetesClient;
 
-    protected KubernetesClient client() {
+    protected KubernetesClient k8sClient() {
         return kubernetesClient;
     }
 
+    @Autowired
+    private IstioClient istioClient;
+
+    protected IstioClient istioClient() {
+        return istioClient;
+    }
 }
