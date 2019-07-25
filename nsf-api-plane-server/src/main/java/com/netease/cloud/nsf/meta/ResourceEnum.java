@@ -1,7 +1,7 @@
 package com.netease.cloud.nsf.meta;
 
 
-import com.netease.cloud.nsf.exception.ApiPlaneException;
+import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 
 /**

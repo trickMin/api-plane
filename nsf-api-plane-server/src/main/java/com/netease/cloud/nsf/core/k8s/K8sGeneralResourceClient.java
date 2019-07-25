@@ -1,6 +1,6 @@
 package com.netease.cloud.nsf.core.k8s;
 
-import com.netease.cloud.nsf.exception.ApiPlaneException;
+import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.meta.ResourceEnum;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.ObjectMeta;

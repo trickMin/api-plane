@@ -22,12 +22,6 @@ public class ApiOption {
     private Boolean Idempotent;
 
     /**
-     * 隐藏上游api
-     */
-    @JsonProperty(value = "StripUri")
-    private Boolean StripUri;
-
-    /**
      * 保留原始host
      */
     @JsonProperty(value = "PreserveHost")
@@ -76,14 +70,6 @@ public class ApiOption {
 
     public void setIdempotent(Boolean idempotent) {
         Idempotent = idempotent;
-    }
-
-    public Boolean getStripUri() {
-        return StripUri;
-    }
-
-    public void setStripUri(Boolean stripUri) {
-        StripUri = stripUri;
     }
 
     public Boolean getPreserveHost() {

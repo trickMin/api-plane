@@ -1,4 +1,4 @@
-package com.netease.cloud.nsf.exception;
+package com.netease.cloud.nsf.util.exception;
 
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/6/20

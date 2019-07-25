@@ -1,6 +1,6 @@
 package com.netease.cloud.nsf.meta.template;
 
-import com.netease.cloud.nsf.validator.annotation.ConditionalTemplate;
+import com.netease.cloud.nsf.util.validator.annotation.ConditionalTemplate;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.Valid;

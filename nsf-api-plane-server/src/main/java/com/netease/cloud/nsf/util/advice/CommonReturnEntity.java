@@ -1,4 +1,4 @@
-package com.netease.cloud.nsf.advice;
+package com.netease.cloud.nsf.util.advice;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

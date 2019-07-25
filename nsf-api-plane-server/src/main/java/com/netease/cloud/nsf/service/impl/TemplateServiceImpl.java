@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.netease.cloud.nsf.core.k8s.IntegratedClient;
-import com.netease.cloud.nsf.exception.ApiPlaneException;
+import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.meta.ResourceEnum;
 import com.netease.cloud.nsf.meta.template.Metadata;
 import com.netease.cloud.nsf.meta.template.NsfExtra;

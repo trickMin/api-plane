@@ -1,14 +1,8 @@
 package com.netease.cloud.nsf;
 
-import com.netease.cloud.nsf.core.client.ConfigClient;
-import com.netease.cloud.nsf.core.store.ConfigStore;
-import com.netease.cloud.nsf.core.client.MockConfigClient;
-import com.netease.cloud.nsf.core.store.MockConfigStore;
-import com.netease.cloud.nsf.service.APIService;
-import com.netease.cloud.nsf.service.impl.APIServiceImpl;
-import com.netease.cloud.nsf.core.ModelProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestTemplate;
 
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/7/18
@@ -17,23 +11,7 @@ import org.springframework.context.annotation.Configuration;
 public class ApiPlaneAutoConfiguration {
 
     @Bean
-    public ConfigClient configClient() {
-        return new MockConfigClient();
+    RestTemplate restTemplate() {
+        return new RestTemplate();
     }
-
-    @Bean
-    public ConfigStore configStore() {
-        return new MockConfigStore();
-    }
-
-    @Bean
-    public ModelProcessor modelProcessor() {
-        return new ModelProcessor();
-    }
-
-    @Bean
-    public APIService apiService(ModelProcessor processor, ConfigClient client, ConfigStore store) {
-        return new APIServiceImpl(processor, client, store);
-    }
-
 }

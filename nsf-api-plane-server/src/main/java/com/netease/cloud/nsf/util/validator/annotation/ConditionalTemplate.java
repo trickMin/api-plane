@@ -1,6 +1,6 @@
-package com.netease.cloud.nsf.validator.annotation;
+package com.netease.cloud.nsf.util.validator.annotation;
 
-import com.netease.cloud.nsf.validator.ConditionalTemplateValidator;
+import com.netease.cloud.nsf.util.validator.ConditionalTemplateValidator;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
