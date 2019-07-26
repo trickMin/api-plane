@@ -1,5 +1,6 @@
 package com.netease.cloud.nsf.service;
 
+import com.netease.cloud.nsf.meta.WhiteList;
 import com.netease.cloud.nsf.meta.template.ServiceMeshTemplate;
 
 /**
@@ -12,21 +13,9 @@ import com.netease.cloud.nsf.meta.template.ServiceMeshTemplate;
  * @date 2019/7/25
  **/
 public interface WhiteListService {
+    void initResource(WhiteList whiteList);
 
-    /**
-     * 创建一个关于TargetService的访问策略
-     */
-    void createTargetService(ServiceMeshTemplate template);
+    void updateService(WhiteList whiteList);
 
-    void deleteTargetService();
-
-    /**
-     * 添加一个SourceService到TargetService的白名单中
-     */
-    void addSourceService();
-
-    /**
-     * 讲一个SourceService从TargetService移除
-     */
-    void removeSourceService();
+    void removeService(WhiteList whiteList);
 }

@@ -9,32 +9,37 @@ import java.util.List;
  * @date 2019/7/25
  **/
 public interface Editor {
+    boolean contain(String path, Predicate... filter);
+
     <T> T getValue(String path, Predicate... filter);
 
     <T> T getValue(String path, Class<T> type, Predicate... filter);
 
-    void addElement(String path, Object value);
+    void addElement(String path, Object value, Predicate... filter);
 
-    void removeElement(String path);
+    void removeElement(String path, Predicate... filter);
 
-    void updateValue(String path, Object value);
+    void updateValue(String path, Object value, Predicate... filter);
 
-    void createOrUpdateValue(String path, String key, Object value);
+    void createOrUpdateValue(String path, String key, Object value, Predicate... filter);
 
     /**
      * 导出为json
+     *
      * @return
      */
     String jsonString();
 
     /**
      * 导出为yaml
+     *
      * @return
      */
     String yamlString();
 
     /**
      * 导出为object
+     *
      * @param type
      * @param <T>
      * @return

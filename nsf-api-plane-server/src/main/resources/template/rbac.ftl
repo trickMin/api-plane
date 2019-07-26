@@ -1,33 +1,32 @@
+#黑白名单，使用WhiteList进行填充
 ---
 apiVersion: rbac.istio.io/v1alpha1
 kind: ServiceRole
 metadata:
-  name: ${metadata.name}
-  namespace: ${metadata.namespace}
+  name: ${name}
+  namespace: ${namespace}
 spec:
   rules:
-<#list nsfExtra.whiteList.services!?keys as key>
     - services:
-        - ${key}
+        - ${service!}
       constraints:
-        - key: "${nsfExtra.whiteList.header}"
+        - key: "${header!}"
           values:
-          <#list nsfExtra.whiteList.services[key] as val>
+          <#list values! as val>
           - "${val}"
           </#list>
-</#list>
 ---
 apiVersion: rbac.istio.io/v1alpha1
 kind: ServiceRoleBinding
 metadata:
-  name: ${metadata.name}
-  namespace: ${metadata.namespace}
+  name: ${name}
+  namespace: ${namespace}
 spec:
   subjects:
-<#list nsfExtra.whiteList.users! as user>
+<#list users! as user>
     - user: "${user}"
 </#list>
-    roleRef:
-        kind: ServiceRole
-        name: ingress
+  roleRef:
+      kind: ServiceRole
+      name: ingress
 

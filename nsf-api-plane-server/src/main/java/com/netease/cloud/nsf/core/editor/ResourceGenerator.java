@@ -43,8 +43,13 @@ public class ResourceGenerator implements Editor {
     }
 
     @Override
+    public boolean contain(String path, Predicate... filter) {
+        return jsonContext.read(path, filter) != null;
+    }
+
+    @Override
     public <T> T getValue(String path, Predicate... filter) {
-        return jsonContext.read(path, filter);
+        return (T) jsonContext.read(path, filter);
     }
 
     @Override
@@ -53,24 +58,24 @@ public class ResourceGenerator implements Editor {
     }
 
     @Override
-    public synchronized void addElement(String path, Object value) {
-        jsonContext.add(path, value);
+    public synchronized void addElement(String path, Object value, Predicate... filter) {
+        jsonContext.add(path, value, filter);
     }
 
 
     @Override
-    public synchronized void removeElement(String path) {
-        jsonContext.delete(path);
+    public synchronized void removeElement(String path, Predicate... filter) {
+        jsonContext.delete(path, filter);
     }
 
     @Override
-    public void updateValue(String path, Object value) {
-        jsonContext.set(path, value);
+    public void updateValue(String path, Object value, Predicate... filter) {
+        jsonContext.set(path, value, filter);
     }
 
     @Override
-    public void createOrUpdateValue(String path, String key, Object value) {
-        jsonContext.put(path, key, value);
+    public void createOrUpdateValue(String path, String key, Object value, Predicate... filter) {
+        jsonContext.put(path, key, value, filter);
     }
 
     @Override
