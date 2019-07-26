@@ -1,5 +1,7 @@
 package com.netease.cloud.nsf.core.gateway;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.netease.cloud.nsf.meta.Endpoint;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -46,6 +49,7 @@ public class IstioClient {
 
     public List<String> getServiceNameList() {
         Endpoint[] edsz = restTemplate.getForObject(getIstioUrl() + GET_EDSZ_PATH, Endpoint[].class);
+
         if (edsz == null || edsz.length == 0) return Collections.emptyList();
         return Arrays.stream(edsz)
                 .map(e -> {
