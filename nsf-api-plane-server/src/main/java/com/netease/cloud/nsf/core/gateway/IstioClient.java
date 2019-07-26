@@ -7,7 +7,6 @@ import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.internal.SerializationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -15,7 +14,6 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,7 +27,7 @@ public class IstioClient {
     private static final String NAMESPACE = "istio-system";
     private static final String NAME = "pilot";
 
-    private static final String GET_EDSZ_PATH = "/debug/edsz";
+    private static final String GET_ENDPOINTZ_PATH = "/debug/endpointz";
 
     @Autowired
     RestTemplate restTemplate;
@@ -48,17 +46,11 @@ public class IstioClient {
     }
 
     public List<String> getServiceNameList() {
-        Endpoint[] edsz = restTemplate.getForObject(getIstioUrl() + GET_EDSZ_PATH, Endpoint[].class);
+        Endpoint[] edsz = restTemplate.getForObject(getIstioUrl() + GET_ENDPOINTZ_PATH, Endpoint[].class);
 
         if (edsz == null || edsz.length == 0) return Collections.emptyList();
         return Arrays.stream(edsz)
-                .map(e -> {
-                    String clusterName = e.getClusterName();
-                    if (clusterName.contains("||")) {
-                        return clusterName.split("||")[1];
-                    }
-                    return clusterName;
-                })
+                .map(e -> e.getService().getHostname())
                 .distinct()
                 .collect(Collectors.toList());
     }

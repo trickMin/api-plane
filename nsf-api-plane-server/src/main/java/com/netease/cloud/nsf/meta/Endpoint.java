@@ -9,15 +9,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Endpoint {
 
-    @JsonProperty("clusterName")
-    private String clusterName;
+    @JsonProperty("service")
+    private InnerService service;
 
-    public String getClusterName() {
-        return clusterName;
+    public InnerService getService() {
+        return service;
     }
 
-    public void setClusterName(String clusterName) {
-        this.clusterName = clusterName;
+    public void setService(InnerService service) {
+        this.service = service;
     }
-
 }
