@@ -3,9 +3,10 @@ package com.netease.cloud.nsf.service.impl;
 import com.netease.cloud.nsf.core.client.ConfigClient;
 import com.netease.cloud.nsf.core.store.ConfigStore;
 import com.netease.cloud.nsf.meta.APIModel;
-import com.netease.cloud.nsf.meta.IstioResource;
+
 import com.netease.cloud.nsf.core.ModelProcessor;
 import com.netease.cloud.nsf.service.APIService;
+import me.snowdrop.istio.api.IstioResource;
 
 import java.util.List;
 

@@ -1,7 +1,7 @@
 package com.netease.cloud.nsf.core;
 
 import com.netease.cloud.nsf.meta.APIModel;
-import com.netease.cloud.nsf.meta.IstioResource;
+import me.snowdrop.istio.api.IstioResource;
 
 import java.util.List;
 

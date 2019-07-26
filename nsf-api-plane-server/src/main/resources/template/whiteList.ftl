@@ -30,36 +30,6 @@ spec:
     labels:
       app: ${metadata.name}
 ---
-apiVersion: rbac.istio.io/v1alpha1
-kind: ServiceRole
-metadata:
-  name: ${metadata.name}-${metadata.namespace}
-  namespace: qz
-spec:
-  rules:
-  - services:
-    - qz-egress.qz.svc.cluster.local
-    methods:
-    - GET
-    - HEAD
-    constraints:
-    - key: "request.headers[:authority]"
-      values: ["${metadata.name!}"]
----
-apiVersion: rbac.istio.io/v1alpha1
-kind: ServiceRoleBinding
-metadata:
-  name: ${metadata.name!}-${metadata.namespace!}-whitelist
-  namespace: qz
-spec:
-  subjects:
-  <#list nsfExtra.targetList! as svc>
-    - user: cluster.local/ns/${svc.namespace!}/sa/${svc.name!}
-  </#list>
-  roleRef:
-    kind: ServiceRole
-    name: ${metadata.name!}-${metadata.namespace!}
----
 # 白名单配置
 apiVersion: "rbac.istio.io/v1alpha1"
 kind: ServiceRole
