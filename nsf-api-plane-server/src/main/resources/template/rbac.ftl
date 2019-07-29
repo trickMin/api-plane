@@ -1,31 +1,29 @@
-#黑白名单，使用WhiteList进行填充
+#黑白名单，使用com.netease.cloud.nsf.meta.WhiteList进行填充
 ---
 apiVersion: rbac.istio.io/v1alpha1
 kind: ServiceRole
 metadata:
-  name: ${name}
+  name: ingress
   namespace: ${namespace}
 spec:
   rules:
     - services:
-        - ${service!}
+        - ${service}
       constraints:
-        - key: "${header!}"
+        - key: "request.headers[Source-External]"
           values:
-          <#list values! as val>
+          <#list sources! as val>
           - "${val}"
           </#list>
 ---
 apiVersion: rbac.istio.io/v1alpha1
 kind: ServiceRoleBinding
 metadata:
-  name: ${name}
+  name: ingress
   namespace: ${namespace}
 spec:
   subjects:
-<#list users! as user>
-    - user: "${user}"
-</#list>
+    - user: "cluster.local/ns/${namespace}/sa/istio-ingressgateway-service-account"
   roleRef:
       kind: ServiceRole
       name: ingress

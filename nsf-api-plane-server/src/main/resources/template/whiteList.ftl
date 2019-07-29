@@ -1,67 +1,72 @@
-# 严选白名单+分流
+# 严选白名单+分流, 使用com.netease.cloud.nsf.meta.WhiteList进行填充
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
-<#include "common/metadata.ftl"/>
+metadata:
+  name: ${service}-vs
+  namespace: ${namespace}
 spec:
   hosts:
-  - yx-provider
+  - ${service}
   http:
   - route:
     - destination:
-        host: ${metadata.name}
+        host: ${service}
         subset: internal
-      weight: ${100 - nsfExtra.outWeight!0}
+      weight: ${100 - outWeight!0}
     - destination:
         host: qz-egress.qz.svc.cluster.local
-      weight: ${nsfExtra.outWeight!0}
+      weight: ${outWeight!0}
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
-<#include "common/metadata.ftl"/>
+metadata:
+  name: ${service}-dst
+  namespace: ${namespace}
 spec:
-  host: ${metadata.name}
+  host: ${service}
   trafficPolicy:
     tls:
       mode: ISTIO_MUTUAL
-  host: yanxuan-partner-money
+  host: ${service}
   subsets:
   - name: internal
     labels:
-      app: ${metadata.name}
+      app: ${service}
 ---
 # 白名单配置
 apiVersion: "rbac.istio.io/v1alpha1"
 kind: ServiceRole
-<#include "common/metadata.ftl"/>
+metadata:
+  name: ${service}-svcrole
+  namespace: ${namespace}
 spec:
   rules:
-  - services: ["${metadata.name!}.${metadata.namespace!}.svc.cluster.local"]
-    methods: ["GET", "HEAD"]
+  - services: ["${service}.${namespace}.svc.cluster.local"]
 ---
 apiVersion: "rbac.istio.io/v1alpha1"
 kind: ServiceRoleBinding
 metadata:
-  name: ${metadata.name!}-whitelist
-  namespace: ${metadata.namespace!}
+  name: ${service}-svcrolebinding
+  namespace: ${namespace}
 spec:
   subjects:
-  <#list nsfExtra.targetList! as svc>
-    - user: cluster.local/ns/${svc.namespace!}/sa/${svc.name!}
-  </#list>
+    - user: cluster.local/ns/${namespace}/sa/${service}
   roleRef:
     kind: ServiceRole
-    name: ${metadata.name!}
+    name: ${service}-svcrole
 ---
 apiVersion: "authentication.istio.io/v1alpha1"
 kind: "Policy"
-<#include "common/metadata.ftl"/>
+metadata:
+  name: ${service}
+  namespace: ${namespace}
 spec:
   targets:
-  - name: ${metadata.name!}
+  - name: ${service}
   peers:
   - mtls:
       mode: STRICT
 ---
 # service account
-<#include "inner/whiteList-serviceAccount.ftl"/>
+# <#include "inner/whiteList-serviceAccount.ftl"/>

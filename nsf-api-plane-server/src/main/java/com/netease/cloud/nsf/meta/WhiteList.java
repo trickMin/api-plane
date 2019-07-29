@@ -9,31 +9,21 @@ import java.util.List;
  * @date 2019/7/25
  **/
 public class WhiteList {
-    @JsonProperty("name")
-    private String name;
+
 
     @JsonProperty("namespace")
     private String namespace;
 
-    @JsonProperty("users")
-    private List<String> users;
-
     @JsonProperty("service")
     private String service;
+    // ---以上两个参数从header解析
 
-    @JsonProperty("values")
-    private List<String> values;
+    @JsonProperty("sources")
+    private List<String> sources;
 
-    @JsonProperty("header")
-    private String header;
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
+    @JsonProperty("outWeight")
+    private int outWeight;
+    // ---以上两个参数从body解析
 
     public String getNamespace() {
         return namespace;
@@ -41,14 +31,6 @@ public class WhiteList {
 
     public void setNamespace(String namespace) {
         this.namespace = namespace;
-    }
-
-    public List<String> getUsers() {
-        return users;
-    }
-
-    public void setUsers(List<String> users) {
-        this.users = users;
     }
 
     public String getService() {
@@ -59,19 +41,19 @@ public class WhiteList {
         this.service = service;
     }
 
-    public List<String> getValues() {
-        return values;
+    public List<String> getSources() {
+        return sources;
     }
 
-    public void setValues(List<String> values) {
-        this.values = values;
+    public void setSources(List<String> sources) {
+        this.sources = sources;
     }
 
-    public String getHeader() {
-        return header;
+    public int getOutWeight() {
+        return outWeight;
     }
 
-    public void setHeader(String header) {
-        this.header = header;
+    public void setOutWeight(int outWeight) {
+        this.outWeight = outWeight;
     }
 }
