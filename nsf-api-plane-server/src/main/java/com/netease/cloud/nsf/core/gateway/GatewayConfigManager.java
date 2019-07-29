@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 public class GatewayConfigManager implements ConfigManager {
 
     @Autowired
-    private ModelProcessor modelProcessor;
+    private GatewayModelProcessor modelProcessor;
 
     @Autowired
     private ConfigStore configStore;
