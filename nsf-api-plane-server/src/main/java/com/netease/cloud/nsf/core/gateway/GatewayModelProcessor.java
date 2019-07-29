@@ -1,7 +1,6 @@
 package com.netease.cloud.nsf.core.gateway;
 
 import com.netease.cloud.nsf.meta.APIModel;
-import com.netease.cloud.nsf.meta.ApiOption;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
 import me.snowdrop.istio.api.IstioResource;
@@ -19,9 +18,13 @@ public class GatewayModelProcessor {
     /**
      * 将api转换为istio对应的规则
      * @param api
+     * @param namespace
      * @return
      */
-    public List<IstioResource> translate(APIModel api) {
+    public List<IstioResource> translate(APIModel api, String namespace) {
+
+        //TODO
+
         return null;
     }
 
@@ -43,9 +46,10 @@ public class GatewayModelProcessor {
      * 在已有的istio crd中删去对应api部分
      * @param old
      * @param api
+     * @param namespace
      * @return
      */
-    public IstioResource subtract(IstioResource old, String api) {
+    public IstioResource subtract(IstioResource old, String api, String namespace) {
 
         // TODO
         return old;
