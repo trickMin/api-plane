@@ -1,9 +1,10 @@
 package com.netease.cloud.nsf.service.impl;
 
 import com.netease.cloud.nsf.core.gateway.ConfigManager;
-import com.netease.cloud.nsf.core.gateway.IstioClient;
+import com.netease.cloud.nsf.core.gateway.IstioHttpClient;
 import com.netease.cloud.nsf.meta.*;
 import com.netease.cloud.nsf.service.GatewayService;
+import me.snowdrop.istio.api.IstioResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +17,7 @@ import java.util.List;
 public class GatewayServiceImpl implements GatewayService {
 
     @Autowired
-    private IstioClient istioClient;
+    private IstioHttpClient istioClient;
 
     @Autowired
     private ConfigManager configManager;

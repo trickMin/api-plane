@@ -1,7 +1,7 @@
 package com.netease.cloud.nsf.util;
 
 import com.jayway.jsonpath.Predicate;
-import com.netease.cloud.nsf.exception.ApiPlaneException;
+import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.sun.javafx.binding.StringFormatter;
 
 import java.util.Arrays;

@@ -1,6 +1,6 @@
 package com.netease.cloud.nsf.core.template;
 
-import com.netease.cloud.nsf.exception.ApiPlaneException;
+import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;

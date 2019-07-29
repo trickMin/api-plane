@@ -1,8 +1,8 @@
 package com.netease.cloud.nsf.core.gateway;
 
 import com.netease.cloud.nsf.core.k8s.IntegratedClient;
-import com.netease.cloud.nsf.meta.IstioResource;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
+import me.snowdrop.istio.api.IstioResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

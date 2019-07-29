@@ -49,7 +49,7 @@ public class IstioSupportConfiguration {
     @Bean
     public IstioClient istioClient() {
         Config config = new ConfigBuilder()
-                .withMasterUrl(istioClientUrl)
+                .withMasterUrl(k8sApiServer)
                 .withTrustCerts(true)
                 .withDisableHostnameVerification(true)
                 .withClientCertData(certData)

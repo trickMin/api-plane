@@ -1,6 +1,7 @@
 package com.netease.cloud.nsf.core.gateway;
 
-import com.netease.cloud.nsf.meta.IstioResource;
+
+import me.snowdrop.istio.api.IstioResource;
 
 /**
  * 配置持久化

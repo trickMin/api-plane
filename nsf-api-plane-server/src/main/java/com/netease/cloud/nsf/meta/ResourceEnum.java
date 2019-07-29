@@ -3,6 +3,7 @@ package com.netease.cloud.nsf.meta;
 
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import io.fabric8.kubernetes.api.model.HasMetadata;
+import me.snowdrop.istio.api.IstioResource;
 
 /**
  * @auther wupenghuai@corp.netease.com

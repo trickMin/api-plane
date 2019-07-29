@@ -2,10 +2,10 @@ package com.netease.cloud.nsf.core.gateway;
 
 import com.google.common.collect.ImmutableSet;
 import com.netease.cloud.nsf.meta.APIModel;
-import com.netease.cloud.nsf.meta.IstioResource;
 import com.netease.cloud.nsf.meta.ResourceEnum;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
+import me.snowdrop.istio.api.IstioResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

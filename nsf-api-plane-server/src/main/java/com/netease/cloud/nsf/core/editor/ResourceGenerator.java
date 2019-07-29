@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.Predicate;
-import com.netease.cloud.nsf.exception.ApiPlaneException;
+import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 
 import java.io.IOException;
 import java.util.Objects;

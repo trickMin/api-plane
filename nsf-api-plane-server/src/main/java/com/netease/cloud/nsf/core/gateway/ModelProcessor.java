@@ -1,10 +1,11 @@
 package com.netease.cloud.nsf.core.gateway;
 
 import com.netease.cloud.nsf.meta.APIModel;
-import com.netease.cloud.nsf.meta.IstioResource;
+import me.snowdrop.istio.api.IstioResource;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+
 
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/7/17
