@@ -1,0 +1,170 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: yx-consumer
+  namespace: yx-demo
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: yx-provider
+  namespace: yx-demo
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: yx-demo
+  labels:
+    istio-injection: enabled
+---
+### harbor imagePullSecret
+apiVersion: v1
+data:
+  .dockerconfigjson:  eyJhdXRocyI6eyJodWIuYy4xNjMuY29tL3Fpbmd6aG91Ijp7InVzZXJuYW1lIjoic3RhZmYucWluZ3pob3VAc2VydmljZS5uZXRlYXNlLmNvbSIsInBhc3N3b3JkIjoiUWluZ3pob3U0MzIxIiwiZW1haWwiOiJzdGFmZi5xaW5nemhvdUBzZXJ2aWNlLm5ldGVhc2UuY29tIiwiYXV0aCI6ImMzUmhabVl1Y1dsdVozcG9iM1ZBYzJWeWRtbGpaUzV1WlhSbFlYTmxMbU52YlRwUmFXNW5lbWh2ZFRRek1qRT0ifX19
+kind: Secret
+metadata:
+  name: qingzhou-secret
+type: kubernetes.io/dockerconfigjson
+
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: yx-consumer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: yx-consumer
+  template:
+    metadata:
+      labels:
+        app: yx-consumer
+    spec:
+      serviceAccountName: yx-consumer
+      containers:
+      - env:
+         - name: JAVA_OPTS
+           value: -DproviderUrl=http://yx-provider
+        image: hub.c.163.com/qingzhou/yx-demo:1
+        imagePullPolicy: Always
+        name: tomcat
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 2Gi
+          requests:
+            cpu: 500m
+            memory: 500m
+      imagePullSecrets:
+        -
+         name: "qingzhou-secret"
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: yx-provider-1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: yx-provider
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: yx-provider
+        version: v1
+    spec:
+      serviceAccountName: yx-provider
+      containers:
+      - env:
+         - name: JAVA_OPTS
+           value: -DyxVersion=1 -DproviderUrl=http://yx-provider
+        image: hub.c.163.com/qingzhou/yx-demo:1
+        imagePullPolicy: Always
+        name: tomcat
+        ports:
+          - containerPort: 8080
+            protocol: TCP
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 2Gi
+          requests:
+            cpu: 500m
+            memory: 500m
+      imagePullSecrets:
+        -
+         name: "qingzhou-secret"
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: yx-provider-2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: yx-provider
+      version: v2
+  template:
+    metadata:
+      labels:
+        app: yx-provider
+        version: v2
+    spec:
+      serviceAccountName: yx-provider
+      containers:
+      - env:
+         - name: JAVA_OPTS
+           value: -DyxVersion=2 -DproviderUrl=http://yx-provider
+        image: hub.c.163.com/qingzhou/yx-demo:1
+        imagePullPolicy: Always
+        name: tomcat
+        ports:
+          - containerPort: 8080
+            protocol: TCP
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 2Gi
+          requests:
+            cpu: 500m
+            memory: 500m
+      imagePullSecrets:
+        -
+         name: "qingzhou-secret"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: yx-provider
+  labels:
+    app: yx-provider
+spec:
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: yx-provider
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: yx-consumer
+  labels:
+    app: yx-consumer
+spec:
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: yx-consumer
+  type: ClusterIP

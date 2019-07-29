@@ -1,0 +1,25 @@
+---
+apiVersion: rbac.istio.io/v1alpha1
+kind: ServiceRole
+metadata:
+  name: ingress
+  namespace: yx-demo
+spec:
+  rules:
+  - services:
+    - yx-provider.yx-demo.svc.cluster.local
+    constraints:
+    - key: "request.headers[Source-External]"
+      values: ["yx-consumer"]
+---
+apiVersion: rbac.istio.io/v1alpha1
+kind: ServiceRoleBinding
+metadata:
+  name: ingress
+  namespace: yx-demo
+spec:
+  subjects:
+  - user: "cluster.local/ns/istio-system/sa/istio-ingressgateway-service-account"
+  roleRef:
+    kind: ServiceRole
+    name: ingress

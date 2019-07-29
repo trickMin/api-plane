@@ -4,22 +4,19 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.netease.cloud.nsf.core.k8s.IntegratedClient;
-import com.netease.cloud.nsf.util.exception.ApiPlaneException;
-import com.netease.cloud.nsf.meta.ResourceEnum;
+import com.netease.cloud.nsf.core.template.TemplateTranslator;
+import com.netease.cloud.nsf.exception.ApiPlaneException;
+import com.netease.cloud.nsf.meta.K8sResourceEnum;
 import com.netease.cloud.nsf.meta.template.Metadata;
 import com.netease.cloud.nsf.meta.template.NsfExtra;
 import com.netease.cloud.nsf.meta.template.ServiceMeshTemplate;
 import com.netease.cloud.nsf.service.TemplateService;
-import freemarker.template.Configuration;
-import freemarker.template.Template;
-import freemarker.template.TemplateException;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -38,7 +35,7 @@ public class TemplateServiceImpl implements TemplateService {
 
 
     @Autowired
-    private Configuration configuration;
+    private TemplateTranslator translator;
 
     @Autowired
     private IntegratedClient client;
@@ -51,32 +48,11 @@ public class TemplateServiceImpl implements TemplateService {
 
     public void updateConfig(ServiceMeshTemplate template) {
         template.setUpdate(true);
-        String content = translate(template);
+        String content = translator.translate(template.getNsfTemplate(), template);
         logger.info("update config : \r" + content);
         client.createOrUpdate(string2Resources(content));
     }
 
-
-    /**
-     * 找到模板，并填充模板中的占位符
-     *
-     * @param rawTemplate
-     * @return
-     */
-    private String translate(ServiceMeshTemplate rawTemplate) {
-        String content = null;
-        try {
-            Template template = configuration.getTemplate(rawTemplate.getNsfTemplate() + ".ftl");
-            content = FreeMarkerTemplateUtils.processTemplateIntoString(template, rawTemplate);
-        } catch (IOException e) {
-            logger.warn("get template failed", e);
-            throw new ApiPlaneException(e.getMessage(), e);
-        } catch (TemplateException e) {
-            logger.warn("parse template failed", e);
-            throw new ApiPlaneException(e.getMessage(), e);
-        }
-        return content;
-    }
 
     /**
      * 将模板的内容转换为k8s资源
@@ -92,7 +68,7 @@ public class TemplateServiceImpl implements TemplateService {
             for (String segment : content.split(YAML_SPLIT)) {
                 if (!segment.contains("apiVersion")) continue;
                 String kind = getKind(segment);
-                Class<? extends HasMetadata> clz = ResourceEnum.get(kind).mappingType();
+                Class<? extends HasMetadata> clz = K8sResourceEnum.get(kind).mappingType();
                 resources.add(mapper.readValue(segment, clz));
             }
         } catch (Exception e) {
@@ -130,7 +106,7 @@ public class TemplateServiceImpl implements TemplateService {
         logger.info("delete config by name: {}, namespace: {}, templateName: {}", name, namespace, templateName);
 
         ServiceMeshTemplate template = blankTemplate(name, namespace, templateName);
-        List<HasMetadata> resources = string2Resources(translate(template));
+        List<HasMetadata> resources = string2Resources(translator.translate(template.getNsfTemplate(), template));
         if (!CollectionUtils.isEmpty(resources)) {
             resources.stream()
                     .forEach(r -> deleteConfig(r.getMetadata().getName(), r.getMetadata().getNamespace(), r.getKind()));
@@ -150,7 +126,7 @@ public class TemplateServiceImpl implements TemplateService {
     public List<HasMetadata> getConfigListByTemplate(String name, String namespace, String templateName) {
         List<HasMetadata> remoteResources = new ArrayList<>();
         ServiceMeshTemplate template = blankTemplate(name, namespace, templateName);
-        List<HasMetadata> resources = string2Resources(translate(template));
+        List<HasMetadata> resources = string2Resources(translator.translate(template.getNsfTemplate(), template));
         if (!CollectionUtils.isEmpty(resources)) {
             resources.stream()
                     .forEach(r -> {

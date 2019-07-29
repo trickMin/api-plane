@@ -1,5 +1,10 @@
 package com.netease.cloud.nsf.core.k8s;
 
+import com.netease.cloud.nsf.core.editor.EditorContext;
+import com.netease.cloud.nsf.core.editor.ResourceGenerator;
+import com.netease.cloud.nsf.core.editor.ResourceType;
+import com.netease.cloud.nsf.meta.K8sResourceEnum;
+import com.netease.cloud.nsf.util.PathExpressionEnum;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +24,20 @@ public class IntegratedClient {
 
     @Autowired
     private List<K8sResourceClient> k8sResourceClients;
+
+    @Autowired
+    private EditorContext context;
+
+    public void createOrUpdate(ResourceGenerator generator){
+        String kind = generator.getValue(PathExpressionEnum.YANXUAN_GET_KIND.translate());
+        HasMetadata object = generator.object(K8sResourceEnum.get(kind).mappingType());
+        createOrUpdate(object);
+    }
+
+    public void createOrUpdate(String yaml) {
+        ResourceGenerator generator = ResourceGenerator.newInstance(yaml, ResourceType.YAML, context);
+        createOrUpdate(generator);
+    }
 
     public void createOrUpdate(List<HasMetadata> resources) {
         if (CollectionUtils.isEmpty(resources)) {
@@ -50,6 +69,6 @@ public class IntegratedClient {
                 return client;
             }
         }
-        throw new RuntimeException("cannot resolve the suitable istio resource client");
+        throw new RuntimeException("cannot resolve the suitable istio resource k8sClient");
     }
 }
