@@ -27,7 +27,7 @@ public class GatewayConfigManager implements ConfigManager {
     @Autowired
     private ConfigStore configStore;
 
-    @Value("{apiNamespace}")
+    @Value("{apiNamespace:gateway-config}")
     private String apiNamespace;
 
     /**
@@ -40,7 +40,7 @@ public class GatewayConfigManager implements ConfigManager {
 
         // TODO clean up old resources first
 
-        List<IstioResource> resources = modelProcessor.translate(api);
+        List<IstioResource> resources = modelProcessor.translate(api, apiNamespace);
         for (IstioResource latest : resources) {
             IstioResource old = configStore.get(latest);
             if (old != null) {
@@ -55,7 +55,7 @@ public class GatewayConfigManager implements ConfigManager {
         List<IstioResource> existResource = getConfigResources(service);
         if (CollectionUtils.isEmpty(existResource)) throw new ApiPlaneException(ExceptionConst.RESOURCE_NON_EXIST);
         existResource.stream()
-                .forEach(er -> modelProcessor.subtract(er, name));
+                .forEach(er -> modelProcessor.subtract(er, name, apiNamespace));
     }
 
     @Override
