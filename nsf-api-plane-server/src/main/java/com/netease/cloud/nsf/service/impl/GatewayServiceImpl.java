@@ -19,20 +19,20 @@ public class GatewayServiceImpl implements GatewayService {
     private IstioClient istioClient;
 
     @Autowired
-    private ConfigManager manager;
+    private ConfigManager configManager;
 
     public void updateAPI(APIModel api) {
-        manager.updateConfig(api);
+        configManager.updateConfig(api);
     }
 
     @Override
     public void deleteAPI(String service, String name) {
-        manager.deleteConfig(service, name);
+        configManager.deleteConfig(service, name);
     }
 
     @Override
     public List<IstioResource> getAPIResources(String service) {
-        return manager.getConfigResources(service);
+        return configManager.getConfigResources(service);
     }
 
     @Override

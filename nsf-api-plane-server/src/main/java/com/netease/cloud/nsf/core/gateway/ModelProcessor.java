@@ -12,6 +12,11 @@ import java.util.List;
 @Component
 public class ModelProcessor {
 
+    /**
+     * 将api转换为istio对应的规则
+     * @param api
+     * @return
+     */
     public List<IstioResource> translate(APIModel api) {
         return null;
     }

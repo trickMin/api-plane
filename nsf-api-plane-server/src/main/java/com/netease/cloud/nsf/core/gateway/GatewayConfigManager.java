@@ -27,7 +27,7 @@ public class GatewayConfigManager implements ConfigManager {
     @Autowired
     private ConfigStore configStore;
 
-    @Value("{api_namespace}")
+    @Value("{apiNamespace}")
     private String apiNamespace;
 
     /**
@@ -37,6 +37,9 @@ public class GatewayConfigManager implements ConfigManager {
 
     @Override
     public void updateConfig(APIModel api) {
+
+        // TODO clean up old resources first
+
         List<IstioResource> resources = modelProcessor.translate(api);
         for (IstioResource latest : resources) {
             IstioResource old = configStore.get(latest);
