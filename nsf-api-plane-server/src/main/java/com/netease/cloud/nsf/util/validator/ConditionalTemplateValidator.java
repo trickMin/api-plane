@@ -1,8 +1,8 @@
-package com.netease.cloud.nsf.validator;
+package com.netease.cloud.nsf.util.validator;
 
 import com.netease.cloud.nsf.meta.template.NsfExtra;
 import com.netease.cloud.nsf.meta.template.ServiceMeshTemplate;
-import com.netease.cloud.nsf.validator.annotation.ConditionalTemplate;
+import com.netease.cloud.nsf.util.validator.annotation.ConditionalTemplate;
 import org.apache.commons.beanutils.BeanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

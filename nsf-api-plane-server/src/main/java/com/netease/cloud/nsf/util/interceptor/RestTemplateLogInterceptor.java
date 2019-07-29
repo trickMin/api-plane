@@ -1,0 +1,34 @@
+package com.netease.cloud.nsf.util.interceptor;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpRequest;
+import org.springframework.http.client.ClientHttpRequestExecution;
+import org.springframework.http.client.ClientHttpRequestInterceptor;
+import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.util.StreamUtils;
+
+import java.io.IOException;
+import java.nio.charset.Charset;
+
+/**
+ * 为restTemplate增加日志
+ * @author Chen Jiahan | chenjiahan@corp.netease.com
+ */
+public class RestTemplateLogInterceptor implements ClientHttpRequestInterceptor {
+
+	private static final Logger logger = LoggerFactory.getLogger(RestTemplateLogInterceptor.class);
+	
+	@Override
+	public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution)
+			throws IOException {
+		
+		logger.info("Request  --> URI: {}, Request Body: {}", request.getURI(), new String(body, "UTF-8"));
+		ClientHttpResponse response = execution.execute(request, body);
+		logger.info("Response <-- Status code: {}, Response body: {}", response.getStatusCode(), 
+				new String(StreamUtils.copyToString(response.getBody(), Charset.defaultCharset())));
+		
+		return response;
+	}
+
+}

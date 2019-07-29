@@ -1,4 +1,4 @@
-package com.netease.cloud.nsf.validator.annotation;
+package com.netease.cloud.nsf.util.validator.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

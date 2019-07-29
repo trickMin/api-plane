@@ -20,7 +20,7 @@ import static okhttp3.TlsVersion.TLS_1_2;
 public class IstioSupportConfiguration {
 
     @Value("${k8sApiServer}")
-    private String istioClientUrl;
+    private String k8sApiServer;
 
     @Value("${certData}")
     private String certData;
@@ -32,7 +32,7 @@ public class IstioSupportConfiguration {
     public KubernetesClient k8sClient() {
 
         Config config = new ConfigBuilder()
-                .withMasterUrl(istioClientUrl)
+                .withMasterUrl(k8sApiServer)
                 .withTrustCerts(true)
                 .withDisableHostnameVerification(true)
                 .withClientCertData(certData)
@@ -49,7 +49,7 @@ public class IstioSupportConfiguration {
     @Bean
     public IstioClient istioClient() {
         Config config = new ConfigBuilder()
-                .withMasterUrl(istioClientUrl)
+                .withMasterUrl(k8sApiServer)
                 .withTrustCerts(true)
                 .withDisableHostnameVerification(true)
                 .withClientCertData(certData)

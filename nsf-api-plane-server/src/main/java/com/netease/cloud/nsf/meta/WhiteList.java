@@ -1,10 +1,8 @@
 package com.netease.cloud.nsf.meta;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.netease.cloud.nsf.validator.annotation.ConditionalTemplate;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @auther wupenghuai@corp.netease.com
