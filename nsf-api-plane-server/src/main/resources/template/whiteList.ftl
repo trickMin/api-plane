@@ -3,7 +3,7 @@
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
-  name: ${service}-vs
+  name: ${service}
   namespace: ${namespace}
 spec:
   hosts:
@@ -21,7 +21,7 @@ spec:
 apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
 metadata:
-  name: ${service}-dst
+  name: ${service}
   namespace: ${namespace}
 spec:
   host: ${service}
@@ -61,7 +61,7 @@ spec:
 apiVersion: "authentication.istio.io/v1alpha1"
 kind: "Policy"
 metadata:
-  name: ${service}-policy
+  name: ${service}
   namespace: ${namespace}
 spec:
   targets:
