@@ -1,6 +1,8 @@
 package com.netease.cloud.nsf.core.gateway;
 
 import com.netease.cloud.nsf.meta.APIModel;
+import com.netease.cloud.nsf.util.exception.ApiPlaneException;
+import com.netease.cloud.nsf.util.exception.ExceptionConst;
 import me.snowdrop.istio.api.IstioResource;
 import org.springframework.stereotype.Component;
 
@@ -11,14 +13,18 @@ import java.util.List;
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/7/17
  **/
 @Component
-public class ModelProcessor {
+public class GatewayModelProcessor {
 
     /**
      * 将api转换为istio对应的规则
      * @param api
+     * @param namespace
      * @return
      */
-    public List<IstioResource> translate(APIModel api) {
+    public List<IstioResource> translate(APIModel api, String namespace) {
+
+        //TODO
+
         return null;
     }
 
@@ -29,7 +35,7 @@ public class ModelProcessor {
      * @return
      */
     public IstioResource merge(IstioResource old, IstioResource fresh) {
-        if (old == null) throw new RuntimeException("istio resource is non-exist");
+        if (old == null) throw new ApiPlaneException(ExceptionConst.RESOURCE_NON_EXIST);
         if (fresh == null) return old;
 
         // TODO
@@ -40,12 +46,12 @@ public class ModelProcessor {
      * 在已有的istio crd中删去对应api部分
      * @param old
      * @param api
+     * @param namespace
      * @return
      */
-    public IstioResource subtract(IstioResource old, String api) {
+    public IstioResource subtract(IstioResource old, String api, String namespace) {
 
         // TODO
-
         return old;
     }
 }
