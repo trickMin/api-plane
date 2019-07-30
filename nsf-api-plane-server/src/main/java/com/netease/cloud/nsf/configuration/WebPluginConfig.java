@@ -1,6 +1,6 @@
 package com.netease.cloud.nsf.configuration;
 
-import com.netease.cloud.nsf.web.resolver.RequestBodyAndHeaderResolver;
+import com.netease.cloud.nsf.web.resolver.SiderCarRequestHeaderResolver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
@@ -14,11 +14,12 @@ import java.util.List;
  **/
 @Configuration
 public class WebPluginConfig extends WebMvcConfigurerAdapter {
+
     @Autowired
-    private RequestBodyAndHeaderResolver requestBodyAndHeaderResolver;
+    private SiderCarRequestHeaderResolver siderCarRequestHeaderResolver;
 
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
-        argumentResolvers.add(requestBodyAndHeaderResolver);
+        argumentResolvers.add(siderCarRequestHeaderResolver);
     }
 }

@@ -10,35 +10,16 @@ import java.util.List;
  **/
 public class WhiteList {
 
-
-    @JsonProperty("namespace")
-    private String namespace;
-
-    @JsonProperty("service")
-    private String service;
-    // ---以上两个参数从header解析
+    private SiderCarRequestMeta siderCarMeta;
 
     @JsonProperty("sources")
     private List<String> sources;
 
     @JsonProperty("outWeight")
     private int outWeight;
-    // ---以上两个参数从body解析
 
-    public String getNamespace() {
-        return namespace;
-    }
-
-    public void setNamespace(String namespace) {
-        this.namespace = namespace;
-    }
-
-    public String getService() {
-        return service;
-    }
-
-    public void setService(String service) {
-        this.service = service;
+    public void setSiderCarMeta(SiderCarRequestMeta siderCarMeta) {
+        this.siderCarMeta = siderCarMeta;
     }
 
     public List<String> getSources() {
@@ -56,4 +37,14 @@ public class WhiteList {
     public void setOutWeight(int outWeight) {
         this.outWeight = outWeight;
     }
+
+    public String getService() {
+        return siderCarMeta.getService();
+    }
+
+
+    public String getNamespace() {
+        return siderCarMeta.getNamespace();
+    }
+
 }

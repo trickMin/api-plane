@@ -59,7 +59,7 @@ spec:
 apiVersion: "authentication.istio.io/v1alpha1"
 kind: "Policy"
 metadata:
-  name: ${service}
+  name: ${service}-policy
   namespace: ${namespace}
 spec:
   targets:

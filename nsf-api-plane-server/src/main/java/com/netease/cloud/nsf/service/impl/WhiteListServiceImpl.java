@@ -10,13 +10,18 @@ import com.netease.cloud.nsf.meta.K8sResourceEnum;
 import com.netease.cloud.nsf.meta.WhiteList;
 import com.netease.cloud.nsf.service.WhiteListService;
 import com.netease.cloud.nsf.util.PathExpressionEnum;
+import com.sun.javafx.binding.StringFormatter;
 import io.fabric8.kubernetes.api.model.HasMetadata;
-import me.snowdrop.istio.api.rbac.v1alpha1.*;
+import me.snowdrop.istio.api.rbac.v1alpha1.AccessRule;
+import me.snowdrop.istio.api.rbac.v1alpha1.AccessRuleBuilder;
+import me.snowdrop.istio.api.rbac.v1alpha1.ConstraintBuilder;
+import me.snowdrop.istio.api.rbac.v1alpha1.ServiceRole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 
 
 /**
@@ -37,11 +42,12 @@ public class WhiteListServiceImpl implements WhiteListService {
     @Autowired
     private EditorContext editorContext;
 
-    private static final String TEMPLATE_NAME = "rbac";
+    private static final String RBAC_TEMPLATE_NAME = "rbac";
+    private static final String WHITELIST_TEMPLATE_NAME = "whiteList";
     private static final String YAML_SPLIT = "---";
 
     private ServiceRole getServiceRole(WhiteList whiteList) {
-        HasMetadata resource = integratedClient.get(whiteList.getName(), whiteList.getNamespace(), K8sResourceEnum.ServiceRole.name());
+        HasMetadata resource = integratedClient.get("ingress", whiteList.getNamespace(), K8sResourceEnum.ServiceRole.name());
         return resource == null ? null : (ServiceRole) resource;
     }
 
@@ -50,7 +56,7 @@ public class WhiteListServiceImpl implements WhiteListService {
      */
     @Override
     public void initResource(WhiteList whiteList) {
-        String[] yamls = templateTranslator.translate(TEMPLATE_NAME, whiteList, YAML_SPLIT);
+        String[] yamls = templateTranslator.translate(RBAC_TEMPLATE_NAME, whiteList, YAML_SPLIT);
         for (String yaml : yamls) {
             if (!yaml.contains("apiVersion")) {
                 continue;
@@ -68,12 +74,20 @@ public class WhiteListServiceImpl implements WhiteListService {
     public void updateService(WhiteList whiteList) {
         ServiceRole role = getServiceRole(whiteList);
         ResourceGenerator generator = ResourceGenerator.newInstance(role, ResourceType.OBJECT, editorContext);
-        AccessRule rule = new AccessRuleBuilder().withServices(whiteList.getService())
-                .withConstraints(new ConstraintBuilder().withKey(whiteList.getHeader()).withValues(whiteList.getValues()).build()).build();
+        AccessRule rule = buildAccessRule(whiteList.getService(), whiteList.getSources());
         generator.removeElement(PathExpressionEnum.YANXUAN_REMOVE_RBAC_SERVICE.translate(),
                 Criteria.where("services").contains(whiteList.getService()));
         generator.addElement(PathExpressionEnum.YANXUAN_ADD_RBAC_SERVICE.translate(), rule);
         integratedClient.createOrUpdate(generator);
+
+        //todo: 如果service已经存在virtualservice, destinationrule, 会把原来的覆盖掉
+        String[] yamls = templateTranslator.translate(WHITELIST_TEMPLATE_NAME, whiteList, YAML_SPLIT);
+        for (String yaml : yamls) {
+            if (!yaml.contains("apiVersion")) {
+                continue;
+            }
+            integratedClient.createOrUpdate(yaml);
+        }
     }
 
     @Override
@@ -83,5 +97,43 @@ public class WhiteListServiceImpl implements WhiteListService {
         generator.removeElement(PathExpressionEnum.YANXUAN_REMOVE_RBAC_SERVICE.translate(),
                 Criteria.where("services").contains(whiteList.getService()));
         integratedClient.createOrUpdate(generator);
+
+        String service = whiteList.getService();
+        String namespace = whiteList.getNamespace();
+
+        // todo: 可能会误删
+        integratedClient.deleteByName(getVirtualServiceName(service), namespace, K8sResourceEnum.VirtualService.name());
+        integratedClient.deleteByName(getDestinationRuleName(service), namespace, K8sResourceEnum.DestinationRule.name());
+        integratedClient.deleteByName(getServiceRoleName(service), namespace, K8sResourceEnum.ServiceRole.name());
+        integratedClient.deleteByName(getServiceRoleBindingName(service), namespace, K8sResourceEnum.ServiceRoleBinding.name());
+        integratedClient.deleteByName(getPolicyName(service), namespace, K8sResourceEnum.Policy.name());
+    }
+
+    private AccessRule buildAccessRule(String service, List<String> values) {
+        String key = "request.headers[Source-External]";
+
+        return new AccessRuleBuilder().withServices(service)
+                .withConstraints(new ConstraintBuilder().withKey(key).withValues(values).build()).build();
+    }
+
+    //todo: 需要给istio-resouce的命名制定规范
+    private String getVirtualServiceName(String service) {
+        return StringFormatter.format("%s-vs", service).getValue();
+    }
+
+    private String getDestinationRuleName(String service) {
+        return StringFormatter.format("%s-dst", service).getValue();
+    }
+
+    private String getServiceRoleName(String service) {
+        return StringFormatter.format("%s-svcrole", service).getValue();
+    }
+
+    private String getServiceRoleBindingName(String service) {
+        return StringFormatter.format("%s-svcrolebinding", service).getValue();
+    }
+
+    private String getPolicyName(String service) {
+        return StringFormatter.format("%s-policy", service).getValue();
     }
 }
