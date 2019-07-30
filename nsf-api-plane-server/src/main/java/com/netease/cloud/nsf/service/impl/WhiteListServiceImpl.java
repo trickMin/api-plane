@@ -123,22 +123,22 @@ public class WhiteListServiceImpl implements WhiteListService {
 
     //todo: 需要给istio-resouce的命名制定规范
     private String getVirtualServiceName(String service) {
-        return StringFormatter.format("%s-vs", service).getValue();
+        return StringFormatter.format("%s", service).getValue();
     }
 
     private String getDestinationRuleName(String service) {
-        return StringFormatter.format("%s-dst", service).getValue();
+        return StringFormatter.format("%s", service).getValue();
     }
 
     private String getServiceRoleName(String service) {
-        return StringFormatter.format("%s-svcrole", service).getValue();
+        return StringFormatter.format("%s", service).getValue();
     }
 
     private String getServiceRoleBindingName(String service) {
-        return StringFormatter.format("%s-svcrolebinding", service).getValue();
+        return StringFormatter.format("%s", service).getValue();
     }
 
     private String getPolicyName(String service) {
-        return StringFormatter.format("%s-policy", service).getValue();
+        return StringFormatter.format("%s", service).getValue();
     }
 }
