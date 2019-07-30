@@ -18,21 +18,9 @@ public class WhiteListController extends BaseController {
     @Autowired
     private WhiteListService whiteListService;
 
-    @RequestMapping(params = "Action=Enable", method = RequestMethod.POST)
-    public String enable(@SiderCarRequestBody WhiteList whiteList) {
-        whiteListService.initResource(whiteList);
-        return apiReturn(SUCCESS, "Success", null, null);
-    }
-
     @RequestMapping(params = "Action=Update", method = RequestMethod.POST)
     public String update(@SiderCarRequestBody WhiteList whiteList) {
         whiteListService.updateService(whiteList);
-        return apiReturn(SUCCESS, "Success", null, null);
-    }
-
-    @RequestMapping(params = "Action=Delete", method = RequestMethod.POST)
-    public String remove(@SiderCarRequestBody WhiteList whiteList) {
-        whiteListService.removeService(whiteList);
         return apiReturn(SUCCESS, "Success", null, null);
     }
 }

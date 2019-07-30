@@ -12,10 +12,7 @@ import com.netease.cloud.nsf.service.WhiteListService;
 import com.netease.cloud.nsf.util.PathExpressionEnum;
 import com.sun.javafx.binding.StringFormatter;
 import io.fabric8.kubernetes.api.model.HasMetadata;
-import me.snowdrop.istio.api.rbac.v1alpha1.AccessRule;
-import me.snowdrop.istio.api.rbac.v1alpha1.AccessRuleBuilder;
-import me.snowdrop.istio.api.rbac.v1alpha1.ConstraintBuilder;
-import me.snowdrop.istio.api.rbac.v1alpha1.ServiceRole;
+import me.snowdrop.istio.api.rbac.v1alpha1.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,10 +48,14 @@ public class WhiteListServiceImpl implements WhiteListService {
         return resource == null ? null : (ServiceRole) resource;
     }
 
+    private ServiceRoleBinding getServiceRoleBinding(WhiteList whiteList) {
+        HasMetadata resource = integratedClient.get("ingress", whiteList.getNamespace(), K8sResourceEnum.ServiceRoleBinding.name());
+        return resource == null ? null : (ServiceRoleBinding) resource;
+    }
+
     /**
      * 初始化ServiceRole和ServiceRoleBinding资源
      */
-    @Override
     public void initResource(WhiteList whiteList) {
         String[] yamls = templateTranslator.translate(RBAC_TEMPLATE_NAME, whiteList, YAML_SPLIT);
         for (String yaml : yamls) {
@@ -72,6 +73,10 @@ public class WhiteListServiceImpl implements WhiteListService {
      */
     @Override
     public void updateService(WhiteList whiteList) {
+        if (getServiceRole(whiteList) == null || getServiceRoleBinding(whiteList) == null) {
+            initResource(whiteList);
+        }
+
         ServiceRole role = getServiceRole(whiteList);
         ResourceGenerator generator = ResourceGenerator.newInstance(role, ResourceType.OBJECT, editorContext);
         AccessRule rule = buildAccessRule(whiteList.getService(), whiteList.getSources());
