@@ -8,7 +8,7 @@ metadata:
 spec:
   rules:
     - services:
-        - ${service}
+        - ${service}.${namespace}.svc.cluster.local
       constraints:
         - key: "request.headers[Source-External]"
           values:

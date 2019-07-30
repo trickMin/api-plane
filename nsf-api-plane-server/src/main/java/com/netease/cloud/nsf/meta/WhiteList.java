@@ -1,6 +1,7 @@
 package com.netease.cloud.nsf.meta;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.sun.javafx.binding.StringFormatter;
 
 import java.util.List;
 
@@ -42,9 +43,16 @@ public class WhiteList {
         return siderCarMeta.getService();
     }
 
+    public String getFullService() {
+        return StringFormatter.format("%s.%s.svc.%s", siderCarMeta.getService(), siderCarMeta.getNamespace(), siderCarMeta.getCluster()).getValue();
+    }
+
 
     public String getNamespace() {
         return siderCarMeta.getNamespace();
     }
 
+    public String getSourcesNamespace() {
+        return "yx-demo";
+    }
 }

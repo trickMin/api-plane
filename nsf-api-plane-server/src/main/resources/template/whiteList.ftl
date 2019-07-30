@@ -38,7 +38,7 @@ spec:
 apiVersion: "rbac.istio.io/v1alpha1"
 kind: ServiceRole
 metadata:
-  name: ${service}-svcrole
+  name: ${service}
   namespace: ${namespace}
 spec:
   rules:
@@ -47,14 +47,16 @@ spec:
 apiVersion: "rbac.istio.io/v1alpha1"
 kind: ServiceRoleBinding
 metadata:
-  name: ${service}-svcrolebinding
+  name: ${service}
   namespace: ${namespace}
 spec:
   subjects:
-    - user: cluster.local/ns/${namespace}/sa/${service}
+<#list sources! as val>
+    - user: cluster.local/ns/${sourcesNamespace}/sa/${val}
+</#list>
   roleRef:
     kind: ServiceRole
-    name: ${service}-svcrole
+    name: ${service}
 ---
 apiVersion: "authentication.istio.io/v1alpha1"
 kind: "Policy"
@@ -69,4 +71,4 @@ spec:
       mode: STRICT
 ---
 # service account
-# <#include "inner/whiteList-serviceAccount.ftl"/>
+<#include "inner/whiteList-serviceAccount.ftl"/>
