@@ -81,7 +81,7 @@ public class WhiteListServiceImpl implements WhiteListService {
         ResourceGenerator generator = ResourceGenerator.newInstance(role, ResourceType.OBJECT, editorContext);
         AccessRule rule = buildAccessRule(whiteList.getFullService(), whiteList.getSources());
         generator.removeElement(PathExpressionEnum.YANXUAN_REMOVE_RBAC_SERVICE.translate(),
-                Criteria.where("services").contains(whiteList.getService()));
+                Criteria.where("services").contains(whiteList.getFullService()));
         generator.addElement(PathExpressionEnum.YANXUAN_ADD_RBAC_SERVICE.translate(), rule);
         integratedClient.createOrUpdate(generator);
 
