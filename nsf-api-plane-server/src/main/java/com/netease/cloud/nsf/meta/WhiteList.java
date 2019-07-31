@@ -25,6 +25,9 @@ public class WhiteList {
     @JsonProperty("allPaths")
     private List<String> allPaths;
 
+    @JsonProperty("contextPath")
+    private String contextPath;
+
     public void setSiderCarMeta(SiderCarRequestMeta siderCarMeta) {
         this.siderCarMeta = siderCarMeta;
     }
@@ -43,6 +46,14 @@ public class WhiteList {
 
     public void setOutWeight(int outWeight) {
         this.outWeight = outWeight;
+    }
+
+    public String getContextPath() {
+        return contextPath;
+    }
+
+    public void setContextPath(String contextPath) {
+        this.contextPath = contextPath;
     }
 
     public String getService() {
