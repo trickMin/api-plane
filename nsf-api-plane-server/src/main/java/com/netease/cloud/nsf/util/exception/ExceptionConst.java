@@ -5,6 +5,8 @@ package com.netease.cloud.nsf.util.exception;
  **/
 public interface ExceptionConst {
 
-    String RESOURCE_NON_EXIST = "Resource is non-exist";
     String ISTIO_POD_NON_EXIST = "Istio pod is non-exist";
+    String RESOURCE_NON_EXIST = "Resource is non-exist";
+    String RESOURCE_KIND_MISMATCH = "Resource kind is mismatch";
+    String RESOURCES_DIFF_IDENTITY = "Resources have different identities";
 }
