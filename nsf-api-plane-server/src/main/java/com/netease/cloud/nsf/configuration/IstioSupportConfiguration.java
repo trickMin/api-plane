@@ -2,11 +2,7 @@ package com.netease.cloud.nsf.configuration;
 
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.ConfigBuilder;
-import io.fabric8.kubernetes.client.DefaultKubernetesClient;
-import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.utils.HttpClientUtils;
-import me.snowdrop.istio.client.DefaultIstioClient;
-import me.snowdrop.istio.client.IstioClient;
 import okhttp3.OkHttpClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -29,24 +25,6 @@ public class IstioSupportConfiguration {
 
     @Value("${keyData}")
     private String keyData;
-
-    @Bean
-    public KubernetesClient k8sClient() {
-
-        Config config = new ConfigBuilder()
-                .withMasterUrl(k8sApiServer)
-                .withTrustCerts(true)
-                .withDisableHostnameVerification(true)
-                .withClientCertData(certData)
-                .withClientKeyData(keyData)
-                .withClientKeyPassphrase("passphrase")
-                .withWatchReconnectInterval(5000)
-                .withWatchReconnectLimit(5)
-                .withRequestTimeout(5000)
-                .withTlsVersions(TLS_1_2, TLS_1_1)
-                .build();
-        return new DefaultKubernetesClient(config);
-    }
 
     @Bean
     public Config config() {

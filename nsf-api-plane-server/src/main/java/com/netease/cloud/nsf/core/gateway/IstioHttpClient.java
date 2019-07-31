@@ -1,18 +1,16 @@
 package com.netease.cloud.nsf.core.gateway;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.netease.cloud.nsf.core.k8s.KubernetesClient;
 import com.netease.cloud.nsf.meta.Endpoint;
+import com.netease.cloud.nsf.meta.K8sResourceEnum;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
 import io.fabric8.kubernetes.api.model.Pod;
-import io.fabric8.kubernetes.client.KubernetesClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -36,7 +34,8 @@ public class IstioHttpClient {
     private KubernetesClient client;
 
     private String getIstioUrl() {
-        List<Pod> istioPods = client.pods().inNamespace(NAMESPACE).withLabel("app", NAME).list().getItems();
+        String url = client.getUrl(K8sResourceEnum.Pod.name(), NAMESPACE) + "?labelSelector=app$3D" + NAME;
+        List<Pod> istioPods = client.getObjectList(url);
         if (CollectionUtils.isEmpty(istioPods)) throw new ApiPlaneException(ExceptionConst.ISTIO_POD_NON_EXIST);
         Pod istioPod = istioPods.get(0);
         String ip = istioPod.getStatus().getPodIP();
