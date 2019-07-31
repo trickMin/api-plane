@@ -9,6 +9,9 @@ import me.snowdrop.istio.api.authentication.v1alpha1.*;
 import me.snowdrop.istio.api.networking.v1alpha3.*;
 import me.snowdrop.istio.api.rbac.v1alpha1.*;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * @auther wupenghuai@corp.netease.com
  * @date 2019/7/23
@@ -59,6 +62,15 @@ public enum K8sResourceEnum {
 
     public Class<? extends KubernetesResourceList> mappingListType() {
         return mappingListType;
+    }
+
+    public static K8sResourceEnum getElement(String name) {
+        Pattern pattern = Pattern.compile("(.*)List$");
+        Matcher matcher = pattern.matcher(name);
+        if (matcher.find()) {
+            return get(matcher.group(1));
+        }
+        return get(name);
     }
 
     public static K8sResourceEnum get(String name) {

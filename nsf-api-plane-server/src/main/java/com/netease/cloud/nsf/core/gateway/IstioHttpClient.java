@@ -34,7 +34,7 @@ public class IstioHttpClient {
     private KubernetesClient client;
 
     private String getIstioUrl() {
-        String url = client.getUrl(K8sResourceEnum.Pod.name(), NAMESPACE) + "?labelSelector=app$3D" + NAME;
+        String url = client.getUrl(K8sResourceEnum.Pod.name(), NAMESPACE) + "?labelSelector=app%3D" + NAME;
         List<Pod> istioPods = client.getObjectList(url);
         if (CollectionUtils.isEmpty(istioPods)) throw new ApiPlaneException(ExceptionConst.ISTIO_POD_NON_EXIST);
         Pod istioPod = istioPods.get(0);
