@@ -46,13 +46,13 @@
         <dependency>
             <groupId>me.snowdrop</groupId>
             <artifactId>istio-model</artifactId>
-            <version>1.1.0</version>
+            <version>0.0.1-QZ-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>me.snowdrop</groupId>
             <artifactId>istio-client</artifactId>
-            <version>1.1.0</version>
+            <version>0.0.1-QZ-SNAPSHOT</version>
         </dependency>
 
         <!-- k8s -->

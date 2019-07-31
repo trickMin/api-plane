@@ -15,7 +15,10 @@ public enum ResourceEnum {
     ServiceRole("serviceroles.rbac.istio.io", IstioResource.class),
     ServiceRoleBinding("servicerolebindings.rbac.istio.io", IstioResource.class),
     Policy("policies.authentication.istio.io", IstioResource.class),
-    ServiceAccount("serviceaccounts", io.fabric8.kubernetes.api.model.ServiceAccount.class);
+    ServiceAccount("serviceaccounts", io.fabric8.kubernetes.api.model.ServiceAccount.class),
+    Gateway("gateway.networking.istio.io", IstioResource.class),
+
+    ;
 
     private String resourceName;
     private Class<? extends HasMetadata> mappingType;

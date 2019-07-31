@@ -33,7 +33,8 @@ public class GatewayConfigManager implements ConfigManager {
     /**
      * api目前只对应virtualservice和destinationrule两个资源
      */
-    private static final Set<String> API_REFERENCE_TYPES = ImmutableSet.of(ResourceEnum.VirtualService.name(), ResourceEnum.DestinationRule.name());
+    private static final Set<String> API_REFERENCE_TYPES = ImmutableSet.of(ResourceEnum.VirtualService.name(),
+            ResourceEnum.DestinationRule.name(), ResourceEnum.Gateway.name());
 
     @Override
     public void updateConfig(APIModel api) {
@@ -55,11 +56,14 @@ public class GatewayConfigManager implements ConfigManager {
         List<IstioResource> existResource = getConfigResources(service);
         if (CollectionUtils.isEmpty(existResource)) throw new ApiPlaneException(ExceptionConst.RESOURCE_NON_EXIST);
         existResource.stream()
-                .forEach(er -> modelProcessor.subtract(er, name, apiNamespace));
+                .map(er -> modelProcessor.subtract(er, name))
+                .filter(i -> i != null)
+                .forEach(r -> configStore.update(r));
     }
 
     @Override
     public List<IstioResource> getConfigResources(String service) {
+
         return API_REFERENCE_TYPES.stream()
                     .map(kind -> configStore.get(kind, apiNamespace, service))
                     .filter(i -> i != null)
