@@ -1,6 +1,6 @@
 package com.netease.cloud.nsf.core.operator;
 
-import com.netease.cloud.nsf.meta.ResourceEnum;
+import com.netease.cloud.nsf.meta.K8sResourceEnum;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
 import me.snowdrop.istio.api.networking.v1alpha3.Gateway;
@@ -29,6 +29,6 @@ public class GatewayOperator implements IstioResourceOperator<Gateway> {
 
     @Override
     public boolean adapt(String name) {
-        return ResourceEnum.Gateway.name().equals(name);
+        return K8sResourceEnum.Gateway.name().equals(name);
     }
 }

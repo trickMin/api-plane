@@ -1,6 +1,6 @@
 package com.netease.cloud.nsf.core.operator;
 
-import com.netease.cloud.nsf.meta.ResourceEnum;
+import com.netease.cloud.nsf.meta.K8sResourceEnum;
 import me.snowdrop.istio.api.networking.v1alpha3.DestinationRule;
 
 /**
@@ -16,6 +16,6 @@ public class DestinationRuleOperator implements IstioResourceOperator<Destinatio
 
     @Override
     public boolean adapt(String name) {
-        return ResourceEnum.DestinationRule.name().equals(name);
+        return K8sResourceEnum.DestinationRule.name().equals(name);
     }
 }
