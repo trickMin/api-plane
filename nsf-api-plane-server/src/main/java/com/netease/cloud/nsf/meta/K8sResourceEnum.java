@@ -17,23 +17,22 @@ import java.util.regex.Pattern;
  * @date 2019/7/23
  **/
 public enum K8sResourceEnum {
-    VirtualService("virtualservices.networking.istio.io", VirtualService.class, VirtualServiceList.class, "/apis/networking.istio.io/v1alpha3/namespaces/%s/virtualservices"),
-    DestinationRule("destinationrules.networking.istio.io", DestinationRule.class, DestinationRuleList.class, "/apis/networking.istio.io/v1alpha3/namespaces/%s/destinationrules"),
-    ServiceRole("serviceroles.rbac.istio.io", ServiceRole.class, ServiceRoleList.class, "/apis/rbac.istio.io/v1alpha1/namespaces/%s/serviceroles"),
-    ServiceRoleBinding("servicerolebindings.rbac.istio.io", ServiceRoleBinding.class, ServiceRoleBindingList.class, "/apis/rbac.istio.io/v1alpha1/namespaces/%s/servicerolebindings"),
-    Policy("policies.authentication.istio.io", Policy.class, PolicyList.class, "/apis/authentication.istio.io/v1alpha1/namespaces/%s/policies"),
-    ServiceAccount("serviceaccounts", ServiceAccount.class, ServiceAccountList.class, "/api/v1/namespaces/%s/serviceaccounts"),
-    Pod("pods", Pod.class, PodList.class, "/api/v1/namespaces/%s/pods"),
+    VirtualService(VirtualService.class, VirtualServiceList.class, "/apis/networking.istio.io/v1alpha3/namespaces/%s/virtualservices"),
+    DestinationRule(DestinationRule.class, DestinationRuleList.class, "/apis/networking.istio.io/v1alpha3/namespaces/%s/destinationrules"),
+    ServiceRole(ServiceRole.class, ServiceRoleList.class, "/apis/rbac.istio.io/v1alpha1/namespaces/%s/serviceroles"),
+    ServiceRoleBinding(ServiceRoleBinding.class, ServiceRoleBindingList.class, "/apis/rbac.istio.io/v1alpha1/namespaces/%s/servicerolebindings"),
+    Policy(Policy.class, PolicyList.class, "/apis/authentication.istio.io/v1alpha1/namespaces/%s/policies"),
+    ServiceAccount(ServiceAccount.class, ServiceAccountList.class, "/api/v1/namespaces/%s/serviceaccounts"),
+    Gateway(me.snowdrop.istio.api.networking.v1alpha3.Gateway.class, GatewayList.class, "/apis/networking.istio.io/v1alpha3/namespaces/%s/gateways"),
+    Pod(Pod.class, PodList.class, "/api/v1/namespaces/%s/pods"),
     ;
 
-    private String resourceName;
     private Class<? extends HasMetadata> mappingType;
     private Class<? extends KubernetesResourceList> mappingListType;
     private String selfLink;
 
 
-    K8sResourceEnum(String resourceName, Class<? extends HasMetadata> mappingType, Class<? extends KubernetesResourceList> mappingListType, String selfLink) {
-        this.resourceName = resourceName;
+    K8sResourceEnum(Class<? extends HasMetadata> mappingType, Class<? extends KubernetesResourceList> mappingListType, String selfLink) {
         this.mappingType = mappingType;
         this.mappingListType = mappingListType;
         this.selfLink = selfLink;
@@ -50,10 +49,6 @@ public enum K8sResourceEnum {
 
     public String selfLink(String masterUrl, String namespace) {
         return URLUtils.pathJoin(masterUrl, selfLink(namespace));
-    }
-
-    public String resourceName() {
-        return resourceName;
     }
 
     public Class<? extends HasMetadata> mappingType() {
