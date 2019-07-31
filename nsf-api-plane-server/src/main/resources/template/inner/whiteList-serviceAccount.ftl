@@ -1,16 +1,15 @@
 # 白名单用的service account
-<#if update?? && update>
 apiVersion: v1
 kind: ServiceAccount
-<#include "../common/metadata.ftl"/>
+metadata:
+  name: ${service}
+  namespace: ${namespace}
 
-<#list nsfExtra.targetList! as svc>
+<#list sources! as val>
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: ${svc.name}
-  namespace: ${svc.namespace}
+  name: ${val}
+  namespace: ${sourcesNamespace}
 </#list>
-
-</#if>

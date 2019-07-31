@@ -1,6 +1,7 @@
 package com.netease.cloud.nsf.meta;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.sun.javafx.binding.StringFormatter;
 
 import java.util.List;
 
@@ -9,69 +10,49 @@ import java.util.List;
  * @date 2019/7/25
  **/
 public class WhiteList {
-    @JsonProperty("name")
-    private String name;
 
-    @JsonProperty("namespace")
-    private String namespace;
+    private SiderCarRequestMeta siderCarMeta;
 
-    @JsonProperty("users")
-    private List<String> users;
+    @JsonProperty("sources")
+    private List<String> sources;
 
-    @JsonProperty("service")
-    private String service;
+    @JsonProperty("outWeight")
+    private int outWeight;
 
-    @JsonProperty("values")
-    private List<String> values;
-
-    @JsonProperty("header")
-    private String header;
-
-    public String getName() {
-        return name;
+    public void setSiderCarMeta(SiderCarRequestMeta siderCarMeta) {
+        this.siderCarMeta = siderCarMeta;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public List<String> getSources() {
+        return sources;
     }
 
-    public String getNamespace() {
-        return namespace;
+    public void setSources(List<String> sources) {
+        this.sources = sources;
     }
 
-    public void setNamespace(String namespace) {
-        this.namespace = namespace;
+    public int getOutWeight() {
+        return outWeight;
     }
 
-    public List<String> getUsers() {
-        return users;
-    }
-
-    public void setUsers(List<String> users) {
-        this.users = users;
+    public void setOutWeight(int outWeight) {
+        this.outWeight = outWeight;
     }
 
     public String getService() {
-        return service;
+        return siderCarMeta.getService();
     }
 
-    public void setService(String service) {
-        this.service = service;
+    public String getFullService() {
+        return StringFormatter.format("%s.%s.svc.%s", siderCarMeta.getService(), siderCarMeta.getNamespace(), siderCarMeta.getCluster()).getValue();
     }
 
-    public List<String> getValues() {
-        return values;
+
+    public String getNamespace() {
+        return siderCarMeta.getNamespace();
     }
 
-    public void setValues(List<String> values) {
-        this.values = values;
-    }
-
-    public String getHeader() {
-        return header;
-    }
-
-    public void setHeader(String header) {
-        this.header = header;
+    public String getSourcesNamespace() {
+        return "yx-demo";
     }
 }

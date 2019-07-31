@@ -3,6 +3,7 @@ package com.netease.cloud.nsf.meta;
 
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import io.fabric8.kubernetes.api.model.HasMetadata;
+import me.snowdrop.istio.api.IstioResource;
 
 /**
  * @auther wupenghuai@corp.netease.com
@@ -14,7 +15,10 @@ public enum K8sResourceEnum {
     ServiceRole("serviceroles.rbac.istio.io", me.snowdrop.istio.api.rbac.v1alpha1.ServiceRole.class),
     ServiceRoleBinding("servicerolebindings.rbac.istio.io", me.snowdrop.istio.api.rbac.v1alpha1.ServiceRoleBinding.class),
     Policy("policies.authentication.istio.io", me.snowdrop.istio.api.authentication.v1alpha1.Policy.class),
-    ServiceAccount("serviceaccounts", io.fabric8.kubernetes.api.model.ServiceAccount.class);
+    ServiceAccount("serviceaccounts", io.fabric8.kubernetes.api.model.ServiceAccount.class),
+    Gateway("gateway.networking.istio.io", IstioResource.class),
+
+    ;
 
     private String resourceName;
     private Class<? extends HasMetadata> mappingType;

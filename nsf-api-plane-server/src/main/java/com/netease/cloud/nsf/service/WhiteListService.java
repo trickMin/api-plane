@@ -13,8 +13,6 @@ import com.netease.cloud.nsf.meta.template.ServiceMeshTemplate;
  * @date 2019/7/25
  **/
 public interface WhiteListService {
-    void initResource(WhiteList whiteList);
-
     void updateService(WhiteList whiteList);
 
     void removeService(WhiteList whiteList);
