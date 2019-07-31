@@ -2,7 +2,7 @@ package com.netease.cloud.nsf.core.gateway;
 
 import com.google.common.collect.ImmutableSet;
 import com.netease.cloud.nsf.meta.APIModel;
-import com.netease.cloud.nsf.meta.ResourceEnum;
+import com.netease.cloud.nsf.meta.K8sResourceEnum;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
 import me.snowdrop.istio.api.IstioResource;
@@ -33,7 +33,7 @@ public class GatewayConfigManager implements ConfigManager {
     /**
      * api目前只对应virtualservice和destinationrule两个资源
      */
-    private static final Set<String> API_REFERENCE_TYPES = ImmutableSet.of(ResourceEnum.VirtualService.name(), ResourceEnum.DestinationRule.name());
+    private static final Set<String> API_REFERENCE_TYPES = ImmutableSet.of(K8sResourceEnum.VirtualService.name(), K8sResourceEnum.DestinationRule.name());
 
     @Override
     public void updateConfig(APIModel api) {
