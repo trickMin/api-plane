@@ -57,7 +57,7 @@ public class IntegratedClient {
 
     public HasMetadata get(String name, String namespace, String type) {
         K8sResourceEnum resourceEnum = K8sResourceEnum.get(type);
-        return client.getObject(type, namespace, name, resourceEnum.mappingType());
+        return client.getObject(type, namespace, name);
     }
 
 }

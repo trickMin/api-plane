@@ -5,13 +5,11 @@ import com.netease.cloud.nsf.core.editor.EditorContext;
 import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.k8s.K8sResourceGenerator;
-import com.netease.cloud.nsf.meta.K8sResourceEnum;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.sun.javafx.binding.StringFormatter;
 import io.fabric8.kubernetes.api.model.Status;
 import io.fabric8.kubernetes.api.model.StatusBuilder;
 import io.fabric8.kubernetes.client.Config;
-import io.fabric8.kubernetes.client.utils.URLUtils;
 import okhttp3.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -129,11 +127,12 @@ public class DefaultK8sHttpClient implements K8sHttpClient {
         return new ApiPlaneException(sb.toString());
     }
 
-    @Override
-    public String getWithNull(String kind, String namespace, String name) {
-        K8sResourceEnum resourceEnum = K8sResourceEnum.get(kind);
-        String url = URLUtils.pathJoin(resourceEnum.selfLink(config.getMasterUrl(), namespace), name);
+    public String getMasterUrl() {
+        return config.getMasterUrl();
+    }
 
+    @Override
+    public String getWithNull(String url) {
         Request.Builder requestBuilder = new Request.Builder().get().url(url);
         Request request = requestBuilder.build();
         logger.info("K8s resource " + request.toString());
@@ -150,41 +149,29 @@ public class DefaultK8sHttpClient implements K8sHttpClient {
     }
 
     @Override
-    public String get(String kind, String namespace, String name) {
-        K8sResourceEnum resourceEnum = K8sResourceEnum.get(kind);
-        String url = URLUtils.pathJoin(resourceEnum.selfLink(config.getMasterUrl(), namespace), name);
-
+    public String get(String url) {
         Request.Builder requestBuilder = new Request.Builder().get().url(url);
         return handleResponse(requestBuilder);
     }
 
     @Override
-    public String put(String resource) {
+    public String put(String url, String resource) {
         K8sResourceGenerator generator = K8sResourceGenerator.newInstance(resource, ResourceType.JSON, editorContext);
-        K8sResourceEnum resourceEnum = K8sResourceEnum.get(generator.getKind());
         RequestBody body = RequestBody.create(JSON, generator.jsonString());
-        String url = URLUtils.pathJoin(resourceEnum.selfLink(config.getMasterUrl(), generator.getNamespace()), generator.getName());
-
         Request.Builder requestBuilder = new Request.Builder().put(body).url(url);
         return handleResponse(requestBuilder);
     }
 
     @Override
-    public String post(String resource) {
+    public String post(String url, String resource) {
         K8sResourceGenerator generator = K8sResourceGenerator.newInstance(resource, ResourceType.JSON, editorContext);
-        K8sResourceEnum resourceEnum = K8sResourceEnum.get(generator.getKind());
         RequestBody body = RequestBody.create(JSON, generator.jsonString());
-        String url = resourceEnum.selfLink(config.getMasterUrl(), generator.getNamespace());
-
         Request.Builder requestBuilder = new Request.Builder().post(body).url(url);
         return handleResponse(requestBuilder);
     }
 
     @Override
-    public String delete(String kind, String namespace, String name) {
-        K8sResourceEnum resourceEnum = K8sResourceEnum.get(kind);
-        String url = URLUtils.pathJoin(resourceEnum.selfLink(config.getMasterUrl(), namespace), name);
-
+    public String delete(String url) {
         Request.Builder requestBuilder = new Request.Builder().delete().url(url);
         return handleResponse(requestBuilder);
     }

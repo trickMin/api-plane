@@ -7,13 +7,13 @@ package com.netease.cloud.nsf.core.k8s.http;
  **/
 public interface K8sHttpClient {
 
-    String getWithNull(String kind, String namespace, String name);
+    String getWithNull(String url);
 
-    String get(String kind, String namespace, String name);
+    String get(String url);
 
-    String put(String resource);
+    String put(String url, String resource);
 
-    String post(String resource);
+    String post(String url, String resource);
 
-    String delete(String kind, String namespace, String name);
+    String delete(String url);
 }
