@@ -49,23 +49,6 @@ public class IstioSupportConfiguration {
     }
 
     @Bean
-    public IstioClient istioClient() {
-        Config config = new ConfigBuilder()
-                .withMasterUrl(k8sApiServer)
-                .withTrustCerts(true)
-                .withDisableHostnameVerification(true)
-                .withClientCertData(certData)
-                .withClientKeyData(keyData)
-                .withClientKeyPassphrase("passphrase")
-                .withWatchReconnectInterval(5000)
-                .withWatchReconnectLimit(5)
-                .withRequestTimeout(5000)
-                .withTlsVersions(TLS_1_2, TLS_1_1)
-                .build();
-        return new DefaultIstioClient(config).inAnyNamespace();
-    }
-
-    @Bean
     public Config config() {
         Config config = new ConfigBuilder()
                 .withMasterUrl(k8sApiServer)
