@@ -19,6 +19,12 @@ public class WhiteList {
     @JsonProperty("outWeight")
     private int outWeight;
 
+    @JsonProperty("authPaths")
+    private List<String> authPaths;
+
+    @JsonProperty("allPaths")
+    private List<String> allPaths;
+
     public void setSiderCarMeta(SiderCarRequestMeta siderCarMeta) {
         this.siderCarMeta = siderCarMeta;
     }
@@ -47,6 +53,21 @@ public class WhiteList {
         return StringFormatter.format("%s.%s.svc.%s", siderCarMeta.getService(), siderCarMeta.getNamespace(), siderCarMeta.getCluster()).getValue();
     }
 
+    public List<String> getAuthPaths() {
+        return authPaths;
+    }
+
+    public void setAuthPaths(List<String> authPaths) {
+        this.authPaths = authPaths;
+    }
+
+    public List<String> getAllPaths() {
+        return allPaths;
+    }
+
+    public void setAllPaths(List<String> allPaths) {
+        this.allPaths = allPaths;
+    }
 
     public String getNamespace() {
         return siderCarMeta.getNamespace();
