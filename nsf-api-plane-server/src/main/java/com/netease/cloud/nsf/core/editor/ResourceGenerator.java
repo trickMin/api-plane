@@ -19,7 +19,7 @@ public class ResourceGenerator implements Editor {
     private String originalJson;
     private DocumentContext jsonContext;
 
-    private ResourceGenerator(Object resource, ResourceType type, EditorContext editorContext) {
+    protected ResourceGenerator(Object resource, ResourceType type, EditorContext editorContext) {
         if (Objects.isNull(resource) || Objects.isNull(type) || Objects.isNull(editorContext)) {
             throw new ApiPlaneException("ResourceGenerator's construction parameter cannot be empty");
         }
@@ -94,7 +94,7 @@ public class ResourceGenerator implements Editor {
     }
 
 
-    private String yaml2json(String yaml) {
+    protected String yaml2json(String yaml) {
         try {
             Object obj = editorContext.yamlMapper().readValue(yaml, Object.class);
             return editorContext.jsonMapper().writeValueAsString(obj);
@@ -105,7 +105,7 @@ public class ResourceGenerator implements Editor {
 
     }
 
-    private String json2yaml(String json) {
+    protected String json2yaml(String json) {
         try {
             Object obj = editorContext.jsonMapper().readValue(json, Object.class);
             return editorContext.yamlMapper().writeValueAsString(obj);
@@ -115,7 +115,7 @@ public class ResourceGenerator implements Editor {
         }
     }
 
-    private String obj2json(Object obj) {
+    protected String obj2json(Object obj) {
         try {
             return editorContext.jsonMapper().writeValueAsString(obj);
         } catch (JsonProcessingException e) {
