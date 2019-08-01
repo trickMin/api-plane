@@ -1,6 +1,7 @@
 package com.netease.cloud.nsf.core.operator;
 
 import com.netease.cloud.nsf.meta.K8sResourceEnum;
+import com.netease.cloud.nsf.util.function.Equals;
 import me.snowdrop.istio.api.networking.v1alpha3.HTTPRoute;
 import me.snowdrop.istio.api.networking.v1alpha3.VirtualService;
 import me.snowdrop.istio.api.networking.v1alpha3.VirtualServiceSpec;
@@ -27,8 +28,8 @@ public class VirtualServiceOperator implements IstioResourceOperator<VirtualServ
         List<HTTPRoute> filteredHttp = filterSameHttpRoute(oldSpec, freshSpec);
         List<String> filteredHosts = filterSameHosts(oldSpec, freshSpec);
 
-        oldSpec.setHttp(mergeList(filteredHttp, freshSpec.getHttp()));
-        oldSpec.setHosts(mergeList(filteredHosts, freshSpec.getHosts()));
+        oldSpec.setHttp(mergeList(filteredHttp, freshSpec.getHttp(), new HttpRouteEquals()));
+        oldSpec.setHosts(mergeList(filteredHosts, freshSpec.getHosts(), new HostsEquals()));
         return old;
     }
 
@@ -60,6 +61,23 @@ public class VirtualServiceOperator implements IstioResourceOperator<VirtualServ
                     return false;
                 })
                 .collect(Collectors.toList());
+    }
+
+
+    private class HttpRouteEquals implements Equals<HTTPRoute> {
+
+        @Override
+        public boolean apply(HTTPRoute ot, HTTPRoute nt) {
+            return Objects.equals(ot.getName(), nt.getName());
+        }
+    }
+
+    private class HostsEquals implements Equals<String> {
+
+        @Override
+        public boolean apply(String ot, String nt) {
+            return Objects.equals(ot, nt);
+        }
     }
 
 

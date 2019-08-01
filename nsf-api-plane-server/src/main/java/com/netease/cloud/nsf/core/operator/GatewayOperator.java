@@ -1,13 +1,18 @@
 package com.netease.cloud.nsf.core.operator;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import com.netease.cloud.nsf.meta.K8sResourceEnum;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
+import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 import me.snowdrop.istio.api.networking.v1alpha3.Gateway;
 import me.snowdrop.istio.api.networking.v1alpha3.Server;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 一个服务对应一个gateway,一个gateway里面只配一个server,
@@ -23,8 +28,21 @@ public class GatewayOperator implements IstioResourceOperator<Gateway> {
         if (CollectionUtils.isEmpty(oldServers)) {
             throw new ApiPlaneException(ExceptionConst.RESOURCE_NON_EXIST);
         }
+        Server firstOldServer = oldServers.get(0);
+        List<String> oldHosts = firstOldServer.getHosts();
 
-        return null;
+        List<Server> freshServers = fresh.getSpec().getServers();
+        if (CollectionUtils.isEmpty(freshServers)) {
+            return old;
+        }
+        Server firstFreshServer = freshServers.get(0);
+        List<String> freshHosts = firstFreshServer.getHosts();
+        if (CollectionUtils.isEmpty(freshHosts)) {
+            return old;
+        }
+        oldHosts.addAll(freshHosts);
+        firstOldServer.setHosts(oldHosts.stream().distinct().collect(Collectors.toList()));
+        return old;
     }
 
     @Override
