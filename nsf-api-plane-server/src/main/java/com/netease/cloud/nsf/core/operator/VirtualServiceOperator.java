@@ -24,48 +24,12 @@ public class VirtualServiceOperator implements IstioResourceOperator<VirtualServ
         VirtualServiceSpec oldSpec = old.getSpec();
         VirtualServiceSpec freshSpec = fresh.getSpec();
 
-        // 删除原先资源中相同的http和hosts，然后再合并
-        List<HTTPRoute> filteredHttp = filterSameHttpRoute(oldSpec, freshSpec);
-        List<String> filteredHosts = filterSameHosts(oldSpec, freshSpec);
-
-        oldSpec.setHttp(mergeList(filteredHttp, freshSpec.getHttp(), new HttpRouteEquals()));
-        oldSpec.setHosts(mergeList(filteredHosts, freshSpec.getHosts(),  (ot, nt) -> Objects.equals(ot, nt)));
+        oldSpec.setHttp(mergeList(oldSpec.getHttp(), freshSpec.getHttp(), new HttpRouteEquals()));
+        oldSpec.setHosts(mergeList(oldSpec.getHttp(), freshSpec.getHosts(),  (ot, nt) -> Objects.equals(ot, nt)));
         return old;
     }
 
-    private List<HTTPRoute> filterSameHttpRoute(VirtualServiceSpec oldSpec, VirtualServiceSpec freshSpec) {
-
-        if (CollectionUtils.isEmpty(oldSpec.getHttp())) return freshSpec.getHttp();
-        if (CollectionUtils.isEmpty(freshSpec.getHttp())) return oldSpec.getHttp();
-
-        return oldSpec.getHttp().stream()
-                .filter(oh -> {
-                    for (HTTPRoute fh : freshSpec.getHttp()) {
-                        if (Objects.equals(fh.getName(), oh.getName())) return false;
-                    }
-                    return true;
-                })
-                .collect(Collectors.toList());
-    }
-
-    private List<String> filterSameHosts(VirtualServiceSpec oldSpec, VirtualServiceSpec freshSpec) {
-
-        if (CollectionUtils.isEmpty(oldSpec.getHosts())) return freshSpec.getHosts();
-        if (CollectionUtils.isEmpty(freshSpec.getHosts())) return oldSpec.getHosts();
-
-        return oldSpec.getHosts().stream()
-                .filter(oh -> {
-                    for (String fh : freshSpec.getHosts()) {
-                        if (Objects.equals(fh, oh)) return false;
-                    }
-                    return true;
-                })
-                .collect(Collectors.toList());
-    }
-
-
     private class HttpRouteEquals implements Equals<HTTPRoute> {
-
         @Override
         public boolean apply(HTTPRoute ot, HTTPRoute nt) {
             return Objects.equals(ot.getName(), nt.getName());

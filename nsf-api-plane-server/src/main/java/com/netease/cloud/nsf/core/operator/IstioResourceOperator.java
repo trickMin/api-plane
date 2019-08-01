@@ -18,6 +18,14 @@ public interface IstioResourceOperator<T extends IstioResource> {
 
     boolean adapt(String name);
 
+    /**
+     * 删除old list中和new list重复的元素，
+     * 然后将new list的元素全部加入old list中
+     * @param oldL
+     * @param newL
+     * @param eq
+     * @return
+     */
     default List mergeList(List oldL, List newL, Equals eq) {
         List removal = new ArrayList();
         List result = new ArrayList(oldL);
