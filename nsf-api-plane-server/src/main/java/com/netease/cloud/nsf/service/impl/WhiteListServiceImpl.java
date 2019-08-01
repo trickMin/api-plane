@@ -80,9 +80,9 @@ public class WhiteListServiceImpl implements WhiteListService {
         ServiceRole role = getServiceRole(whiteList);
         ResourceGenerator generator = ResourceGenerator.newInstance(role, ResourceType.OBJECT, editorContext);
         AccessRule rule = buildAccessRule(whiteList.getFullService(), whiteList.getSources());
-        generator.removeElement(PathExpressionEnum.YANXUAN_REMOVE_RBAC_SERVICE.translate(),
+        generator.removeElement(PathExpressionEnum.REMOVE_RBAC_SERVICE.translate(),
                 Criteria.where("services").contains(whiteList.getFullService()));
-        generator.addElement(PathExpressionEnum.YANXUAN_ADD_RBAC_SERVICE.translate(), rule);
+        generator.addElement(PathExpressionEnum.ADD_RBAC_SERVICE.translate(), rule);
         integratedClient.createOrUpdate(generator);
 
         //todo: 如果service已经存在virtualservice, destinationrule, 会把原来的覆盖掉
@@ -99,7 +99,7 @@ public class WhiteListServiceImpl implements WhiteListService {
     public void removeService(WhiteList whiteList) {
         ServiceRole role = getServiceRole(whiteList);
         ResourceGenerator generator = ResourceGenerator.newInstance(role, ResourceType.OBJECT, editorContext);
-        generator.removeElement(PathExpressionEnum.YANXUAN_REMOVE_RBAC_SERVICE.translate(),
+        generator.removeElement(PathExpressionEnum.REMOVE_RBAC_SERVICE.translate(),
                 Criteria.where("services").contains(whiteList.getService()));
         integratedClient.createOrUpdate(generator);
 

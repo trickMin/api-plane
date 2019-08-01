@@ -30,7 +30,7 @@ public class IntegratedClient {
     private KubernetesClient client;
 
     public void createOrUpdate(ResourceGenerator generator) {
-        String kind = generator.getValue(PathExpressionEnum.YANXUAN_GET_KIND.translate());
+        String kind = generator.getValue(PathExpressionEnum.GET_KIND.translate());
         HasMetadata object = generator.object(K8sResourceEnum.get(kind).mappingType());
         createOrUpdate(object);
     }
