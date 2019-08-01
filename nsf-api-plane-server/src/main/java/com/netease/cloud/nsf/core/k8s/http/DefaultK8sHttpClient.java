@@ -15,6 +15,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @auther wupenghuai@corp.netease.com
@@ -39,11 +41,18 @@ public class DefaultK8sHttpClient implements K8sHttpClient {
         this.editorContext = editorContext;
     }
 
-    protected void assertResponseCode(Request request, Response response) {
+
+    protected void assertResponseCode(Request request, Response response, Integer... whiteListCode) {
         int statusCode = response.code();
+
         String customMessage = config.getErrorMessages().get(statusCode);
 
-        if (response.isSuccessful()) {
+        List<Integer> codeList = null;
+        if (whiteListCode != null && whiteListCode.length != 0) {
+            codeList = Arrays.asList(whiteListCode);
+        }
+
+        if (response.isSuccessful() || (codeList != null && codeList.contains(statusCode))) {
             return;
         } else if (customMessage != null) {
             throw requestFailure(request, createStatus(statusCode, customMessage));
@@ -52,23 +61,17 @@ public class DefaultK8sHttpClient implements K8sHttpClient {
         }
     }
 
-    protected String handleResponse(Request.Builder requestBuilder, boolean strictMode) {
+    protected String handleResponse(Request.Builder requestBuilder) {
         Request request = requestBuilder.build();
         logger.info("K8s resource " + request.toString());
         try (Response response = httpClient.newCall(request).execute()) {
-            if (strictMode) {
-                assertResponseCode(request, response);
-            }
+            assertResponseCode(request, response);
             String result = response.body().string();
             logger.debug(result);
             return result;
         } catch (IOException e) {
             throw new ApiPlaneException(StringFormatter.format("K8s request failed : {}.", request.toString()).toString(), e);
         }
-    }
-
-    protected String handleResponse(Request.Builder requestBuilder) {
-        return handleResponse(requestBuilder, true);
     }
 
 
@@ -137,6 +140,7 @@ public class DefaultK8sHttpClient implements K8sHttpClient {
         Request request = requestBuilder.build();
         logger.info("K8s resource " + request.toString());
         try (Response response = httpClient.newCall(request).execute()) {
+            assertResponseCode(request, response, 404);
             if (response.isSuccessful()) {
                 String result = response.body().string();
                 logger.debug(result);

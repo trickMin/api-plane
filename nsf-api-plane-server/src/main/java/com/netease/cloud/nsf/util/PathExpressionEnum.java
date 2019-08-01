@@ -17,6 +17,7 @@ public enum PathExpressionEnum {
     YANXUAN_GET_NAMESPACE("$.metadata.namespace", 0),
     YANXUAN_GET_APIVERSION("$.apiVersion", 0),
     YANXUAN_GET_RESOURCEVERSION("$.metadata.resourceVersion", 0),
+    YANXUAN_GET_ITEMS("$.items", 0),
     YANXUAN_REMOVE_RBAC_SERVICE("$.spec.rules[?]", 0),
     YANXUAN_ADD_RBAC_SERVICE("$.spec.rules", 0),
     ;

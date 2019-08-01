@@ -15,9 +15,9 @@ import java.util.Objects;
  **/
 public class ResourceGenerator implements Editor {
 
-    private EditorContext editorContext;
-    private String originalJson;
-    private DocumentContext jsonContext;
+    protected EditorContext editorContext;
+    protected String originalJson;
+    protected DocumentContext jsonContext;
 
     protected ResourceGenerator(Object resource, ResourceType type, EditorContext editorContext) {
         if (Objects.isNull(resource) || Objects.isNull(type) || Objects.isNull(editorContext)) {

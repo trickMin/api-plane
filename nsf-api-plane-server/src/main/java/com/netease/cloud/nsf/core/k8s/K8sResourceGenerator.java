@@ -3,6 +3,11 @@ package com.netease.cloud.nsf.core.k8s;
 import com.netease.cloud.nsf.core.editor.EditorContext;
 import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
+import com.netease.cloud.nsf.util.exception.ApiPlaneException;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
 
 import static com.netease.cloud.nsf.util.PathExpressionEnum.*;
 
@@ -63,5 +68,30 @@ public final class K8sResourceGenerator extends ResourceGenerator {
 
     public void setResourceVersion(String resourceVersion) {
         updateValue(YANXUAN_GET_RESOURCEVERSION.translate(), resourceVersion);
+    }
+
+    public boolean isList() {
+        Pattern pattern = Pattern.compile("(.*)List$");
+        return pattern.matcher(getKind()).find();
+    }
+
+    public List<String> items() {
+        if (!isList()) {
+            throw new ApiPlaneException("Cant convert Object to List Type.");
+        }
+        List<String> ret = new ArrayList<>();
+        List objs = getValue(YANXUAN_GET_ITEMS.translate());
+        objs.forEach(obj -> ret.add(ResourceGenerator.newInstance(obj, ResourceType.OBJECT, editorContext).jsonString()));
+        return ret;
+    }
+
+    public <T> List<T> items(Class<T> itemsType) {
+        if (!isList()) {
+            throw new ApiPlaneException("Cant convert Object to List Type.");
+        }
+        List<T> ret = new ArrayList<>();
+        List<String> jsons = items();
+        jsons.forEach(json -> ret.add(ResourceGenerator.newInstance(json, ResourceType.JSON, editorContext).object(itemsType)));
+        return ret;
     }
 }
