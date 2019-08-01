@@ -8,8 +8,6 @@ import com.netease.cloud.nsf.meta.K8sResourceEnum;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.utils.URLUtils;
 import okhttp3.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
@@ -19,10 +17,8 @@ import java.util.List;
  * @auther wupenghuai@corp.netease.com
  * @date 2019/7/30
  **/
-@Component
 public class KubernetesClient extends DefaultK8sHttpClient {
 
-    @Autowired
     public KubernetesClient(Config config, OkHttpClient httpClient, EditorContext editorContext) {
         super(config, httpClient, editorContext);
     }

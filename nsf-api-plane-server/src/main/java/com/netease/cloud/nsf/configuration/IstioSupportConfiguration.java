@@ -1,5 +1,7 @@
 package com.netease.cloud.nsf.configuration;
 
+import com.netease.cloud.nsf.core.editor.EditorContext;
+import com.netease.cloud.nsf.core.k8s.KubernetesClient;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.utils.HttpClientUtils;
@@ -46,6 +48,11 @@ public class IstioSupportConfiguration {
     @Bean
     public OkHttpClient httpClient(Config config) {
         return HttpClientUtils.createHttpClient(config);
+    }
+
+    @Bean
+    public KubernetesClient kubernetesClient(Config config, OkHttpClient httpClient, EditorContext editorContext) {
+        return new KubernetesClient(config, httpClient, editorContext);
     }
 }
 
