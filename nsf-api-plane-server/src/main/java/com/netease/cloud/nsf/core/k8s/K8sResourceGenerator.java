@@ -31,43 +31,43 @@ public final class K8sResourceGenerator extends ResourceGenerator {
     }
 
     public String getName() {
-        return getValue(YANXUAN_GET_NAME.translate());
+        return getValue(GET_NAME.translate());
     }
 
     public String getNamespace() {
-        return getValue(YANXUAN_GET_NAMESPACE.translate());
+        return getValue(GET_NAMESPACE.translate());
     }
 
     public String getKind() {
-        return getValue(YANXUAN_GET_KIND.translate());
+        return getValue(GET_KIND.translate());
     }
 
     public String getApiVersion() {
-        return getValue(YANXUAN_GET_APIVERSION.translate());
+        return getValue(GET_APIVERSION.translate());
     }
 
     public String getResourceVersion() {
-        return getValue(YANXUAN_GET_RESOURCEVERSION.translate());
+        return getValue(GET_RESOURCEVERSION.translate());
     }
 
     public void setName(String name) {
-        updateValue(YANXUAN_GET_NAME.translate(), name);
+        updateValue(GET_NAME.translate(), name);
     }
 
     public void setNamespace(String namespace) {
-        updateValue(YANXUAN_GET_NAMESPACE.translate(), namespace);
+        updateValue(GET_NAMESPACE.translate(), namespace);
     }
 
     public void setKind(String kind) {
-        updateValue(YANXUAN_GET_KIND.translate(), kind);
+        updateValue(GET_KIND.translate(), kind);
     }
 
     public void setApiVersion(String apiVersion) {
-        updateValue(YANXUAN_GET_APIVERSION.translate(), apiVersion);
+        updateValue(GET_APIVERSION.translate(), apiVersion);
     }
 
     public void setResourceVersion(String resourceVersion) {
-        updateValue(YANXUAN_GET_RESOURCEVERSION.translate(), resourceVersion);
+        updateValue(GET_RESOURCEVERSION.translate(), resourceVersion);
     }
 
     public boolean isList() {
@@ -80,7 +80,7 @@ public final class K8sResourceGenerator extends ResourceGenerator {
             throw new ApiPlaneException("Cant convert Object to List Type.");
         }
         List<String> ret = new ArrayList<>();
-        List objs = getValue(YANXUAN_GET_ITEMS.translate());
+        List objs = getValue(GET_ITEMS.translate());
         objs.forEach(obj -> ret.add(ResourceGenerator.newInstance(obj, ResourceType.OBJECT, editorContext).jsonString()));
         return ret;
     }

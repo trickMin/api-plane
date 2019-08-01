@@ -1,4 +1,4 @@
-package com.netease.cloud.nsf.meta;
+package com.netease.cloud.nsf.util;
 
 
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;

@@ -4,12 +4,13 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.netease.cloud.nsf.core.editor.EditorContext;
 import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
-import com.netease.cloud.nsf.core.k8s.K8sResourceGenerator;
+import com.netease.cloud.nsf.util.K8sResourceEnum;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.sun.javafx.binding.StringFormatter;
 import io.fabric8.kubernetes.api.model.Status;
 import io.fabric8.kubernetes.api.model.StatusBuilder;
 import io.fabric8.kubernetes.client.Config;
+import io.fabric8.kubernetes.client.utils.URLUtils;
 import okhttp3.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +28,6 @@ public class DefaultK8sHttpClient implements K8sHttpClient {
     private static final Logger logger = LoggerFactory.getLogger(DefaultK8sHttpClient.class);
 
     protected static final MediaType JSON = MediaType.parse("application/json");
-    protected static final MediaType JSON_PATCH = MediaType.parse("application/json-patch+json");
     protected static final String CLIENT_STATUS_FLAG = "CLIENT_STATUS_FLAG";
 
     protected Config config;
@@ -44,7 +44,6 @@ public class DefaultK8sHttpClient implements K8sHttpClient {
 
     protected void assertResponseCode(Request request, Response response, Integer... whiteListCode) {
         int statusCode = response.code();
-
         String customMessage = config.getErrorMessages().get(statusCode);
 
         List<Integer> codeList = null;
@@ -134,6 +133,16 @@ public class DefaultK8sHttpClient implements K8sHttpClient {
         return config.getMasterUrl();
     }
 
+    public String getUrl(String kind, String namespace) {
+        K8sResourceEnum resourceEnum = K8sResourceEnum.get(kind);
+        return resourceEnum.selfLink(config.getMasterUrl(), namespace);
+    }
+
+    public String getUrl(String kind, String namespace, String name) {
+        K8sResourceEnum resourceEnum = K8sResourceEnum.get(kind);
+        return URLUtils.pathJoin(resourceEnum.selfLink(config.getMasterUrl(), namespace), name);
+    }
+
     @Override
     public String getWithNull(String url) {
         Request.Builder requestBuilder = new Request.Builder().get().url(url);
@@ -160,16 +169,14 @@ public class DefaultK8sHttpClient implements K8sHttpClient {
 
     @Override
     public String put(String url, String resource) {
-        K8sResourceGenerator generator = K8sResourceGenerator.newInstance(resource, ResourceType.JSON, editorContext);
-        RequestBody body = RequestBody.create(JSON, generator.jsonString());
+        RequestBody body = RequestBody.create(JSON, resource);
         Request.Builder requestBuilder = new Request.Builder().put(body).url(url);
         return handleResponse(requestBuilder);
     }
 
     @Override
     public String post(String url, String resource) {
-        K8sResourceGenerator generator = K8sResourceGenerator.newInstance(resource, ResourceType.JSON, editorContext);
-        RequestBody body = RequestBody.create(JSON, generator.jsonString());
+        RequestBody body = RequestBody.create(JSON, resource);
         Request.Builder requestBuilder = new Request.Builder().post(body).url(url);
         return handleResponse(requestBuilder);
     }

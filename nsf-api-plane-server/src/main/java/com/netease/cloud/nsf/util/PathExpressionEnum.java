@@ -12,14 +12,14 @@ import java.util.List;
  * @date 2019/7/25
  **/
 public enum PathExpressionEnum {
-    YANXUAN_GET_KIND("$.kind", 0),
-    YANXUAN_GET_NAME("$.metadata.name", 0),
-    YANXUAN_GET_NAMESPACE("$.metadata.namespace", 0),
-    YANXUAN_GET_APIVERSION("$.apiVersion", 0),
-    YANXUAN_GET_RESOURCEVERSION("$.metadata.resourceVersion", 0),
-    YANXUAN_GET_ITEMS("$.items", 0),
-    YANXUAN_REMOVE_RBAC_SERVICE("$.spec.rules[?]", 0),
-    YANXUAN_ADD_RBAC_SERVICE("$.spec.rules", 0),
+    GET_KIND("$.kind", 0),
+    GET_NAME("$.metadata.name", 0),
+    GET_NAMESPACE("$.metadata.namespace", 0),
+    GET_APIVERSION("$.apiVersion", 0),
+    GET_RESOURCEVERSION("$.metadata.resourceVersion", 0),
+    GET_ITEMS("$.items", 0),
+    REMOVE_RBAC_SERVICE("$.spec.rules[?]", 0),
+    ADD_RBAC_SERVICE("$.spec.rules", 0),
     ;
 
     private String expression;
