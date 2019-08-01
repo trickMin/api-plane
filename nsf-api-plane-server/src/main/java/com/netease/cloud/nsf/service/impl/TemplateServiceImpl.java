@@ -118,10 +118,6 @@ public class TemplateServiceImpl implements TemplateService {
         return client.get(name, namespace, kind);
     }
 
-    public List<HasMetadata> getConfigList(String namespace, String kind) {
-        logger.info("get config by namespace: {}, kind: {}", namespace, kind);
-        return client.getResources(namespace, kind);
-    }
 
     public List<HasMetadata> getConfigListByTemplate(String name, String namespace, String templateName) {
         List<HasMetadata> remoteResources = new ArrayList<>();

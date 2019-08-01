@@ -18,7 +18,5 @@ public interface TemplateService {
 
     HasMetadata getConfig(String name, String namespace, String kind);
 
-    List<HasMetadata> getConfigList(String namespace, String kind);
-
     List<HasMetadata> getConfigListByTemplate(String name, String namespace, String templateName);
 }
