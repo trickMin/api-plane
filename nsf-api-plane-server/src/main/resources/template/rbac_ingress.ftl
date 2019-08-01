@@ -7,6 +7,8 @@ metadata:
   namespace: ${namespace}
 spec:
   rules:
+# 仅作占位符
+  - services: ["${service}.${namespace}.svc.cluster.local"]
 ---
 apiVersion: rbac.istio.io/v1alpha1
 kind: ServiceRoleBinding
@@ -23,21 +25,23 @@ spec:
 apiVersion: rbac.istio.io/v1alpha1
 kind: ServiceRole
 metadata:
-name: qz-ingress-passed
-namespace: ${namespace}
+  name: qz-ingress-passed
+  namespace: ${namespace}
 spec:
-rules:
+# 仅作占位符
+  rules:
+  - services: ["${service}.${namespace}.svc.cluster.local"]
 ---
 apiVersion: rbac.istio.io/v1alpha1
 kind: ServiceRoleBinding
 metadata:
-name: qz-ingress-passed
-namespace: ${namespace}
+  name: qz-ingress-passed
+  namespace: ${namespace}
 spec:
-subjects:
-- user: "cluster.local/ns/${namespace}/sa/istio-ingressgateway-service-account"
-roleRef:
-kind: ServiceRole
-name: qz-ingress-passed
+  subjects:
+  - user: "cluster.local/ns/${namespace}/sa/istio-ingressgateway-service-account"
+  roleRef:
+    kind: ServiceRole
+    name: qz-ingress-passed
 
 
