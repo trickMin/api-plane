@@ -71,10 +71,10 @@ metadata:
 spec:
   rules:
   - services: ["${service}.${namespace}.svc.cluster.local"]
-<#--    paths:-->
-<#--<#list configPassedPaths! as path>-->
-<#--    - ${path}-->
-<#--</#list>-->
+    paths:
+<#list configPassedPaths! as path>
+    - ${path}
+</#list>
 ---
 apiVersion: "rbac.istio.io/v1alpha1"
 kind: ServiceRoleBinding
