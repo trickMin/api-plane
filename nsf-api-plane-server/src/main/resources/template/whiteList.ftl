@@ -38,25 +38,55 @@ spec:
 apiVersion: "rbac.istio.io/v1alpha1"
 kind: ServiceRole
 metadata:
-  name: ${service}
+  name: ${service}-whitelist
   namespace: ${namespace}
 spec:
   rules:
   - services: ["${service}.${namespace}.svc.cluster.local"]
+<#--    paths:-->
+<#--<#list configAuthPaths! as path>-->
+<#--    - ${path}-->
+<#--</#list>-->
 ---
 apiVersion: "rbac.istio.io/v1alpha1"
 kind: ServiceRoleBinding
 metadata:
-  name: ${service}
+  name: ${service}-whitelist
   namespace: ${namespace}
 spec:
   subjects:
 <#list sources! as val>
-    - user: cluster.local/ns/${sourcesNamespace}/sa/${val}
+  - user: cluster.local/ns/${sourcesNamespace}/sa/${val}
 </#list>
   roleRef:
     kind: ServiceRole
     name: ${service}
+---
+# 白名单配置 - 放行的路径
+apiVersion: "rbac.istio.io/v1alpha1"
+kind: ServiceRole
+metadata:
+  name: ${service}-passed
+  namespace: ${namespace}
+spec:
+  rules:
+  - services: ["${service}.${namespace}.svc.cluster.local"]
+    paths:
+<#list configPassedPaths! as path>
+    - ${path}
+</#list>
+---
+apiVersion: "rbac.istio.io/v1alpha1"
+kind: ServiceRoleBinding
+metadata:
+  name: ${service}-passed
+  namespace: ${namespace}
+spec:
+  subjects:
+  - user: "*"
+  roleRef:
+    kind: ServiceRole
+    name: ${service}-passed
 ---
 apiVersion: "authentication.istio.io/v1alpha1"
 kind: "Policy"

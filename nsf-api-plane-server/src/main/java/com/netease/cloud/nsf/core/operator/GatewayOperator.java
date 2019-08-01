@@ -1,6 +1,6 @@
 package com.netease.cloud.nsf.core.operator;
 
-import com.netease.cloud.nsf.meta.K8sResourceEnum;
+import com.netease.cloud.nsf.util.K8sResourceEnum;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
 import com.netease.cloud.nsf.util.function.Equals;

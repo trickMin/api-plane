@@ -1,26 +1,20 @@
 package com.netease.cloud.nsf.service.impl;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.netease.cloud.nsf.core.k8s.IntegratedClient;
+import com.netease.cloud.nsf.core.editor.EditorContext;
+import com.netease.cloud.nsf.core.editor.ResourceType;
+import com.netease.cloud.nsf.core.k8s.K8sResourceGenerator;
+import com.netease.cloud.nsf.core.k8s.KubernetesClient;
 import com.netease.cloud.nsf.core.template.TemplateTranslator;
-import com.netease.cloud.nsf.meta.K8sResourceEnum;
 import com.netease.cloud.nsf.meta.template.Metadata;
 import com.netease.cloud.nsf.meta.template.NsfExtra;
 import com.netease.cloud.nsf.meta.template.ServiceMeshTemplate;
 import com.netease.cloud.nsf.service.TemplateService;
-import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,11 +32,10 @@ public class TemplateServiceImpl implements TemplateService {
     private TemplateTranslator translator;
 
     @Autowired
-    private IntegratedClient client;
+    private EditorContext editorContext;
 
     @Autowired
-    @Qualifier("yaml")
-    private ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+    private KubernetesClient client;
 
     private static final String YAML_SPLIT = "---";
 
@@ -50,92 +43,59 @@ public class TemplateServiceImpl implements TemplateService {
         template.setUpdate(true);
         String content = translator.translate(template.getNsfTemplate(), template);
         logger.info("update config : \r" + content);
-        client.createOrUpdate(string2Resources(content));
+        splitContent(content).forEach(o -> client.createOrUpdate(o, ResourceType.YAML));
     }
 
-
-    /**
-     * 将模板的内容转换为k8s资源
-     *
-     * @param content
-     * @return
-     */
-    private List<HasMetadata> string2Resources(String content) {
-
-        if (StringUtils.isEmpty(content)) throw new IllegalArgumentException("yaml content");
-        List<HasMetadata> resources = new ArrayList<>();
-        try {
-            for (String segment : content.split(YAML_SPLIT)) {
-                if (!segment.contains("apiVersion")) continue;
-                String kind = getKind(segment);
-                Class<? extends HasMetadata> clz = K8sResourceEnum.get(kind).mappingType();
-                resources.add(mapper.readValue(segment, clz));
+    public List<String> splitContent(String content) {
+        List<String> contents = new ArrayList<>();
+        for (String segment : content.split(YAML_SPLIT)) {
+            if (segment.contains("apiVersion")) {
+                contents.add(segment);
             }
-        } catch (Exception e) {
-            logger.warn("convert string to istio resource failed", e);
-            throw new ApiPlaneException(e.getMessage(), e);
         }
-        return resources;
-    }
-
-    /**
-     * 根据模板内容，找到kind类型
-     *
-     * @param content
-     * @return
-     */
-    private String getKind(String content) {
-        JsonNode jsonNode = null;
-        try {
-            jsonNode = mapper.readTree(content);
-        } catch (IOException e) {
-            logger.warn("read tree failed", e);
-            throw new ApiPlaneException(e.getMessage(), e);
-        }
-        String kind = jsonNode.get("kind").asText();
-        return kind;
+        return contents;
     }
 
 
     public void deleteConfig(String name, String namespace, String kind) {
         logger.info("delete config by name: {}, namespace: {}, kind: {}", name, namespace, kind);
-        client.deleteByName(name, namespace, kind);
+        client.delete(kind, namespace, name);
     }
 
     public void deleteConfigByTemplate(String name, String namespace, String templateName) {
         logger.info("delete config by name: {}, namespace: {}, templateName: {}", name, namespace, templateName);
 
+        // 1. 渲染模板
         ServiceMeshTemplate template = blankTemplate(name, namespace, templateName);
-        List<HasMetadata> resources = string2Resources(translator.translate(template.getNsfTemplate(), template));
-        if (!CollectionUtils.isEmpty(resources)) {
-            resources.stream()
-                    .forEach(r -> deleteConfig(r.getMetadata().getName(), r.getMetadata().getNamespace(), r.getKind()));
-        }
+        String content = translator.translate(template.getNsfTemplate(), templateName);
+
+        // 2. 分割模板 + 删除
+        splitContent(content).forEach(o -> {
+            K8sResourceGenerator gen = K8sResourceGenerator.newInstance(o, ResourceType.YAML, editorContext);
+            deleteConfig(gen.getName(), gen.getNamespace(), gen.getKind());
+        });
     }
 
     public HasMetadata getConfig(String name, String namespace, String kind) {
         logger.info("get config by name: {}, namespace: {}, kind: {}", name, namespace, kind);
-        return client.get(name, namespace, kind);
+        return client.getObject(kind, namespace, name);
     }
 
-    public List<HasMetadata> getConfigList(String namespace, String kind) {
-        logger.info("get config by namespace: {}, kind: {}", namespace, kind);
-        return client.getResources(namespace, kind);
-    }
 
     public List<HasMetadata> getConfigListByTemplate(String name, String namespace, String templateName) {
         List<HasMetadata> remoteResources = new ArrayList<>();
+
+        // 1. 生成空模板
         ServiceMeshTemplate template = blankTemplate(name, namespace, templateName);
-        List<HasMetadata> resources = string2Resources(translator.translate(template.getNsfTemplate(), template));
-        if (!CollectionUtils.isEmpty(resources)) {
-            resources.stream()
-                    .forEach(r -> {
-                        HasMetadata config = getConfig(r.getMetadata().getName(), r.getMetadata().getNamespace(), r.getKind());
-                        if (config != null) {
-                            remoteResources.add(config);
-                        }
-                    });
-        }
+
+        // 2. 渲染模板
+        String content = translator.translate(template.getNsfTemplate(), template);
+
+        // 3. 分割模板 + 查询
+        splitContent(content).forEach(o -> {
+            K8sResourceGenerator gen = K8sResourceGenerator.newInstance(o, ResourceType.YAML, editorContext);
+            remoteResources.add(getConfig(gen.getName(), gen.getNamespace(), gen.getKind()));
+        });
         return remoteResources;
     }
 
