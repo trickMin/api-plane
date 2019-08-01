@@ -2,8 +2,12 @@ package com.netease.cloud.nsf.meta;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sun.javafx.binding.StringFormatter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @auther wupenghuai@corp.netease.com
@@ -11,6 +15,7 @@ import java.util.List;
  **/
 public class WhiteList {
 
+    private static final Logger logger = LoggerFactory.getLogger(WhiteList.class);
     private SiderCarRequestMeta siderCarMeta;
 
     @JsonProperty("sources")
@@ -24,6 +29,9 @@ public class WhiteList {
 
     @JsonProperty("allPaths")
     private List<String> allPaths;
+
+    @JsonProperty("contextPath")
+    private String contextPath;
 
     public void setSiderCarMeta(SiderCarRequestMeta siderCarMeta) {
         this.siderCarMeta = siderCarMeta;
@@ -43,6 +51,14 @@ public class WhiteList {
 
     public void setOutWeight(int outWeight) {
         this.outWeight = outWeight;
+    }
+
+    public String getContextPath() {
+        return contextPath;
+    }
+
+    public void setContextPath(String contextPath) {
+        this.contextPath = contextPath == null || contextPath.equals("/") ? "" : contextPath;
     }
 
     public String getService() {
@@ -74,6 +90,48 @@ public class WhiteList {
     }
 
     public String getSourcesNamespace() {
-        return "yx-demo";
+        return getNamespace();
+    }
+
+    public List<String> getConfigPassedPaths() {
+        List<String> result = transformPaths(allPaths);
+        for (String authPath : transformPaths(authPaths)) {
+            result.removeIf(p -> p.startsWith(authPath));
+        }
+        result = finishTransformPath(result);
+        logger.info("service: {}, granted paths: {}", getService(), result);
+        return result;
+    }
+
+    public List<String> getConfigAuthPaths() {
+        return finishTransformPath(transformPaths(authPaths));
+    }
+
+    private List<String> transformPaths(List<String> paths) {
+        List<String> result = new ArrayList<>();
+		for (String pth : paths) {
+			String newPath = pth
+                .replaceAll("\\{.*?}", "*")
+                .replaceAll("\\*(/?\\*)+", "**")
+                .replaceAll("\\*+(/?)$", "");
+            logger.info("service: {}, pth: {}, newPath: {}", getService(), pth, newPath);
+		    if (result.stream().anyMatch(path -> newPath.startsWith(newPath))) {
+		        continue;
+            }
+			result.removeIf(path -> path.startsWith(newPath));
+
+		    result.add(newPath);
+		}
+        logger.info("service: {}, original paths: {}, result: {}", getService(), paths, result);
+		return result;
+    }
+
+    private List<String> finishTransformPath(List<String> result) {
+        result = result.stream()
+            .map(path -> path.replaceAll("^(/)?\\*+", ""))
+            .distinct()
+            .map(path -> getContextPath() + path)
+            .collect(Collectors.toList());
+        return result;
     }
 }

@@ -3,7 +3,7 @@
 apiVersion: rbac.istio.io/v1alpha1
 kind: ServiceRole
 metadata:
-  name: ingress
+  name: qz-ingress
   namespace: ${namespace}
 spec:
   rules:
@@ -19,12 +19,12 @@ spec:
 apiVersion: rbac.istio.io/v1alpha1
 kind: ServiceRoleBinding
 metadata:
-  name: ingress
+  name: qz-ingress
   namespace: ${namespace}
 spec:
   subjects:
     - user: "cluster.local/ns/${namespace}/sa/istio-ingressgateway-service-account"
   roleRef:
       kind: ServiceRole
-      name: ingress
+      name: qz-ingress
 
