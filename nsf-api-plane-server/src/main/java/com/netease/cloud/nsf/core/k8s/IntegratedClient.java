@@ -18,17 +18,18 @@ import java.util.List;
  * @auther wupenghuai@corp.netease.com
  * @date 2019/7/23
  **/
+@Deprecated
 @Component
 public class IntegratedClient {
     private static final Logger logger = LoggerFactory.getLogger(IntegratedClient.class);
 
     @Autowired
-    private List<K8sResourceClient> k8sResourceClients;
-
-    @Autowired
     private EditorContext context;
 
-    public void createOrUpdate(ResourceGenerator generator){
+    @Autowired
+    private KubernetesClient client;
+
+    public void createOrUpdate(ResourceGenerator generator) {
         String kind = generator.getValue(PathExpressionEnum.YANXUAN_GET_KIND.translate());
         HasMetadata object = generator.object(K8sResourceEnum.get(kind).mappingType());
         createOrUpdate(object);
@@ -48,27 +49,16 @@ public class IntegratedClient {
     }
 
     public void createOrUpdate(HasMetadata resource) {
-        resolve(resource.getKind()).createOrUpdate(resource);
+        client.createOrUpdate(resource, ResourceType.OBJECT);
     }
 
     public void deleteByName(String name, String namespace, String type) {
-        resolve(type).delete(type, name, namespace);
+        client.delete(type, namespace, name);
     }
 
     public HasMetadata get(String name, String namespace, String type) {
-        return resolve(type).get(type, name, namespace);
+        K8sResourceEnum resourceEnum = K8sResourceEnum.get(type);
+        return client.getObject(type, namespace, name);
     }
 
-    public List<HasMetadata> getResources(String namespace, String type) {
-        return resolve(type).getList(type, namespace);
-    }
-
-    private K8sResourceClient resolve(String type) {
-        for (K8sResourceClient client : k8sResourceClients) {
-            if (client.isAdapt(type)) {
-                return client;
-            }
-        }
-        throw new RuntimeException("cannot resolve the suitable istio resource k8sClient");
-    }
 }
