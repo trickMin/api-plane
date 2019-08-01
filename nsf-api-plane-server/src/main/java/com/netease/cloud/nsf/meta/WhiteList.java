@@ -5,7 +5,6 @@ import com.sun.javafx.binding.StringFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -58,7 +57,7 @@ public class WhiteList {
     }
 
     public void setContextPath(String contextPath) {
-        this.contextPath = contextPath == null || contextPath.equals("/") ? "" : contextPath;
+    	this.contextPath = contextPath;
     }
 
     public String getService() {
@@ -94,8 +93,8 @@ public class WhiteList {
     }
 
     public List<String> getConfigPassedPaths() {
-        List<String> result = transformPaths(allPaths);
-        for (String authPath : transformPaths(authPaths)) {
+        List<String> result = simplifyPaths(allPaths);
+        for (String authPath : simplifyPaths(authPaths)) {
             result.removeIf(p -> p.startsWith(authPath));
         }
         result = finishTransformPath(result);
@@ -103,35 +102,35 @@ public class WhiteList {
         return result;
     }
 
-    public List<String> getConfigAuthPaths() {
-        return finishTransformPath(transformPaths(authPaths));
-    }
-
-    private List<String> transformPaths(List<String> paths) {
-        List<String> result = new ArrayList<>();
-		for (String pth : paths) {
-			String newPath = pth
+    private List<String> simplifyPaths(List<String> authPaths) {
+        return authPaths.stream().map(path -> {
+            String simplified = path
                 .replaceAll("\\{.*?}", "*")
                 .replaceAll("\\*(/?\\*)+", "**")
                 .replaceAll("\\*+(/?)$", "");
-            logger.info("service: {}, pth: {}, newPath: {}", getService(), pth, newPath);
-		    if (result.stream().anyMatch(path -> newPath.startsWith(newPath))) {
-		        continue;
-            }
-			result.removeIf(path -> path.startsWith(newPath));
-
-		    result.add(newPath);
-		}
-        logger.info("service: {}, original paths: {}, result: {}", getService(), paths, result);
-		return result;
+            logger.info("service: {}, path: {}, simplified: {}", "", path, simplified);
+            return simplified;
+        }).collect(Collectors.toList());
     }
 
-    private List<String> finishTransformPath(List<String> result) {
-        result = result.stream()
+    private List<String> finishTransformPath(List<String> paths) {
+        contextPath = contextPath == null || contextPath.equals("/") ? "" : contextPath;
+        return paths.stream()
+			.filter(path -> !path.isEmpty())
+            .filter(path -> paths.stream().noneMatch(p -> p.length() < path.length() && path.startsWith(p))) // /a和/a/b/c只保留/a
             .map(path -> path.replaceAll("^(/)?\\*+", ""))
             .distinct()
-            .map(path -> getContextPath() + path)
+            .map(path -> contextPath + path)
             .collect(Collectors.toList());
-        return result;
     }
+
+//    public static void main(String[] args) {
+//        WhiteList wl = new WhiteList();
+//        wl.setAllPaths(Arrays.asList("/error", "/provider/version/a/**", "/consumer/getProviderVersion/{a}/{b}/*", "/provider/changeVersion", "/provider/unauthVersion", "/provider/version"));
+//        wl.setAuthPaths(Arrays.asList("/provider/version"));
+//        wl.siderCarMeta = new SiderCarRequestMeta();//.setService("aa");
+//		List<String> configPassedPaths = wl.getConfigPassedPaths();
+//		configPassedPaths.stream();
+//    }
+
 }
