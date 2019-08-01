@@ -45,11 +45,21 @@ public class WhiteListServiceImpl implements WhiteListService {
     private static final String YAML_SPLIT = "---";
 
     private ServiceRole getServiceRole(WhiteList whiteList) {
-        return client.getObject(ServiceRole.name(), whiteList.getNamespace(), "ingress");
+<<<<<<< nsf-api-plane-server/src/main/java/com/netease/cloud/nsf/service/impl/WhiteListServiceImpl.java
+        return client.getObject(ServiceRole.name(), whiteList.getNamespace(), "qz-ingress");
     }
 
     private ServiceRoleBinding getServiceRoleBinding(WhiteList whiteList) {
-        return client.getObject(ServiceRoleBinding.name(), whiteList.getNamespace(), "ingress");
+        return client.getObject(ServiceRoleBinding.name(), whiteList.getNamespace(), "qz-ingress");
+=======
+        HasMetadata resource = integratedClient.get("qz-ingress", whiteList.getNamespace(), K8sResourceEnum.ServiceRole.name());
+        return resource == null ? null : (ServiceRole) resource;
+    }
+
+    private ServiceRoleBinding getServiceRoleBinding(WhiteList whiteList) {
+        HasMetadata resource = integratedClient.get("qz-ingress", whiteList.getNamespace(), K8sResourceEnum.ServiceRoleBinding.name());
+        return resource == null ? null : (ServiceRoleBinding) resource;
+>>>>>>> nsf-api-plane-server/src/main/java/com/netease/cloud/nsf/service/impl/WhiteListServiceImpl.java
     }
 
     /**
