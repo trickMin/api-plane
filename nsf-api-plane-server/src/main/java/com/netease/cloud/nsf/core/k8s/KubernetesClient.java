@@ -4,7 +4,7 @@ import com.netease.cloud.nsf.core.editor.EditorContext;
 import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.k8s.http.DefaultK8sHttpClient;
-import com.netease.cloud.nsf.meta.K8sResourceEnum;
+import com.netease.cloud.nsf.util.K8sResourceEnum;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.utils.URLUtils;
 import okhttp3.*;

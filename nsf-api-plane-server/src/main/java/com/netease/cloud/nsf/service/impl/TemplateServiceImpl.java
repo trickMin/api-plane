@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.netease.cloud.nsf.core.k8s.IntegratedClient;
 import com.netease.cloud.nsf.core.template.TemplateTranslator;
-import com.netease.cloud.nsf.meta.K8sResourceEnum;
+import com.netease.cloud.nsf.util.K8sResourceEnum;
 import com.netease.cloud.nsf.meta.template.Metadata;
 import com.netease.cloud.nsf.meta.template.NsfExtra;
 import com.netease.cloud.nsf.meta.template.ServiceMeshTemplate;

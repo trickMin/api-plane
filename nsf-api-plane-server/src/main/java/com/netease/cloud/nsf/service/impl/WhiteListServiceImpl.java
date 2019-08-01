@@ -6,7 +6,7 @@ import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.k8s.IntegratedClient;
 import com.netease.cloud.nsf.core.template.TemplateTranslator;
-import com.netease.cloud.nsf.meta.K8sResourceEnum;
+import com.netease.cloud.nsf.util.K8sResourceEnum;
 import com.netease.cloud.nsf.meta.WhiteList;
 import com.netease.cloud.nsf.service.WhiteListService;
 import com.netease.cloud.nsf.util.PathExpressionEnum;

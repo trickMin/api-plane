@@ -3,7 +3,7 @@ package com.netease.cloud.nsf.core.k8s;
 import com.netease.cloud.nsf.core.editor.EditorContext;
 import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
-import com.netease.cloud.nsf.meta.K8sResourceEnum;
+import com.netease.cloud.nsf.util.K8sResourceEnum;
 import com.netease.cloud.nsf.util.PathExpressionEnum;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import org.slf4j.Logger;
