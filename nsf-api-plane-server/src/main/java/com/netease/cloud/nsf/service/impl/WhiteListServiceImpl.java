@@ -46,10 +46,10 @@ public class WhiteListServiceImpl implements WhiteListService {
     private static final String YAML_SPLIT = "---";
 
     private void initNamespaceIfNeeded(WhiteList whiteList) {
-        if (client.get(whiteList.getNamespace(), ServiceRole.name(), "qz-ingress-whitelist") == null ||
-            client.get(whiteList.getNamespace(), ServiceRoleBinding.name(), "qz-ingress-whitelist") == null ||
-            client.get(whiteList.getNamespace(), ServiceRole.name(), "qz-ingress-passed") == null ||
-            client.get(whiteList.getNamespace(), ServiceRoleBinding.name(), "qz-ingress-passed") == null) {
+        if (client.get(ServiceRole.name(), whiteList.getNamespace(), "qz-ingress-whitelist") == null ||
+            client.get(ServiceRoleBinding.name(), whiteList.getNamespace(), "qz-ingress-whitelist") == null ||
+            client.get(ServiceRole.name(), whiteList.getNamespace(), "qz-ingress-passed") == null ||
+            client.get(ServiceRoleBinding.name(), whiteList.getNamespace(), "qz-ingress-passed") == null) {
             Arrays.stream(templateTranslator.translate(RBAC_INGRESS_TEMPLATE_NAME, whiteList, YAML_SPLIT))
                 .filter(yaml -> yaml.contains("apiVersion"))
                 .forEach(yaml -> client.createOrUpdate(yaml, ResourceType.YAML));
@@ -112,7 +112,7 @@ public class WhiteListServiceImpl implements WhiteListService {
 
     @Override
     public void removeService(WhiteList whiteList) {
-        String role = client.get(whiteList.getNamespace(), ServiceRole.name(), "qz-ingress-whitelist");
+        String role = client.get(ServiceRole.name(), whiteList.getNamespace(), "qz-ingress-whitelist");
         ResourceGenerator generator = ResourceGenerator.newInstance(role, ResourceType.OBJECT, editorContext);
         generator.removeElement(PathExpressionEnum.REMOVE_RBAC_SERVICE.translate(),
                 Criteria.where("services").contains(whiteList.getService()));
