@@ -59,7 +59,7 @@ public enum K8sResourceEnum {
         return mappingListType;
     }
 
-    public static K8sResourceEnum getElement(String name) {
+    public static K8sResourceEnum getItem(String name) {
         Pattern pattern = Pattern.compile("(.*)List$");
         Matcher matcher = pattern.matcher(name);
         if (matcher.find()) {

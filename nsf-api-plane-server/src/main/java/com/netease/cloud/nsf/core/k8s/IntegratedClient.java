@@ -18,6 +18,7 @@ import java.util.List;
  * @auther wupenghuai@corp.netease.com
  * @date 2019/7/23
  **/
+@Deprecated
 @Component
 public class IntegratedClient {
     private static final Logger logger = LoggerFactory.getLogger(IntegratedClient.class);

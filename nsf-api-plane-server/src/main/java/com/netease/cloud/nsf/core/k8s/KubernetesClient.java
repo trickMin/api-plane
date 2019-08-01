@@ -47,7 +47,7 @@ public class KubernetesClient extends DefaultK8sHttpClient {
         String obj = getWithNull(url);
         if (StringUtils.isEmpty(obj)) return null;
         K8sResourceGenerator gen = K8sResourceGenerator.newInstance(obj, ResourceType.JSON, editorContext);
-        K8sResourceEnum resourceEnum = K8sResourceEnum.getElement(gen.getKind());
+        K8sResourceEnum resourceEnum = K8sResourceEnum.getItem(gen.getKind());
         return ResourceGenerator.newInstance(obj, ResourceType.JSON, editorContext).object(resourceEnum.mappingListType()).getItems();
     }
 
@@ -65,7 +65,7 @@ public class KubernetesClient extends DefaultK8sHttpClient {
         if (StringUtils.isEmpty(obj)) return null;
 
         K8sResourceGenerator generator = K8sResourceGenerator.newInstance(obj, ResourceType.JSON, editorContext);
-        K8sResourceEnum resourceEnum = K8sResourceEnum.getElement(generator.getKind());
+        K8sResourceEnum resourceEnum = K8sResourceEnum.getItem(generator.getKind());
         return generator.object(resourceEnum.mappingListType()).getItems();
     }
 
