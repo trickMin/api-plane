@@ -58,7 +58,7 @@ public class KubernetesClient extends DefaultK8sHttpClient {
         K8sResourceGenerator gen = K8sResourceGenerator.newInstance(obj, resourceType, editorContext);
         String url = getUrl(gen.getKind(), gen.getNamespace(), gen.getName());
 
-        String oldResource = get(url);
+        String oldResource = getWithNull(url);
 
         if (oldResource != null) {
             K8sResourceGenerator oldGenerator = K8sResourceGenerator.newInstance(oldResource, ResourceType.JSON, editorContext);
