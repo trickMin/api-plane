@@ -29,7 +29,7 @@ public class VirtualServiceOperator implements IstioResourceOperator<VirtualServ
         List<String> filteredHosts = filterSameHosts(oldSpec, freshSpec);
 
         oldSpec.setHttp(mergeList(filteredHttp, freshSpec.getHttp(), new HttpRouteEquals()));
-        oldSpec.setHosts(mergeList(filteredHosts, freshSpec.getHosts(), new HostsEquals()));
+        oldSpec.setHosts(mergeList(filteredHosts, freshSpec.getHosts(),  (ot, nt) -> Objects.equals(ot, nt)));
         return old;
     }
 
@@ -41,9 +41,9 @@ public class VirtualServiceOperator implements IstioResourceOperator<VirtualServ
         return oldSpec.getHttp().stream()
                 .filter(oh -> {
                     for (HTTPRoute fh : freshSpec.getHttp()) {
-                        if (Objects.equals(fh.getName(), oh.getName())) return true;
+                        if (Objects.equals(fh.getName(), oh.getName())) return false;
                     }
-                    return false;
+                    return true;
                 })
                 .collect(Collectors.toList());
     }
@@ -56,9 +56,9 @@ public class VirtualServiceOperator implements IstioResourceOperator<VirtualServ
         return oldSpec.getHosts().stream()
                 .filter(oh -> {
                     for (String fh : freshSpec.getHosts()) {
-                        if (Objects.equals(fh, oh)) return true;
+                        if (Objects.equals(fh, oh)) return false;
                     }
-                    return false;
+                    return true;
                 })
                 .collect(Collectors.toList());
     }
@@ -71,15 +71,6 @@ public class VirtualServiceOperator implements IstioResourceOperator<VirtualServ
             return Objects.equals(ot.getName(), nt.getName());
         }
     }
-
-    private class HostsEquals implements Equals<String> {
-
-        @Override
-        public boolean apply(String ot, String nt) {
-            return Objects.equals(ot, nt);
-        }
-    }
-
 
     @Override
     public boolean adapt(String name) {

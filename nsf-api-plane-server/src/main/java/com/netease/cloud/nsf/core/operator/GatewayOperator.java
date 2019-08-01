@@ -1,17 +1,15 @@
 package com.netease.cloud.nsf.core.operator;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 import com.netease.cloud.nsf.meta.K8sResourceEnum;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
-import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
+import com.netease.cloud.nsf.util.function.Equals;
 import me.snowdrop.istio.api.networking.v1alpha3.Gateway;
 import me.snowdrop.istio.api.networking.v1alpha3.Server;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -40,10 +38,11 @@ public class GatewayOperator implements IstioResourceOperator<Gateway> {
         if (CollectionUtils.isEmpty(freshHosts)) {
             return old;
         }
-        oldHosts.addAll(freshHosts);
-        firstOldServer.setHosts(oldHosts.stream().distinct().collect(Collectors.toList()));
+        firstOldServer.setHosts(mergeList(oldHosts, freshHosts, (ot, nt) -> Objects.equals(ot, nt)));
         return old;
     }
+
+
 
     @Override
     public boolean adapt(String name) {
