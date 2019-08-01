@@ -12,13 +12,16 @@ import com.netease.cloud.nsf.service.WhiteListService;
 import com.netease.cloud.nsf.util.PathExpressionEnum;
 import com.sun.javafx.binding.StringFormatter;
 import io.fabric8.kubernetes.api.model.HasMetadata;
-import me.snowdrop.istio.api.rbac.v1alpha1.*;
+import me.snowdrop.istio.api.rbac.v1alpha1.AccessRule;
+import me.snowdrop.istio.api.rbac.v1alpha1.AccessRuleBuilder;
+import me.snowdrop.istio.api.rbac.v1alpha1.ConstraintBuilder;
+import me.snowdrop.istio.api.rbac.v1alpha1.ServiceRole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.Arrays;
 
 
 /**
@@ -39,30 +42,24 @@ public class WhiteListServiceImpl implements WhiteListService {
     @Autowired
     private EditorContext editorContext;
 
-    private static final String RBAC_TEMPLATE_NAME = "rbac";
+    private static final String RBAC_INGRESS_TEMPLATE_NAME = "rbac_ingress";
     private static final String WHITELIST_TEMPLATE_NAME = "whiteList";
     private static final String YAML_SPLIT = "---";
 
-    private ServiceRole getServiceRole(WhiteList whiteList) {
-        HasMetadata resource = integratedClient.get("qz-ingress", whiteList.getNamespace(), K8sResourceEnum.ServiceRole.name());
+    private ServiceRole getIngressWhitelistServiceRole(WhiteList whiteList) {
+        HasMetadata resource = integratedClient.get("qz-ingress-whitelist", whiteList.getNamespace(), K8sResourceEnum.ServiceRole.name());
         return resource == null ? null : (ServiceRole) resource;
     }
 
-    private ServiceRoleBinding getServiceRoleBinding(WhiteList whiteList) {
-        HasMetadata resource = integratedClient.get("qz-ingress", whiteList.getNamespace(), K8sResourceEnum.ServiceRoleBinding.name());
-        return resource == null ? null : (ServiceRoleBinding) resource;
-    }
-
-    /**
-     * 初始化ServiceRole和ServiceRoleBinding资源
-     */
-    public void initResource(WhiteList whiteList) {
-        String[] yamls = templateTranslator.translate(RBAC_TEMPLATE_NAME, whiteList, YAML_SPLIT);
-        for (String yaml : yamls) {
-            if (!yaml.contains("apiVersion")) {
-                continue;
-            }
-            integratedClient.createOrUpdate(yaml);
+    private void initNamespaceIfNeeded(WhiteList whiteList) {
+        if (integratedClient.get("qz-ingress-whitelist", whiteList.getNamespace(), K8sResourceEnum.ServiceRole.name()) == null ||
+            integratedClient.get("qz-ingress-whitelist", whiteList.getNamespace(), K8sResourceEnum.ServiceRoleBinding.name()) == null ||
+            integratedClient.get("qz-ingress-passed", whiteList.getNamespace(), K8sResourceEnum.ServiceRole.name()) == null ||
+            integratedClient.get("qz-ingress-passed", whiteList.getNamespace(), K8sResourceEnum.ServiceRoleBinding.name()) == null
+        ) {
+            Arrays.stream(templateTranslator.translate(RBAC_INGRESS_TEMPLATE_NAME, whiteList, YAML_SPLIT))
+                .filter(yaml -> yaml.contains("apiVersion"))
+                .forEach(yaml -> integratedClient.createOrUpdate(yaml));
         }
     }
 
@@ -73,17 +70,9 @@ public class WhiteListServiceImpl implements WhiteListService {
      */
     @Override
     public void updateService(WhiteList whiteList) {
-        if (getServiceRole(whiteList) == null || getServiceRoleBinding(whiteList) == null) {
-            initResource(whiteList);
-        }
-
-        ServiceRole role = getServiceRole(whiteList);
-        ResourceGenerator generator = ResourceGenerator.newInstance(role, ResourceType.OBJECT, editorContext);
-        AccessRule rule = buildAccessRule(whiteList.getFullService(), whiteList.getSources());
-        generator.removeElement(PathExpressionEnum.YANXUAN_REMOVE_RBAC_SERVICE.translate(),
-                Criteria.where("services").contains(whiteList.getFullService()));
-        generator.addElement(PathExpressionEnum.YANXUAN_ADD_RBAC_SERVICE.translate(), rule);
-        integratedClient.createOrUpdate(generator);
+        initNamespaceIfNeeded(whiteList);
+        addRuleToIngressWhitelist(whiteList);
+        addRuleToIngressPassed(whiteList);
 
         //todo: 如果service已经存在virtualservice, destinationrule, 会把原来的覆盖掉
         String[] yamls = templateTranslator.translate(WHITELIST_TEMPLATE_NAME, whiteList, YAML_SPLIT);
@@ -95,9 +84,38 @@ public class WhiteListServiceImpl implements WhiteListService {
         }
     }
 
+    private void addRuleToIngressWhitelist(WhiteList whiteList) {
+        ServiceRole ingressWhitelistRole = (ServiceRole) integratedClient.get("qz-ingress-whitelist", whiteList.getNamespace(), K8sResourceEnum.ServiceRole.name());
+        ResourceGenerator whitelistGenerator = ResourceGenerator.newInstance(ingressWhitelistRole, ResourceType.OBJECT, editorContext);
+        AccessRule iwRule = new AccessRuleBuilder()
+            .withServices(whiteList.getFullService())
+            .withConstraints(new ConstraintBuilder()
+                .withKey("request.headers[Source-External]")
+                .withValues(whiteList.getSources())
+                .build())
+            .build();
+        whitelistGenerator.removeElement(PathExpressionEnum.YANXUAN_REMOVE_RBAC_SERVICE.translate(),
+                Criteria.where("services").contains(whiteList.getFullService()));
+        whitelistGenerator.addElement(PathExpressionEnum.YANXUAN_ADD_RBAC_SERVICE.translate(), iwRule);
+        integratedClient.createOrUpdate(whitelistGenerator);
+    }
+
+    private void addRuleToIngressPassed(WhiteList whiteList) {
+        ServiceRole ingressPassedRole = (ServiceRole) integratedClient.get("qz-ingress-passed", whiteList.getNamespace(), K8sResourceEnum.ServiceRole.name());
+        ResourceGenerator passedGenerator = ResourceGenerator.newInstance(ingressPassedRole, ResourceType.OBJECT, editorContext);
+        AccessRule passedRule = new AccessRuleBuilder()
+            .withServices(whiteList.getFullService())
+            .withPaths(whiteList.getConfigPassedPaths())
+            .build();
+        passedGenerator.removeElement(PathExpressionEnum.YANXUAN_REMOVE_RBAC_SERVICE.translate(),
+            Criteria.where("services").contains(whiteList.getFullService()));
+        passedGenerator.addElement(PathExpressionEnum.YANXUAN_ADD_RBAC_SERVICE.translate(), passedRule);
+        integratedClient.createOrUpdate(passedGenerator);
+    }
+
     @Override
     public void removeService(WhiteList whiteList) {
-        ServiceRole role = getServiceRole(whiteList);
+        ServiceRole role = getIngressWhitelistServiceRole(whiteList);
         ResourceGenerator generator = ResourceGenerator.newInstance(role, ResourceType.OBJECT, editorContext);
         generator.removeElement(PathExpressionEnum.YANXUAN_REMOVE_RBAC_SERVICE.translate(),
                 Criteria.where("services").contains(whiteList.getService()));
@@ -112,13 +130,6 @@ public class WhiteListServiceImpl implements WhiteListService {
         integratedClient.deleteByName(getServiceRoleName(service), namespace, K8sResourceEnum.ServiceRole.name());
         integratedClient.deleteByName(getServiceRoleBindingName(service), namespace, K8sResourceEnum.ServiceRoleBinding.name());
         integratedClient.deleteByName(getPolicyName(service), namespace, K8sResourceEnum.Policy.name());
-    }
-
-    private AccessRule buildAccessRule(String service, List<String> values) {
-        String key = "request.headers[Source-External]";
-
-        return new AccessRuleBuilder().withServices(service)
-                .withConstraints(new ConstraintBuilder().withKey(key).withValues(values).build()).build();
     }
 
     //todo: 需要给istio-resouce的命名制定规范
