@@ -23,7 +23,7 @@ import static com.netease.cloud.nsf.util.PathExpressionEnum.*;
  * @date 2019/8/2
  **/
 @Service
-public class PluginServiceImple implements PluginService {
+public class PluginServiceImpl implements PluginService {
     private static final String LABEL_DESCRIPTION = "description";
     private static final String LABEL_TYPE = "type";
     private static final String LABEL_VERSION = "version";
