@@ -3,7 +3,7 @@ package com.netease.cloud.nsf.core.gateway;
 import com.google.common.collect.ImmutableSet;
 import com.netease.cloud.nsf.meta.APIModel;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
-import com.netease.cloud.nsf.meta.K8sResourceEnum;
+import com.netease.cloud.nsf.util.K8sResourceEnum;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
 import me.snowdrop.istio.api.IstioResource;
 import org.springframework.beans.factory.annotation.Autowired;
