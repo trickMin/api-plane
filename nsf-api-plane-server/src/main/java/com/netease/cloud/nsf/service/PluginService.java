@@ -9,5 +9,5 @@ import com.netease.cloud.nsf.meta.PluginTemplate;
 public interface PluginService {
     PluginTemplate getTemplate(String name, String version);
 
-    void enablePlugin(Object serviceInfo, String plugin);
+    String processSchema(String plugin);
 }

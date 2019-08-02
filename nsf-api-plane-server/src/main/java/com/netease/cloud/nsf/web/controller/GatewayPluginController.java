@@ -1,8 +1,5 @@
 package com.netease.cloud.nsf.web.controller;
 
-import com.netease.cloud.nsf.core.editor.EditorContext;
-import com.netease.cloud.nsf.core.editor.ResourceGenerator;
-import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.meta.PluginTemplate;
 import com.netease.cloud.nsf.service.PluginService;
 import com.netease.cloud.nsf.util.errorcode.ApiPlaneErrorCode;
@@ -11,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
-import java.util.Map;
 
 
 /**
@@ -32,13 +28,4 @@ public class GatewayPluginController extends BaseController {
         ErrorCode code = ApiPlaneErrorCode.Success;
         return apiReturn(code.getStatusCode(), code.getCode(),code.getMessage(), new HashMap(){{put("Result", template);}});
     }
-
-
-    @RequestMapping(params = "Action=EnablePlugin", method = RequestMethod.POST)
-    public String processTemplate(@RequestParam("name") String name, @RequestParam("version") String version, @RequestBody String plugin){
-        pluginService.enablePlugin(name, plugin);
-        ErrorCode code = ApiPlaneErrorCode.Success;
-        return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(),null);
-    }
-
 }

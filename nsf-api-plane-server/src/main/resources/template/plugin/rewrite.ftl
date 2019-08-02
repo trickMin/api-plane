@@ -12,9 +12,8 @@
   }
 }
 ---
-#@type=istioScheme
+#@type=istioSchema
 #@version=1.0
-#@processBean=RewritePluginProcessor
 
 {
   "redirect": {

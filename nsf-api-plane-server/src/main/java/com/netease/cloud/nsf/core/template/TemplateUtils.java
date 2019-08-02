@@ -50,9 +50,9 @@ public class TemplateUtils {
 
     public static List<TemplateWrapper> getSpiltWrapper(Template template) {
         List<TemplateWrapper> wrappers = new ArrayList<>();
-        List<String> schemes = spilt(template.toString());
-        for (String scheme : schemes) {
-            wrappers.add(getWrapper(template.getName(), scheme, template.getConfiguration()));
+        List<String> blocks = spilt(template.toString());
+        for (String block : blocks) {
+            wrappers.add(getWrapper(template.getName(), block, template.getConfiguration()));
         }
         return wrappers;
     }
@@ -82,17 +82,17 @@ public class TemplateUtils {
     }
 
     /**
-     * 切分context，并且过滤掉空行和非代码scheme
+     * 切分context，并且过滤掉空行和非代码block
      */
     public static List<String> spilt(String context) {
         List<String> ret = new ArrayList<>();
         // 过滤空行
         context = filter(context, BLANK_LINE);
-        String[] schemes = context.split(YAML_SPLIT);
+        String[] blocks = context.split(YAML_SPLIT);
 
-        for (String scheme : schemes) {
-            if (contain(scheme, IGNORE_SCHEME) && !"".equals(scheme)) {
-                ret.add(scheme);
+        for (String block : blocks) {
+            if (contain(block, IGNORE_SCHEME) && !"".equals(block)) {
+                ret.add(block);
             }
         }
         return ret;

@@ -3,7 +3,6 @@ package com.netease.cloud.nsf.service.impl;
 import com.netease.cloud.nsf.core.editor.EditorContext;
 import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
-import com.netease.cloud.nsf.core.plugin.PluginProcessor;
 import com.netease.cloud.nsf.core.template.TemplateTranslator;
 import com.netease.cloud.nsf.core.template.TemplateUtils;
 import com.netease.cloud.nsf.core.template.TemplateWrapper;
@@ -13,7 +12,6 @@ import com.sun.javafx.binding.StringFormatter;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -29,7 +27,6 @@ public class PluginServiceImple implements PluginService {
     private static final String LABEL_DESCRIPTION = "description";
     private static final String LABEL_TYPE = "type";
     private static final String LABEL_VERSION = "version";
-    private static final String LABEL_PROCESSBEAN = "processBean";
 
     @Autowired
     private Configuration configuration;
@@ -39,9 +36,6 @@ public class PluginServiceImple implements PluginService {
 
     @Autowired
     private TemplateTranslator templateTranslator;
-
-    @Autowired
-    private ApplicationContext springContext;
 
 
     @Override
@@ -62,9 +56,8 @@ public class PluginServiceImple implements PluginService {
         return pluginTemplate;
     }
 
-
     @Override
-    public void enablePlugin(Object serviceInfo, String plugin) {
+    public String processSchema(String plugin) {
         // 1. get TemplateInfo
         ResourceGenerator gen = ResourceGenerator.newInstance(plugin, ResourceType.JSON, editorContext);
         String kind = gen.getValue(PLUGIN_GET_KIND.translate());
@@ -73,20 +66,13 @@ public class PluginServiceImple implements PluginService {
         // 2. get TemplateWrapper
         Template template = TemplateUtils.getTemplate(getTemplateName(kind), configuration);
         TemplateWrapper wrapper = TemplateUtils.getWrapperWithFilter(template,
-                templateWrapper -> templateWrapper.containLabel(LABEL_TYPE, "istioScheme") && templateWrapper.containLabel(LABEL_VERSION, version)
+                templateWrapper -> templateWrapper.containLabel(LABEL_TYPE, "istioSchema") && templateWrapper.containLabel(LABEL_VERSION, version)
         );
 
         // 3. process scheme
-        String context = processWithJson(wrapper.get(), plugin);
-
-        // 3. find process bean + process scheme use bean
-        String processBean = wrapper.getLabelValue(LABEL_PROCESSBEAN);
-
-        Object processor = springContext.getBean(processBean);
-        if (processor instanceof PluginProcessor) {
-            ((PluginProcessor) processor).process(serviceInfo, plugin, context);
-        }
+        return processWithJson(wrapper.get(), plugin);
     }
+
 
     private String processWithJson(Template template, String json) {
         ResourceGenerator modelGen = ResourceGenerator.newInstance(json, ResourceType.JSON, editorContext);
