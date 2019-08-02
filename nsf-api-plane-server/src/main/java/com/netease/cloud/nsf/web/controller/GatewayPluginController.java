@@ -33,14 +33,12 @@ public class GatewayPluginController extends BaseController {
         return apiReturn(code.getStatusCode(), code.getCode(),code.getMessage(), new HashMap(){{put("Result", template);}});
     }
 
-    @Autowired
-    private EditorContext editorContext;
 
-    @RequestMapping(params = "Action=ProcessTemplate", method = RequestMethod.POST)
+    @RequestMapping(params = "Action=EnablePlugin", method = RequestMethod.POST)
     public String processTemplate(@RequestParam("name") String name, @RequestParam("version") String version, @RequestBody String plugin){
-        String result = pluginService.processTemplate(name, version, plugin, ResourceType.JSON);
+        pluginService.enablePlugin(name, plugin);
         ErrorCode code = ApiPlaneErrorCode.Success;
-        return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), new HashMap(){{put("Result", ResourceGenerator.newInstance(result, ResourceType.JSON, editorContext).object(Map.class));}});
+        return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(),null);
     }
 
 }

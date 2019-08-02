@@ -4,8 +4,8 @@
 #@description=这是个插件模板
 
 {
-  "apiVersion": "${apiVersion}",
-  "kind": "RewritePlugin",
+  "version": "${version}",
+  "kind": "rewrite",
   "spec": {
     "uri": "${uri}",
     "authority": "${authority}"
@@ -14,6 +14,7 @@
 ---
 #@type=istioScheme
 #@version=1.0
+#@processBean=RewritePluginProcessor
 
 {
   "redirect": {
