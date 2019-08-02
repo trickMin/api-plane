@@ -20,6 +20,9 @@ public enum PathExpressionEnum {
     GET_ITEMS("$.items", 0),
     REMOVE_RBAC_SERVICE("$.spec.rules[?]", 0),
     ADD_RBAC_SERVICE("$.spec.rules", 0),
+
+    PLUGIN_GET_KIND("$.kind", 0),
+    PLUGIN_GET_VERSION("$.version", 0),
     ;
 
     private String expression;
