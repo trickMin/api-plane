@@ -28,4 +28,9 @@ public class GatewayPluginController extends BaseController {
         ErrorCode code = ApiPlaneErrorCode.Success;
         return apiReturn(code.getStatusCode(), code.getCode(),code.getMessage(), new HashMap(){{put("Result", template);}});
     }
+
+    @RequestMapping(params = "Action=process", method = RequestMethod.POST)
+    public String process(@RequestBody String plugin){
+        return pluginService.processSchema(plugin);
+    }
 }
