@@ -7,7 +7,9 @@ public class PluginTemplate {
 
     private String name;
 
-    private String schema;
+    private String version;
+
+    private Object schema;
 
     private String description;
 
@@ -19,11 +21,19 @@ public class PluginTemplate {
         this.name = name;
     }
 
-    public String getSchema() {
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    public Object getSchema() {
         return schema;
     }
 
-    public void setSchema(String schema) {
+    public void setSchema(Object schema) {
         this.schema = schema;
     }
 
