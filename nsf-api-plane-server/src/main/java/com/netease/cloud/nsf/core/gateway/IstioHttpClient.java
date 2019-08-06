@@ -15,7 +15,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/7/25
@@ -50,7 +55,14 @@ public class IstioHttpClient {
 
     public List<String> getServiceNameList() {
         ResponseEntity response = restTemplate.getForEntity(getIstioUrl() + GET_ENDPOINTZ_PATH, String.class);
-        return ResourceGenerator.newInstance(response.getBody(), ResourceType.JSON, editorContext).getValue(PathExpressionEnum.ISTIO_GET_SVC.translate());
+        Set<String> svcs = new HashSet<>(ResourceGenerator.newInstance(response.getBody(), ResourceType.JSON, editorContext).getValue(PathExpressionEnum.ISTIO_GET_SVC.translate()));
+        return svcs.stream().filter(svc -> {
+            Matcher matcher = Pattern.compile("(.*).(.*).(.*).(.*).(.*)").matcher(svc);
+            if (matcher.find()) {
+                return "istio-system".equals(matcher.group(2));
+            }
+            return false;
+        }).collect(Collectors.toList());
     }
 }
 
