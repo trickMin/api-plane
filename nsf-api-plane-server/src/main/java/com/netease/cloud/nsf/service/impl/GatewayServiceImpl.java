@@ -47,7 +47,7 @@ public class GatewayServiceImpl implements GatewayService {
 
     @Override
     public List<Endpoint> getServiceList() {
-        return istioClient.getServiceNameList();
+        return istioClient.getEndpointList();
     }
 
     @Override

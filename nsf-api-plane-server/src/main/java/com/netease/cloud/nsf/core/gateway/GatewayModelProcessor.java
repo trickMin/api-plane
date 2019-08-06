@@ -1,5 +1,7 @@
 package com.netease.cloud.nsf.core.gateway;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.netease.cloud.nsf.core.editor.EditorContext;
 import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.k8s.K8sResourceGenerator;
@@ -7,6 +9,7 @@ import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.operator.IntegratedResourceOperator;
 import com.netease.cloud.nsf.core.template.TemplateTranslator;
 import com.netease.cloud.nsf.meta.API;
+import com.netease.cloud.nsf.meta.Endpoint;
 import com.netease.cloud.nsf.util.K8sResourceEnum;
 import com.netease.cloud.nsf.util.PathExpressionEnum;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
@@ -18,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
+import java.lang.reflect.Executable;
 import java.util.*;
 
 
@@ -38,6 +42,9 @@ public class GatewayModelProcessor {
     @Autowired
     EditorContext editorContext;
 
+    @Autowired
+    IstioHttpClient istioHttpClient;
+
     private static final String baseApiResource = "gateway/baseApiResource";
     private static final String baseDestinationRule = "gateway/baseDestinationRule";
 
@@ -57,14 +64,17 @@ public class GatewayModelProcessor {
         if (CollectionUtils.isEmpty(gateways)) throw new ApiPlaneException(ExceptionConst.GATEWAY_LIST_EMPTY);
 
         // TODO handle plugins first
-        gateways.stream().forEach( gw -> {
-            Map<String, Object> apiResourceParams = createApiResourceParams(gw, api, namespace);
+        List<Endpoint> endpoints = istioHttpClient.getEndpointList();
+        if (CollectionUtils.isEmpty(endpoints)) throw new ApiPlaneException(ExceptionConst.ENDPOINT_LIST_EMPTY);
+
+        gateways.stream().forEach( gateway -> {
+            Map<String, Object> apiResourceParams = createApiResourceParams(gateway, api, namespace, endpoints);
             String[] resourceStrs = templateTranslator.translate(baseApiResource, apiResourceParams, TemplateTranslator.DEFAULT_TEMPLATE_SPILIT);
             rawResource.addAll(Arrays.asList(resourceStrs));
         });
 
-        api.getProxyUris().stream().forEach(pu -> {
-            Map<String, Object> destinationParams = createDestinationParams(pu, api, namespace, gateways);
+        api.getProxyUris().stream().forEach(proxyUri -> {
+            Map<String, Object> destinationParams = createDestinationParams(proxyUri, api, namespace, gateways);
             String destinationRuleStr = templateTranslator.translate(baseDestinationRule, destinationParams);
             rawResource.add(destinationRuleStr);
         });
@@ -95,16 +105,34 @@ public class GatewayModelProcessor {
         return params;
     }
 
-    private Map<String, Object> createApiResourceParams(String gateway, API api, String namespace) {
+    private Map<String, Object> createApiResourceParams(String gateway, API api, String namespace, List<Endpoint> endpoints) {
 
         String resourceName = String.format("%s-%s", api.getService(), gateway);
 
         Map<String, Object> params = new HashMap<>();
+        List<Map<String, Object>> destinations = new ArrayList<>();
         params.put("api", api);
         params.put("resource_name", resourceName);
         params.put("namespace", namespace);
         params.put("gateway_instance", gateway);
 
+        List<String> proxies = api.getProxyUris();
+        for (int i = 0; i < proxies.size() ; i++) {
+            for (Endpoint e : endpoints) {
+                if (e.getHostname().equals(proxies.get(i))) {
+                    Map<String, Object> param = new HashMap<>();
+                    param.put("port", e.getPort());
+                    int weight = 100/proxies.size();
+                    if (i == proxies.size() - 1) {
+                        weight = 100 - 100*(proxies.size())/proxies.size();
+                    }
+                    param.put("weight", weight);
+                    param.put("host", e.getHostname());
+                    break;
+                }
+            }
+        }
+        params.put("destinations", destinations);
         return params;
     }
 

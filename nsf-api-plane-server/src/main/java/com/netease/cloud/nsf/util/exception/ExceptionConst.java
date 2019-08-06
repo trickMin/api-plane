@@ -11,4 +11,6 @@ public interface ExceptionConst {
     String RESOURCES_DIFF_IDENTITY = "Resources have different identities";
     String GATEWAY_LIST_EMPTY = "gateway list is empty";
 
+    String ENDPOINT_LIST_EMPTY = "endpoint list is empty";
+
 }
