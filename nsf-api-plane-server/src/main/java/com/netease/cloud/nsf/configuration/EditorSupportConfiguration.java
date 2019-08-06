@@ -41,7 +41,7 @@ public class EditorSupportConfiguration {
                 return EnumSet.noneOf(Option.class);
             }
         });
-        return Configuration.builder().options(Option.DEFAULT_PATH_LEAF_TO_NULL).build();
+        return Configuration.builder().options(Option.DEFAULT_PATH_LEAF_TO_NULL, Option.SUPPRESS_EXCEPTIONS).build();
     }
 
     @Bean
