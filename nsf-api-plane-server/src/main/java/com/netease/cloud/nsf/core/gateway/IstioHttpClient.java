@@ -59,9 +59,9 @@ public class IstioHttpClient {
         return svcs.stream().filter(svc -> {
             Matcher matcher = Pattern.compile("(.*)\\.(.*)\\.(.*)\\.(.*)\\.(.*)").matcher(svc);
             if (matcher.find()) {
-                return "istio-system".equals(matcher.group(2));
+                return !"istio-system".equals(matcher.group(2));
             }
-            return false;
+            return true;
         }).collect(Collectors.toList());
     }
 }
