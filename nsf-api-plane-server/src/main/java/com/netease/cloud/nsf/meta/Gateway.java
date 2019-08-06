@@ -1,30 +1,25 @@
 package com.netease.cloud.nsf.meta;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/7/23
  **/
 public class Gateway {
 
-    @JsonProperty(value = "Name")
-    private String name;
+    private String hostname;
 
-    @JsonProperty(value = "Address")
     private String address;
 
-    @JsonProperty(value = "Labels")
-    private List<Map<String, String>> labels;
+    private Map<String, String> labels;
 
-    public String getName() {
-        return name;
+    public String getHostname() {
+        return hostname;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setHostname(String hostname) {
+        this.hostname = hostname;
     }
 
     public String getAddress() {
@@ -35,11 +30,26 @@ public class Gateway {
         this.address = address;
     }
 
-    public List<Map<String, String>> getLabels() {
+    public Map<String, String> getLabels() {
         return labels;
     }
 
-    public void setLabels(List<Map<String, String>> labels) {
+    public void setLabels(Map<String, String> labels) {
         this.labels = labels;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Gateway gateway = (Gateway) o;
+        return Objects.equals(hostname, gateway.hostname) &&
+                Objects.equals(address, gateway.address) &&
+                Objects.equals(labels, gateway.labels);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(hostname, address, labels);
     }
 }

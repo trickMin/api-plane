@@ -14,6 +14,7 @@ import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/7/19
@@ -34,7 +35,7 @@ public class GatewayAPIController extends BaseController{
     public String getServiceList() {
 
         Map<String, Object> result = new HashMap<>();
-        List<String> serviceList = gatewayService.getServiceList();
+        List<String> serviceList = gatewayService.getServiceList().stream().map(endpoint -> endpoint.getHostname()).distinct().collect(Collectors.toList());
 
         result.put(RESULT_LIST, serviceList);
         ErrorCode code = ApiPlaneErrorCode.Success;
