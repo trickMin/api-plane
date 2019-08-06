@@ -22,8 +22,13 @@ public class GatewayServiceImpl implements GatewayService {
     @Autowired
     private ConfigManager configManager;
 
-    public void updateAPI(APIModel api) {
-        configManager.updateConfig(api);
+    public void updateAPI(YxAPIModel yxApi) {
+        configManager.updateConfig(transform(yxApi));
+    }
+
+    private API transform(YxAPIModel yxApi) {
+        //TODO
+        return null;
     }
 
     @Override

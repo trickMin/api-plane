@@ -19,7 +19,7 @@ public interface IstioResourceOperator<T extends IstioResource> {
     boolean adapt(String name);
 
     /**
-     * 删除old list中和new list重复的元素，
+     * 删除old list中与new list重复的元素，
      * 然后将new list的元素全部加入old list中
      * @param oldL
      * @param newL

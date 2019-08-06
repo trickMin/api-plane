@@ -1,6 +1,6 @@
 package com.netease.cloud.nsf.web.controller;
 
-import com.netease.cloud.nsf.meta.APIModel;
+import com.netease.cloud.nsf.meta.YxAPIModel;
 import com.netease.cloud.nsf.service.GatewayService;
 import com.netease.cloud.nsf.util.errorcode.ApiPlaneErrorCode;
 import com.netease.cloud.nsf.util.errorcode.ErrorCode;
@@ -42,7 +42,7 @@ public class GatewayAPIController extends BaseController{
 
 
     @RequestMapping(value = "/yx", params = "Action=PublishAPI", method = RequestMethod.POST)
-    public String publishAPI(@Valid APIModel api) {
+    public String publishAPI(@Valid YxAPIModel api) {
         gatewayService.updateAPI(api);
         return apiReturn(ApiPlaneErrorCode.Success);
     }
