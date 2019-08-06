@@ -21,10 +21,10 @@ import java.util.Set;
 @org.springframework.context.annotation.Configuration
 public class EditorSupportConfiguration {
     @Bean
-    public Configuration configuration() {
+    public Configuration configuration(ObjectMapper objectMapper) {
         Configuration.setDefaults(new Configuration.Defaults() {
-            private final JsonProvider jsonProvider = new JacksonJsonProvider();
-            private final MappingProvider mappingProvider = new JacksonMappingProvider();
+            private final JsonProvider jsonProvider = new JacksonJsonProvider(objectMapper);
+            private final MappingProvider mappingProvider = new JacksonMappingProvider(objectMapper);
 
             @Override
             public JsonProvider jsonProvider() {
