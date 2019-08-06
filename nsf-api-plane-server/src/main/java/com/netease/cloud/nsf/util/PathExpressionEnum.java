@@ -20,6 +20,8 @@ public enum PathExpressionEnum {
     GET_ITEMS("$.items", 0),
     REMOVE_RBAC_SERVICE("$.spec.rules[?]", 0),
     ADD_RBAC_SERVICE("$.spec.rules", 0),
+    REMOVE_VS_HTTP("$.spec.http[?(@.name == '%s')]", 1),
+    REMOVE_DST_SUBSET("$.spec.subsets[?(@.name == '%s')]", 1),
 
     PLUGIN_GET_KIND("$.kind", 0),
     PLUGIN_GET_VERSION("$.version", 0),
