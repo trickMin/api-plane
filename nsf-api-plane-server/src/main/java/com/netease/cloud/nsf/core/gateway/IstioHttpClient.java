@@ -57,7 +57,7 @@ public class IstioHttpClient {
         ResponseEntity response = restTemplate.getForEntity(getIstioUrl() + GET_ENDPOINTZ_PATH, String.class);
         Set<String> svcs = new HashSet<>(ResourceGenerator.newInstance(response.getBody(), ResourceType.JSON, editorContext).getValue(PathExpressionEnum.ISTIO_GET_SVC.translate()));
         return svcs.stream().filter(svc -> {
-            Matcher matcher = Pattern.compile("(.*).(.*).(.*).(.*).(.*)").matcher(svc);
+            Matcher matcher = Pattern.compile("(.*)\\.(.*)\\.(.*)\\.(.*)\\.(.*)").matcher(svc);
             if (matcher.find()) {
                 return "istio-system".equals(matcher.group(2));
             }
