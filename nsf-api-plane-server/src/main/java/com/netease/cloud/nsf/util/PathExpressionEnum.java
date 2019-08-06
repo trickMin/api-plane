@@ -20,11 +20,14 @@ public enum PathExpressionEnum {
     GET_ITEMS("$.items", 0),
     REMOVE_RBAC_SERVICE("$.spec.rules[?]", 0),
     ADD_RBAC_SERVICE("$.spec.rules", 0),
+    REMOVE_VS_HTTP("$.spec.http[?(@.name == '%s')]", 1),
+    REMOVE_DST_SUBSET("$.spec.subsets[?(@.name == '%s')]", 1),
 
     PLUGIN_GET_KIND("$.kind", 0),
     PLUGIN_GET_VERSION("$.version", 0),
 
-    ISTIO_GET_SVC("$[*].ep[*].service.hostname", 0),
+    ISTIO_GET_SVC("$[*].ep[*]", 0),
+    ISTIO_GET_GATEWAY("$[?(@.svc =~ /%s/i)].ep[*]",1),
     ;
 
     private String expression;
