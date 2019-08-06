@@ -128,6 +128,7 @@ public class GatewayModelProcessor {
                     }
                     param.put("weight", weight);
                     param.put("host", e.getHostname());
+                    destinations.add(param);
                     break;
                 }
             }
