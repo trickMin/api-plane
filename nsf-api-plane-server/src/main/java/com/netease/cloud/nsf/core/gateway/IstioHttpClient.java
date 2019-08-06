@@ -4,6 +4,7 @@ import com.netease.cloud.nsf.core.editor.EditorContext;
 import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.k8s.KubernetesClient;
+import com.netease.cloud.nsf.meta.Endpoint;
 import com.netease.cloud.nsf.util.K8sResourceEnum;
 import com.netease.cloud.nsf.util.PathExpressionEnum;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
@@ -15,10 +16,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -53,16 +52,25 @@ public class IstioHttpClient {
         return String.format("http://%s:%s", ip, port);
     }
 
-    public List<String> getServiceNameList() {
+    public List<Endpoint> getServiceNameList() {
+        List<Endpoint> endpoints = new ArrayList<>();
         ResponseEntity response = restTemplate.getForEntity(getIstioUrl() + GET_ENDPOINTZ_PATH, String.class);
-        Set<String> svcs = new HashSet<>(ResourceGenerator.newInstance(response.getBody(), ResourceType.JSON, editorContext).getValue(PathExpressionEnum.ISTIO_GET_SVC.translate()));
-        return svcs.stream().filter(svc -> {
-            Matcher matcher = Pattern.compile("(.*)\\.(.*)\\.(.*)\\.(.*)\\.(.*)").matcher(svc);
-            if (matcher.find()) {
-                return !"istio-system".equals(matcher.group(2));
-            }
-            return true;
-        }).collect(Collectors.toList());
+        List svcs = ResourceGenerator.newInstance(response.getBody(), ResourceType.JSON, editorContext).getValue(PathExpressionEnum.ISTIO_GET_SVC.translate());
+        svcs.stream().forEach(
+                svc -> {
+                    Endpoint endpoint = new Endpoint();
+                    ResourceGenerator gen = ResourceGenerator.newInstance(svc, ResourceType.OBJECT, editorContext);
+                    endpoint.setHostname(gen.getValue("$.service.hostname"));
+                    endpoint.setAddress(gen.getValue("$.endpoint.Address"));
+                    endpoint.setPort(gen.getValue("$.endpoint.ServicePort.port"));
+                    endpoint.setLabels(gen.getValue("$.labels"));
+                    endpoints.add(endpoint);
+                }
+        );
+        return endpoints.stream()
+                .filter(endpoint -> endpoint.getAddress() != null && endpoint.getHostname() != null && endpoint.getPort() != null)
+                .filter(endpoint -> !Pattern.compile("(.*)\\.istio-system\\.(.*)\\.(.*)\\.(.*)").matcher(endpoint.getHostname()).find())
+                .distinct().collect(Collectors.toList());
     }
 }
 

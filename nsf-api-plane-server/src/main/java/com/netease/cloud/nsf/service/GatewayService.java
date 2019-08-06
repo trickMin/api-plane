@@ -16,7 +16,7 @@ public interface GatewayService {
 
     List<IstioResource> getAPIResources(String service);
 
-    List<String> getServiceList();
+    List<Endpoint> getServiceList();
 
     List<Gateway> getGatewayList();
 

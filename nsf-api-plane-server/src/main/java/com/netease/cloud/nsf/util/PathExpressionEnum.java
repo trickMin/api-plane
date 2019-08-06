@@ -24,7 +24,7 @@ public enum PathExpressionEnum {
     PLUGIN_GET_KIND("$.kind", 0),
     PLUGIN_GET_VERSION("$.version", 0),
 
-    ISTIO_GET_SVC("$[*].ep[*].service.hostname", 0),
+    ISTIO_GET_SVC("$[*].ep[*]", 0),
     ;
 
     private String expression;
