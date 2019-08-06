@@ -1,10 +1,12 @@
 package com.netease.cloud.nsf.service.impl;
 
+import com.google.protobuf.Api;
 import com.netease.cloud.nsf.core.gateway.ConfigManager;
 import com.netease.cloud.nsf.core.gateway.IstioHttpClient;
 import com.netease.cloud.nsf.meta.*;
 import com.netease.cloud.nsf.service.GatewayService;
 import me.snowdrop.istio.api.IstioResource;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,8 +29,10 @@ public class GatewayServiceImpl implements GatewayService {
     }
 
     private API transform(YxAPIModel yxApi) {
-        //TODO
-        return null;
+
+        API api = new API();
+        BeanUtils.copyProperties(yxApi, api);
+        return api;
     }
 
     @Override

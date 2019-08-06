@@ -3,6 +3,7 @@ package com.netease.cloud.nsf.meta;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/7/23
@@ -16,7 +17,7 @@ public class Gateway {
     private String address;
 
     @JsonProperty(value = "Labels")
-    private List<String> labels;
+    private List<Map<String, String>> labels;
 
     public String getName() {
         return name;
@@ -34,11 +35,11 @@ public class Gateway {
         this.address = address;
     }
 
-    public List<String> getLabels() {
+    public List<Map<String, String>> getLabels() {
         return labels;
     }
 
-    public void setLabels(List<String> labels) {
+    public void setLabels(List<Map<String, String>> labels) {
         this.labels = labels;
     }
 }

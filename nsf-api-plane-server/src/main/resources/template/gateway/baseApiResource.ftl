@@ -37,10 +37,12 @@ spec:
         regex: ${api.methods?join("|")}
     route:
     <#list api.proxyUris as proxy>
+    <#assign s = api.proxyUris?size>
     - destination:
         host: ${proxy}
         port:
           number: 8080
-        subset: ${api.name!}.${gateway_instance}
+        subset: ${api.name!}-${gateway_instance}
+      weight: <#if proxy_has_next>${(100/s)?int}<#else>${100-(100*(s-1)/s)?int}</#if>
     </#list>
     name: ${api.name}

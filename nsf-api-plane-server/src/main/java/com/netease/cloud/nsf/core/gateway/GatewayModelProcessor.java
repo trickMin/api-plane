@@ -94,7 +94,7 @@ public class GatewayModelProcessor {
 
     private Map<String, Object> createApiResourceParams(String gateway, API api, String namespace) {
 
-        String resourceName = String.format("%s.%s", api.getService(), gateway);
+        String resourceName = String.format("%s-%s", api.getService(), gateway);
 
         Map<String, Object> params = new HashMap<>();
         params.put("api", api);

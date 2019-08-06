@@ -7,7 +7,7 @@ spec:
   host: ${host}
   subsets:
   <#list gateway_instances as gateway>
-  - name: ${api.name}.${gateway}
+  - name: ${api.name}-${gateway}
     trafficPolicy:
       loadBalancer:
         simple: ROUND_ROBIN

@@ -22,7 +22,7 @@ public class VirtualServiceOperator implements IstioResourceOperator<VirtualServ
         VirtualServiceSpec freshSpec = fresh.getSpec();
 
         oldSpec.setHttp(mergeList(oldSpec.getHttp(), freshSpec.getHttp(), new HttpRouteEquals()));
-        oldSpec.setHosts(mergeList(oldSpec.getHttp(), freshSpec.getHosts(),  (ot, nt) -> Objects.equals(ot, nt)));
+        oldSpec.setHosts(mergeList(oldSpec.getHosts(), freshSpec.getHosts(),  (ot, nt) -> Objects.equals(ot, nt)));
         return old;
     }
 

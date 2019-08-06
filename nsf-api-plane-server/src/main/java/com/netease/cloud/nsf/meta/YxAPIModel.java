@@ -19,7 +19,7 @@ public class YxAPIModel {
     /**
      * api名
      */
-    @NotEmpty
+    @NotEmpty(message = "api name")
     @JsonProperty(value = "Name")
     private String name;
 

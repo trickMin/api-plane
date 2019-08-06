@@ -37,7 +37,7 @@ public class K8sConfigStore implements ConfigStore {
     public IstioResource get(IstioResource istioResource) {
         IstioResource r = istioResource;
         ObjectMeta meta = r.getMetadata();
-        return get(meta.getName(), meta.getNamespace(), r.getKind());
+        return get(r.getKind(), meta.getNamespace(), meta.getName());
     }
 
     @Override

@@ -28,7 +28,7 @@ public class GatewayConfigManager implements ConfigManager {
     @Autowired
     private ConfigStore configStore;
 
-    @Value("{apiNamespace:gateway-system}")
+    @Value("${apiNamespace:gateway-system}")
     private String apiNamespace;
 
     private static final Set<String> API_REFERENCE_TYPES = ImmutableSet.of(K8sResourceEnum.VirtualService.name(), K8sResourceEnum.DestinationRule.name(),

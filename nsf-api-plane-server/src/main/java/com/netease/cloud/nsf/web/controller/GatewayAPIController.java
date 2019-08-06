@@ -5,6 +5,7 @@ import com.netease.cloud.nsf.service.GatewayService;
 import com.netease.cloud.nsf.util.errorcode.ApiPlaneErrorCode;
 import com.netease.cloud.nsf.util.errorcode.ErrorCode;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -42,7 +43,7 @@ public class GatewayAPIController extends BaseController{
 
 
     @RequestMapping(value = "/yx", params = "Action=PublishAPI", method = RequestMethod.POST)
-    public String publishAPI(@Valid YxAPIModel api) {
+    public String publishAPI(@RequestBody @Valid YxAPIModel api) {
         gatewayService.updateAPI(api);
         return apiReturn(ApiPlaneErrorCode.Success);
     }
