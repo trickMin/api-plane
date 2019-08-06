@@ -124,7 +124,7 @@ public class GatewayModelProcessor {
                     param.put("port", e.getPort());
                     int weight = 100/proxies.size();
                     if (i == proxies.size() - 1) {
-                        weight = 100 - 100*(proxies.size())/proxies.size();
+                        weight = 100 - 100*(proxies.size()-1)/proxies.size();
                     }
                     param.put("weight", weight);
                     param.put("host", e.getHostname());
