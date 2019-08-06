@@ -10,6 +10,7 @@ import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
 import io.fabric8.kubernetes.api.model.Pod;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
@@ -48,8 +49,8 @@ public class IstioHttpClient {
     }
 
     public List<String> getServiceNameList() {
-        String json = client.get(getIstioUrl() + GET_ENDPOINTZ_PATH);
-        return ResourceGenerator.newInstance(json, ResourceType.JSON, editorContext).getValue(PathExpressionEnum.ISTIO_GET_SVC.translate());
+        ResponseEntity response = restTemplate.getForEntity(getIstioUrl() + GET_ENDPOINTZ_PATH, String.class);
+        return ResourceGenerator.newInstance(response.getBody(), ResourceType.JSON, editorContext).getValue(PathExpressionEnum.ISTIO_GET_SVC.translate());
     }
 }
 
