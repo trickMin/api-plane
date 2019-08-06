@@ -25,6 +25,7 @@ public enum PathExpressionEnum {
     PLUGIN_GET_VERSION("$.version", 0),
 
     ISTIO_GET_SVC("$[*].ep[*]", 0),
+    ISTIO_GET_GATEWAY("$[?(@.svc =~ /%s/i)].ep[*]",1),
     ;
 
     private String expression;
