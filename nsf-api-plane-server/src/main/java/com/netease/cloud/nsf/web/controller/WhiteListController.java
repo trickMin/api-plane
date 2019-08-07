@@ -2,7 +2,6 @@ package com.netease.cloud.nsf.web.controller;
 
 import com.netease.cloud.nsf.meta.WhiteList;
 import com.netease.cloud.nsf.service.WhiteListService;
-import com.netease.cloud.nsf.service.impl.WhiteListServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,11 +22,11 @@ import java.util.regex.Pattern;
 public class WhiteListController extends BaseController {
     @Autowired
     private WhiteListService whiteListService;
-    private static final Logger logger = LoggerFactory.getLogger(WhiteListServiceImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(WhiteListController.class);
 
     @RequestMapping(params = "Action=Update", method = RequestMethod.POST)
     public String update(WhiteList whiteList, @RequestHeader(value = "X-Forwarded-Client-Cert", required = false) String certHeader) {
-        if (!resolveRequestCert(whiteList, certHeader) || whiteList.getService() != null && !whiteList.getService().equals("")) {
+        if (!resolveRequestCert(whiteList, certHeader) || whiteList.getService() == null || whiteList.getService().equals("")) {
             return apiReturn(401, "UnAuthorized", String.format("UnAuthorized, X-Forwarded-Client-Cert: %s", certHeader), null);
         }
         whiteListService.updateService(whiteList);
