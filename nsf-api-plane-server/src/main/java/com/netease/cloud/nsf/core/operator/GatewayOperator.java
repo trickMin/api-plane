@@ -3,11 +3,14 @@ package com.netease.cloud.nsf.core.operator;
 import com.netease.cloud.nsf.util.K8sResourceEnum;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
+import com.netease.cloud.nsf.util.function.Equals;
 import me.snowdrop.istio.api.networking.v1alpha3.Gateway;
 import me.snowdrop.istio.api.networking.v1alpha3.Server;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * 一个服务对应一个gateway,一个gateway里面只配一个server,
@@ -23,9 +26,23 @@ public class GatewayOperator implements IstioResourceOperator<Gateway> {
         if (CollectionUtils.isEmpty(oldServers)) {
             throw new ApiPlaneException(ExceptionConst.RESOURCE_NON_EXIST);
         }
+        Server firstOldServer = oldServers.get(0);
+        List<String> oldHosts = firstOldServer.getHosts();
 
-        return null;
+        List<Server> freshServers = fresh.getSpec().getServers();
+        if (CollectionUtils.isEmpty(freshServers)) {
+            return old;
+        }
+        Server firstFreshServer = freshServers.get(0);
+        List<String> freshHosts = firstFreshServer.getHosts();
+        if (CollectionUtils.isEmpty(freshHosts)) {
+            return old;
+        }
+        firstOldServer.setHosts(mergeList(oldHosts, freshHosts, (ot, nt) -> Objects.equals(ot, nt)));
+        return old;
     }
+
+
 
     @Override
     public boolean adapt(String name) {

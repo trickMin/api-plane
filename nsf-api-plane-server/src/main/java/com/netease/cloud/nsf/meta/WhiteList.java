@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 public class WhiteList {
 
     private static final Logger logger = LoggerFactory.getLogger(WhiteList.class);
-    private SiderCarRequestMeta siderCarMeta;
 
     @JsonProperty("sources")
     private List<String> sources;
@@ -32,9 +31,8 @@ public class WhiteList {
     @JsonProperty("contextPath")
     private String contextPath;
 
-    public void setSiderCarMeta(SiderCarRequestMeta siderCarMeta) {
-        this.siderCarMeta = siderCarMeta;
-    }
+    private String service;
+    private String namespace;
 
     public List<String> getSources() {
         return sources;
@@ -60,12 +58,16 @@ public class WhiteList {
     	this.contextPath = contextPath;
     }
 
+    public void setService(String service) {
+        this.service = service;
+    }
+
     public String getService() {
-        return siderCarMeta.getService();
+        return service;
     }
 
     public String getFullService() {
-        return StringFormatter.format("%s.%s.svc.%s", siderCarMeta.getService(), siderCarMeta.getNamespace(), siderCarMeta.getCluster()).getValue();
+        return StringFormatter.format("%s.%s.svc.cluster.local", service, namespace).getValue();
     }
 
     public List<String> getAuthPaths() {
@@ -85,7 +87,11 @@ public class WhiteList {
     }
 
     public String getNamespace() {
-        return siderCarMeta.getNamespace();
+        return namespace;
+    }
+
+    public void setNamespace(String namespace) {
+        this.namespace = namespace;
     }
 
     public String getSourcesNamespace() {

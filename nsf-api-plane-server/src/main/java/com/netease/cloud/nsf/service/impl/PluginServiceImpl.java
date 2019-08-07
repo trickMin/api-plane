@@ -3,6 +3,7 @@ package com.netease.cloud.nsf.service.impl;
 import com.netease.cloud.nsf.core.editor.EditorContext;
 import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
+import com.netease.cloud.nsf.core.plugin.SchemaProcessor;
 import com.netease.cloud.nsf.core.template.TemplateTranslator;
 import com.netease.cloud.nsf.core.template.TemplateUtils;
 import com.netease.cloud.nsf.core.template.TemplateWrapper;
@@ -12,9 +13,12 @@ import com.sun.javafx.binding.StringFormatter;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.netease.cloud.nsf.util.PathExpressionEnum.*;
 
@@ -27,6 +31,7 @@ public class PluginServiceImpl implements PluginService {
     private static final String LABEL_DESCRIPTION = "description";
     private static final String LABEL_TYPE = "type";
     private static final String LABEL_VERSION = "version";
+    private static final String LABEL_PROCESSOR = "processor";
 
     @Autowired
     private Configuration configuration;
@@ -36,6 +41,9 @@ public class PluginServiceImpl implements PluginService {
 
     @Autowired
     private TemplateTranslator templateTranslator;
+
+    @Autowired
+    private ApplicationContext applicationContext;
 
 
     @Override
@@ -69,7 +77,15 @@ public class PluginServiceImpl implements PluginService {
                 templateWrapper -> templateWrapper.containLabel(LABEL_TYPE, "istioSchema") && templateWrapper.containLabel(LABEL_VERSION, version)
         );
 
-        // 3. process scheme
+        // 3. process with processor or json
+        if (wrapper.containKey(LABEL_PROCESSOR)) {
+            String processBean = wrapper.getLabelValue(LABEL_PROCESSOR);
+            Map<String, SchemaProcessor> processors = applicationContext.getBeansOfType(SchemaProcessor.class);
+            List<Map.Entry<String, SchemaProcessor>> processorList = processors.entrySet().stream().filter(p -> p.getValue().getName().equals(processBean)).collect(Collectors.toList());
+            if (!processorList.isEmpty()) {
+                return processorList.get(0).getValue().process(plugin);
+            }
+        }
         return processWithJson(wrapper.get(), plugin);
     }
 

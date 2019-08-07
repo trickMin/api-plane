@@ -66,7 +66,7 @@ public class DefaultK8sHttpClient implements K8sHttpClient {
         try (Response response = httpClient.newCall(request).execute()) {
             assertResponseCode(request, response);
             String result = response.body().string();
-            logger.debug(result);
+            logger.info(result);
             return result;
         } catch (IOException e) {
             throw new ApiPlaneException(StringFormatter.format("K8s request failed : {}.", request.toString()).toString(), e);

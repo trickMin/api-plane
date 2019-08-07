@@ -8,6 +8,9 @@
     <packaging>pom</packaging>
     <version>0.0.1-SNAPSHOT</version>
 
+    <properties>
+        <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
+    </properties>
     <modules>
         <module>nsf-api-plane-protocol</module>
         <module>nsf-api-plane-server</module>

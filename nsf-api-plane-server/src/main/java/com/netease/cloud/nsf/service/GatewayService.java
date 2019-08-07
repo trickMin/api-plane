@@ -10,13 +10,13 @@ import java.util.List;
  **/
 public interface GatewayService {
 
-    void updateAPI(APIModel api);
+    void updateAPI(YxAPIModel api);
 
     void deleteAPI(String service, String name);
 
     List<IstioResource> getAPIResources(String service);
 
-    List<String> getServiceList();
+    List<Endpoint> getServiceList();
 
     List<Gateway> getGatewayList();
 

@@ -46,6 +46,7 @@ public class ApiPlaneAutoConfiguration {
     @Bean
     @Primary
     ObjectMapper jsonObjectMapper() {
-        return new ObjectMapper();
+        return new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                .setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
 }

@@ -1,10 +1,11 @@
 package com.netease.cloud.nsf.web.controller;
 
-import com.netease.cloud.nsf.meta.APIModel;
+import com.netease.cloud.nsf.meta.YxAPIModel;
 import com.netease.cloud.nsf.service.GatewayService;
 import com.netease.cloud.nsf.util.errorcode.ApiPlaneErrorCode;
 import com.netease.cloud.nsf.util.errorcode.ErrorCode;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -13,6 +14,7 @@ import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/7/19
@@ -33,7 +35,7 @@ public class GatewayAPIController extends BaseController{
     public String getServiceList() {
 
         Map<String, Object> result = new HashMap<>();
-        List<String> serviceList = gatewayService.getServiceList();
+        List<String> serviceList = gatewayService.getServiceList().stream().map(endpoint -> endpoint.getHostname()).distinct().collect(Collectors.toList());
 
         result.put(RESULT_LIST, serviceList);
         ErrorCode code = ApiPlaneErrorCode.Success;
@@ -42,7 +44,7 @@ public class GatewayAPIController extends BaseController{
 
 
     @RequestMapping(value = "/yx", params = "Action=PublishAPI", method = RequestMethod.POST)
-    public String publishAPI(@Valid APIModel api) {
+    public String publishAPI(@RequestBody @Valid YxAPIModel api) {
         gatewayService.updateAPI(api);
         return apiReturn(ApiPlaneErrorCode.Success);
     }

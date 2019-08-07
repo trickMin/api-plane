@@ -1,9 +1,10 @@
 package com.netease.cloud.nsf.core.operator;
 
-import com.google.common.collect.ImmutableSet;
+import com.netease.cloud.nsf.util.function.Equals;
 import me.snowdrop.istio.api.IstioResource;
 import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -13,16 +14,38 @@ public interface IstioResourceOperator<T extends IstioResource> {
 
     T merge(T old, T fresh);
 
+//    T subtract(T old, String name);
+
     boolean adapt(String name);
 
-    default List mergeList(List oldL, List newL) {
+    /**
+     * 删除old list中与new list重复的元素，
+     * 然后将new list的元素全部加入old list中
+     * @param oldL
+     * @param newL
+     * @param eq
+     * @return
+     */
+    default List mergeList(List oldL, List newL, Equals eq) {
+        List removal = new ArrayList();
+        List result = new ArrayList(oldL);
         if (!CollectionUtils.isEmpty(newL)) {
             if (CollectionUtils.isEmpty(oldL)) {
                 return newL;
             } else {
-                return ImmutableSet.of(oldL, newL).asList();
+                for (Object no : newL) {
+                    for (Object oo : oldL) {
+                        if (eq.apply(no, oo)) {
+                            removal.add(oo);
+                            break;
+                        }
+                    }
+                }
+                result.removeAll(removal);
+                result.addAll(newL);
             }
         }
-        return oldL;
+        return result;
     }
+
 }

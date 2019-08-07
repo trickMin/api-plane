@@ -1,7 +1,8 @@
 package com.netease.cloud.nsf.core.gateway;
 
 import com.google.common.collect.ImmutableSet;
-import com.netease.cloud.nsf.meta.APIModel;
+import com.netease.cloud.nsf.meta.API;
+import com.netease.cloud.nsf.meta.YxAPIModel;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.K8sResourceEnum;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
@@ -27,19 +28,14 @@ public class GatewayConfigManager implements ConfigManager {
     @Autowired
     private ConfigStore configStore;
 
-    @Value("{apiNamespace:gateway-config}")
+    @Value("${apiNamespace:gateway-system}")
     private String apiNamespace;
 
-    /**
-     * api目前只对应virtualservice和destinationrule两个资源
-     */
     private static final Set<String> API_REFERENCE_TYPES = ImmutableSet.of(K8sResourceEnum.VirtualService.name(), K8sResourceEnum.DestinationRule.name(),
             K8sResourceEnum.Gateway.name());
 
     @Override
-    public void updateConfig(APIModel api) {
-
-        // TODO clean up old resources first
+    public void updateConfig(API api) {
 
         List<IstioResource> resources = modelProcessor.translate(api, apiNamespace);
         for (IstioResource latest : resources) {
