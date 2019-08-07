@@ -12,12 +12,16 @@ import java.util.Objects;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Endpoint {
 
+    @JsonProperty(value = "Name")
     private String hostname;
 
+    @JsonProperty(value = "Address")
     private String address;
 
+    @JsonProperty(value = "Port")
     private Integer port;
 
+    @JsonProperty(value = "Labels")
     private Map<String,String> labels;
 
     public String getHostname() {

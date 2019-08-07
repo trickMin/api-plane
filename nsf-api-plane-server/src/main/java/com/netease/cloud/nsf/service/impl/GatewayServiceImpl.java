@@ -31,6 +31,7 @@ public class GatewayServiceImpl implements GatewayService {
     private API transform(YxAPIModel yxApi) {
 
         API api = new API();
+        // FIXME
         BeanUtils.copyProperties(yxApi, api);
         return api;
     }
@@ -52,7 +53,7 @@ public class GatewayServiceImpl implements GatewayService {
 
     @Override
     public List<Gateway> getGatewayList() {
-        return null;
+        return istioClient.getGatewayList();
     }
 
     @Override
