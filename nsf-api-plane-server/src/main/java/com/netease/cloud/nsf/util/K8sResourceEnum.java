@@ -23,7 +23,7 @@ public enum K8sResourceEnum {
     ServiceRoleBinding(ServiceRoleBinding.class, ServiceRoleBindingList.class, "/apis/rbac.istio.io/v1alpha1/namespaces/%s/servicerolebindings"),
     Policy(Policy.class, PolicyList.class, "/apis/authentication.istio.io/v1alpha1/namespaces/%s/policies"),
     ServiceAccount(ServiceAccount.class, ServiceAccountList.class, "/api/v1/namespaces/%s/serviceaccounts"),
-    Gateway(me.snowdrop.istio.api.networking.v1alpha3.Gateway.class, GatewayList.class, "/apis/networking.istio.io/v1alpha3/namespaces/%s/gateways"),
+    Gateway(Gateway.class, GatewayList.class, "/apis/networking.istio.io/v1alpha3/namespaces/%s/gateways"),
     Pod(Pod.class, PodList.class, "/api/v1/namespaces/%s/pods"),
     ;
 

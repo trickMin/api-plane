@@ -7,7 +7,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
-public class APIModel {
+public class YxAPIModel {
 
     /**
      * 网关名
@@ -19,7 +19,7 @@ public class APIModel {
     /**
      * api名
      */
-    @NotEmpty
+    @NotEmpty(message = "api name")
     @JsonProperty(value = "Name")
     private String name;
 
@@ -200,8 +200,8 @@ public class APIModel {
             return this;
         }
 
-        public APIModel build() {
-            APIModel aPIModel = new APIModel();
+        public YxAPIModel build() {
+            YxAPIModel aPIModel = new YxAPIModel();
             aPIModel.setGateways(gateways);
             aPIModel.setName(name);
             aPIModel.setHosts(hosts);

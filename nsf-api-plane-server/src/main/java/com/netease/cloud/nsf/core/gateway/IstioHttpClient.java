@@ -18,7 +18,10 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -53,7 +56,7 @@ public class IstioHttpClient {
         return String.format("http://%s:%s", ip, port);
     }
 
-    public List<Endpoint> getServiceNameList() {
+    public List<Endpoint> getEndpointList() {
         List<Endpoint> endpoints = new ArrayList<>();
         ResponseEntity response = restTemplate.getForEntity(getIstioUrl() + GET_ENDPOINTZ_PATH, String.class);
         List svcs = ResourceGenerator.newInstance(response.getBody(), ResourceType.JSON, editorContext).getValue(PathExpressionEnum.ISTIO_GET_SVC.translate());

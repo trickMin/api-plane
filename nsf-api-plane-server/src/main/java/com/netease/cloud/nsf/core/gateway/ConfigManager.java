@@ -1,6 +1,7 @@
 package com.netease.cloud.nsf.core.gateway;
 
-import com.netease.cloud.nsf.meta.APIModel;
+import com.netease.cloud.nsf.meta.API;
+import com.netease.cloud.nsf.meta.YxAPIModel;
 import me.snowdrop.istio.api.IstioResource;
 
 import java.util.List;
@@ -14,7 +15,7 @@ public interface ConfigManager {
      * 更新API
      * @param api
      */
-    void updateConfig(APIModel api);
+    void updateConfig(API api);
 
     /**
      * 删除API

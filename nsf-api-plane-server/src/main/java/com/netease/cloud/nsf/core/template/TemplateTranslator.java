@@ -4,6 +4,7 @@ import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 /**
  * @auther wupenghuai@corp.netease.com
@@ -21,6 +24,8 @@ public class TemplateTranslator {
     private static final Logger logger = LoggerFactory.getLogger(TemplateTranslator.class);
 
     private Configuration configuration;
+
+    public static final String DEFAULT_TEMPLATE_SPILIT = "---";
 
     @Autowired
     public TemplateTranslator(Configuration configuration) {
@@ -90,7 +95,7 @@ public class TemplateTranslator {
      */
     public String[] translate(String templateName, Object model, String separator) {
         String content = translate(templateName, model);
-        return content.split(separator);
+        return split(content, separator);
     }
 
     /**
@@ -101,7 +106,7 @@ public class TemplateTranslator {
      */
     public String[] translate(Template template, Object model, String separator) {
         String content = translate(template, model);
-        return content.split(separator);
+        return split(content, separator);
     }
 
     /**
@@ -113,6 +118,12 @@ public class TemplateTranslator {
      */
     public String[] translate(String templateName, String sourceCode, Object model, String separator) {
         String content = translate(templateName, sourceCode, model);
-        return content.split(separator);
+        return split(content, separator);
+    }
+
+    private String[] split(String content, String separator) {
+        return Arrays.stream(content.split(separator))
+                .filter(s -> !StringUtils.isEmpty(s))
+                .toArray(String[]::new);
     }
 }

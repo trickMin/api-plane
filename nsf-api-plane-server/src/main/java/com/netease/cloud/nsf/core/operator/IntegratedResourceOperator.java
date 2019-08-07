@@ -19,6 +19,7 @@ public class IntegratedResourceOperator {
 
     public IstioResource merge(IstioResource old, IstioResource fresh) {
 
+        if (old == null || fresh == null) throw new ApiPlaneException(ExceptionConst.RESOURCE_NON_EXIST);
         if (!sameIdentity(old, fresh)) throw new ApiPlaneException(ExceptionConst.RESOURCES_DIFF_IDENTITY);
         for (IstioResourceOperator op : operators) {
             if (op.adapt(old.getKind())) {
