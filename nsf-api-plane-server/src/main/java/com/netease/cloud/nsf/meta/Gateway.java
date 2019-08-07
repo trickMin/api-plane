@@ -1,5 +1,7 @@
 package com.netease.cloud.nsf.meta;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.Map;
 import java.util.Objects;
 
@@ -8,10 +10,13 @@ import java.util.Objects;
  **/
 public class Gateway {
 
+    @JsonProperty(value = "Name")
     private String hostname;
 
+    @JsonProperty(value = "Address")
     private String address;
 
+    @JsonProperty(value = "Labels")
     private Map<String, String> labels;
 
     public String getHostname() {

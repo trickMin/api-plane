@@ -1,5 +1,6 @@
 package com.netease.cloud.nsf.web.controller;
 
+import com.netease.cloud.nsf.meta.Gateway;
 import com.netease.cloud.nsf.meta.YxAPIModel;
 import com.netease.cloud.nsf.service.GatewayService;
 import com.netease.cloud.nsf.util.errorcode.ApiPlaneErrorCode;
@@ -38,6 +39,17 @@ public class GatewayAPIController extends BaseController{
         List<String> serviceList = gatewayService.getServiceList().stream().map(endpoint -> endpoint.getHostname()).distinct().collect(Collectors.toList());
 
         result.put(RESULT_LIST, serviceList);
+        ErrorCode code = ApiPlaneErrorCode.Success;
+        return apiReturn(code.getStatusCode(), code.getCode(), null, result);
+    }
+
+    @RequestMapping(params = "Action=GetGatewayList", method = RequestMethod.GET)
+    public String getGatewayList() {
+
+        Map<String, Object> result = new HashMap<>();
+        List<Gateway> gatewayList = gatewayService.getGatewayList();
+
+        result.put(RESULT_LIST, gatewayList);
         ErrorCode code = ApiPlaneErrorCode.Success;
         return apiReturn(code.getStatusCode(), code.getCode(), null, result);
     }
