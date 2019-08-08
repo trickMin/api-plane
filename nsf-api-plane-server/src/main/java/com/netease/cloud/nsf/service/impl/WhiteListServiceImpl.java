@@ -65,7 +65,7 @@ public class WhiteListServiceImpl implements WhiteListService {
             logger.info("rbac for {} already enabled.", fullService);
             return;
         }
-        generator.addElement(PathExpressionEnum.ADD_RBAC_SERVICE.translate(), fullService);
+        generator.addElement(PathExpressionEnum.ADD_RBAC_SERVICE_TO_RBAC_CONFIG.translate(), fullService);
         client.createOrUpdate(generator.jsonString(), ResourceType.JSON);
         logger.info("successfully enable rbac for {}.", fullService);
     }
