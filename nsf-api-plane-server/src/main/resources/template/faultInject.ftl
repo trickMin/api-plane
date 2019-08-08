@@ -1,3 +1,4 @@
+<#--deprecated-->
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 <#include "common/metadata.ftl"/>

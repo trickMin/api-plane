@@ -1,3 +1,4 @@
+#轻舟API会对这个资源进行操作, 所以只有不存在时才创建
 ---
 apiVersion: "rbac.istio.io/v1alpha1"
 kind: ClusterRbacConfig
@@ -7,5 +8,4 @@ spec:
   mode: 'ON_WITH_INCLUSION'
   inclusion:
     services:
-    - qz-egress.qz.svc.cluster.local
-    - yx-provider.svc.cluster.local
+    - qz-egress.istio-system.svc.cluster.local

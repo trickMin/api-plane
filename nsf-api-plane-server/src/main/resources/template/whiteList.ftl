@@ -15,7 +15,7 @@ spec:
         subset: internal
       weight: ${100 - outWeight!0}
     - destination:
-        host: qz-egress.qz.svc.cluster.local
+        host: qz-egress.istio-system.svc.cluster.local
       weight: ${outWeight!0}
 ---
 apiVersion: networking.istio.io/v1alpha3
