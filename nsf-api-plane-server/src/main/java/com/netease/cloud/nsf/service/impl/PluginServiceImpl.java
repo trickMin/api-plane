@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.netease.cloud.nsf.util.PathExpressionEnum.*;
-import static com.netease.cloud.nsf.util.PluginLabelConst.*;
+import static com.netease.cloud.nsf.util.PluginConst.*;
 
 /**
  * @auther wupenghuai@corp.netease.com
