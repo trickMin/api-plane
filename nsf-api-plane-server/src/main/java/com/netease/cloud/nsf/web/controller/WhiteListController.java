@@ -2,7 +2,10 @@ package com.netease.cloud.nsf.web.controller;
 
 import com.netease.cloud.nsf.meta.WhiteList;
 import com.netease.cloud.nsf.service.WhiteListService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -20,19 +23,19 @@ import java.util.regex.Pattern;
 public class WhiteListController extends BaseController {
     @Autowired
     private WhiteListService whiteListService;
+    private static final Logger logger = LoggerFactory.getLogger(WhiteListController.class);
 
     @RequestMapping(params = "Action=Update", method = RequestMethod.POST)
-    public String update(WhiteList whiteList, @RequestHeader("X-Forwarded-Client-Cert") String certHeader) {
-        if (!resolveRequestCert(whiteList, certHeader)) {
+    public String update(@RequestBody WhiteList whiteList, @RequestHeader(value = "X-Forwarded-Client-Cert", required = false) String certHeader) {
+        if (!resolveRequestCert(whiteList, certHeader) || whiteList.getService() == null || whiteList.getService().equals("")) {
             return apiReturn(401, "UnAuthorized", String.format("UnAuthorized, X-Forwarded-Client-Cert: %s", certHeader), null);
         }
-    	if (whiteList.getService() == null || whiteList.getService().equals("")) {
-            whiteListService.updateService(whiteList);
-        }
+        whiteListService.updateService(whiteList);
         return apiReturn(SUCCESS, "Success", null, null);
     }
 
     private boolean resolveRequestCert(WhiteList whiteList, String header) {
+    	logger.info("resolving cert: '{}'", header);
         if (header == null || header.equals("")) {
             return false;
         }
@@ -58,7 +61,10 @@ public class WhiteListController extends BaseController {
         if (matcher.find()) {
             whiteList.setNamespace(matcher.group(2));
             whiteList.setService(matcher.group(3));
+        } else {
+            return false;
         }
+        logger.info("successfully resolved target service: {}.{}, cert: {}", whiteList.getNamespace(), whiteList.getService(), header);
         return true;
     }
 

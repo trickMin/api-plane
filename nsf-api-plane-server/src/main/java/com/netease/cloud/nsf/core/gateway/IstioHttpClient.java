@@ -12,16 +12,15 @@ import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
 import io.fabric8.kubernetes.api.model.Pod;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -36,6 +35,9 @@ public class IstioHttpClient {
 
     private static final String GET_ENDPOINTZ_PATH = "/debug/endpointz";
 
+    @Value(value = "${istioHttpUrl:#{null}}")
+    private String istioHttpUrl;
+
     @Autowired
     RestTemplate restTemplate;
 
@@ -46,6 +48,7 @@ public class IstioHttpClient {
     private EditorContext editorContext;
 
     private String getIstioUrl() {
+        if (!StringUtils.isEmpty(istioHttpUrl)) return istioHttpUrl;
         String url = client.getUrl(K8sResourceEnum.Pod.name(), NAMESPACE) + "?labelSelector=app%3D" + NAME;
         List<Pod> istioPods = client.getObjectList(url);
         if (CollectionUtils.isEmpty(istioPods)) throw new ApiPlaneException(ExceptionConst.ISTIO_POD_NON_EXIST);

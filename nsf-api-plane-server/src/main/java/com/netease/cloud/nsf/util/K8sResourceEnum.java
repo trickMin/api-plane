@@ -25,6 +25,7 @@ public enum K8sResourceEnum {
     ServiceAccount(ServiceAccount.class, ServiceAccountList.class, "/api/v1/namespaces/%s/serviceaccounts"),
     Gateway(Gateway.class, GatewayList.class, "/apis/networking.istio.io/v1alpha3/namespaces/%s/gateways"),
     Pod(Pod.class, PodList.class, "/api/v1/namespaces/%s/pods"),
+    ClusterRbacConfig(RbacConfig.class, PodList.class, "/apis/rbac.istio.io/v1alpha1/clusterrbacconfigs"),
     ;
 
     private Class<? extends HasMetadata> mappingType;
@@ -44,7 +45,7 @@ public enum K8sResourceEnum {
     }
 
     public String selfLink(String namespace) {
-        return StringFormatter.format(selfLink, namespace).getValue();
+        return selfLink.contains("%s") ? StringFormatter.format(selfLink, namespace).getValue() : selfLink;
     }
 
     public String selfLink(String masterUrl, String namespace) {
