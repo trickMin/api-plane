@@ -30,6 +30,10 @@ public class TemplateUtils {
 
     public static List<TemplateWrapper> getWrappersWithFilter(Template template, Predicate<TemplateWrapper> filter) {
         List<TemplateWrapper> wrappers = getSpiltWrapper(template);
+        return getWrappersWithFilter(wrappers, filter);
+    }
+
+    public static List<TemplateWrapper> getWrappersWithFilter(List<TemplateWrapper> wrappers, Predicate<TemplateWrapper> filter) {
         List<TemplateWrapper> ret = new ArrayList<>();
         wrappers.forEach(wrapper -> {
             if (filter.test(wrapper))
@@ -40,6 +44,10 @@ public class TemplateUtils {
 
     public static TemplateWrapper getWrapperWithFilter(Template template, Predicate<TemplateWrapper> filter) {
         List<TemplateWrapper> wrappers = getSpiltWrapper(template);
+        return getWrapperWithFilter(wrappers, filter);
+    }
+
+    public static TemplateWrapper getWrapperWithFilter(List<TemplateWrapper> wrappers, Predicate<TemplateWrapper> filter) {
         for (TemplateWrapper wrapper : wrappers) {
             if (filter.test(wrapper)) {
                 return wrapper;

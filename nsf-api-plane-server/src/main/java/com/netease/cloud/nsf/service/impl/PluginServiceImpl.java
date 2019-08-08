@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.netease.cloud.nsf.util.PathExpressionEnum.*;
+import static com.netease.cloud.nsf.util.PluginConst.*;
 
 /**
  * @auther wupenghuai@corp.netease.com
@@ -28,11 +29,6 @@ import static com.netease.cloud.nsf.util.PathExpressionEnum.*;
  **/
 @Service
 public class PluginServiceImpl implements PluginService {
-    private static final String LABEL_DESCRIPTION = "description";
-    private static final String LABEL_TYPE = "type";
-    private static final String LABEL_VERSION = "version";
-    private static final String LABEL_PROCESSOR = "processor";
-
     @Autowired
     private Configuration configuration;
 
