@@ -11,6 +11,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -35,6 +41,17 @@ public class WhiteListController extends BaseController {
         }
         whiteListService.updateService(whiteList);
         return apiReturn(SUCCESS, "Success", null, null);
+    }
+
+    @RequestMapping(params = "Action=GetGatewayIps", method = RequestMethod.POST)
+    public String getGatewayIps() throws IOException {
+        Map<String, Object> result = new HashMap<>();
+		Properties properties = new Properties();
+		properties.load(new FileInputStream("/etc/qz-api/gateway-ips.properties"));
+		for(String key: Arrays.asList("ingressKong", "egressKong", "ingress", "egress")) {
+            result.put(key, Arrays.asList(properties.getProperty(key, "").split(",")));
+        }
+        return apiReturn(SUCCESS, "Success", null, result);
     }
 
     private boolean resolveRequestCert(WhiteList whiteList, String header) {
