@@ -11,8 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import com.netease.cloud.nsf.meta.APIModel;
 import com.netease.cloud.nsf.meta.ApiOption;
+import com.netease.cloud.nsf.meta.YxAPIModel;
 import com.netease.cloud.nsf.service.GatewayService;
 
 /**
@@ -48,7 +48,7 @@ public class ApiConfigTest {
         ApiOption apiOption = new ApiOption();
 
 
-        APIModel apiModel = APIModel.APIModelBuilder.anAPIModel()
+        YxAPIModel apiModel = YxAPIModel.APIModelBuilder.anAPIModel()
                 .withGateways(gateways)
                 .withName("demo")
                 .withHosts(hosts)
