@@ -17,7 +17,7 @@ metadata:
   namespace: ${namespace}
 spec:
   subjects:
-  - user: "cluster.local/ns/${namespace}/sa/istio-ingressgateway-service-account"
+  - user: "cluster.local/ns/istio-system/sa/qz-ingress"
   roleRef:
     kind: ServiceRole
     name: qz-ingress-whitelist
@@ -39,7 +39,7 @@ metadata:
   namespace: ${namespace}
 spec:
   subjects:
-  - user: "cluster.local/ns/istio-system/sa/istio-ingressgateway-service-account"
+  - user: "cluster.local/ns/istio-system/sa/qz-ingress"
   roleRef:
     kind: ServiceRole
     name: qz-ingress-passed

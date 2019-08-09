@@ -28,7 +28,10 @@ public class WhiteListController extends BaseController {
     @RequestMapping(params = "Action=Update", method = RequestMethod.POST)
     public String update(@RequestBody WhiteList whiteList, @RequestHeader(value = "X-Forwarded-Client-Cert", required = false) String certHeader) {
         if (!resolveRequestCert(whiteList, certHeader) || whiteList.getService() == null || whiteList.getService().equals("")) {
-            return apiReturn(401, "UnAuthorized", String.format("UnAuthorized, X-Forwarded-Client-Cert: %s", certHeader), null);
+            return apiReturn(401, "UnAuthenticated", String.format("UnAuthenticated, X-Forwarded-Client-Cert: %s", certHeader), null);
+        }
+        if (whiteList.getService().startsWith("qz-") || whiteList.getNamespace().equals("istio-system")) {
+            return apiReturn(403, "UnAuthorized", String.format("UnAuthorized, whitelist request not allowed from %s.%s", whiteList.getService(), whiteList.getNamespace()), null);
         }
         whiteListService.updateService(whiteList);
         return apiReturn(SUCCESS, "Success", null, null);
