@@ -3,6 +3,7 @@ package com.netease.cloud.nsf.core.plugin;
 import com.netease.cloud.nsf.core.editor.EditorContext;
 import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
+import com.netease.cloud.nsf.core.gateway.IstioHttpClient;
 import com.netease.cloud.nsf.core.plugin.meta.Matcher;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import me.snowdrop.istio.api.networking.v1alpha3.*;
@@ -29,6 +30,9 @@ import static com.netease.cloud.nsf.util.PluginConst.*;
  **/
 @Component
 public class RouteProcessor implements SchemaProcessor {
+    @Autowired
+    private IstioHttpClient istioHttpClient;
+
     @Autowired
     private EditorContext editorContext;
 
@@ -72,9 +76,7 @@ public class RouteProcessor implements SchemaProcessor {
 
     private HTTPRoute createPassProxy(ResourceGenerator rg) {
         HTTPMatchRequest match = createMatch(rg);
-        return new HTTPRouteBuilder().withName(TEMPLATE_APINAME).withMatch(match).withRoute(new HTTPRouteDestinationBuilder()
-                .withDestination(new DestinationBuilder().withHost(TEMPLATE_URI)
-                        .withPort(new PortSelectorBuilder().withPort(new NumberPortBuilder().withNumber(8080).build()).build()).withSubset(TEMPLATE_SUBSET).build()).build()).build();
+        return new HTTPRouteBuilder().withName(TEMPLATE_APINAME).withMatch(match).withRoute(createRoute(rg)).build();
     }
 
     private HTTPRoute createReturn(ResourceGenerator rg) {
@@ -119,6 +121,8 @@ public class RouteProcessor implements SchemaProcessor {
                 matchRequest.setUri(tmp);
             }
         }
+        // match method
+        matchRequest.setMethod(new StringMatchBuilder().withMatchType(new ExactMatchTypeBuilder().withExact(TEMPLATE_METHOD).build()).build());
         // todo: Cookie, User-Agent, Args, Host, 并且现在的模型似乎不支持Args，需要更新?
         return matchRequest;
     }
@@ -147,6 +151,19 @@ public class RouteProcessor implements SchemaProcessor {
                 throw new ApiPlaneException("Unsupported op.");
         }
         return stringMatch;
+    }
+
+    private List<HTTPRouteDestination> createRoute(ResourceGenerator rg) {
+        List<HTTPRouteDestination> ret = new ArrayList<>();
+        List<Object> proxyTarget = rg.getValue("$.action.pass_proxy_target[*]");
+        proxyTarget.stream().forEach(proxy -> {
+            ResourceGenerator prg = ResourceGenerator.newInstance(proxy, ResourceType.OBJECT, editorContext);
+            HTTPRouteDestination destination = new HTTPRouteDestinationBuilder()
+                    .withDestination(new DestinationBuilder().withHost(prg.getValue("$.url"))
+                            .withPort(new PortSelectorBuilder().withPort(new NumberPortBuilder().withNumber(8080).build()).build()).withSubset(TEMPLATE_SUBSET).build()).build();
+            ret.add(destination);
+        });
+        return ret;
     }
 
     private String escapeExprSpecialWord(String keyword) {

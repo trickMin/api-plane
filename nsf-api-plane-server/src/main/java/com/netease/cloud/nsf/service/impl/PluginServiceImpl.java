@@ -16,8 +16,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.netease.cloud.nsf.util.PathExpressionEnum.*;
@@ -83,6 +85,18 @@ public class PluginServiceImpl implements PluginService {
             }
         }
         return processWithJson(wrapper.get(), plugin);
+    }
+
+    //todo: target可能不是标准的svc形式
+    @Override
+    public List<String> extractService(List<String> plugins) {
+        List<String> ret = new ArrayList<>();
+        plugins.stream().forEach(plugin -> {
+            ResourceGenerator rg = ResourceGenerator.newInstance(plugin, ResourceType.JSON, editorContext);
+            ret.addAll(rg.getValue("$.rule[*].action.target"));
+            ret.addAll(rg.getValue("$.rule[*].action.pass_proxy_target[*].url"));
+        });
+        return ret.stream().filter(Objects::nonNull).distinct().collect(Collectors.toList());
     }
 
 
