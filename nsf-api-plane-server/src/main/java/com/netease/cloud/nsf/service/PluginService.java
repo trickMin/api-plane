@@ -1,6 +1,9 @@
 package com.netease.cloud.nsf.service;
 
 import com.netease.cloud.nsf.meta.PluginTemplate;
+import com.netease.cloud.nsf.meta.ServiceInfo;
+
+import java.util.List;
 
 /**
  * @auther wupenghuai@corp.netease.com
@@ -9,5 +12,7 @@ import com.netease.cloud.nsf.meta.PluginTemplate;
 public interface PluginService {
     PluginTemplate getTemplate(String name, String version);
 
-    String processSchema(String plugin);
+    String processSchema(String plugin, ServiceInfo serviceInfo);
+
+    List<String> extractService(List<String> plugins);
 }
