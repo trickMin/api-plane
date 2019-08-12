@@ -137,4 +137,8 @@ public class ResourceGenerator implements Editor {
             throw new ApiPlaneException("convert json to obj failed.", e);
         }
     }
+
+    public static <T> T yaml2obj(String yaml, Class<T> type, EditorContext editorContext) {
+        return json2obj(yaml2json(yaml, editorContext), type, editorContext);
+    }
 }

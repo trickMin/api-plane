@@ -8,6 +8,7 @@ import com.netease.cloud.nsf.core.template.TemplateTranslator;
 import com.netease.cloud.nsf.core.template.TemplateUtils;
 import com.netease.cloud.nsf.core.template.TemplateWrapper;
 import com.netease.cloud.nsf.meta.PluginTemplate;
+import com.netease.cloud.nsf.meta.ServiceInfo;
 import com.netease.cloud.nsf.service.PluginService;
 import com.sun.javafx.binding.StringFormatter;
 import freemarker.template.Configuration;
@@ -63,7 +64,7 @@ public class PluginServiceImpl implements PluginService {
     }
 
     @Override
-    public String processSchema(String plugin) {
+    public String processSchema(String plugin, ServiceInfo serviceInfo) {
         // 1. get TemplateInfo
         ResourceGenerator gen = ResourceGenerator.newInstance(plugin, ResourceType.JSON, editorContext);
         String kind = gen.getValue(PLUGIN_GET_KIND.translate());
@@ -81,10 +82,10 @@ public class PluginServiceImpl implements PluginService {
             Map<String, SchemaProcessor> processors = applicationContext.getBeansOfType(SchemaProcessor.class);
             List<Map.Entry<String, SchemaProcessor>> processorList = processors.entrySet().stream().filter(p -> p.getValue().getName().equals(processBean)).collect(Collectors.toList());
             if (!processorList.isEmpty()) {
-                return processorList.get(0).getValue().process(plugin);
+                return processorList.get(0).getValue().process(plugin, serviceInfo);
             }
         }
-        return processWithJson(wrapper.get(), plugin);
+        return processWithJsonAndSvc(wrapper.get(), plugin, serviceInfo);
     }
 
     //todo: target可能不是标准的svc形式
@@ -99,6 +100,13 @@ public class PluginServiceImpl implements PluginService {
         return ret.stream().filter(Objects::nonNull).distinct().collect(Collectors.toList());
     }
 
+    private String processWithJsonAndSvc(Template template, String json, Object svcInstance) {
+        ResourceGenerator jsonGen = ResourceGenerator.newInstance(json, ResourceType.JSON, editorContext);
+        ResourceGenerator instanceGen = ResourceGenerator.newInstance(svcInstance, ResourceType.OBJECT, editorContext);
+        jsonGen.createOrUpdateValue("$", "svc", instanceGen.object(Map.class));
+        String obj = jsonGen.jsonString();
+        return templateTranslator.translate(template, jsonGen.object(Map.class));
+    }
 
     private String processWithJson(Template template, String json) {
         ResourceGenerator modelGen = ResourceGenerator.newInstance(json, ResourceType.JSON, editorContext);
