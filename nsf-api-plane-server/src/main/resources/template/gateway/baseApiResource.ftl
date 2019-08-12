@@ -40,7 +40,7 @@ spec:
     - destination:
         host: ${ds.host}
         port:
-          number: ${ds.port}
+          number: ${ds.port?c}
         subset: ${api.name!}-${gateway_instance}
       weight: ${ds.weight}
     </#list>
