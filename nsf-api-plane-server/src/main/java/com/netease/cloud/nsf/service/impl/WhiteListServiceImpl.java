@@ -13,6 +13,7 @@ import com.sun.javafx.binding.StringFormatter;
 import me.snowdrop.istio.api.rbac.v1alpha1.AccessRule;
 import me.snowdrop.istio.api.rbac.v1alpha1.AccessRuleBuilder;
 import me.snowdrop.istio.api.rbac.v1alpha1.ConstraintBuilder;
+import me.snowdrop.istio.api.rbac.v1alpha1.RbacConfig;
 import me.snowdrop.istio.api.rbac.v1alpha1.ServiceRole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,6 +57,19 @@ public class WhiteListServiceImpl implements WhiteListService {
 		}
 	}
 
+    private void addItemToClusterRbacConfig(WhiteList whiteList) {
+        RbacConfig rbacConfig = client.getObject(ClusterRbacConfig.name(), whiteList.getNamespace(), "default");
+        ResourceGenerator generator = ResourceGenerator.newInstance(rbacConfig, ResourceType.OBJECT, editorContext);
+		String fullService = whiteList.getFullService();
+        if (rbacConfig.getSpec().getInclusion().getServices().contains(fullService)) {
+            logger.info("rbac for {} already enabled.", fullService);
+            return;
+        }
+        generator.addElement(PathExpressionEnum.ADD_RBAC_SERVICE_TO_RBAC_CONFIG.translate(), fullService);
+        client.createOrUpdate(generator.jsonString(), ResourceType.JSON);
+        logger.info("successfully enable rbac for {}.", fullService);
+    }
+
     /**
      * 要求每次都上报全量的values
      *
@@ -64,6 +78,7 @@ public class WhiteListServiceImpl implements WhiteListService {
     @Override
     public void updateService(WhiteList whiteList) {
     	initNamespaceIfNeeded(whiteList);
+    	addItemToClusterRbacConfig(whiteList);
         addRuleToIngressWhitelist(whiteList);
         addRuleToIngressPassed(whiteList);
         createOrUpdateServiceWhitelist(whiteList);

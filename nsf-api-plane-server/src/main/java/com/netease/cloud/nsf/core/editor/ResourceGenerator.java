@@ -7,6 +7,8 @@ import com.jayway.jsonpath.Predicate;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -29,10 +31,10 @@ public class ResourceGenerator implements Editor {
                 this.originalJson = (String) resource;
                 break;
             case YAML:
-                this.originalJson = yaml2json((String) resource);
+                this.originalJson = yaml2json((String) resource, editorContext);
                 break;
             case OBJECT:
-                this.originalJson = obj2json(resource);
+                this.originalJson = obj2json(resource, editorContext);
                 break;
         }
         this.jsonContext = JsonPath.using(editorContext.configuration()).parse(originalJson);
@@ -44,6 +46,13 @@ public class ResourceGenerator implements Editor {
 
     @Override
     public boolean contain(String path, Predicate... filter) {
+        Object result = jsonContext.read(path, filter);
+        if (result instanceof List) {
+            return ((List) result).size() != 0;
+        }
+        if (result instanceof Map) {
+            return ((Map) result).size() != 0;
+        }
         return jsonContext.read(path, filter) != null;
     }
 
@@ -85,7 +94,7 @@ public class ResourceGenerator implements Editor {
 
     @Override
     public synchronized String yamlString() {
-        return json2yaml(jsonContext.jsonString());
+        return json2yaml(jsonContext.jsonString(), editorContext);
     }
 
     @Override
@@ -94,33 +103,42 @@ public class ResourceGenerator implements Editor {
     }
 
 
-    protected String yaml2json(String yaml) {
+    public static String yaml2json(String yaml, EditorContext editorContext) {
         try {
             Object obj = editorContext.yamlMapper().readValue(yaml, Object.class);
             return editorContext.jsonMapper().writeValueAsString(obj);
         } catch (IOException e) {
-            e.printStackTrace();
             throw new ApiPlaneException("convert yaml to json failed.", e);
         }
 
     }
 
-    protected String json2yaml(String json) {
+    public static String json2yaml(String json, EditorContext editorContext) {
         try {
             Object obj = editorContext.jsonMapper().readValue(json, Object.class);
             return editorContext.yamlMapper().writeValueAsString(obj);
         } catch (IOException e) {
-            e.printStackTrace();
             throw new ApiPlaneException("convert json to yaml failed.", e);
         }
     }
 
-    protected String obj2json(Object obj) {
+    public static String obj2json(Object obj, EditorContext editorContext) {
         try {
             return editorContext.jsonMapper().writeValueAsString(obj);
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
             throw new ApiPlaneException("convert obj to json failed.", e);
         }
+    }
+
+    public static <T> T json2obj(String json, Class<T> type, EditorContext editorContext) {
+        try {
+            return editorContext.jsonMapper().readValue(json, type);
+        } catch (IOException e) {
+            throw new ApiPlaneException("convert json to obj failed.", e);
+        }
+    }
+
+    public static <T> T yaml2obj(String yaml, Class<T> type, EditorContext editorContext) {
+        return json2obj(yaml2json(yaml, editorContext), type, editorContext);
     }
 }

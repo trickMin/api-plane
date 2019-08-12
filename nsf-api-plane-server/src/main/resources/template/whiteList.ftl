@@ -15,7 +15,7 @@ spec:
         subset: internal
       weight: ${100 - outWeight!0}
     - destination:
-        host: qz-egress.qz.svc.cluster.local
+        host: qz-egress.istio-system.svc.cluster.local
       weight: ${outWeight!0}
 ---
 apiVersion: networking.istio.io/v1alpha3
@@ -60,7 +60,7 @@ spec:
 </#list>
   roleRef:
     kind: ServiceRole
-    name: ${service}
+    name: ${service}-whitelist
 ---
 # 白名单配置 - 放行的路径
 apiVersion: "rbac.istio.io/v1alpha1"
