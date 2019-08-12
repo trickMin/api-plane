@@ -10,7 +10,10 @@ public interface ExceptionConst {
     String RESOURCE_KIND_MISMATCH = "Resource kind is mismatch";
     String RESOURCES_DIFF_IDENTITY = "Resources have different identities";
     String GATEWAY_LIST_EMPTY = "gateway list is empty";
+    String PROXY_URI_LIST_EMPTY = "proxy uri list is empty";
+
 
     String ENDPOINT_LIST_EMPTY = "endpoint list is empty";
+    String JSON_TO_YAML_FAILED = "translate json to yaml failed";
 
 }
