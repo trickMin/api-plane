@@ -3,6 +3,8 @@ kind: Gateway
 metadata:
   name: ${t_gateway_name}
   namespace: ${t_namespace}
+  labels:
+    api_service: ${t_api_service}
 spec:
   selector:
     app: ${t_api_gateway}
@@ -12,6 +14,4 @@ spec:
       number: 80
       protocol: HTTP
     hosts:
-      <#list t_gateway_hosts as host>
-      - ${host}
-      </#list>
+      - "*"

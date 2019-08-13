@@ -3,6 +3,8 @@ kind: VirtualService
 metadata:
   name: ${t_virtual_service_name}
   namespace: ${t_namespace}
+  labels:
+    api_service: ${t_api_service}
 spec:
   gateways:
   - ${t_gateway_name}
