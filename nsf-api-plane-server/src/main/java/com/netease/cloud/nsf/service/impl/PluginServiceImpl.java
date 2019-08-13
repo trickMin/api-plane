@@ -50,7 +50,7 @@ public class PluginServiceImpl implements PluginService {
         // 1. get TemplateWrapper
         Template template = TemplateUtils.getTemplate(getTemplateName(name), configuration);
         TemplateWrapper wrapper = TemplateUtils.getWrapperWithFilter(template,
-                templateWrapper -> templateWrapper.containLabel(LABEL_TYPE, "pluginTemplate") && templateWrapper.containLabel(LABEL_VERSION, version)
+                templateWrapper -> templateWrapper.containLabel(LABEL_TYPE, VALUE_PLUGIN_SCHEMA) && templateWrapper.containLabel(LABEL_VERSION, version)
         );
 
         // 2. create PluginTemplate
@@ -73,7 +73,7 @@ public class PluginServiceImpl implements PluginService {
         // 2. get TemplateWrapper
         Template template = TemplateUtils.getTemplate(getTemplateName(kind), configuration);
         TemplateWrapper wrapper = TemplateUtils.getWrapperWithFilter(template,
-                templateWrapper -> templateWrapper.containLabel(LABEL_TYPE, "istioSchema") && templateWrapper.containLabel(LABEL_VERSION, version)
+                templateWrapper -> templateWrapper.containLabel(LABEL_TYPE, VALUE_ISTIO_FRAGMENT) && templateWrapper.containLabel(LABEL_VERSION, version)
         );
 
         // 3. process with processor or json
@@ -100,17 +100,16 @@ public class PluginServiceImpl implements PluginService {
         return ret.stream().filter(Objects::nonNull).distinct().collect(Collectors.toList());
     }
 
-    private String processWithJsonAndSvc(Template template, String json, Object svcInstance) {
+    private String processWithJsonAndSvc(Template template, String json, ServiceInfo svcInstance) {
         ResourceGenerator jsonGen = ResourceGenerator.newInstance(json, ResourceType.JSON, editorContext);
-        ResourceGenerator instanceGen = ResourceGenerator.newInstance(svcInstance, ResourceType.OBJECT, editorContext);
-        jsonGen.createOrUpdateValue("$", "svc", instanceGen.object(Map.class));
-        String obj = jsonGen.jsonString();
+        if (!Objects.isNull(svcInstance)) {
+            ResourceGenerator instanceGen = ResourceGenerator.newInstance(svcInstance, ResourceType.OBJECT, editorContext);
+            instanceGen.object(Map.class).forEach((k, v) -> {
+                jsonGen.createOrUpdateValue("$", String.valueOf(k), v);
+                String test = jsonGen.jsonString();
+            });
+        }
         return templateTranslator.translate(template, jsonGen.object(Map.class));
-    }
-
-    private String processWithJson(Template template, String json) {
-        ResourceGenerator modelGen = ResourceGenerator.newInstance(json, ResourceType.JSON, editorContext);
-        return templateTranslator.translate(template, modelGen.object(Map.class));
     }
 
     private String getTemplateName(String name) {
