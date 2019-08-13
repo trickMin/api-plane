@@ -23,6 +23,10 @@ public interface Editor {
 
     void createOrUpdateValue(String path, String key, Object value, Predicate... filter);
 
+    void addJsonElement(String path, String json, Predicate... filter);
+
+    void createOrUpdateJson(String path, String key, String json, Predicate... filter);
+
     /**
      * 导出为json
      *

@@ -9,15 +9,13 @@ import com.netease.cloud.nsf.util.PluginConst;
  **/
 public class ServiceInfo {
     @JsonProperty(PluginConst.TEMPLATE_APINAME)
-    private String apiName;
+    private String apiName = String.format("${%s}", PluginConst.TEMPLATE_APINAME);
     @JsonProperty(PluginConst.TEMPLATE_METHOD)
-    private String method;
+    private String method = String.format("${%s}", PluginConst.TEMPLATE_METHOD);
     @JsonProperty(PluginConst.TEMPLATE_URI)
-    private String uri;
+    private String uri = String.format("${%s}", PluginConst.TEMPLATE_URI);
     @JsonProperty(PluginConst.TEMPLATE_SUBSET)
-    private String subset;
-    @JsonProperty(PluginConst.TEMPLATE_PORT)
-    private String port;
+    private String subset = String.format("${%s}", PluginConst.TEMPLATE_SUBSET);
 
     public String getApiName() {
         return apiName;
@@ -53,14 +51,5 @@ public class ServiceInfo {
     @JsonProperty(PluginConst.TEMPLATE_SUBSET)
     public void setSubset(String subset) {
         this.subset = subset;
-    }
-
-    public String getPort() {
-        return port;
-    }
-
-    @JsonProperty(PluginConst.TEMPLATE_PORT)
-    public void setPort(String port) {
-        this.port = port;
     }
 }
