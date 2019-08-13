@@ -20,6 +20,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -49,8 +50,7 @@ public class IstioHttpClient {
 
     private String getIstioUrl() {
         if (!StringUtils.isEmpty(istioHttpUrl)) return istioHttpUrl;
-        String url = client.getUrl(K8sResourceEnum.Pod.name(), NAMESPACE) + "?labelSelector=app%3D" + NAME;
-        List<Pod> istioPods = client.getObjectList(url);
+        List<Pod> istioPods = client.getObjectList(K8sResourceEnum.Pod.name(), NAMESPACE, new HashMap(){{put("app", NAME);}});
         if (CollectionUtils.isEmpty(istioPods)) throw new ApiPlaneException(ExceptionConst.ISTIO_POD_NON_EXIST);
         Pod istioPod = istioPods.get(0);
         String ip = istioPod.getStatus().getPodIP();

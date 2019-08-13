@@ -14,10 +14,13 @@ import io.fabric8.kubernetes.client.utils.URLUtils;
 import okhttp3.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @auther wupenghuai@corp.netease.com
@@ -143,6 +146,26 @@ public class DefaultK8sHttpClient implements K8sHttpClient {
         return URLUtils.pathJoin(resourceEnum.selfLink(config.getMasterUrl(), namespace), name);
     }
 
+    public String getUrlWithLabels(String url, Map<String, String> labels) {
+        if (!CollectionUtils.isEmpty(labels)) {
+            StringBuilder sb = new StringBuilder("labelSelector=");
+            List<String> kvs = new ArrayList<>();
+            labels.forEach((k, v) -> kvs.add(k + "%3D" + v));
+            sb.append(String.join(",", kvs));
+            return url + "?" + sb.toString();
+        }
+        return url;
+    }
+
+    public String getUrlWithLabels(String kind, String namespace, Map<String, String> labels) {
+        String url = getUrl(kind, namespace);
+        return getUrlWithLabels(url, labels);
+    }
+
+    public String getUrlWithLabels(String kind, String namespace, String name, Map<String, String> labels) {
+        String url = getUrl(kind, name, namespace);
+        return getUrlWithLabels(url, labels);
+    }
     @Override
     public String getWithNull(String url) {
         Request.Builder requestBuilder = new Request.Builder().get().url(url);
