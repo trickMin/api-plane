@@ -1,14 +1,20 @@
 apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
 metadata:
-  name: ${destination_rule_name!}
-  namespace: ${namespace!}
+  name: ${t_destination_rule_name}
+  namespace: ${t_namespace}
+  labels:
+    api_service: ${t_api_service}
 spec:
-  host: ${host}
+  host: ${t_destination_rule_host}
   subsets:
-  <#list gateway_instances as gateway>
-  - name: ${api.name}-${gateway}
+  <#list t_api_gateways as gateway>
+  - name: ${t_api_service}-${t_api_name}-${gateway}
+  <#if t_api_loadBalancer ??>
+    <#if t_api_loadBalancer != "consistent_hash">
     trafficPolicy:
       loadBalancer:
-        simple: ROUND_ROBIN
+        simple: ${t_api_loadBalancer?upper_case}
+    </#if>
+  </#if>
   </#list>
