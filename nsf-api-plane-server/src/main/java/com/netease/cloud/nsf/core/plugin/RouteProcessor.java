@@ -84,6 +84,7 @@ public class RouteProcessor implements SchemaProcessor {
         ResourceGenerator ret = ResourceGenerator.newInstance("{}", ResourceType.JSON, editorContext);
         ret.createOrUpdateJson("$", "match", createMatch(rg, info));
         ret.createOrUpdateJson("$", "route", "[]");
+        ret.createOrUpdateJson("$", "name", info.getApiName());
 
         int length = rg.getValue("$.action.pass_proxy_target.length()");
         for (int i = 0; i < length; i++) {
@@ -113,6 +114,7 @@ public class RouteProcessor implements SchemaProcessor {
         ResourceGenerator ret = ResourceGenerator.newInstance("{}", ResourceType.JSON, editorContext);
         ret.createOrUpdateJson("$", "match", createMatch(rg, info));
         ret.createOrUpdateJson("$", "redirect", String.format("{\"uri\":\"%s\"}", rg.getValue("$.action.target", String.class)));
+        ret.createOrUpdateJson("$", "name", info.getApiName());
         return ret.jsonString();
     }
 
@@ -120,6 +122,7 @@ public class RouteProcessor implements SchemaProcessor {
         ResourceGenerator ret = ResourceGenerator.newInstance("{}", ResourceType.JSON, editorContext);
         ret.createOrUpdateJson("$", "match", createMatch(rg, info));
         ret.createOrUpdateJson("$", "rewrite", String.format("{\"uri\":\"%s\"}", rg.getValue("$.action.target", String.class)));
+        ret.createOrUpdateJson("$", "name", info.getApiName());
         return ret.jsonString();
     }
 
