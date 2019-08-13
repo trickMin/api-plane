@@ -2,9 +2,8 @@ package com.netease.cloud.nsf.core.gateway;
 
 import com.google.common.collect.ImmutableSet;
 import com.netease.cloud.nsf.meta.API;
-import com.netease.cloud.nsf.meta.YxAPIModel;
-import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.K8sResourceEnum;
+import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
 import me.snowdrop.istio.api.IstioResource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +35,6 @@ public class GatewayConfigManager implements ConfigManager {
 
     @Override
     public void updateConfig(API api) {
-
         List<IstioResource> resources = modelProcessor.translate(api, apiNamespace);
         for (IstioResource latest : resources) {
             IstioResource old = configStore.get(latest);
@@ -52,7 +50,7 @@ public class GatewayConfigManager implements ConfigManager {
         List<IstioResource> existResource = getConfigResources(service);
         if (CollectionUtils.isEmpty(existResource)) throw new ApiPlaneException(ExceptionConst.RESOURCE_NON_EXIST);
         existResource.stream()
-                .map(er -> modelProcessor.subtract(er, name))
+                .map(er -> modelProcessor.subtract(er, service, name))
                 .filter(i -> i != null)
                 .forEach(r -> configStore.update(r));
     }

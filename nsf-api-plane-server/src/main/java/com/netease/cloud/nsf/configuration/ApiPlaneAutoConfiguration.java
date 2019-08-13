@@ -5,7 +5,9 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.collect.ImmutableList;
+import com.netease.cloud.nsf.util.IndentationDirective;
 import com.netease.cloud.nsf.util.interceptor.RestTemplateLogInterceptor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
@@ -17,6 +19,7 @@ import org.springframework.http.client.InterceptingClientHttpRequestFactory;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
+import javax.annotation.PostConstruct;
 import java.util.List;
 
 /**
@@ -24,6 +27,9 @@ import java.util.List;
  **/
 @Configuration
 public class ApiPlaneAutoConfiguration {
+
+    @Autowired
+    private freemarker.template.Configuration freemarkerConfig;
 
     @Bean
     RestTemplate restTemplate(RestTemplateBuilder restTemplateBuilder) {
@@ -49,4 +55,11 @@ public class ApiPlaneAutoConfiguration {
         return new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                 .setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
+
+    @PostConstruct
+    void configureFreemarkerConfig() {
+        freemarkerConfig.setSharedVariable("indent", new IndentationDirective());
+    }
+
+
 }
