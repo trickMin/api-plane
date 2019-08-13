@@ -16,7 +16,6 @@ import freemarker.template.Template;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
@@ -28,7 +27,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.netease.cloud.nsf.util.PathExpressionEnum.*;
-import static com.netease.cloud.nsf.util.PluginConst.*;
+import static com.netease.cloud.nsf.core.plugin.PluginConst.*;
 
 /**
  * @auther wupenghuai@corp.netease.com

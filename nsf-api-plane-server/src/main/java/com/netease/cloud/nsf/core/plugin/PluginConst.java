@@ -1,4 +1,4 @@
-package com.netease.cloud.nsf.util;
+package com.netease.cloud.nsf.core.plugin;
 
 /**
  * @auther wupenghuai@corp.netease.com
@@ -12,10 +12,5 @@ public class PluginConst {
 
     public static final String VALUE_PLUGIN_SCHEMA = "pluginSchema";
     public static final String VALUE_ISTIO_FRAGMENT = "istioResource";
-
-    public static final String TEMPLATE_METHOD = "template_method";
-    public static final String TEMPLATE_APINAME = "template_api";
-    public static final String TEMPLATE_URI = "template_uri";
-    public static final String TEMPLATE_SUBSET = "template_subset";
 }
 
