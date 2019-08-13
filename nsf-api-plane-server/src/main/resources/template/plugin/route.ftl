@@ -1,4 +1,4 @@
-#@type=pluginTemplate
+#@type=pluginSchema
 #@version=1.0
 #@description=路由插件schema
 {
@@ -134,7 +134,7 @@
     }
 }
 ---
-#@type=istioSchema
+#@type=istioResource
 #@version=1.0
 #@processor=RouteProcessor
 {}
