@@ -13,10 +13,14 @@ import com.netease.cloud.nsf.service.PluginService;
 import com.sun.javafx.binding.StringFormatter;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +36,9 @@ import static com.netease.cloud.nsf.util.PluginConst.*;
  **/
 @Service
 public class PluginServiceImpl implements PluginService {
+
+    private static final Logger logger = LoggerFactory.getLogger(PluginServiceImpl.class);
+
     @Autowired
     private Configuration configuration;
 
@@ -88,7 +95,6 @@ public class PluginServiceImpl implements PluginService {
         return processWithJsonAndSvc(wrapper.get(), plugin, serviceInfo);
     }
 
-    //todo: target可能不是标准的svc形式
     @Override
     public List<String> extractService(List<String> plugins) {
         List<String> ret = new ArrayList<>();
@@ -97,7 +103,15 @@ public class PluginServiceImpl implements PluginService {
             ret.addAll(rg.getValue("$.rule[*].action.target"));
             ret.addAll(rg.getValue("$.rule[*].action.pass_proxy_target[*].url"));
         });
-        return ret.stream().filter(Objects::nonNull).distinct().collect(Collectors.toList());
+        return ret.stream().distinct().filter(Objects::nonNull).map(item -> {
+            try {
+                URI uri = new URI(item);
+                return uri.getHost();
+            } catch (URISyntaxException e) {
+                logger.warn("Not standard uri format : {}", item);
+                return null;
+            }
+        }).filter(Objects::nonNull).collect(Collectors.toList());
     }
 
     private String processWithJsonAndSvc(Template template, String json, ServiceInfo svcInstance) {
