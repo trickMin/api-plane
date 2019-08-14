@@ -48,7 +48,7 @@ public class PluginServiceImpl implements PluginService {
     private TemplateTranslator templateTranslator;
 
     @Autowired
-    private Map<String, SchemaProcessor> processorMap;
+    private List<SchemaProcessor> processors;
 
 
     @Override
@@ -85,7 +85,7 @@ public class PluginServiceImpl implements PluginService {
         // 3. process with processor or json
         if (wrapper.containKey(LABEL_PROCESSOR)) {
             String processBean = wrapper.getLabelValue(LABEL_PROCESSOR);
-            return processorMap.get(processBean).process(plugin, serviceInfo);
+            return processors.stream().filter(processor -> processBean.equals(processor.getName())).findAny().get().process(plugin, serviceInfo);
         }
         return processWithJsonAndSvc(wrapper.get(), plugin, serviceInfo);
     }
