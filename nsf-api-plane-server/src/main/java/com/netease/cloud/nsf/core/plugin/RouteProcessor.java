@@ -105,8 +105,9 @@ public class RouteProcessor implements SchemaProcessor {
         ResourceGenerator ret = ResourceGenerator.newInstance("{}", ResourceType.JSON, editorContext);
         ret.createOrUpdateJson("$", "match", createMatch(rg, info));
         ret.createOrUpdateJson("$", "return",
-                String.format("{\"return\":{\"body\":{\"inlineString\":\"%s\"},\"code\":%s}}", rg.getValue("$.action.body"), rg.getValue("$.action.code")));
+                String.format("{\"body\":{\"inlineString\":\"%s\"},\"code\":%s}", rg.getValue("$.action.body"), rg.getValue("$.action.code")));
         ret.createOrUpdateJson("$", "name", info.getApiName());
+//        ret.createOrUpdateJson("$", "route", "[{\"destination\":{\"host\":\"productpage.default.svc.cluster.local\",\"port\":{\"number\":9080},\"subset\":\"service-zero-plane-istio-test-gateway-yx\"},\"weight\":100}]");
         return ret.jsonString();
     }
 
@@ -121,16 +122,18 @@ public class RouteProcessor implements SchemaProcessor {
     private String createRewrite(ResourceGenerator rg, ServiceInfo info) {
         ResourceGenerator ret = ResourceGenerator.newInstance("{}", ResourceType.JSON, editorContext);
         ret.createOrUpdateJson("$", "match", createMatch(rg, info));
-        ret.createOrUpdateJson("$", "rewrite", String.format("{\"uri\":\"%s\"}", rg.getValue("$.action.target", String.class)));
+        ret.createOrUpdateJson("$", "requestTransform", String.format("{\"new\":{\"path\":\"%s\"},\"orignal\":{\"path\":\"%s\"}}"
+                , rg.getValue("$.action.target", String.class), rg.getValue("$.action.rewrite_regex")));
         ret.createOrUpdateJson("$", "name", info.getApiName());
+//        ret.createOrUpdateJson("$", "route", "[{\"destination\":{\"host\":\"productpage.default.svc.cluster.local\",\"port\":{\"number\":9080},\"subset\":\"service-zero-plane-istio-test-gateway-yx\"},\"weight\":100}]");
         return ret.jsonString();
     }
 
     private String createMatch(ResourceGenerator rg, ServiceInfo info) {
-        ResourceGenerator match = ResourceGenerator.newInstance("{}", ResourceType.JSON, editorContext);
+        ResourceGenerator match = ResourceGenerator.newInstance("[{}]", ResourceType.JSON, editorContext);
         // 添加默认的字段
-        match.createOrUpdateJson("$", "uri", String.format("{\"regex\":\"(?:%s.*)\"}", info.getUri()));
-        match.createOrUpdateJson("$", "method", String.format("{\"exact\":\"%s\"}", info.getMethod()));
+        match.createOrUpdateJson("$[0]", "uri", String.format("{\"regex\":\"(?:%s.*)\"}", info.getUri()));
+        match.createOrUpdateJson("$[0]", "method", String.format("{\"exact\":\"%s\"}", info.getMethod()));
 
         // 处理source_type = 'Header'的matcher
         List headers = rg.getValue("$.matcher[?(@.source_type == 'Header')]");
@@ -140,16 +143,16 @@ public class RouteProcessor implements SchemaProcessor {
             String leftValue = header.getValue("$.left_value");
             String rightValue = header.getValue("$.right_value");
 
-            match.createOrUpdateJson("$", "headers", String.format("{\"%s\":{\"regex\":\"%s\"}}", leftValue, getRegexByOp(op, rightValue)));
+            match.createOrUpdateJson("$[0]", "headers", String.format("{\"%s\":{\"regex\":\"%s\"}}", leftValue, getRegexByOp(op, rightValue)));
         }
         // 处理source_type = 'URI'的matcher
         List uris = rg.getValue("$.matcher[?(@.source_type == 'URI')]");
         if (!CollectionUtils.isEmpty(uris)) {
-            ResourceGenerator uri = ResourceGenerator.newInstance(headers.get(0), ResourceType.OBJECT, editorContext);
+            ResourceGenerator uri = ResourceGenerator.newInstance(uris.get(0), ResourceType.OBJECT, editorContext);
             String op = uri.getValue("$.op");
             String rightValue = uri.getValue("$.right_value");
 
-            match.createOrUpdateJson("$", "uri", String.format("{\"regex\":\"%s\"}", getRegexByOp(op, rightValue)));
+            match.createOrUpdateJson("$[0]", "uri", String.format("{\"regex\":\"%s\"}", getRegexByOp(op, rightValue)));
         }
         // todo: Cookie, User-Agent, Args, Host, 并且现在的模型似乎不支持Args，需要更新?
         return match.jsonString();

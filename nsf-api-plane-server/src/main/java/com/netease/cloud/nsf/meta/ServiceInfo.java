@@ -16,6 +16,8 @@ public class ServiceInfo {
     private String uri = String.format("${%s}", VIRTUAL_SERVICE_HOSTS);
     @JsonProperty(VIRTUAL_SERVICE_SUBSET_NAME)
     private String subset = String.format("${%s}", VIRTUAL_SERVICE_SUBSET_NAME);
+    @JsonProperty(VIRTUAL_SERVICE_DESTINATIONS)
+    private String destinations = String.format("${%s}", VIRTUAL_SERVICE_DESTINATIONS);
 
     public String getApiName() {
         return apiName;
@@ -51,5 +53,14 @@ public class ServiceInfo {
     @JsonProperty(VIRTUAL_SERVICE_SUBSET_NAME)
     public void setSubset(String subset) {
         this.subset = subset;
+    }
+
+    public String getDestinations() {
+        return destinations;
+    }
+
+    @JsonProperty(VIRTUAL_SERVICE_DESTINATIONS)
+    public void setDestinations(String destinations) {
+        this.destinations = destinations;
     }
 }
