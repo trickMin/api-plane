@@ -23,13 +23,6 @@ spec:
       method:
         regex: ${t_api_methods}
       </#if>
-    route:
-    <#list t_virtual_service_destinations as ds>
-    - destination:
-        host: ${ds.host}
-        port:
-          number: ${ds.port?c}
-        subset: ${t_virtual_service_subset_name}
-      weight: ${ds.weight}
-    </#list>
     name: ${t_api_name}
+    route:
+<@indent count=4>${t_virtual_service_destinations}</@indent>
