@@ -1,5 +1,6 @@
 package com.netease.cloud.nsf.service;
 
+import com.netease.cloud.nsf.core.plugin.FragmentHolder;
 import com.netease.cloud.nsf.meta.PluginTemplate;
 import com.netease.cloud.nsf.meta.ServiceInfo;
 
@@ -12,7 +13,7 @@ import java.util.List;
 public interface PluginService {
     PluginTemplate getTemplate(String name, String version);
 
-    String processSchema(String plugin, ServiceInfo serviceInfo);
+    FragmentHolder processSchema(String plugin, ServiceInfo serviceInfo);
 
     List<String> extractService(List<String> plugins);
 }
