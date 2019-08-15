@@ -27,7 +27,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.netease.cloud.nsf.util.PathExpressionEnum.*;
-import static com.netease.cloud.nsf.core.plugin.PluginConst.*;
+import static com.netease.cloud.nsf.util.LabelConst.*;
 
 /**
  * @auther wupenghuai@corp.netease.com
@@ -113,10 +113,7 @@ public class PluginServiceImpl implements PluginService {
         ResourceGenerator jsonGen = ResourceGenerator.newInstance(json, ResourceType.JSON, editorContext);
         if (!Objects.isNull(svcInstance)) {
             ResourceGenerator instanceGen = ResourceGenerator.newInstance(svcInstance, ResourceType.OBJECT, editorContext);
-            instanceGen.object(Map.class).forEach((k, v) -> {
-                jsonGen.createOrUpdateValue("$", String.valueOf(k), v);
-                String test = jsonGen.jsonString();
-            });
+            instanceGen.object(Map.class).forEach((k, v) -> jsonGen.createOrUpdateValue("$", String.valueOf(k), v));
         }
         return templateTranslator.translate(template, jsonGen.object(Map.class));
     }
