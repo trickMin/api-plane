@@ -29,7 +29,6 @@ public interface TemplateConst {
     String VIRTUAL_SERVICE_NAME = "t_virtual_service_name";
     String VIRTUAL_SERVICE_SUBSET_NAME = "t_virtual_service_subset_name";
     String VIRTUAL_SERVICE_DESTINATIONS = "t_virtual_service_destinations";
-
     String VIRTUAL_SERVICE_HOSTS = "t_virtual_service_hosts";
 
     String API_PLUGINS = "t_api_plugins";

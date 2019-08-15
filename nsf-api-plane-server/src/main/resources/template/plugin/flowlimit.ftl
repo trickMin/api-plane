@@ -1,4 +1,4 @@
-#@type=pluginTemplate
+#@type=pluginSchema
 #@version=1.0
 #@description=百分比限流插件schema
 {
@@ -33,7 +33,7 @@
   "hash_key" : "source|key1"
 }
 ---
-#@type=istioSchema
+#@type=istioResource
 #@version=1.0
 #@processor=FlowlimitProcessor
 {

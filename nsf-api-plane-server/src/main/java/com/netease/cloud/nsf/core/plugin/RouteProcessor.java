@@ -25,7 +25,7 @@ import java.util.*;
  * @date 2019/8/7
  **/
 @Component
-public class RouteProcessor implements SchemaProcessor {
+public class RouteProcessor implements SchemaProcessor<ServiceInfo> {
     @Autowired
     private IstioHttpClient istioHttpClient;
 
@@ -38,7 +38,7 @@ public class RouteProcessor implements SchemaProcessor {
     }
 
     @Override
-    public String process(String plugin, ServiceInfo serviceInfo) {
+    public FragmentHolder process(String plugin, ServiceInfo serviceInfo) {
         Map<String, String> pluginMap = new LinkedHashMap<>();
         ResourceGenerator total = ResourceGenerator.newInstance(plugin, ResourceType.JSON, editorContext);
         // 将路由plugin细分，例如rewrite部分,redirect部分
@@ -75,7 +75,10 @@ public class RouteProcessor implements SchemaProcessor {
 
         ResourceGenerator result = ResourceGenerator.newInstance("[]", ResourceType.JSON, editorContext);
         pluginMap.values().forEach(o -> result.addJsonElement("$", o));
-        return result.yamlString();
+
+        FragmentHolder holder = new FragmentHolder();
+        holder.setVirtualServiceFragment(result.yamlString());
+        return holder;
     }
 
     private String createPassProxy(ResourceGenerator rg, ServiceInfo info) {
@@ -105,8 +108,9 @@ public class RouteProcessor implements SchemaProcessor {
         ResourceGenerator ret = ResourceGenerator.newInstance("{}", ResourceType.JSON, editorContext);
         ret.createOrUpdateJson("$", "match", createMatch(rg, info));
         ret.createOrUpdateJson("$", "return",
-                String.format("{\"return\":{\"body\":{\"inlineString\":\"%s\"},\"code\":%s}}", rg.getValue("$.action.body"), rg.getValue("$.action.code")));
+                String.format("{\"body\":{\"inlineString\":\"%s\"},\"code\":%s}", rg.getValue("$.action.body"), rg.getValue("$.action.code")));
         ret.createOrUpdateJson("$", "name", info.getApiName());
+//        ret.createOrUpdateJson("$", "route", "[{\"destination\":{\"host\":\"productpage.default.svc.cluster.local\",\"port\":{\"number\":9080},\"subset\":\"service-zero-plane-istio-test-gateway-yx\"},\"weight\":100}]");
         return ret.jsonString();
     }
 
@@ -121,16 +125,18 @@ public class RouteProcessor implements SchemaProcessor {
     private String createRewrite(ResourceGenerator rg, ServiceInfo info) {
         ResourceGenerator ret = ResourceGenerator.newInstance("{}", ResourceType.JSON, editorContext);
         ret.createOrUpdateJson("$", "match", createMatch(rg, info));
-        ret.createOrUpdateJson("$", "rewrite", String.format("{\"uri\":\"%s\"}", rg.getValue("$.action.target", String.class)));
+        ret.createOrUpdateJson("$", "requestTransform", String.format("{\"new\":{\"path\":\"%s\"},\"orignal\":{\"path\":\"%s\"}}"
+                , rg.getValue("$.action.target", String.class), rg.getValue("$.action.rewrite_regex")));
         ret.createOrUpdateJson("$", "name", info.getApiName());
+//        ret.createOrUpdateJson("$", "route", "[{\"destination\":{\"host\":\"productpage.default.svc.cluster.local\",\"port\":{\"number\":9080},\"subset\":\"service-zero-plane-istio-test-gateway-yx\"},\"weight\":100}]");
         return ret.jsonString();
     }
 
     private String createMatch(ResourceGenerator rg, ServiceInfo info) {
-        ResourceGenerator match = ResourceGenerator.newInstance("{}", ResourceType.JSON, editorContext);
+        ResourceGenerator match = ResourceGenerator.newInstance("[{}]", ResourceType.JSON, editorContext);
         // 添加默认的字段
-        match.createOrUpdateJson("$", "uri", String.format("{\"regex\":\"(?:%s.*)\"}", info.getUri()));
-        match.createOrUpdateJson("$", "method", String.format("{\"exact\":\"%s\"}", info.getMethod()));
+        match.createOrUpdateJson("$[0]", "uri", String.format("{\"regex\":\"(?:%s.*)\"}", info.getUri()));
+        match.createOrUpdateJson("$[0]", "method", String.format("{\"regex\":\"%s\"}", info.getMethod()));
 
         // 处理source_type = 'Header'的matcher
         List headers = rg.getValue("$.matcher[?(@.source_type == 'Header')]");
@@ -140,16 +146,16 @@ public class RouteProcessor implements SchemaProcessor {
             String leftValue = header.getValue("$.left_value");
             String rightValue = header.getValue("$.right_value");
 
-            match.createOrUpdateJson("$", "headers", String.format("{\"%s\":{\"regex\":\"%s\"}}", leftValue, getRegexByOp(op, rightValue)));
+            match.createOrUpdateJson("$[0]", "headers", String.format("{\"%s\":{\"regex\":\"%s\"}}", leftValue, getRegexByOp(op, rightValue)));
         }
         // 处理source_type = 'URI'的matcher
         List uris = rg.getValue("$.matcher[?(@.source_type == 'URI')]");
         if (!CollectionUtils.isEmpty(uris)) {
-            ResourceGenerator uri = ResourceGenerator.newInstance(headers.get(0), ResourceType.OBJECT, editorContext);
+            ResourceGenerator uri = ResourceGenerator.newInstance(uris.get(0), ResourceType.OBJECT, editorContext);
             String op = uri.getValue("$.op");
             String rightValue = uri.getValue("$.right_value");
 
-            match.createOrUpdateJson("$", "uri", String.format("{\"regex\":\"%s\"}", getRegexByOp(op, rightValue)));
+            match.createOrUpdateJson("$[0]", "uri", String.format("{\"regex\":\"%s\"}", getRegexByOp(op, rightValue)));
         }
         // todo: Cookie, User-Agent, Args, Host, 并且现在的模型似乎不支持Args，需要更新?
         return match.jsonString();
