@@ -25,7 +25,7 @@ import java.util.*;
  * @date 2019/8/7
  **/
 @Component
-public class RouteProcessor implements SchemaProcessor {
+public class RouteProcessor implements SchemaProcessor<ServiceInfo> {
     @Autowired
     private IstioHttpClient istioHttpClient;
 

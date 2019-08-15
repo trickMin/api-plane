@@ -1,13 +1,20 @@
 package com.netease.cloud.nsf.meta;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import static com.netease.cloud.nsf.core.template.TemplateConst.*;
+
 /**
  * @auther wupenghuai@corp.netease.com
  * @date 2019/8/12
  **/
 public class ServiceInfo {
+    @JsonIgnore
+    private API api;
+    @JsonIgnore
+    private ApiOption apiOption;
+
     @JsonProperty(VIRTUAL_SERVICE_NAME)
     private String apiName = String.format("${%s}", VIRTUAL_SERVICE_NAME);
     @JsonProperty(API_METHODS)
@@ -18,6 +25,16 @@ public class ServiceInfo {
     private String subset = String.format("${%s}", VIRTUAL_SERVICE_SUBSET_NAME);
     @JsonProperty(VIRTUAL_SERVICE_DESTINATIONS)
     private String destinations = String.format("${%s}", VIRTUAL_SERVICE_DESTINATIONS);
+
+
+    public API getApi() {
+        return api;
+    }
+
+    @JsonIgnore
+    public ApiOption getApiOption() {
+        return apiOption;
+    }
 
     public String getApiName() {
         return apiName;
