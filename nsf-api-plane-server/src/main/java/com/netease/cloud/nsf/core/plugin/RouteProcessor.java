@@ -133,7 +133,7 @@ public class RouteProcessor implements SchemaProcessor {
         ResourceGenerator match = ResourceGenerator.newInstance("[{}]", ResourceType.JSON, editorContext);
         // 添加默认的字段
         match.createOrUpdateJson("$[0]", "uri", String.format("{\"regex\":\"(?:%s.*)\"}", info.getUri()));
-        match.createOrUpdateJson("$[0]", "method", String.format("{\"exact\":\"%s\"}", info.getMethod()));
+        match.createOrUpdateJson("$[0]", "method", String.format("{\"regex\":\"%s\"}", info.getMethod()));
 
         // 处理source_type = 'Header'的matcher
         List headers = rg.getValue("$.matcher[?(@.source_type == 'Header')]");
