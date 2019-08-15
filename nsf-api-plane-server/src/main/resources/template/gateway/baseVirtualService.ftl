@@ -16,13 +16,7 @@ spec:
 <#list t_api_plugins as p>
 <@indent count=2>${p}</@indent>
 </#list>
-  - match:
-    - uri:
-        regex: ${t_api_request_uris}
-      <#if t_api_methods ??>
-      method:
-        regex: ${t_api_methods}
-      </#if>
-    name: ${t_api_name}
-    route:
-<@indent count=4>${t_virtual_service_destinations}</@indent>
+  - name: ${t_api_name}
+<@indent count=4>${t_virtual_service_match}</@indent>
+<@indent count=4>${t_virtual_service_route}</@indent>
+<@indent count=4>${t_virtual_service_extra}</@indent>

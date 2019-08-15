@@ -23,8 +23,8 @@ public class ServiceInfo {
     private String uri = String.format("${%s}", VIRTUAL_SERVICE_HOSTS);
     @JsonProperty(VIRTUAL_SERVICE_SUBSET_NAME)
     private String subset = String.format("${%s}", VIRTUAL_SERVICE_SUBSET_NAME);
-    @JsonProperty(VIRTUAL_SERVICE_DESTINATIONS)
-    private String destinations = String.format("${%s}", VIRTUAL_SERVICE_DESTINATIONS);
+    @JsonProperty(VIRTUAL_SERVICE_ROUTE)
+    private String destinations = String.format("${%s}", VIRTUAL_SERVICE_ROUTE);
 
 
     public API getApi() {
@@ -76,8 +76,13 @@ public class ServiceInfo {
         return destinations;
     }
 
-    @JsonProperty(VIRTUAL_SERVICE_DESTINATIONS)
+    @JsonProperty(VIRTUAL_SERVICE_ROUTE)
     public void setDestinations(String destinations) {
         this.destinations = destinations;
+    }
+
+    @JsonProperty(API)
+    public void setApi(com.netease.cloud.nsf.meta.API api) {
+        this.api = api;
     }
 }

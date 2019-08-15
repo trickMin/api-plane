@@ -1,4 +1,5 @@
 <#list t_virtual_service_destinations as ds>
+route:
 - destination:
     host: ${ds.host}
     port:
