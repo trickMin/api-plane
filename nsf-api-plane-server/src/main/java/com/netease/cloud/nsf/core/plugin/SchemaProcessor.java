@@ -9,5 +9,5 @@ import com.netease.cloud.nsf.meta.ServiceInfo;
 public interface SchemaProcessor {
     String getName();
 
-    String process(String plugin, ServiceInfo serviceInfo);
+    FragmentHolder process(String plugin, ServiceInfo serviceInfo);
 }

@@ -153,7 +153,7 @@ public class GatewayModelProcessor {
         service.setSubset(wrap(VIRTUAL_SERVICE_SUBSET_NAME));
         service.setDestinations(wrap(VIRTUAL_SERVICE_DESTINATIONS));
         List<String> handledPlugins = plugins.stream()
-                .map(p -> pluginService.processSchema(p, service))
+                .map(p -> pluginService.processSchema(p, service).getVirtualServiceFragment())
                 .collect(Collectors.toList());
         return handledPlugins;
     }

@@ -3,6 +3,7 @@ package com.netease.cloud.nsf.service.impl;
 import com.netease.cloud.nsf.core.editor.EditorContext;
 import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
+import com.netease.cloud.nsf.core.plugin.FragmentHolder;
 import com.netease.cloud.nsf.core.plugin.SchemaProcessor;
 import com.netease.cloud.nsf.core.template.TemplateTranslator;
 import com.netease.cloud.nsf.core.template.TemplateUtils;
@@ -70,7 +71,7 @@ public class PluginServiceImpl implements PluginService {
     }
 
     @Override
-    public String processSchema(String plugin, ServiceInfo serviceInfo) {
+    public FragmentHolder processSchema(String plugin, ServiceInfo serviceInfo) {
         // 1. get TemplateInfo
         ResourceGenerator gen = ResourceGenerator.newInstance(plugin, ResourceType.JSON, editorContext);
         String kind = gen.getValue(PLUGIN_GET_KIND.translate());
@@ -109,13 +110,15 @@ public class PluginServiceImpl implements PluginService {
         }).filter(Objects::nonNull).collect(Collectors.toList());
     }
 
-    private String processWithJsonAndSvc(Template template, String json, ServiceInfo svcInstance) {
+    private FragmentHolder processWithJsonAndSvc(Template template, String json, ServiceInfo svcInstance) {
         ResourceGenerator jsonGen = ResourceGenerator.newInstance(json, ResourceType.JSON, editorContext);
         if (!Objects.isNull(svcInstance)) {
             ResourceGenerator instanceGen = ResourceGenerator.newInstance(svcInstance, ResourceType.OBJECT, editorContext);
             instanceGen.object(Map.class).forEach((k, v) -> jsonGen.createOrUpdateValue("$", String.valueOf(k), v));
         }
-        return templateTranslator.translate(template, jsonGen.object(Map.class));
+        FragmentHolder holder = new FragmentHolder();
+        holder.setVirtualServiceFragment(templateTranslator.translate(template, jsonGen.object(Map.class)));
+        return holder;
     }
 
     private String getTemplateName(String name) {

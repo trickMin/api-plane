@@ -38,7 +38,7 @@ public class RouteProcessor implements SchemaProcessor {
     }
 
     @Override
-    public String process(String plugin, ServiceInfo serviceInfo) {
+    public FragmentHolder process(String plugin, ServiceInfo serviceInfo) {
         Map<String, String> pluginMap = new LinkedHashMap<>();
         ResourceGenerator total = ResourceGenerator.newInstance(plugin, ResourceType.JSON, editorContext);
         // 将路由plugin细分，例如rewrite部分,redirect部分
@@ -75,7 +75,10 @@ public class RouteProcessor implements SchemaProcessor {
 
         ResourceGenerator result = ResourceGenerator.newInstance("[]", ResourceType.JSON, editorContext);
         pluginMap.values().forEach(o -> result.addJsonElement("$", o));
-        return result.yamlString();
+
+        FragmentHolder holder = new FragmentHolder();
+        holder.setVirtualServiceFragment(result.yamlString());
+        return holder;
     }
 
     private String createPassProxy(ResourceGenerator rg, ServiceInfo info) {
