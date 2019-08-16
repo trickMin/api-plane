@@ -12,15 +12,14 @@ import io.fabric8.kubernetes.api.model.StatusBuilder;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.utils.URLUtils;
 import okhttp3.*;
+import okio.Buffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.nio.charset.Charset;
+import java.util.*;
 
 /**
  * @auther wupenghuai@corp.netease.com
@@ -65,7 +64,8 @@ public class DefaultK8sHttpClient implements K8sHttpClient {
 
     protected String handleResponse(Request.Builder requestBuilder) {
         Request request = requestBuilder.build();
-        logger.info("K8s resource " + request.toString());
+        // log
+        logRequestAndBody(request);
         try (Response response = httpClient.newCall(request).execute()) {
             assertResponseCode(request, response);
             String result = response.body().string();
@@ -166,11 +166,13 @@ public class DefaultK8sHttpClient implements K8sHttpClient {
         String url = getUrl(kind, name, namespace);
         return getUrlWithLabels(url, labels);
     }
+
     @Override
     public String getWithNull(String url) {
         Request.Builder requestBuilder = new Request.Builder().get().url(url);
         Request request = requestBuilder.build();
-        logger.info("K8s resource " + request.toString());
+        // log
+        logRequestAndBody(request);
         try (Response response = httpClient.newCall(request).execute()) {
             assertResponseCode(request, response, 404);
             if (response.isSuccessful()) {
@@ -208,5 +210,24 @@ public class DefaultK8sHttpClient implements K8sHttpClient {
     public String delete(String url) {
         Request.Builder requestBuilder = new Request.Builder().delete().url(url);
         return handleResponse(requestBuilder);
+    }
+
+    private void logRequest(Request request) {
+        if (Objects.nonNull(request)) {
+            logger.info("K8s resource " + request.toString());
+        }
+    }
+
+    private void logRequestAndBody(Request request) {
+        logRequest(request);
+        Buffer buffer = new Buffer();
+        if (Objects.nonNull(request.body())) {
+            try {
+                request.body().writeTo(buffer);
+                logger.info("Request body: {}", buffer.readString(Charset.defaultCharset()));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
