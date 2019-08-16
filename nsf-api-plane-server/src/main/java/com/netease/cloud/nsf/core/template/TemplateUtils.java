@@ -53,7 +53,7 @@ public class TemplateUtils {
                 return wrapper;
             }
         }
-        return null;
+        throw new ApiPlaneException("The template does not exist. Please check the parameters");
     }
 
     public static List<TemplateWrapper> getSpiltWrapper(Template template) {
@@ -69,7 +69,7 @@ public class TemplateUtils {
         try {
             return new TemplateWrapper(template);
         } catch (IOException e) {
-            throw new ApiPlaneException("Wrapper template Failure", e);
+            throw new ApiPlaneException(e.getMessage(), e);
         }
     }
 
@@ -77,7 +77,7 @@ public class TemplateUtils {
         try {
             return new TemplateWrapper(name, source, configuration);
         } catch (IOException e) {
-            throw new ApiPlaneException("Wrapper template Failure", e);
+            throw new ApiPlaneException(e.getMessage(), e);
         }
     }
 
@@ -85,7 +85,7 @@ public class TemplateUtils {
         try {
             return configuration.getTemplate(name);
         } catch (IOException e) {
-            throw new ApiPlaneException("Get template Failure", e);
+            throw new ApiPlaneException(e.getMessage(), e);
         }
     }
 
