@@ -11,6 +11,8 @@ import com.netease.cloud.nsf.util.PathExpressionEnum;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
 import io.fabric8.kubernetes.api.model.Pod;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +33,10 @@ import java.util.stream.Collectors;
 @Component
 public class IstioHttpClient {
 
-    private static final String NAMESPACE = "istio-system";
+    private static final Logger logger = LoggerFactory.getLogger(IstioHttpClient.class);
+
+    @Value(value = "${istioNamespace:gateway-system}")
+    private String NAMESPACE;
     private static final String NAME = "pilot";
 
     private static final String GET_ENDPOINTZ_PATH = "/debug/endpointz";
@@ -61,7 +66,7 @@ public class IstioHttpClient {
 
     public List<Endpoint> getEndpointList() {
         List<Endpoint> endpoints = new ArrayList<>();
-        ResponseEntity response = restTemplate.getForEntity(getIstioUrl() + GET_ENDPOINTZ_PATH, String.class);
+        ResponseEntity response = getForEntity(getIstioUrl() + GET_ENDPOINTZ_PATH, String.class);
         List svcs = ResourceGenerator.newInstance(response.getBody(), ResourceType.JSON, editorContext).getValue(PathExpressionEnum.ISTIO_GET_SVC.translate());
         svcs.stream().forEach(
                 svc -> {
@@ -82,7 +87,7 @@ public class IstioHttpClient {
 
     public List<Gateway> getGatewayList() {
         List<Gateway> gateways = new ArrayList<>();
-        ResponseEntity response = restTemplate.getForEntity(getIstioUrl() + GET_ENDPOINTZ_PATH, String.class);
+        ResponseEntity response = getForEntity(getIstioUrl() + GET_ENDPOINTZ_PATH, String.class);
         List svcs = ResourceGenerator.newInstance(response.getBody(), ResourceType.JSON, editorContext).getValue(PathExpressionEnum.ISTIO_GET_GATEWAY.translate("gateway-proxy.*"));
         svcs.stream().forEach(svc -> {
             Gateway gateway = new Gateway();
@@ -93,6 +98,18 @@ public class IstioHttpClient {
             gateways.add(gateway);
         });
         return gateways.stream().filter(gateway -> gateway.getHostname() != null && gateway.getAddress() != null).distinct().collect(Collectors.toList());
+    }
+
+    private <T> ResponseEntity getForEntity(String str, Class<T> clz) {
+
+        ResponseEntity<T> entity;
+        try {
+            entity = restTemplate.getForEntity(str, clz);
+        } catch (Exception e) {
+            logger.warn("", e);
+            throw new ApiPlaneException(e.getMessage());
+        }
+        return entity;
     }
 }
 

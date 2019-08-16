@@ -1,5 +1,6 @@
 package com.netease.cloud.nsf.core.gateway;
 
+import com.google.common.collect.ImmutableMap;
 import com.netease.cloud.nsf.core.editor.EditorContext;
 import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
@@ -55,6 +56,9 @@ public class GatewayModelProcessor {
     private static final String baseGateway = "gateway/baseGateway";
     private static final String baseVirtualService = "gateway/baseVirtualService";
     private static final String baseDestinationRule = "gateway/baseDestinationRule";
+    private static final String baseVirtualServiceMatch = "gateway/baseVirtualServiceMatch";
+    private static final String baseVirtualServiceRoute = "gateway/baseVirtualServiceRoute";
+    private static final String baseVirtualServiceExtra = "gateway/baseVirtualServiceExtra";
 
     /**
      * 将api转换为istio对应的规则
@@ -76,10 +80,10 @@ public class GatewayModelProcessor {
         List<Endpoint> endpoints = istioHttpClient.getEndpointList();
         if (CollectionUtils.isEmpty(endpoints)) throw new ApiPlaneException(ExceptionConst.ENDPOINT_LIST_EMPTY);
 
-        TemplateParams baseParams = initTemplateParams(api, namespace, endpoints);
+        TemplateParams baseParams = initTemplateParams(api, namespace);
 
         List<String> rawGateways = buildGateways(envoys, baseParams);
-        List<String> rawVirtualServices = buildVirtualServices(api, baseParams);
+        List<String> rawVirtualServices = buildVirtualServices(api, baseParams, endpoints);
         List<String> rawDestinationRules = buildDestinationRules(api, baseParams);
 
         List<String> rawResources = new ArrayList<>();
@@ -118,19 +122,26 @@ public class GatewayModelProcessor {
         return destinationRules;
     }
 
-    private List<String> buildVirtualServices(API api, TemplateParams baseParams) {
+    private List<String> buildVirtualServices(API api, TemplateParams baseParams, List<Endpoint> endpoints) {
 
         List<String> virtualservices = new ArrayList<>();
         api.getGateways().stream().forEach( gw -> {
 
             String subset = String.format("%s-%s-%s", baseParams.get(API_SERVICE), baseParams.get(API_NAME), gw);
 
+            String route = produceRoute(api, endpoints, subset);
+            String match = produceMatch(baseParams);
+            String extra = productExtra(baseParams);
+
             TemplateParams gatewayParams = TemplateParams.instance()
                     .setParent(baseParams)
                     .put(GATEWAY_NAME, String.format("%s-%s", api.getService(), gw))
                     .put(VIRTUAL_SERVICE_NAME, String.format("%s-%s", api.getService(), gw))
                     .put(VIRTUAL_SERVICE_SUBSET_NAME, subset)
-                    .put(API_PLUGINS, handlePlugins(api));
+                    .put(VIRTUAL_SERVICE_MATCH, match)
+                    .put(VIRTUAL_SERVICE_ROUTE, route)
+                    .put(VIRTUAL_SERVICE_EXTRA, extra)
+                    .put(API_PLUGINS, handlePlugins(api, match, route, extra));
 
             Map<String, Object> mergedParams = gatewayParams.output();
             //先基础渲染
@@ -142,7 +153,10 @@ public class GatewayModelProcessor {
         return virtualservices;
     }
 
-    private List<String> handlePlugins(API api) {
+
+
+
+    private List<String> handlePlugins(API api, String match, String route, String extra) {
 
         List<String> plugins = api.getPlugins();
         if (CollectionUtils.isEmpty(plugins)) return plugins;
@@ -151,7 +165,8 @@ public class GatewayModelProcessor {
         service.setUri(wrap(API_REQUEST_URIS));
         service.setMethod(wrap(API_METHODS));
         service.setSubset(wrap(VIRTUAL_SERVICE_SUBSET_NAME));
-        service.setDestinations(wrap(VIRTUAL_SERVICE_DESTINATIONS));
+        service.setApi(api);
+        // TODO 给service传入 match, route, extra
         List<String> handledPlugins = plugins.stream()
                 .map(p -> pluginService.processSchema(p, service).getVirtualServiceFragment())
                 .collect(Collectors.toList());
@@ -177,10 +192,9 @@ public class GatewayModelProcessor {
      * 初始化渲染所需的基本参数
      * @param api
      * @param namespace
-     * @param endpoints
      * @return
      */
-    private TemplateParams initTemplateParams(API api, String namespace, List<Endpoint> endpoints) {
+    private TemplateParams initTemplateParams(API api, String namespace) {
 
         String uris = String.join("|", api.getRequestUris());
         String methods = String.join("|", api.getMethods());
@@ -195,13 +209,12 @@ public class GatewayModelProcessor {
                 .put(API_PLUGINS, api.getPlugins()) //TODO handle plugins
                 .put(API_METHODS, methods)
                 .put(GATEWAY_HOSTS, api.getHosts())
-                .put(VIRTUAL_SERVICE_HOSTS, api.getHosts())
-                .put(VIRTUAL_SERVICE_DESTINATIONS, produceMultipleDestinations(api, endpoints));
+                .put(VIRTUAL_SERVICE_HOSTS, api.getHosts());
 
         return tp;
     }
 
-    private List<Map<String, Object>> produceMultipleDestinations(API api, List<Endpoint> endpoints) {
+    private String produceRoute(API api, List<Endpoint> endpoints, String subset) {
         List<Map<String, Object>> destinations = new ArrayList<>();
         List<String> proxies = api.getProxyUris();
         for (int i = 0; i < proxies.size() ; i++) {
@@ -220,9 +233,20 @@ public class GatewayModelProcessor {
                 }
             }
         }
-        return destinations;
+        String destinationStr = templateTranslator
+                .translate(baseVirtualServiceRoute,
+                        ImmutableMap.of(VIRTUAL_SERVICE_DESTINATIONS, destinations,
+                                        VIRTUAL_SERVICE_SUBSET_NAME, subset));
+        return destinationStr;
     }
 
+    private String productExtra(TemplateParams params) {
+        return templateTranslator.translate(baseVirtualServiceExtra, params.output());
+    }
+
+    private String produceMatch(TemplateParams params) {
+        return templateTranslator.translate(baseVirtualServiceMatch, params.output());
+    }
 
     /**
      * 合并两个crd,新的和旧的重叠部分会用新的覆盖旧的
