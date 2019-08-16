@@ -93,13 +93,11 @@ public class RouteProcessor implements SchemaProcessor<ServiceInfo> {
         for (int i = 0; i < length; i++) {
             String targetHost = rg.getValue(String.format("$.action.pass_proxy_target[%d].url", i));
             Integer weight = rg.getValue(String.format("$.action.pass_proxy_target[%d].weight", i));
+            Integer port = getPort(endpoints, targetHost);
             // 根据host查找host的port
-            endpoints.stream().filter(endpoint -> targetHost.equals(endpoint.getHostname())).findAny().ifPresent(
-                    endpoint ->
-                            ret.addJsonElement("$.route",
-                                    String.format("{\"destination\":{\"host\":\"%s\",\"port\":{\"number\":%d},\"subset\":\"%s\"},\"weight\":%d}",
-                                            targetHost, endpoint.getPort(), info.getSubset(), weight))
-            );
+            ret.addJsonElement("$.route",
+                    String.format("{\"destination\":{\"host\":\"%s\",\"port\":{\"number\":%d},\"subset\":\"%s\"},\"weight\":%d}",
+                            targetHost, port, info.getSubset(), weight));
         }
         return ret.jsonString();
     }
@@ -110,7 +108,7 @@ public class RouteProcessor implements SchemaProcessor<ServiceInfo> {
         ret.createOrUpdateJson("$", "return",
                 String.format("{\"body\":{\"inlineString\":\"%s\"},\"code\":%s}", rg.getValue("$.action.body"), rg.getValue("$.action.code")));
         ret.createOrUpdateJson("$", "name", info.getApiName());
-//        ret.createOrUpdateJson("$", "route", "[{\"destination\":{\"host\":\"productpage.default.svc.cluster.local\",\"port\":{\"number\":9080},\"subset\":\"service-zero-plane-istio-test-gateway-yx\"},\"weight\":100}]");
+        ret.createOrUpdateJson("$", "route", createDefaultRoute(info));
         return ret.jsonString();
     }
 
@@ -128,8 +126,17 @@ public class RouteProcessor implements SchemaProcessor<ServiceInfo> {
         ret.createOrUpdateJson("$", "requestTransform", String.format("{\"new\":{\"path\":\"%s\"},\"orignal\":{\"path\":\"%s\"}}"
                 , rg.getValue("$.action.target", String.class), rg.getValue("$.action.rewrite_regex")));
         ret.createOrUpdateJson("$", "name", info.getApiName());
-//        ret.createOrUpdateJson("$", "route", "[{\"destination\":{\"host\":\"productpage.default.svc.cluster.local\",\"port\":{\"number\":9080},\"subset\":\"service-zero-plane-istio-test-gateway-yx\"},\"weight\":100}]");
+        ret.createOrUpdateJson("$", "route", createDefaultRoute(info));
         return ret.jsonString();
+    }
+
+    //todo: proxyUri有多个
+    private String createDefaultRoute(ServiceInfo info) {
+        List<Endpoint> endpoints = istioHttpClient.getEndpointList();
+        String host = info.getApi().getProxyUris().get(0);
+        Integer port = getPort(endpoints, host);
+        return String.format("[{\"destination\":{\"host\":\"%s\",\"port\":{\"number\":%d},\"subset\":\"%s\"},\"weight\":100}]",
+                host, port, info.getSubset());
     }
 
     private String createMatch(ResourceGenerator rg, ServiceInfo info) {
@@ -172,6 +179,18 @@ public class RouteProcessor implements SchemaProcessor<ServiceInfo> {
             default:
                 throw new ApiPlaneException("Unsupported op.");
         }
+    }
+
+    private Integer getPort(List<Endpoint> endpoints, String targetHost) {
+        if (CollectionUtils.isEmpty(endpoints) || StringUtils.isBlank(targetHost)) {
+            throw new ApiPlaneException("Get port by targetHost fail. param cant be null.");
+        }
+        for (Endpoint endpoint : endpoints) {
+            if (targetHost.equals(endpoint.getHostname())) {
+                return endpoint.getPort();
+            }
+        }
+        throw new ApiPlaneException(String.format("Target endpoint %s does not exist", targetHost));
     }
 
     private String escapeExprSpecialWord(String keyword) {
