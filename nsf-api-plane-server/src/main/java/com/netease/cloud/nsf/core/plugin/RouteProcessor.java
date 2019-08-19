@@ -18,8 +18,8 @@ import java.util.*;
 /**
  * 路由插件的转换processor
  * <p>
- * 因为路由插件比较复杂，所以总体方案是
- * plugin内容 转成 java model 再转出 json
+ *
+ * todo: 路由path 结合插件path
  *
  * @auther wupenghuai@corp.netease.com
  * @date 2019/8/7
@@ -145,16 +145,6 @@ public class RouteProcessor implements SchemaProcessor<ServiceInfo> {
         match.createOrUpdateJson("$[0]", "uri", String.format("{\"regex\":\"(?:%s.*)\"}", info.getUri()));
         match.createOrUpdateJson("$[0]", "method", String.format("{\"regex\":\"%s\"}", info.getMethod()));
 
-        // 处理source_type = 'Header'的matcher
-        List headers = rg.getValue("$.matcher[?(@.source_type == 'Header')]");
-        if (!CollectionUtils.isEmpty(headers)) {
-            ResourceGenerator header = ResourceGenerator.newInstance(headers.get(0), ResourceType.OBJECT, editorContext);
-            String op = header.getValue("$.op");
-            String leftValue = header.getValue("$.left_value");
-            String rightValue = header.getValue("$.right_value");
-
-            match.createOrUpdateJson("$[0]", "headers", String.format("{\"%s\":{\"regex\":\"%s\"}}", leftValue, getRegexByOp(op, rightValue)));
-        }
         // 处理source_type = 'URI'的matcher
         List uris = rg.getValue("$.matcher[?(@.source_type == 'URI')]");
         if (!CollectionUtils.isEmpty(uris)) {
@@ -163,6 +153,61 @@ public class RouteProcessor implements SchemaProcessor<ServiceInfo> {
             String rightValue = uri.getValue("$.right_value");
 
             match.createOrUpdateJson("$[0]", "uri", String.format("{\"regex\":\"%s\"}", getRegexByOp(op, rightValue)));
+        }
+        // 处理source_type = 'Header'的matcher
+        List headers = rg.getValue("$.matcher[?(@.source_type == 'Header')]");
+        if (!CollectionUtils.isEmpty(headers)) {
+            ResourceGenerator header = ResourceGenerator.newInstance(headers.get(0), ResourceType.OBJECT, editorContext);
+            String op = header.getValue("$.op");
+            String leftValue = header.getValue("$.left_value");
+            String rightValue = header.getValue("$.right_value");
+
+            if (match.contain("$[0].headers")) {
+                match.createOrUpdateJson("$[0].headers", leftValue, String.format("{\"regex\":\"%s\"}", getRegexByOp(op, rightValue)));
+            } else {
+                match.createOrUpdateJson("$[0]", "headers", String.format("{\"%s\":{\"regex\":\"%s\"}}", leftValue, getRegexByOp(op, rightValue)));
+            }
+        }
+        // 处理source_type = 'Cookie'的matcher
+        List cookies = rg.getValue("$.matcher[?(@.source_type == 'Cookie')]");
+        if (!CollectionUtils.isEmpty(cookies)) {
+            ResourceGenerator cookie = ResourceGenerator.newInstance(cookies.get(0), ResourceType.OBJECT, editorContext);
+            String op = cookie.getValue("$.op");
+            String leftValue = cookie.getValue("$.left_value");
+            String rightValue = cookie.getValue("$.right_value");
+
+            //todo: 可能需要url encode
+            if (match.contain("$[0].headers")) {
+                match.createOrUpdateJson("$[0].headers", "Cookie", String.format("{\"regex\":\"%s=%s(?:;|$)\"}", leftValue, getRegexByOp(op, rightValue)));
+            } else {
+                match.createOrUpdateJson("$[0]", "headers", String.format("{\"Cookie\":{\"regex\":\"%s=%s(?:;|$)\"}}", leftValue, getRegexByOp(op, rightValue)));
+            }
+        }
+        // 处理source_type = 'User-Agent'的matcher
+        List agents = rg.getValue("$.matcher[?(@.source_type == 'User-Agent')]");
+        if (!CollectionUtils.isEmpty(agents)) {
+            ResourceGenerator agent = ResourceGenerator.newInstance(agents.get(0), ResourceType.OBJECT, editorContext);
+            String op = agent.getValue("$.op");
+            String rightValue = agent.getValue("$.right_value");
+
+            if (match.contain("$[0].headers")) {
+                match.createOrUpdateJson("$[0].headers", "User-Agent", String.format("{\"regex\":\"%s\"}", getRegexByOp(op, rightValue)));
+            } else {
+                match.createOrUpdateJson("$[0]", "headers", String.format("{\"User-Agent\":{\"regex\":\"%s\"}}", getRegexByOp(op, rightValue)));
+            }
+        }
+        // 处理source_type = 'Host'的matcher
+        List hosts = rg.getValue("$.matcher[?(@.source_type == 'Host')]");
+        if (!CollectionUtils.isEmpty(hosts)) {
+            ResourceGenerator agent = ResourceGenerator.newInstance(agents.get(0), ResourceType.OBJECT, editorContext);
+            String op = agent.getValue("$.op");
+            String rightValue = agent.getValue("$.right_value");
+
+            if (match.contain("$[0].headers")) {
+                match.createOrUpdateJson("$[0].headers", "Host", String.format("{\"regex\":\"%s\"}", getRegexByOp(op, rightValue)));
+            } else {
+                match.createOrUpdateJson("$[0]", "headers", String.format("{\"Host\":{\"regex\":\"%s\"}}", getRegexByOp(op, rightValue)));
+            }
         }
         // todo: Cookie, User-Agent, Args, Host, 并且现在的模型似乎不支持Args，需要更新?
         return match.jsonString();
@@ -176,6 +221,10 @@ public class RouteProcessor implements SchemaProcessor<ServiceInfo> {
                 return value;
             case "startsWith":
                 return String.format("^%s.*$", escapeExprSpecialWord(value));
+            case "endsWith":
+                return String.format("^.*%s$", escapeExprSpecialWord(value));
+            case "nonRegex":
+                return String.format("^((?!%s).)*$", escapeExprSpecialWord(value));
             default:
                 throw new ApiPlaneException("Unsupported op.");
         }
