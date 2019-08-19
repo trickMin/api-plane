@@ -27,7 +27,6 @@ public interface IstioResourceOperator<T extends IstioResource> {
      * @return
      */
     default List mergeList(List oldL, List newL, Equals eq) {
-        List removal = new ArrayList();
         List result = new ArrayList(oldL);
         if (!CollectionUtils.isEmpty(newL)) {
             if (CollectionUtils.isEmpty(oldL)) {
@@ -36,12 +35,10 @@ public interface IstioResourceOperator<T extends IstioResource> {
                 for (Object no : newL) {
                     for (Object oo : oldL) {
                         if (eq.apply(no, oo)) {
-                            removal.add(oo);
-                            break;
+                            result.remove(oo);
                         }
                     }
                 }
-                result.removeAll(removal);
                 result.addAll(newL);
             }
         }

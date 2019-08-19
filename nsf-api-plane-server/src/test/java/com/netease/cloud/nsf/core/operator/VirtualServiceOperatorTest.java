@@ -34,8 +34,10 @@ public class VirtualServiceOperatorTest {
         HTTPRoute oldHttpB = new HTTPRoute();
         oldHttpB.setName("b");
         oldHttpB.setMatch(threeMatches);
+        HTTPRoute oldHttpA1 = new HTTPRoute();
+        oldHttpA1.setName("a");
 
-        oldSpec.setHttp(Arrays.asList(oldHttpA, oldHttpB));
+        oldSpec.setHttp(Arrays.asList(oldHttpA, oldHttpB, oldHttpA1));
         old.setSpec(oldSpec);
 
         VirtualService fresh = new VirtualService();
@@ -47,20 +49,30 @@ public class VirtualServiceOperatorTest {
         freshHttpB.setName("b");
         HTTPRoute freshHttpC = new HTTPRoute();
         freshHttpC.setName("c");
+        HTTPRoute freshHttpC1 = new HTTPRoute();
+        freshHttpC1.setName("c");
 
-        freshSpec.setHttp(Arrays.asList(freshHttpA, freshHttpB, freshHttpC));
+        freshSpec.setHttp(Arrays.asList(freshHttpA, freshHttpB, freshHttpC, freshHttpC1));
         fresh.setSpec(freshSpec);
 
         VirtualService merge = operator.merge(old, fresh);
-        assertTrue(merge.getSpec().getHttp().size() == 3);
+        assertTrue(merge.getSpec().getHttp().size() == 4);
+
+        int aCount = 0;
+        int cCount = 0;
 
         for (HTTPRoute httpRoute : merge.getSpec().getHttp()) {
             if (httpRoute.getName().equals("a")) {
+                aCount++;
                 assertTrue(httpRoute.getMatch().size() == 2);
             } else if (httpRoute.getName().equals("b")) {
                 assertTrue(httpRoute.getMatch() == null || httpRoute.getMatch().size() == 0);
+            } else if (httpRoute.getName().equals("c")) {
+                cCount++;
             }
         }
 
+        assertTrue(aCount == 1);
+        assertTrue(cCount == 2);
     }
 }
