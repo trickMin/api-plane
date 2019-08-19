@@ -11,7 +11,14 @@
     <packaging>war</packaging>
 
     <artifactId>nsf-api-plane-server</artifactId>
-
+    <repositories>
+        <repository>
+            <id>hzntes</id>
+            <name>NTES-HZ Maven Repository</name>
+            <url>http://mvn.hz.netease.com/artifactory/repo</url>
+            <layout>default</layout>
+        </repository>
+    </repositories>
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -45,21 +52,9 @@
         </dependency>
 
         <dependency>
-            <groupId>com.netease.cloud</groupId>
-            <artifactId>nsf-api-plane-protocol</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
             <groupId>me.snowdrop</groupId>
             <artifactId>istio-model</artifactId>
-            <version>0.0.1-QZ-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
-            <groupId>me.snowdrop</groupId>
-            <artifactId>istio-client</artifactId>
-            <version>0.0.1-QZ-SNAPSHOT</version>
+            <version>0.0.4-QZ-SNAPSHOT</version>
         </dependency>
 
         <!-- k8s -->

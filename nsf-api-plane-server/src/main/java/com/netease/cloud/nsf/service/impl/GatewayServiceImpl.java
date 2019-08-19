@@ -1,6 +1,5 @@
 package com.netease.cloud.nsf.service.impl;
 
-import com.google.protobuf.Api;
 import com.netease.cloud.nsf.core.gateway.ConfigManager;
 import com.netease.cloud.nsf.core.gateway.IstioHttpClient;
 import com.netease.cloud.nsf.meta.*;

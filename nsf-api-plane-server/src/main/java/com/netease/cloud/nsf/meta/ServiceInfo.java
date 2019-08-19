@@ -1,29 +1,46 @@
 package com.netease.cloud.nsf.meta;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.netease.cloud.nsf.util.PluginConst;
+
+import static com.netease.cloud.nsf.core.template.TemplateConst.*;
 
 /**
  * @auther wupenghuai@corp.netease.com
  * @date 2019/8/12
  **/
 public class ServiceInfo {
-    @JsonProperty(PluginConst.TEMPLATE_APINAME)
-    private String apiName;
-    @JsonProperty(PluginConst.TEMPLATE_METHOD)
-    private String method;
-    @JsonProperty(PluginConst.TEMPLATE_URI)
-    private String uri;
-    @JsonProperty(PluginConst.TEMPLATE_SUBSET)
-    private String subset;
-    @JsonProperty(PluginConst.TEMPLATE_PORT)
-    private String port;
+    @JsonIgnore
+    private API api;
+    @JsonIgnore
+    private ApiOption apiOption;
+
+    @JsonProperty(VIRTUAL_SERVICE_NAME)
+    private String apiName = String.format("${%s}", VIRTUAL_SERVICE_NAME);
+    @JsonProperty(API_METHODS)
+    private String method = String.format("${%s}", API_METHODS);
+    @JsonProperty(VIRTUAL_SERVICE_HOSTS)
+    private String uri = String.format("${%s}", VIRTUAL_SERVICE_HOSTS);
+    @JsonProperty(VIRTUAL_SERVICE_SUBSET_NAME)
+    private String subset = String.format("${%s}", VIRTUAL_SERVICE_SUBSET_NAME);
+    @JsonProperty(VIRTUAL_SERVICE_ROUTE)
+    private String destinations = String.format("${%s}", VIRTUAL_SERVICE_ROUTE);
+
+
+    public API getApi() {
+        return api;
+    }
+
+    @JsonIgnore
+    public ApiOption getApiOption() {
+        return apiOption;
+    }
 
     public String getApiName() {
         return apiName;
     }
 
-    @JsonProperty(PluginConst.TEMPLATE_APINAME)
+    @JsonProperty(VIRTUAL_SERVICE_NAME)
     public void setApiName(String apiName) {
         this.apiName = apiName;
     }
@@ -32,7 +49,7 @@ public class ServiceInfo {
         return method;
     }
 
-    @JsonProperty(PluginConst.TEMPLATE_METHOD)
+    @JsonProperty(API_METHODS)
     public void setMethod(String method) {
         this.method = method;
     }
@@ -41,7 +58,7 @@ public class ServiceInfo {
         return uri;
     }
 
-    @JsonProperty(PluginConst.TEMPLATE_URI)
+    @JsonProperty(VIRTUAL_SERVICE_HOSTS)
     public void setUri(String uri) {
         this.uri = uri;
     }
@@ -50,17 +67,22 @@ public class ServiceInfo {
         return subset;
     }
 
-    @JsonProperty(PluginConst.TEMPLATE_SUBSET)
+    @JsonProperty(VIRTUAL_SERVICE_SUBSET_NAME)
     public void setSubset(String subset) {
         this.subset = subset;
     }
 
-    public String getPort() {
-        return port;
+    public String getDestinations() {
+        return destinations;
     }
 
-    @JsonProperty(PluginConst.TEMPLATE_PORT)
-    public void setPort(String port) {
-        this.port = port;
+    @JsonProperty(VIRTUAL_SERVICE_ROUTE)
+    public void setDestinations(String destinations) {
+        this.destinations = destinations;
+    }
+
+    @JsonProperty(API)
+    public void setApi(com.netease.cloud.nsf.meta.API api) {
+        this.api = api;
     }
 }

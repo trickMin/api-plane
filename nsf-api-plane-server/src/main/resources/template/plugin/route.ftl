@@ -1,4 +1,4 @@
-#@type=pluginTemplate
+#@type=pluginSchema
 #@version=1.0
 #@description=路由插件schema
 {
@@ -134,8 +134,109 @@
     }
 }
 ---
-#@type=istioSchema
+#@type=istioResource
 #@version=1.0
 #@processor=RouteProcessor
 {}
+---
+#@type=istioResource
+#@version=2.0
+[
+    {
+        "match": {
+            "uri": {
+                "regex": "^www\\.baidu\\.com$"
+            },
+            "method": {
+                "exact": "${template_method}"
+            },
+            "headers": {
+                "hello": {
+                    "regex": "^www\\.baidu\\.com$"
+                }
+            }
+        },
+        "rewrite": {
+            "uri": "/pub/pc/$1"
+        },
+        "name": "${template_api}"
+    },
+    {
+        "match": {
+            "uri": {
+                "regex": "(?:${template_uri}.*)"
+            },
+            "method": {
+                "exact": "${template_method}"
+            },
+            "headers": {
+                "x-forwarded-proto": {
+                    "regex": "^http$"
+                }
+            }
+        },
+        "redirect": {
+            "uri": "https://grafana-gateway.gateway-system.svc.cluster.local/abc/def"
+        },
+        "name": "${template_api}"
+    },
+    {
+        "match": {
+            "uri": {
+                "regex": "(?:${template_uri}.*)"
+            },
+            "method": {
+                "exact": "${template_method}"
+            },
+            "headers": {
+                "badguy": {
+                    "regex": "^true$"
+                }
+            }
+        },
+        "return": {
+            "return": {
+                "body": {
+                    "inlineString": "{xxxx}"
+                },
+                "code": 403
+            }
+        },
+        "name": "${template_api}"
+    },
+    {
+        "match": {
+            "uri": {
+                "regex": "(?:${template_uri}.*)"
+            },
+            "method": {
+                "exact": "${template_method}"
+            }
+        },
+        "route": [
+            {
+                "destination": {
+                    "host": "glooe-prometheus-kube-state-metrics.gloo-system.svc.cluster.local",
+                    "port": {
+                        "number": 80
+                    },
+                    "subset": "${template_subset}"
+                },
+                "weight": 30
+            },
+            {
+                "destination": {
+                    "host": "grafana-gateway.gateway-system.svc.cluster.local",
+                    "port": {
+                        "number": 9380
+                    },
+                    "subset": "${template_subset}"
+                },
+                "weight": 70
+            }
+        ],
+        "name": "${template_api}"
+    }
+]
+
 ---

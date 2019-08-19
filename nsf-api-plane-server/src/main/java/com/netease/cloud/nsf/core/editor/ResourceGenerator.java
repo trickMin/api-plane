@@ -88,6 +88,28 @@ public class ResourceGenerator implements Editor {
     }
 
     @Override
+    public void addJsonElement(String path, String json, Predicate... filter) {
+        if (json.startsWith("[")) {
+            addElement(path, json2obj(json, List.class, editorContext), filter);
+        } else if (json.startsWith("{")) {
+            addElement(path, json2obj(json, Map.class, editorContext), filter);
+        } else {
+            createOrUpdateValue(path, json, filter);
+        }
+    }
+
+    @Override
+    public void createOrUpdateJson(String path, String key, String json, Predicate... filter) {
+        if (json.startsWith("[")) {
+            createOrUpdateValue(path, key, json2obj(json, List.class, editorContext), filter);
+        } else if (json.startsWith("{")) {
+            createOrUpdateValue(path, key, json2obj(json, Map.class, editorContext), filter);
+        } else {
+            createOrUpdateValue(path, key, json, filter);
+        }
+    }
+
+    @Override
     public synchronized String jsonString() {
         return jsonContext.jsonString();
     }
@@ -108,7 +130,7 @@ public class ResourceGenerator implements Editor {
             Object obj = editorContext.yamlMapper().readValue(yaml, Object.class);
             return editorContext.jsonMapper().writeValueAsString(obj);
         } catch (IOException e) {
-            throw new ApiPlaneException("convert yaml to json failed.", e);
+            throw new ApiPlaneException(e.getMessage(), e);
         }
 
     }
@@ -118,7 +140,7 @@ public class ResourceGenerator implements Editor {
             Object obj = editorContext.jsonMapper().readValue(json, Object.class);
             return editorContext.yamlMapper().writeValueAsString(obj);
         } catch (IOException e) {
-            throw new ApiPlaneException("convert json to yaml failed.", e);
+            throw new ApiPlaneException(e.getMessage(), e);
         }
     }
 
@@ -126,7 +148,7 @@ public class ResourceGenerator implements Editor {
         try {
             return editorContext.jsonMapper().writeValueAsString(obj);
         } catch (JsonProcessingException e) {
-            throw new ApiPlaneException("convert obj to json failed.", e);
+            throw new ApiPlaneException(e.getMessage(), e);
         }
     }
 
@@ -134,7 +156,7 @@ public class ResourceGenerator implements Editor {
         try {
             return editorContext.jsonMapper().readValue(json, type);
         } catch (IOException e) {
-            throw new ApiPlaneException("convert json to obj failed.", e);
+            throw new ApiPlaneException(e.getMessage(), e);
         }
     }
 
