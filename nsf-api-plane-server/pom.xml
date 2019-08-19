@@ -45,15 +45,9 @@
         </dependency>
 
         <dependency>
-            <groupId>com.netease.cloud</groupId>
-            <artifactId>nsf-api-plane-protocol</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
             <groupId>me.snowdrop</groupId>
             <artifactId>istio-model</artifactId>
-            <version>0.0.2-QZ-SNAPSHOT</version>
+            <version>0.0.3-QZ-SNAPSHOT</version>
         </dependency>
 
         <!-- k8s -->
