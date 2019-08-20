@@ -110,6 +110,8 @@ public abstract class AbstractYxSchemaProcessor implements SchemaProcessor<Servi
         switch (op) {
             case "=":
                 return String.format("%s", escapeExprSpecialWord(value));
+            case "!=":
+                return String.format("((?!%s).)*", escapeExprSpecialWord(value));
             case "regex":
                 return value;
             case "startsWith":
