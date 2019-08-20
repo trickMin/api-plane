@@ -19,7 +19,7 @@ import java.util.List;
 public abstract class AbstractYxSchemaProcessor implements SchemaProcessor<ServiceInfo> {
 
     @Autowired
-    private EditorContext editorContext;
+    protected EditorContext editorContext;
 
     protected String getDefaultRoute(ServiceInfo serviceInfo) {
         ResourceGenerator rg = ResourceGenerator.newInstance(serviceInfo.getRoute(), ResourceType.YAML, editorContext);
@@ -47,6 +47,16 @@ public abstract class AbstractYxSchemaProcessor implements SchemaProcessor<Servi
             String rightValue = uri.getValue("$.right_value");
 
             match.createOrUpdateJson("$[0]", "uri", String.format("{\"regex\":\"%s\"}", getRegexByOp(op, rightValue)));
+        }
+        List args = rg.getValue("$.matcher[?(@.source_type == 'Args')]");
+        // 处理source_type = 'Args'的matcher
+        if (!CollectionUtils.isEmpty(args)) {
+            ResourceGenerator arg = ResourceGenerator.newInstance(args.get(0), ResourceType.OBJECT, editorContext);
+            String op = arg.getValue("$.op");
+            String leftValue = arg.getValue("$.left_value");
+            String rightValue = arg.getValue("$.right_value");
+
+            match.createOrUpdateJson("$[0]", "queryParams", String.format("{\"%s\":{\"regex\":\"%s\"}}", leftValue, getRegexByOp(op, rightValue)));
         }
         // 处理source_type = 'Header'的matcher
         List headers = rg.getValue("$.matcher[?(@.source_type == 'Header')]");
