@@ -92,7 +92,7 @@ public abstract class AbstractYxSchemaProcessor implements SchemaProcessor<Servi
         // 处理source_type = 'Host'的matcher
         List hosts = rg.getValue("$.matcher[?(@.source_type == 'Host')]");
         if (!CollectionUtils.isEmpty(hosts)) {
-            ResourceGenerator agent = ResourceGenerator.newInstance(agents.get(0), ResourceType.OBJECT, editorContext);
+            ResourceGenerator agent = ResourceGenerator.newInstance(hosts.get(0), ResourceType.OBJECT, editorContext);
             String op = agent.getValue("$.op");
             String rightValue = agent.getValue("$.right_value");
 
@@ -117,7 +117,7 @@ public abstract class AbstractYxSchemaProcessor implements SchemaProcessor<Servi
             case "endsWith":
                 return String.format(".*%s", escapeExprSpecialWord(value));
             case "nonRegex":
-                return String.format("((?!%s).)*", escapeExprSpecialWord(value));
+                return String.format("((?!%s).)*", value);
             default:
                 throw new ApiPlaneException("Unsupported op.");
         }
