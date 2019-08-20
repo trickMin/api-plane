@@ -12,19 +12,21 @@ import static com.netease.cloud.nsf.core.template.TemplateConst.*;
 public class ServiceInfo {
     @JsonIgnore
     private API api;
-    @JsonIgnore
-    private ApiOption apiOption;
 
     @JsonProperty(VIRTUAL_SERVICE_NAME)
-    private String apiName = String.format("${%s}", VIRTUAL_SERVICE_NAME);
+    private String apiName;
     @JsonProperty(API_METHODS)
-    private String method = String.format("${%s}", API_METHODS);
+    private String method;
     @JsonProperty(VIRTUAL_SERVICE_HOSTS)
-    private String uri = String.format("${%s}", VIRTUAL_SERVICE_HOSTS);
+    private String uri;
     @JsonProperty(VIRTUAL_SERVICE_SUBSET_NAME)
-    private String subset = String.format("${%s}", VIRTUAL_SERVICE_SUBSET_NAME);
+    private String subset;
     @JsonProperty(VIRTUAL_SERVICE_ROUTE)
-    private String destinations = String.format("${%s}", VIRTUAL_SERVICE_ROUTE);
+    private String route;
+    @JsonProperty(VIRTUAL_SERVICE_MATCH)
+    private String match;
+    @JsonProperty(VIRTUAL_SERVICE_EXTRA)
+    private String exact;
 
 
     public API getApi() {
@@ -32,8 +34,8 @@ public class ServiceInfo {
     }
 
     @JsonIgnore
-    public ApiOption getApiOption() {
-        return apiOption;
+    public void setApi(API api) {
+        this.api = api;
     }
 
     public String getApiName() {
@@ -72,17 +74,30 @@ public class ServiceInfo {
         this.subset = subset;
     }
 
-    public String getDestinations() {
-        return destinations;
+    public String getRoute() {
+        return route;
     }
 
     @JsonProperty(VIRTUAL_SERVICE_ROUTE)
-    public void setDestinations(String destinations) {
-        this.destinations = destinations;
+    public void setRoute(String route) {
+        this.route = route;
     }
 
-    @JsonProperty(API)
-    public void setApi(com.netease.cloud.nsf.meta.API api) {
-        this.api = api;
+    public String getMatch() {
+        return match;
+    }
+
+    @JsonProperty(VIRTUAL_SERVICE_MATCH)
+    public void setMatch(String match) {
+        this.match = match;
+    }
+
+    public String getExact() {
+        return exact;
+    }
+
+    @JsonProperty(VIRTUAL_SERVICE_EXTRA)
+    public void setExact(String exact) {
+        this.exact = exact;
     }
 }

@@ -4,6 +4,8 @@ import com.netease.cloud.nsf.core.editor.EditorContext;
 import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.plugin.FragmentHolder;
+import com.netease.cloud.nsf.core.plugin.FragmentTypeEnum;
+import com.netease.cloud.nsf.core.plugin.FragmentWrapper;
 import com.netease.cloud.nsf.core.plugin.SchemaProcessor;
 import com.netease.cloud.nsf.core.template.TemplateTranslator;
 import com.netease.cloud.nsf.core.template.TemplateUtils;
@@ -11,6 +13,7 @@ import com.netease.cloud.nsf.core.template.TemplateWrapper;
 import com.netease.cloud.nsf.meta.PluginTemplate;
 import com.netease.cloud.nsf.meta.ServiceInfo;
 import com.netease.cloud.nsf.service.PluginService;
+import com.netease.cloud.nsf.util.K8sResourceEnum;
 import com.sun.javafx.binding.StringFormatter;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -88,7 +91,7 @@ public class PluginServiceImpl implements PluginService {
             String processBean = wrapper.getLabelValue(LABEL_PROCESSOR);
             return processors.stream().filter(processor -> processBean.equals(processor.getName())).findAny().get().process(plugin, serviceInfo);
         }
-        return processWithJsonAndSvc(wrapper.get(), plugin, serviceInfo);
+        return processWithJsonAndSvc(wrapper, plugin, serviceInfo);
     }
 
     @Override
@@ -110,14 +113,20 @@ public class PluginServiceImpl implements PluginService {
         }).filter(Objects::nonNull).collect(Collectors.toList());
     }
 
-    private FragmentHolder processWithJsonAndSvc(Template template, String json, ServiceInfo svcInstance) {
+    private FragmentHolder processWithJsonAndSvc(TemplateWrapper templateWrapper, String json, ServiceInfo svcInstance) {
         ResourceGenerator jsonGen = ResourceGenerator.newInstance(json, ResourceType.JSON, editorContext);
         if (!Objects.isNull(svcInstance)) {
             ResourceGenerator instanceGen = ResourceGenerator.newInstance(svcInstance, ResourceType.OBJECT, editorContext);
             instanceGen.object(Map.class).forEach((k, v) -> jsonGen.createOrUpdateValue("$", String.valueOf(k), v));
         }
+        String content = templateTranslator.translate(templateWrapper.get(), jsonGen.object(Map.class));
         FragmentHolder holder = new FragmentHolder();
-        holder.setVirtualServiceFragment(templateTranslator.translate(template, jsonGen.object(Map.class)));
+        FragmentWrapper wrapper = new FragmentWrapper.Builder()
+                .withResourceType(K8sResourceEnum.valueOf(templateWrapper.getLabelValue(LABEL_RESOURCE_TYPE)))
+                .withFragmentType(FragmentTypeEnum.valueOf(templateWrapper.getLabelValue(LABEL_FRAGMENT_TYPE)))
+                .withContent(content)
+                .build();
+        holder.setVirtualServiceFragment(wrapper);
         return holder;
     }
 
