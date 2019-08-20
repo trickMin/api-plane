@@ -15,7 +15,7 @@ import java.util.HashMap;
  * @date 2019/8/2
  **/
 @RestController
-@RequestMapping(value = "/api/plugin", params = "Version=2018-05-31")
+@RequestMapping(value = "/api/plugin", params = "Version=2019-07-25")
 public class GatewayPluginController extends BaseController {
 
     @Autowired
