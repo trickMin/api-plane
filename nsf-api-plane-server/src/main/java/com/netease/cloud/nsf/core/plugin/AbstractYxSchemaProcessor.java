@@ -97,9 +97,9 @@ public abstract class AbstractYxSchemaProcessor implements SchemaProcessor<Servi
             String rightValue = agent.getValue("$.right_value");
 
             if (match.contain("$[0].headers")) {
-                match.createOrUpdateJson("$[0].headers", "Host", String.format("{\"regex\":\"%s\"}", getRegexByOp(op, rightValue)));
+                match.createOrUpdateJson("$[0].headers", ":authority", String.format("{\"regex\":\"%s\"}", getRegexByOp(op, rightValue)));
             } else {
-                match.createOrUpdateJson("$[0]", "headers", String.format("{\"Host\":{\"regex\":\"%s\"}}", getRegexByOp(op, rightValue)));
+                match.createOrUpdateJson("$[0]", "headers", String.format("{\":authority\":{\"regex\":\"%s\"}}", getRegexByOp(op, rightValue)));
             }
         }
         // todo： 不支持Args
