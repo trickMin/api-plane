@@ -56,7 +56,7 @@ public class API {
     /**
      * 保留原始host
      */
-    private Boolean preserveHost;
+    private Boolean preserveHost = true;
 
     /**
      * 重试次数
