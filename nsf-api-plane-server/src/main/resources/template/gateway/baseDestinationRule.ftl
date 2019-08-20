@@ -17,4 +17,10 @@ spec:
         simple: ${t_api_loadBalancer?upper_case}
     </#if>
   </#if>
+  <#if t_api_idle_timeout??>
+    trafficPolicy:
+      connectionPool:
+        http:
+          idleTimeout: ${t_api_idle_timeout?c}ms
+  </#if>
   </#list>

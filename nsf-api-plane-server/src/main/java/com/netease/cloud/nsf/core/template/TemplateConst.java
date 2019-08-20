@@ -23,6 +23,12 @@ public interface TemplateConst {
     String API_SERVICE = "t_api_service";
     String API_NAME = "t_api_name";
     String API_LOADBALANCER = "t_api_loadBalancer";
+    String API_CONNECT_TIMEOUT = "t_api_connect_timeout";
+    String API_IDLE_TIMEOUT = "t_api_idle_timeout";
+    String API_RETRIES = "t_api_retries";
+    String API_PRESERVE_HOST = "t_api_preserve_host";
+
+
 
     /** VirtualService **/
 
