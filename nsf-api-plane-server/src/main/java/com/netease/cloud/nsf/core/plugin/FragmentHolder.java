@@ -5,23 +5,33 @@ package com.netease.cloud.nsf.core.plugin;
  * @date 2019/8/15
  **/
 public class FragmentHolder {
-    private String virtualServiceFragment;
+    private FragmentWrapper virtualServiceFragment;
 
-    private String destinationRuleFragment;
+    private FragmentWrapper destinationRuleFragment;
 
-    public String getVirtualServiceFragment() {
+    private FragmentWrapper gatewayFragment;
+
+    public FragmentWrapper getVirtualServiceFragment() {
         return virtualServiceFragment;
     }
 
-    public void setVirtualServiceFragment(String virtualServiceFragment) {
+    public void setVirtualServiceFragment(FragmentWrapper virtualServiceFragment) {
         this.virtualServiceFragment = virtualServiceFragment;
     }
 
-    public String getDestinationRuleFragment() {
+    public FragmentWrapper getDestinationRuleFragment() {
         return destinationRuleFragment;
     }
 
-    public void setDestinationRuleFragment(String destinationRuleFragment) {
+    public void setDestinationRuleFragment(FragmentWrapper destinationRuleFragment) {
         this.destinationRuleFragment = destinationRuleFragment;
+    }
+
+    public FragmentWrapper getGatewayFragment() {
+        return gatewayFragment;
+    }
+
+    public void setGatewayFragment(FragmentWrapper gatewayFragment) {
+        this.gatewayFragment = gatewayFragment;
     }
 }
