@@ -1,6 +1,5 @@
 package com.netease.cloud.nsf.core.plugin;
 
-import com.netease.cloud.nsf.core.editor.EditorContext;
 import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.gateway.IstioHttpClient;
@@ -27,9 +26,6 @@ import java.util.*;
 public class RouteProcessor extends AbstractYxSchemaProcessor implements SchemaProcessor<ServiceInfo> {
     @Autowired
     private IstioHttpClient istioHttpClient;
-
-    @Autowired
-    private EditorContext editorContext;
 
     @Override
     public String getName() {
