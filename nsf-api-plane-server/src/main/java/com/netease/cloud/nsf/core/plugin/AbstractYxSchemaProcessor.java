@@ -92,14 +92,14 @@ public abstract class AbstractYxSchemaProcessor implements SchemaProcessor<Servi
         // 处理source_type = 'Host'的matcher
         List hosts = rg.getValue("$.matcher[?(@.source_type == 'Host')]");
         if (!CollectionUtils.isEmpty(hosts)) {
-            ResourceGenerator agent = ResourceGenerator.newInstance(agents.get(0), ResourceType.OBJECT, editorContext);
+            ResourceGenerator agent = ResourceGenerator.newInstance(hosts.get(0), ResourceType.OBJECT, editorContext);
             String op = agent.getValue("$.op");
             String rightValue = agent.getValue("$.right_value");
 
             if (match.contain("$[0].headers")) {
-                match.createOrUpdateJson("$[0].headers", "Host", String.format("{\"regex\":\"%s\"}", getRegexByOp(op, rightValue)));
+                match.createOrUpdateJson("$[0].headers", ":authority", String.format("{\"regex\":\"%s\"}", getRegexByOp(op, rightValue)));
             } else {
-                match.createOrUpdateJson("$[0]", "headers", String.format("{\"Host\":{\"regex\":\"%s\"}}", getRegexByOp(op, rightValue)));
+                match.createOrUpdateJson("$[0]", "headers", String.format("{\":authority\":{\"regex\":\"%s\"}}", getRegexByOp(op, rightValue)));
             }
         }
         // todo： 不支持Args
@@ -117,7 +117,7 @@ public abstract class AbstractYxSchemaProcessor implements SchemaProcessor<Servi
             case "endsWith":
                 return String.format(".*%s", escapeExprSpecialWord(value));
             case "nonRegex":
-                return String.format("((?!%s).)*", escapeExprSpecialWord(value));
+                return String.format("((?!%s).)*", value);
             default:
                 throw new ApiPlaneException("Unsupported op.");
         }
