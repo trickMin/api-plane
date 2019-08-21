@@ -213,6 +213,7 @@ public class GatewayModelProcessor {
                 .put(API_PLUGINS, api.getPlugins()) //TODO handle plugins
                 .put(API_METHODS, methods)
                 .put(API_RETRIES, api.getRetries())
+                .put(API_PRESERVE_HOST, api.getPreserveHost())
                 .put(API_CONNECT_TIMEOUT, api.getConnectTimeout())
                 .put(API_IDLE_TIMEOUT, api.getIdleTimeout())
                 .put(GATEWAY_HOSTS, api.getHosts())
