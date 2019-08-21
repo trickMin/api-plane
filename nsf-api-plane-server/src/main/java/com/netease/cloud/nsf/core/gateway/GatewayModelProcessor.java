@@ -286,7 +286,7 @@ public class GatewayModelProcessor {
             }
             case DestinationRule: {
                 ResourceGenerator gen = ResourceGenerator.newInstance(old, ResourceType.OBJECT, editorContext);
-                gen.removeElement(PathExpressionEnum.REMOVE_DST_SUBSET.translate(api));
+                gen.removeElement(PathExpressionEnum.REMOVE_DST_SUBSET.translate(buildSubsetApi(service, api)));
                 return (IstioResource) gen.object(resource.mappingType());
             }
             default:
@@ -299,4 +299,13 @@ public class GatewayModelProcessor {
         return "${" + raw + "}";
     }
 
+    /**
+     * 在DestinationRule的Subset中加了api属性，根据service+api生成api对应值
+     * @param service
+     * @param api
+     * @return
+     */
+    public String buildSubsetApi(String service, String api) {
+        return String.format("%s-%s", service, api);
+    }
 }

@@ -10,6 +10,7 @@ spec:
   subsets:
   <#list t_api_gateways as gateway>
   - name: ${t_api_service}-${t_api_name}-${gateway}
+    api: ${t_api_service}-${t_api_name}
   <#if t_api_loadBalancer ??>
     <#if t_api_loadBalancer != "consistent_hash">
     trafficPolicy:
