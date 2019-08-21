@@ -19,7 +19,7 @@ import java.util.List;
 public abstract class AbstractYxSchemaProcessor implements SchemaProcessor<ServiceInfo> {
 
     @Autowired
-    private EditorContext editorContext;
+    protected EditorContext editorContext;
 
     protected String getDefaultRoute(ServiceInfo serviceInfo) {
         ResourceGenerator rg = ResourceGenerator.newInstance(serviceInfo.getRoute(), ResourceType.YAML, editorContext);
@@ -39,70 +39,55 @@ public abstract class AbstractYxSchemaProcessor implements SchemaProcessor<Servi
         match.createOrUpdateJson("$[0]", "uri", String.format("{\"regex\":\"(?:%s.*)\"}", info.getUri()));
         match.createOrUpdateJson("$[0]", "method", String.format("{\"regex\":\"%s\"}", info.getMethod()));
 
-        // 处理source_type = 'URI'的matcher
-        List uris = rg.getValue("$.matcher[?(@.source_type == 'URI')]");
-        if (!CollectionUtils.isEmpty(uris)) {
-            ResourceGenerator uri = ResourceGenerator.newInstance(uris.get(0), ResourceType.OBJECT, editorContext);
-            String op = uri.getValue("$.op");
-            String rightValue = uri.getValue("$.right_value");
+        List items = rg.getValue("$.matcher");
+        int length = rg.getValue("$.matcher.length()");
+        if (!CollectionUtils.isEmpty(items) && length != 0) {
+            for (int i = 0; i < length; i++) {
+                String sourceType = rg.getValue(String.format("$.matcher[%d].source_type", i));
+                String leftValue = rg.getValue(String.format("$.matcher[%d].left_value", i));
+                String op = rg.getValue(String.format("$.matcher[%d].op", i));
+                String rightValue = rg.getValue(String.format("$.matcher[%d].right_value", i));
 
-            match.createOrUpdateJson("$[0]", "uri", String.format("{\"regex\":\"%s\"}", getRegexByOp(op, rightValue)));
-        }
-        // 处理source_type = 'Header'的matcher
-        List headers = rg.getValue("$.matcher[?(@.source_type == 'Header')]");
-        if (!CollectionUtils.isEmpty(headers)) {
-            ResourceGenerator header = ResourceGenerator.newInstance(headers.get(0), ResourceType.OBJECT, editorContext);
-            String op = header.getValue("$.op");
-            String leftValue = header.getValue("$.left_value");
-            String rightValue = header.getValue("$.right_value");
-
-            if (match.contain("$[0].headers")) {
-                match.createOrUpdateJson("$[0].headers", leftValue, String.format("{\"regex\":\"%s\"}", getRegexByOp(op, rightValue)));
-            } else {
-                match.createOrUpdateJson("$[0]", "headers", String.format("{\"%s\":{\"regex\":\"%s\"}}", leftValue, getRegexByOp(op, rightValue)));
+                switch (sourceType) {
+                    case "URI":
+                        match.createOrUpdateJson("$[0]", "uri", String.format("{\"regex\":\"%s\"}", getRegexByOp(op, rightValue)));
+                        break;
+                    case "Args":
+                        match.createOrUpdateJson("$[0]", "queryParams", String.format("{\"%s\":{\"regex\":\"%s\"}}", leftValue, getRegexByOp(op, rightValue)));
+                        break;
+                    case "Header":
+                        if (match.contain("$[0].headers")) {
+                            match.createOrUpdateJson("$[0].headers", leftValue, String.format("{\"regex\":\"%s\"}", getRegexByOp(op, rightValue)));
+                        } else {
+                            match.createOrUpdateJson("$[0]", "headers", String.format("{\"%s\":{\"regex\":\"%s\"}}", leftValue, getRegexByOp(op, rightValue)));
+                        }
+                        break;
+                    case "Cookie":
+                        if (match.contain("$[0].headers")) {
+                            match.createOrUpdateJson("$[0].headers", "Cookie", String.format("{\"regex\":\".*(?:;|^)%s=%s(?:;|$).*\"}", leftValue, getRegexByOp(op, rightValue)));
+                        } else {
+                            match.createOrUpdateJson("$[0]", "headers", String.format("{\"Cookie\":{\"regex\":\".*(?:;|^)%s=%s(?:;|$).*\"}}", leftValue, getRegexByOp(op, rightValue)));
+                        }
+                        break;
+                    case "User-Agent":
+                        if (match.contain("$[0].headers")) {
+                            match.createOrUpdateJson("$[0].headers", "User-Agent", String.format("{\"regex\":\"%s\"}", getRegexByOp(op, rightValue)));
+                        } else {
+                            match.createOrUpdateJson("$[0]", "headers", String.format("{\"User-Agent\":{\"regex\":\"%s\"}}", getRegexByOp(op, rightValue)));
+                        }
+                        break;
+                    case "Host":
+                        if (match.contain("$[0].headers")) {
+                            match.createOrUpdateJson("$[0].headers", ":authority", String.format("{\"regex\":\"%s\"}", getRegexByOp(op, rightValue)));
+                        } else {
+                            match.createOrUpdateJson("$[0]", "headers", String.format("{\":authority\":{\"regex\":\"%s\"}}", getRegexByOp(op, rightValue)));
+                        }
+                        break;
+                    default:
+                        throw new ApiPlaneException("Unsupported match : " + sourceType);
+                }
             }
         }
-        // 处理source_type = 'Cookie'的matcher
-        List cookies = rg.getValue("$.matcher[?(@.source_type == 'Cookie')]");
-        if (!CollectionUtils.isEmpty(cookies)) {
-            ResourceGenerator cookie = ResourceGenerator.newInstance(cookies.get(0), ResourceType.OBJECT, editorContext);
-            String op = cookie.getValue("$.op");
-            String leftValue = cookie.getValue("$.left_value");
-            String rightValue = cookie.getValue("$.right_value");
-
-            if (match.contain("$[0].headers")) {
-                match.createOrUpdateJson("$[0].headers", "Cookie", String.format("{\"regex\":\".*(?:;|^)%s=%s(?:;|$).*\"}", leftValue, getRegexByOp(op, rightValue)));
-            } else {
-                match.createOrUpdateJson("$[0]", "headers", String.format("{\"Cookie\":{\"regex\":\".*(?:;|^)%s=%s(?:;|$).*\"}}", leftValue, getRegexByOp(op, rightValue)));
-            }
-        }
-        // 处理source_type = 'User-Agent'的matcher
-        List agents = rg.getValue("$.matcher[?(@.source_type == 'User-Agent')]");
-        if (!CollectionUtils.isEmpty(agents)) {
-            ResourceGenerator agent = ResourceGenerator.newInstance(agents.get(0), ResourceType.OBJECT, editorContext);
-            String op = agent.getValue("$.op");
-            String rightValue = agent.getValue("$.right_value");
-
-            if (match.contain("$[0].headers")) {
-                match.createOrUpdateJson("$[0].headers", "User-Agent", String.format("{\"regex\":\"%s\"}", getRegexByOp(op, rightValue)));
-            } else {
-                match.createOrUpdateJson("$[0]", "headers", String.format("{\"User-Agent\":{\"regex\":\"%s\"}}", getRegexByOp(op, rightValue)));
-            }
-        }
-        // 处理source_type = 'Host'的matcher
-        List hosts = rg.getValue("$.matcher[?(@.source_type == 'Host')]");
-        if (!CollectionUtils.isEmpty(hosts)) {
-            ResourceGenerator agent = ResourceGenerator.newInstance(hosts.get(0), ResourceType.OBJECT, editorContext);
-            String op = agent.getValue("$.op");
-            String rightValue = agent.getValue("$.right_value");
-
-            if (match.contain("$[0].headers")) {
-                match.createOrUpdateJson("$[0].headers", ":authority", String.format("{\"regex\":\"%s\"}", getRegexByOp(op, rightValue)));
-            } else {
-                match.createOrUpdateJson("$[0]", "headers", String.format("{\":authority\":{\"regex\":\"%s\"}}", getRegexByOp(op, rightValue)));
-            }
-        }
-        // todo： 不支持Args
         return match.jsonString();
     }
 
