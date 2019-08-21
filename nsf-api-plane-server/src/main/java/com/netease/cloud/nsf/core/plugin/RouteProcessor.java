@@ -124,7 +124,7 @@ public class RouteProcessor extends AbstractYxSchemaProcessor implements SchemaP
     private String createRewrite(ResourceGenerator rg, ServiceInfo info) {
         ResourceGenerator ret = ResourceGenerator.newInstance("{}", ResourceType.JSON, editorContext);
         ret.createOrUpdateJson("$", "match", createMatch(rg, info));
-        ret.createOrUpdateJson("$", "requestTransform", String.format("{\"new\":{\"path\":\"%s\"},\"orignal\":{\"path\":\"%s\"}}"
+        ret.createOrUpdateJson("$", "requestTransform", String.format("{\"new\":{\"path\":\"%s\"},\"original\":{\"path\":\"%s\"}}"
                 , rg.getValue("$.action.target", String.class), rg.getValue("$.action.rewrite_regex")));
         ret.createOrUpdateJson("$", "name", info.getApiName());
         ret.createOrUpdateJson("$", "route", getDefaultRoute(info));
