@@ -1,6 +1,7 @@
 package com.netease.cloud.nsf.core.gateway;
 
 import com.google.common.collect.ImmutableMap;
+import com.netease.cloud.nsf.core.YamlJsonHelper;
 import com.netease.cloud.nsf.core.editor.EditorContext;
 import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
@@ -52,6 +53,9 @@ public class GatewayModelProcessor {
 
     @Autowired
     PluginService pluginService;
+
+    @Autowired
+    YamlJsonHelper yamlJsonHelper;
 
     private static final String baseGateway = "gateway/baseGateway";
     private static final String baseVirtualService = "gateway/baseVirtualService";
@@ -153,9 +157,6 @@ public class GatewayModelProcessor {
         return virtualservices;
     }
 
-
-
-
     private List<String> handlePlugins(API api, String match, String route, String extra) {
 
         List<String> plugins = api.getPlugins();
@@ -166,9 +167,15 @@ public class GatewayModelProcessor {
         service.setMethod(wrap(API_METHODS));
         service.setSubset(wrap(VIRTUAL_SERVICE_SUBSET_NAME));
         service.setApi(api);
+        service.setMatch(match);
+        service.setRoute(route);
+        service.setExact(extra);
         // TODO 给service传入 match, route, extra
+        yamlJsonHelper.yaml2Json(match);
+        yamlJsonHelper.yaml2Json(route);
+        yamlJsonHelper.yaml2Json(extra);
         List<String> handledPlugins = plugins.stream()
-                .map(p -> pluginService.processSchema(p, service).getVirtualServiceFragment())
+                .map(p -> pluginService.processSchema(p, service).getVirtualServiceFragment().getContent())
                 .collect(Collectors.toList());
         return handledPlugins;
     }
@@ -208,6 +215,9 @@ public class GatewayModelProcessor {
                 .put(API_REQUEST_URIS, uris)
                 .put(API_PLUGINS, api.getPlugins()) //TODO handle plugins
                 .put(API_METHODS, methods)
+                .put(API_RETRIES, api.getRetries())
+                .put(API_CONNECT_TIMEOUT, api.getConnectTimeout())
+                .put(API_IDLE_TIMEOUT, api.getIdleTimeout())
                 .put(GATEWAY_HOSTS, api.getHosts())
                 .put(VIRTUAL_SERVICE_HOSTS, api.getHosts());
 
