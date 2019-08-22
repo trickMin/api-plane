@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -47,10 +48,13 @@ public class GatewayConfigManager implements ConfigManager {
 
     @Override
     public void deleteConfig(API api) {
-
-        List<IstioResource> existResource = modelProcessor.translate(api, apiNamespace);
-        if (CollectionUtils.isEmpty(existResource)) throw new ApiPlaneException(ExceptionConst.RESOURCE_NON_EXIST);
-        existResource.stream()
+        List<IstioResource> resources = modelProcessor.translate(api, apiNamespace);
+        List<IstioResource> existResources = new ArrayList<>();
+        for (IstioResource resource : resources) {
+            existResources.add(configStore.get(resource));
+        }
+        if (CollectionUtils.isEmpty(existResources)) throw new ApiPlaneException(ExceptionConst.RESOURCE_NON_EXIST);
+        existResources.stream()
                 .map(er -> modelProcessor.subtract(er, api.getService(), api.getName()))
                 .filter(i -> i != null)
                 .forEach(r -> configStore.update(r));

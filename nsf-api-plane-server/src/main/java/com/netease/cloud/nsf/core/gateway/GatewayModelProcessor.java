@@ -167,10 +167,6 @@ public class GatewayModelProcessor {
         service.setMethod(wrap(API_METHODS));
         service.setSubset(wrap(VIRTUAL_SERVICE_SUBSET_NAME));
         service.setApi(api);
-        // TODO 给service传入 match, route, extra
-        yamlJsonHelper.yaml2Json(match);
-        yamlJsonHelper.yaml2Json(route);
-        yamlJsonHelper.yaml2Json(extra);
         List<String> handledPlugins = plugins.stream()
                 .map(p -> pluginService.processSchema(p, service).getVirtualServiceFragment())
                 .collect(Collectors.toList());
@@ -240,6 +236,7 @@ public class GatewayModelProcessor {
                     break;
                 }
             }
+            throw new ApiPlaneException(String.format("%s:%s", ExceptionConst.TARGET_SERVICE_NON_EXIST, proxies.get(i)));
         }
         String destinationStr = templateTranslator
                 .translate(baseVirtualServiceRoute,

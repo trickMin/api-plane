@@ -12,6 +12,7 @@ public interface ExceptionConst {
     String GATEWAY_LIST_EMPTY = "gateway list is empty";
     String PROXY_URI_LIST_EMPTY = "proxy uri list is empty";
 
+    String TARGET_SERVICE_NON_EXIST = "target service is non-exist";
 
     String ENDPOINT_LIST_EMPTY = "endpoint list is empty";
     String JSON_TO_YAML_FAILED = "translate json to yaml failed";
