@@ -35,7 +35,6 @@
 ---
 #@type=istioResource
 #@version=1.0
-#@processor=FlowlimitProcessor
 {
   "fault": {
     "abort": {
