@@ -5,7 +5,9 @@ timeout: ${t_api_connect_timeout?c}ms
 retries:
   attempts: ${t_api_retries?c}
 </#if>
+<#if t_api_preserve_host??>
 <#if !t_api_preserve_host>
 headers:
   remove: Host
+</#if>
 </#if>
