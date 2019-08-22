@@ -12,7 +12,7 @@ public interface GatewayService {
 
     void updateAPI(YxAPIModel api);
 
-    void deleteAPI(String service, String name);
+    void deleteAPI(YxAPIModel api);
 
     List<IstioResource> getAPIResources(String service);
 

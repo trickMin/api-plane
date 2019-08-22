@@ -3,8 +3,6 @@ kind: DestinationRule
 metadata:
   name: ${t_destination_rule_name}
   namespace: ${t_namespace}
-  labels:
-    api_service: ${t_api_service}
 spec:
   host: ${t_destination_rule_host}
   subsets:

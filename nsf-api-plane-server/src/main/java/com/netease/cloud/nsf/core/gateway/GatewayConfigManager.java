@@ -46,11 +46,12 @@ public class GatewayConfigManager implements ConfigManager {
     }
 
     @Override
-    public void deleteConfig(String service, String name) {
-        List<IstioResource> existResource = getConfigResources(service);
+    public void deleteConfig(API api) {
+
+        List<IstioResource> existResource = modelProcessor.translate(api, apiNamespace);
         if (CollectionUtils.isEmpty(existResource)) throw new ApiPlaneException(ExceptionConst.RESOURCE_NON_EXIST);
         existResource.stream()
-                .map(er -> modelProcessor.subtract(er, service, name))
+                .map(er -> modelProcessor.subtract(er, api.getService(), api.getName()))
                 .filter(i -> i != null)
                 .forEach(r -> configStore.update(r));
     }

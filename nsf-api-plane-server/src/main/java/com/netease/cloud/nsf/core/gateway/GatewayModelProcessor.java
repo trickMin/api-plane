@@ -120,7 +120,7 @@ public class GatewayModelProcessor {
             TemplateParams destinationParams = TemplateParams.instance()
                     .setParent(baseParams)
                     .put(DESTINATION_RULE_HOST, proxyUri)
-                    .put(DESTINATION_RULE_NAME, proxyUri.contains(".") ? proxyUri.substring(0, proxyUri.indexOf(".")) : proxyUri);
+                    .put(DESTINATION_RULE_NAME, proxyUri);
             destinationRules.add(templateTranslator.translate(baseDestinationRule, destinationParams.output()));
         });
         return destinationRules;

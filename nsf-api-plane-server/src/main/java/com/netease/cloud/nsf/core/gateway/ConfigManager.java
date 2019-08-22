@@ -1,7 +1,6 @@
 package com.netease.cloud.nsf.core.gateway;
 
 import com.netease.cloud.nsf.meta.API;
-import com.netease.cloud.nsf.meta.YxAPIModel;
 import me.snowdrop.istio.api.IstioResource;
 
 import java.util.List;
@@ -19,10 +18,8 @@ public interface ConfigManager {
 
     /**
      * 删除API
-     * @param service
-     * @param name
      */
-    void deleteConfig(String service, String name);
+    void deleteConfig(API api);
 
     /**
      * 获取服务对应的istio crd，一个服务对应一个istio crd，
