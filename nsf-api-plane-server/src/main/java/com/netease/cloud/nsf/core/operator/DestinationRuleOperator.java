@@ -5,11 +5,15 @@ import com.netease.cloud.nsf.util.function.Equals;
 import me.snowdrop.istio.api.networking.v1alpha3.DestinationRule;
 import me.snowdrop.istio.api.networking.v1alpha3.DestinationRuleSpec;
 import me.snowdrop.istio.api.networking.v1alpha3.Subset;
+import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
+
 import java.util.Objects;
 
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/7/30
  **/
+@Component
 public class DestinationRuleOperator implements IstioResourceOperator<DestinationRule> {
 
     @Override
@@ -33,5 +37,12 @@ public class DestinationRuleOperator implements IstioResourceOperator<Destinatio
     @Override
     public boolean adapt(String name) {
         return K8sResourceEnum.DestinationRule.name().equals(name);
+    }
+
+    @Override
+    public boolean isUseless(DestinationRule destinationRule) {
+        return destinationRule == null ||
+                destinationRule.getSpec() == null ||
+                  CollectionUtils.isEmpty(destinationRule.getSpec().getSubsets());
     }
 }

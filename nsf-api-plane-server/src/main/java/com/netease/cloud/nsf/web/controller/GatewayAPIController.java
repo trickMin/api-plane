@@ -27,8 +27,9 @@ public class GatewayAPIController extends BaseController{
     @Autowired
     private GatewayService gatewayService;
 
-    @RequestMapping(params = "Action=DeleteAPI", method = RequestMethod.GET)
-    public String deleteApi() {
+    @RequestMapping(value = "/yx", params = "Action=DeleteAPI", method = RequestMethod.POST)
+    public String deleteApi(@RequestBody @Valid YxAPIModel api) {
+        gatewayService.deleteAPI(api);
         return apiReturn(ApiPlaneErrorCode.Success);
     }
 

@@ -45,4 +45,5 @@ public interface IstioResourceOperator<T extends IstioResource> {
         return result;
     }
 
+    boolean isUseless(T t);
 }

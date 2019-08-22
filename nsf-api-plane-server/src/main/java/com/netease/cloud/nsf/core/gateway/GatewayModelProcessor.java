@@ -95,6 +95,7 @@ public class GatewayModelProcessor {
         rawResources.addAll(rawVirtualServices);
         rawResources.addAll(rawDestinationRules);
 
+        logger.info("translated resources: ");
         rawResources.forEach(r -> logger.info(r));
         rawResources.stream()
                 .forEach(r -> {
@@ -187,8 +188,6 @@ public class GatewayModelProcessor {
         return gateways;
     }
 
-
-
     /**
      * 初始化渲染所需的基本参数
      * @param api
@@ -257,7 +256,11 @@ public class GatewayModelProcessor {
         }
     }
 
-    public String wrap(String raw) {
+    public boolean isUseless(IstioResource i) {
+        return operator.isUseless(i);
+    }
+
+    private String wrap(String raw) {
         if (StringUtils.isEmpty(raw)) throw new NullPointerException();
         return "${" + raw + "}";
     }
@@ -274,6 +277,7 @@ public class GatewayModelProcessor {
         List<Map<String, Object>> destinations = new ArrayList<>();
         List<String> proxies = api.getProxyUris();
         for (int i = 0; i < proxies.size() ; i++) {
+            boolean isMatch = false;
             for (Endpoint e : endpoints) {
                 if (e.getHostname().equals(proxies.get(i))) {
                     Map<String, Object> param = new HashMap<>();
@@ -285,10 +289,11 @@ public class GatewayModelProcessor {
                     param.put("weight", weight);
                     param.put("host", e.getHostname());
                     destinations.add(param);
+                    isMatch = true;
                     break;
                 }
             }
-            throw new ApiPlaneException(String.format("%s:%s", ExceptionConst.TARGET_SERVICE_NON_EXIST, proxies.get(i)));
+            if (!isMatch) throw new ApiPlaneException(String.format("%s:%s", ExceptionConst.TARGET_SERVICE_NON_EXIST, proxies.get(i)));
         }
         String destinationStr = templateTranslator
                 .translate(baseVirtualServiceRoute,
@@ -308,7 +313,7 @@ public class GatewayModelProcessor {
     }
 
     private String buildGatewayName(String serviceName, String gw) {
-        return String.format("%s-%s", serviceName, gw);
+        return gw;
     }
 
     private String buildVirtualServiceName(String serviceName, String gw) {

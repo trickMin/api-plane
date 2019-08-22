@@ -17,4 +17,5 @@ public interface ExceptionConst {
     String ENDPOINT_LIST_EMPTY = "endpoint list is empty";
     String JSON_TO_YAML_FAILED = "translate json to yaml failed";
 
+    String UNSUPPORTED_RESOURCE_TYPE = "unsupported resource type";
 }
