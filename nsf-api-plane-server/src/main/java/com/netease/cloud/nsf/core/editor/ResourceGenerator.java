@@ -1,6 +1,9 @@
 package com.netease.cloud.nsf.core.editor;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.Predicate;
@@ -20,6 +23,12 @@ import java.util.Objects;
  * @date 2019/7/25
  **/
 public class ResourceGenerator implements Editor {
+
+    protected static EditorContext defaultContext = new EditorContext(new ObjectMapper(), new YAMLMapper(), Configuration.defaultConfiguration());
+
+    public static void configDefaultContext(EditorContext editorContext) {
+        defaultContext = editorContext;
+    }
 
     protected EditorContext editorContext;
     protected String originalJson;
@@ -46,6 +55,14 @@ public class ResourceGenerator implements Editor {
 
     public static ResourceGenerator newInstance(Object resource, ResourceType type, EditorContext editorContext) {
         return new ResourceGenerator(resource, type, editorContext);
+    }
+
+    public static ResourceGenerator newInstance(Object resource, ResourceType type) {
+        return new ResourceGenerator(resource, type, defaultContext);
+    }
+
+    public static ResourceGenerator newInstance(Object resource) {
+        return new ResourceGenerator(resource, ResourceType.JSON, defaultContext);
     }
 
     /**
@@ -221,6 +238,7 @@ public class ResourceGenerator implements Editor {
 
     /**
      * 转出为json
+     *
      * @return
      */
     @Override
@@ -230,6 +248,7 @@ public class ResourceGenerator implements Editor {
 
     /**
      * 转出为yaml
+     *
      * @return
      */
     @Override
@@ -239,6 +258,7 @@ public class ResourceGenerator implements Editor {
 
     /**
      * 转出为object
+     *
      * @param type
      * @param <T>
      * @return
@@ -248,6 +268,25 @@ public class ResourceGenerator implements Editor {
         return jsonContext.read("$", type);
     }
 
+    public static String yaml2json(String yaml) {
+        return yaml2json(yaml, defaultContext);
+    }
+
+    public static String json2yaml(String json) {
+        return json2yaml(json, defaultContext);
+    }
+
+    public static String obj2json(Object obj) {
+        return obj2json(obj, defaultContext);
+    }
+
+    public static <T> T json2obj(String json, Class<T> type) {
+        return json2obj(json, type, defaultContext);
+    }
+
+    public static <T> T yaml2obj(String yaml, Class<T> type) {
+        return yaml2obj(yaml, type, defaultContext);
+    }
 
     public static String yaml2json(String yaml, EditorContext editorContext) {
         try {

@@ -7,6 +7,7 @@ import com.jayway.jsonpath.spi.json.JsonProvider;
 import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
 import com.jayway.jsonpath.spi.mapper.MappingProvider;
 import com.netease.cloud.nsf.core.editor.EditorContext;
+import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import com.jayway.jsonpath.Configuration;
@@ -46,6 +47,8 @@ public class EditorSupportConfiguration {
 
     @Bean
     public EditorContext editorContext(ObjectMapper jsonMapper, @Qualifier("yaml") ObjectMapper yamlMapper, Configuration configuration) {
-        return new EditorContext(jsonMapper, yamlMapper, configuration);
+        EditorContext editorContext = new EditorContext(jsonMapper, yamlMapper, configuration);
+        ResourceGenerator.configDefaultContext(editorContext);
+        return editorContext;
     }
 }
