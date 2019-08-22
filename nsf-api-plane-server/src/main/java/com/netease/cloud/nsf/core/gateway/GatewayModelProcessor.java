@@ -163,8 +163,11 @@ public class GatewayModelProcessor {
         service.setMethod(wrap(API_METHODS));
         service.setSubset(wrap(VIRTUAL_SERVICE_SUBSET_NAME));
         service.setApi(api);
+        service.setMatch(match);
+        service.setRoute(route);
+        service.setExact(extra);
         List<String> handledPlugins = plugins.stream()
-                .map(p -> pluginService.processSchema(p, service).getVirtualServiceFragment())
+                .map(p -> pluginService.processSchema(p, service).getVirtualServiceFragment().getContent())
                 .collect(Collectors.toList());
         return handledPlugins;
     }

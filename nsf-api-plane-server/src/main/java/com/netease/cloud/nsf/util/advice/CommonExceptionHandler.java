@@ -2,6 +2,7 @@ package com.netease.cloud.nsf.util.advice;
 
 
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.jayway.jsonpath.InvalidJsonException;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.errorcode.ErrorCode;
 import com.netease.cloud.nsf.util.errorcode.ExceptionHandlerErrorCode;
@@ -57,6 +58,12 @@ public class CommonExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> handleMethodArgsTypeMismatchException(MethodArgumentTypeMismatchException exception) {
 
         ErrorCode errorCode = ExceptionHandlerErrorCode.InvalidParamsError(exception.getName(), exception.getValue().toString());
+        return newResponse(errorCode, exception);
+    }
+
+    @ExceptionHandler(InvalidJsonException.class)
+    public ResponseEntity<Object> handleInvalidJsonException(InvalidJsonException exception){
+        ErrorCode errorCode = ExceptionHandlerErrorCode.InvalidBodyFormat;
         return newResponse(errorCode, exception);
     }
 

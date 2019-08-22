@@ -141,6 +141,8 @@
 ---
 #@type=istioResource
 #@version=2.0
+#@resourceType=VirtualService
+#@fragmentType=NEW_MATCH
 [
     {
         "match": {
