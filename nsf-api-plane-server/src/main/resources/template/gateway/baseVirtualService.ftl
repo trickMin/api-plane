@@ -13,7 +13,7 @@ spec:
   - ${host}
   </#list>
   http:
-<#list t_api_plugins as p>
+<#list t_api_match_plugins as p>
 <@indent count=2>${p}</@indent>
 </#list>
   - name: ${t_api_name}

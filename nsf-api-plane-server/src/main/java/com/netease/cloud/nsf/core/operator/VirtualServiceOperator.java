@@ -6,6 +6,7 @@ import me.snowdrop.istio.api.networking.v1alpha3.HTTPRoute;
 import me.snowdrop.istio.api.networking.v1alpha3.VirtualService;
 import me.snowdrop.istio.api.networking.v1alpha3.VirtualServiceSpec;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.util.Objects;
 
@@ -37,5 +38,12 @@ public class VirtualServiceOperator implements IstioResourceOperator<VirtualServ
     @Override
     public boolean adapt(String name) {
         return K8sResourceEnum.VirtualService.name().equals(name);
+    }
+
+    @Override
+    public boolean isUseless(VirtualService virtualService) {
+        return virtualService == null ||
+                virtualService.getSpec() == null ||
+                  CollectionUtils.isEmpty(virtualService.getSpec().getHttp());
     }
 }

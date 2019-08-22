@@ -15,11 +15,13 @@ import java.util.Map;
 public class IndentationDirective implements TemplateDirectiveModel {
 
     private static final String COUNT = "count";
+    private static final String FIRST_LINE = "firstLine";
 
     @Override
     public void execute(Environment environment, Map parameters, TemplateModel[] loopVars, TemplateDirectiveBody body) throws TemplateException, IOException {
 
         Integer count = null;
+        Integer firstLine = null;
         final Iterator iterator = parameters.entrySet().iterator();
         while (iterator.hasNext())
         {
@@ -27,7 +29,7 @@ public class IndentationDirective implements TemplateDirectiveModel {
             final String name = (String) entry.getKey();
             final TemplateModel value = (TemplateModel) entry.getValue();
 
-            if (name.equals(COUNT) == true)
+            if (name.equals(COUNT))
             {
                 if (value instanceof TemplateNumberModel == false)
                 {
@@ -37,6 +39,18 @@ public class IndentationDirective implements TemplateDirectiveModel {
                 if (count < 0)
                 {
                     throw new TemplateModelException("The \"" + COUNT + "\" parameter " + "cannot be negative");
+                }
+            }
+            else if (name.equals(FIRST_LINE))
+            {
+                if (value instanceof TemplateNumberModel == false)
+                {
+                    throw new TemplateModelException("The \"" + FIRST_LINE + "\" parameter " + "must be a number");
+                }
+                firstLine = ((TemplateNumberModel) value).getAsNumber().intValue();
+                if (firstLine < 0)
+                {
+                    throw new TemplateModelException("The \"" + FIRST_LINE + "\" parameter " + "cannot be negative");
                 }
             }
             else
@@ -56,9 +70,13 @@ public class IndentationDirective implements TemplateDirectiveModel {
         final String lineFeed = "\n";
         final boolean containsLineFeed = string.contains(lineFeed) == true;
         final String[] tokens = string.split(lineFeed);
-        for (String token : tokens)
-        {
-            environment.getOut().write(indentation + token + (containsLineFeed == true ? lineFeed : ""));
+
+        for (int i = 0; i < tokens.length; i++) {
+            String indent = indentation;
+            if (i == 0 && firstLine != null) {
+                indent = StringUtils.repeat(' ', firstLine);
+            }
+            environment.getOut().write(indent + tokens[i] + (containsLineFeed == true ? lineFeed : ""));
         }
         writer.close();
     }

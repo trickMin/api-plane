@@ -3,8 +3,6 @@ kind: Gateway
 metadata:
   name: ${t_gateway_name}
   namespace: ${t_namespace}
-  labels:
-    api_service: ${t_api_service}
 spec:
   selector:
     app: ${t_api_gateway}

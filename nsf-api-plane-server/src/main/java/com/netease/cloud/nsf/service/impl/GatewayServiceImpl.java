@@ -36,8 +36,8 @@ public class GatewayServiceImpl implements GatewayService {
     }
 
     @Override
-    public void deleteAPI(String service, String name) {
-        configManager.deleteConfig(service, name);
+    public void deleteAPI(YxAPIModel yxApi) {
+        configManager.deleteConfig(transform(yxApi));
     }
 
     @Override
