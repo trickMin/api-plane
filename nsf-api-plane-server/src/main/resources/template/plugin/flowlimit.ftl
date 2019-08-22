@@ -35,6 +35,8 @@
 ---
 #@type=istioResource
 #@version=1.0
+#@resourceType=VirtualService
+#@fragmentType=NEW_MATCH
 {
   "fault": {
     "abort": {
