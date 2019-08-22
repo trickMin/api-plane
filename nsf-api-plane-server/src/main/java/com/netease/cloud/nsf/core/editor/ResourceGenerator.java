@@ -1,6 +1,7 @@
 package com.netease.cloud.nsf.core.editor;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.PrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import com.jayway.jsonpath.Configuration;
@@ -288,6 +289,10 @@ public class ResourceGenerator implements Editor {
         return yaml2obj(yaml, type, defaultContext);
     }
 
+    public static String prettyJson(String json) {
+        return prettyJson(json, defaultContext);
+    }
+
     public static String yaml2json(String yaml, EditorContext editorContext) {
         try {
             Object obj = editorContext.yamlMapper().readValue(yaml, Object.class);
@@ -325,5 +330,13 @@ public class ResourceGenerator implements Editor {
 
     public static <T> T yaml2obj(String yaml, Class<T> type, EditorContext editorContext) {
         return json2obj(yaml2json(yaml, editorContext), type, editorContext);
+    }
+
+    public static String prettyJson(String json, EditorContext editorContext) {
+        try {
+            return editorContext.jsonMapper().writerWithDefaultPrettyPrinter().writeValueAsString(json2obj(json, Object.class, editorContext));
+        } catch (JsonProcessingException e) {
+            throw new ApiPlaneException(e.getMessage(), e);
+        }
     }
 }
