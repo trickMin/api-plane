@@ -6,6 +6,9 @@ import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.k8s.K8sResourceGenerator;
 import com.netease.cloud.nsf.core.operator.IntegratedResourceOperator;
+import com.netease.cloud.nsf.core.plugin.FragmentHolder;
+import com.netease.cloud.nsf.core.plugin.FragmentTypeEnum;
+import com.netease.cloud.nsf.core.plugin.FragmentWrapper;
 import com.netease.cloud.nsf.core.template.TemplateParams;
 import com.netease.cloud.nsf.core.template.TemplateTranslator;
 import com.netease.cloud.nsf.meta.API;
@@ -131,8 +134,24 @@ public class GatewayModelProcessor {
 
             String route = produceRoute(api, endpoints, subset);
             String match = produceMatch(baseParams);
-            String extra = productExtra(baseParams);
 
+            // 传入插件json和部分已渲染的match以及route，用于生成插件片段
+            List<FragmentHolder> fragments = handlePlugins(api, match, route);
+            // 插件分为自身有match的插件和api级别的插件
+            List<String> matchPlugins = new ArrayList<>();
+            List<String> extraPlugins = new ArrayList<>();
+
+            fragments.stream()
+                    .forEach(f -> {
+                        if (f.getVirtualServiceFragment() != null) {
+                            FragmentWrapper vs = f.getVirtualServiceFragment();
+                            if (vs.getFragmentType().equals(FragmentTypeEnum.NEW_MATCH)) {
+                                matchPlugins.add(vs.getContent());
+                            } else if (vs.getFragmentType().equals(FragmentTypeEnum.DEFAULT_MATCH)) {
+                                extraPlugins.add(vs.getContent());
+                            }
+                        }
+                    });
             TemplateParams gatewayParams = TemplateParams.instance()
                     .setParent(baseParams)
                     .put(GATEWAY_NAME, buildGatewayName(api.getService(), gw))
@@ -140,9 +159,11 @@ public class GatewayModelProcessor {
                     .put(VIRTUAL_SERVICE_SUBSET_NAME, subset)
                     .put(VIRTUAL_SERVICE_MATCH, match)
                     .put(VIRTUAL_SERVICE_ROUTE, route)
-                    .put(VIRTUAL_SERVICE_EXTRA, extra)
-                    .put(API_PLUGINS, handlePlugins(api, match, route, extra));
-
+                    .put(API_MATCH_PLUGINS, matchPlugins)
+                    .put(API_EXTRA_PLUGINS, extraPlugins);
+            // 根据api级别的插件和高级功能生成extra部分，该部分为所有match通用的部分
+            String extra = productExtra(gatewayParams);
+            gatewayParams.put(VIRTUAL_SERVICE_EXTRA, extra);
             Map<String, Object> mergedParams = gatewayParams.output();
             //先基础渲染
             String tempVs = templateTranslator.translate(baseVirtualService, mergedParams);
@@ -153,10 +174,10 @@ public class GatewayModelProcessor {
         return virtualservices;
     }
 
-    private List<String> handlePlugins(API api, String match, String route, String extra) {
+    private List<FragmentHolder> handlePlugins(API api, String match, String route) {
 
         List<String> plugins = api.getPlugins();
-        if (CollectionUtils.isEmpty(plugins)) return plugins;
+        if (CollectionUtils.isEmpty(plugins)) return Collections.emptyList();
         ServiceInfo service = new ServiceInfo();
         service.setApiName(wrap(API_NAME));
         service.setUri(wrap(API_REQUEST_URIS));
@@ -165,18 +186,16 @@ public class GatewayModelProcessor {
         service.setApi(api);
         service.setMatch(match);
         service.setRoute(route);
-        service.setExact(extra);
-        List<String> handledPlugins = plugins.stream()
-                .map(p -> pluginService.processSchema(p, service).getVirtualServiceFragment().getContent())
+        List<FragmentHolder> fragments = plugins.stream()
+                .map(p -> pluginService.processSchema(p, service))
                 .collect(Collectors.toList());
-        return handledPlugins;
+        return fragments;
     }
 
     private List<String> buildGateways(API api, List<String> envoys, TemplateParams baseParams) {
 
         List<String> gateways = new ArrayList<>();
         envoys.stream().forEach( gw -> {
-
             TemplateParams gatewayParams = TemplateParams.instance()
                     .setParent(baseParams)
                     .put(API_GATEWAY, gw)
@@ -205,7 +224,7 @@ public class GatewayModelProcessor {
                 .put(API_LOADBALANCER, api.getLoadBalancer())
                 .put(API_GATEWAYS, api.getGateways())
                 .put(API_REQUEST_URIS, uris)
-                .put(API_PLUGINS, api.getPlugins())
+                .put(API_MATCH_PLUGINS, api.getPlugins())
                 .put(API_METHODS, methods)
                 .put(API_RETRIES, api.getRetries())
                 .put(API_PRESERVE_HOST, api.getPreserveHost())
@@ -213,7 +232,6 @@ public class GatewayModelProcessor {
                 .put(API_IDLE_TIMEOUT, api.getIdleTimeout())
                 .put(GATEWAY_HOSTS, api.getHosts())
                 .put(VIRTUAL_SERVICE_HOSTS, api.getHosts());
-
         return tp;
     }
 

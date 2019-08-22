@@ -40,7 +40,9 @@ public interface TemplateConst {
     String VIRTUAL_SERVICE_EXTRA = "t_virtual_service_extra";
     String VIRTUAL_SERVICE_HOSTS = "t_virtual_service_hosts";
 
-    String API_PLUGINS = "t_api_plugins";
+    String API_MATCH_PLUGINS = "t_api_match_plugins";
+    String API_EXTRA_PLUGINS = "t_api_extra_plugins";
+
     /**
      * api请求uri
      */
