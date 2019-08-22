@@ -62,15 +62,29 @@ public class DefaultK8sHttpClient implements K8sHttpClient {
         }
     }
 
-    protected String handleResponse(Request.Builder requestBuilder) {
+    protected String handleResponse(Request.Builder requestBuilder, Integer... whiteListCode) {
         Request request = requestBuilder.build();
-        // log
-        logRequestAndBody(request);
+        if (Objects.nonNull(request)) {
+            logger.info(request.toString());
+        }
+        Buffer buffer = new Buffer();
+        if (Objects.nonNull(request.body())) {
+            try {
+                request.body().writeTo(buffer);
+                logger.info("Request body: {}", buffer.readString(Charset.defaultCharset()));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         try (Response response = httpClient.newCall(request).execute()) {
-            assertResponseCode(request, response);
-            String result = response.body().string();
-            logger.info(result);
-            return result;
+            assertResponseCode(request, response, whiteListCode);
+            logger.info(response.toString());
+            if (Objects.nonNull(response.body())) {
+                String result = response.body().string();
+                logger.info("Response body: {}", result);
+                return result;
+            }
+            return null;
         } catch (IOException e) {
             throw new ApiPlaneException(StringFormatter.format("K8s request failed : {}.", request.toString()).toString(), e);
         }
@@ -79,8 +93,7 @@ public class DefaultK8sHttpClient implements K8sHttpClient {
 
     protected Status createStatus(String statusMessage) {
         ResourceGenerator generator = ResourceGenerator.newInstance(statusMessage, ResourceType.JSON, editorContext);
-        Status status = generator.object(Status.class);
-        return status;
+        return generator.object(Status.class);
     }
 
     protected Status createStatus(Response response) {
@@ -100,8 +113,6 @@ public class DefaultK8sHttpClient implements K8sHttpClient {
                 status = new StatusBuilder(status).withCode(statusCode).build();
             }
             return status;
-        } catch (JsonParseException e) {
-            return createStatus(statusCode, statusMessage);
         } catch (IOException e) {
             return createStatus(statusCode, statusMessage);
         }
@@ -125,7 +136,7 @@ public class DefaultK8sHttpClient implements K8sHttpClient {
             sb.append(" Message: ").append(status.getMessage()).append(".");
         }
 
-        if (status != null && !status.getAdditionalProperties().containsKey(CLIENT_STATUS_FLAG)) {
+        if (!status.getAdditionalProperties().containsKey(CLIENT_STATUS_FLAG)) {
             sb.append(" Received status: ").append(status).append(".");
         }
 
@@ -170,20 +181,7 @@ public class DefaultK8sHttpClient implements K8sHttpClient {
     @Override
     public String getWithNull(String url) {
         Request.Builder requestBuilder = new Request.Builder().get().url(url);
-        Request request = requestBuilder.build();
-        // log
-        logRequestAndBody(request);
-        try (Response response = httpClient.newCall(request).execute()) {
-            assertResponseCode(request, response, 404);
-            if (response.isSuccessful()) {
-                String result = response.body().string();
-                logger.debug(result);
-                return result;
-            }
-            return null;
-        } catch (IOException e) {
-            throw new ApiPlaneException(StringFormatter.format("K8s request failed : {}.", request.toString()).toString(), e);
-        }
+        return handleResponse(requestBuilder, 404);
     }
 
     @Override
@@ -210,24 +208,5 @@ public class DefaultK8sHttpClient implements K8sHttpClient {
     public String delete(String url) {
         Request.Builder requestBuilder = new Request.Builder().delete().url(url);
         return handleResponse(requestBuilder);
-    }
-
-    private void logRequest(Request request) {
-        if (Objects.nonNull(request)) {
-            logger.info("K8s resource " + request.toString());
-        }
-    }
-
-    private void logRequestAndBody(Request request) {
-        logRequest(request);
-        Buffer buffer = new Buffer();
-        if (Objects.nonNull(request.body())) {
-            try {
-                request.body().writeTo(buffer);
-                logger.info("Request body: {}", buffer.readString(Charset.defaultCharset()));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
     }
 }

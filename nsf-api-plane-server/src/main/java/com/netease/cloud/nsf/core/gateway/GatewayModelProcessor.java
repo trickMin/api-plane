@@ -54,9 +54,6 @@ public class GatewayModelProcessor {
     @Autowired
     PluginService pluginService;
 
-    @Autowired
-    YamlJsonHelper yamlJsonHelper;
-
     private static final String baseGateway = "gateway/baseGateway";
     private static final String baseVirtualService = "gateway/baseVirtualService";
     private static final String baseDestinationRule = "gateway/baseDestinationRule";
@@ -170,10 +167,6 @@ public class GatewayModelProcessor {
         service.setMatch(match);
         service.setRoute(route);
         service.setExact(extra);
-        // TODO 给service传入 match, route, extra
-        yamlJsonHelper.yaml2Json(match);
-        yamlJsonHelper.yaml2Json(route);
-        yamlJsonHelper.yaml2Json(extra);
         List<String> handledPlugins = plugins.stream()
                 .map(p -> pluginService.processSchema(p, service).getVirtualServiceFragment().getContent())
                 .collect(Collectors.toList());
