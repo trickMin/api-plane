@@ -1,7 +1,6 @@
 package com.netease.cloud.nsf.core.gateway;
 
 import com.google.common.collect.ImmutableMap;
-import com.netease.cloud.nsf.core.YamlJsonHelper;
 import com.netease.cloud.nsf.core.editor.EditorContext;
 import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
@@ -53,9 +52,6 @@ public class GatewayModelProcessor {
 
     @Autowired
     PluginService pluginService;
-
-    @Autowired
-    YamlJsonHelper yamlJsonHelper;
 
     private static final String baseGateway = "gateway/baseGateway";
     private static final String baseVirtualService = "gateway/baseVirtualService";
