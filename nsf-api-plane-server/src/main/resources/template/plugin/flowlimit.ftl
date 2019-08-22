@@ -1,6 +1,6 @@
 #@type=pluginSchema
 #@version=1.0
-#@description=百分比限流插件schema
+#@description=百分比限流
 {
   "fields": {
     "kind": {
@@ -25,24 +25,14 @@
   "no_consumer": true
 }
 ---
-#demo
-{
-  "version": "${version}",
-  "kind": "flowlimit",
-  "limit_percent": 50,
-  "hash_key" : "source|key1"
-}
----
 #@type=istioResource
 #@version=1.0
-#@processor=FlowlimitProcessor
-{
-  "fault": {
-    "abort": {
-      "percentage": {
-        "value": ${limit_percent}
-      },
-      "httpStatus": 302
-    }
-  }
-}
+#@resourceType=VirtualService
+#@fragmentType=NEW_MATCH
+- fault:
+    abort:
+       percentage:
+         value: 80
+       httpStatus: 302
+${r'<@indent count=2>${t_virtual_service_match}</@indent>'}
+${r'<@indent count=2>${t_virtual_service_route}</@indent>'}
