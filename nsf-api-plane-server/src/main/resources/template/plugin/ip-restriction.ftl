@@ -26,8 +26,8 @@
 #@type=istioResource
 #@version=1.0
 #@resourceType=VirtualService
-#@fragmentType=NEW_MATCH
-ip_restriction:
+#@fragmentType=DEFAULT_MATCH
+ipRestriction:
   type: ${type}
   ip:
    <#list ip as item>

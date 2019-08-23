@@ -36,9 +36,9 @@
 #@type=istioResource
 #@version=1.0
 #@resourceType=VirtualService
-#@fragmentType=NEW_MATCH
-- fault:
-   abort:
-    percentage:
-      value: ${limit_percent}
-    httpStatus: 429
+#@fragmentType=DEFAULT_MATCH
+fault:
+ abort:
+  percentage:
+    value: ${limit_percent}
+  httpStatus: 429
