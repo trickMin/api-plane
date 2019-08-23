@@ -23,25 +23,13 @@
   }
 }
 ---
-#demo
-{
-  "version": "${version}",
-  "kind": "flowlimit",
-  "limit_percent": 50,
-  "hash_key" : "source|key1"
-}
----
 #@type=istioResource
 #@version=1.0
 #@resourceType=VirtualService
 #@fragmentType=NEW_MATCH
-{
-  "ip_restriction": {
-    "type": "${type}",
-    "ip": [
-<#list ip as item>
-  ${item}
-</#list>
-]
-  }
-}
+ip_restriction:
+  type: ${type}
+  ip:
+   <#list ip as item>
+    - ${item}
+   </#list>

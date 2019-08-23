@@ -37,13 +37,8 @@
 #@version=1.0
 #@resourceType=VirtualService
 #@fragmentType=NEW_MATCH
-{
-  "fault": {
-    "abort": {
-      "percentage": {
-        "value": ${limit_percent}
-      },
-      "httpStatus": 302
-    }
-  }
-}
+- fault:
+   abort:
+    percentage:
+      value: ${limit_percent}
+    httpStatus: 429
