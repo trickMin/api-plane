@@ -21,12 +21,7 @@ public class IntegratedResourceOperator {
 
         if (old == null || fresh == null) throw new ApiPlaneException(ExceptionConst.RESOURCE_NON_EXIST);
         if (!sameIdentity(old, fresh)) throw new ApiPlaneException(ExceptionConst.RESOURCES_DIFF_IDENTITY);
-        for (IstioResourceOperator op : operators) {
-            if (op.adapt(old.getKind())) {
-                return op.merge(old, fresh);
-            }
-        }
-        return old;
+        return resolve(old).merge(old, fresh);
     }
 
 
@@ -36,4 +31,16 @@ public class IntegratedResourceOperator {
                 old.getMetadata().getName().equals(fresh.getMetadata().getName());
     }
 
+    public boolean isUseless(IstioResource i) {
+        return resolve(i).isUseless(i);
+    }
+
+    private IstioResourceOperator resolve(IstioResource i) {
+        for (IstioResourceOperator op : operators) {
+            if (op.adapt(i.getKind())) {
+                return op;
+            }
+        }
+        throw new ApiPlaneException(ExceptionConst.UNSUPPORTED_RESOURCE_TYPE + ":" + i.getKind());
+    }
 }

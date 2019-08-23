@@ -13,8 +13,8 @@ spec:
   - ${host}
   </#list>
   http:
-<#list t_api_plugins as p>
-<@indent count=2>${p}</@indent>
+<#list t_api_match_plugins as p>
+<@ignore ignore="extra"><@indent count=2>${p}</@indent></@ignore>
 </#list>
   - name: ${t_api_name}
 <@indent count=4>${t_virtual_service_match}</@indent>

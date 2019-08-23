@@ -39,9 +39,8 @@ public abstract class AbstractYxSchemaProcessor implements SchemaProcessor<Servi
         match.createOrUpdateJson("$[0]", "uri", String.format("{\"regex\":\"(?:%s.*)\"}", info.getUri()));
         match.createOrUpdateJson("$[0]", "method", String.format("{\"regex\":\"%s\"}", info.getMethod()));
 
-        List items = rg.getValue("$.matcher");
-        int length = rg.getValue("$.matcher.length()");
-        if (!CollectionUtils.isEmpty(items) && length != 0) {
+        if (rg.contain("$.matcher")) {
+            int length = rg.getValue("$.matcher.length()");
             for (int i = 0; i < length; i++) {
                 String sourceType = rg.getValue(String.format("$.matcher[%d].source_type", i));
                 String leftValue = rg.getValue(String.format("$.matcher[%d].left_value", i));
@@ -132,5 +131,9 @@ public abstract class AbstractYxSchemaProcessor implements SchemaProcessor<Servi
             }
         }
         return keyword;
+    }
+
+    protected void appendExtra(ResourceGenerator gen) {
+        gen.createOrUpdateValue("$[*]","extra", "<@indent count=4>${t_virtual_service_extra}</@indent>");
     }
 }
