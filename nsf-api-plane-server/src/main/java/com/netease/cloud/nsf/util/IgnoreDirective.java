@@ -46,7 +46,7 @@ public class IgnoreDirective implements TemplateDirectiveModel {
 
         for (String token : tokens) {
             if (token.contains(ignore + ": ")) {
-                token = token.replace(ignore + ": ", "");
+                token = token.substring(token.indexOf(ignore) + ignore.length() + 2);
             }
             environment.getOut().write(token + (containsLineFeed == true ? lineFeed : ""));
         }
