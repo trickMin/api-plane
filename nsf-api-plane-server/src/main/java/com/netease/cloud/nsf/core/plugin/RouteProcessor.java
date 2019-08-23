@@ -70,6 +70,7 @@ public class RouteProcessor extends AbstractYxSchemaProcessor implements SchemaP
 
         ResourceGenerator result = ResourceGenerator.newInstance("[]", ResourceType.JSON, editorContext);
         pluginMap.values().forEach(o -> result.addJsonElement("$", o));
+        appendExtra(result);
 
         FragmentHolder holder = new FragmentHolder();
         FragmentWrapper wrapper = new FragmentWrapper.Builder()

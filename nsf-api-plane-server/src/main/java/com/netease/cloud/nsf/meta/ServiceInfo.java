@@ -56,12 +56,6 @@ public class ServiceInfo {
     @JsonProperty(VIRTUAL_SERVICE_MATCH)
     private String match;
 
-    /**
-     * 提供额外渲染好的的资源片段
-     */
-    @JsonProperty(VIRTUAL_SERVICE_EXTRA)
-    private String exact;
-
 
     public API getApi() {
         return api;
@@ -124,14 +118,5 @@ public class ServiceInfo {
     @JsonProperty(VIRTUAL_SERVICE_MATCH)
     public void setMatch(String match) {
         this.match = match;
-    }
-
-    public String getExact() {
-        return exact;
-    }
-
-    @JsonProperty(VIRTUAL_SERVICE_EXTRA)
-    public void setExact(String exact) {
-        this.exact = exact;
     }
 }
