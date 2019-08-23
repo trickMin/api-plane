@@ -12,5 +12,5 @@ headers:
 </#if>
 </#if>
 <#list t_api_extra_plugins as p>
-  <@indent count=2>${p}</@indent>
+${p}
 </#list>

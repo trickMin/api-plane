@@ -132,4 +132,8 @@ public abstract class AbstractYxSchemaProcessor implements SchemaProcessor<Servi
         }
         return keyword;
     }
+
+    protected void appendExtra(ResourceGenerator gen) {
+        gen.createOrUpdateValue("$[*]","extra", "<@indent count=4>${t_virtual_service_extra}</@indent>");
+    }
 }
