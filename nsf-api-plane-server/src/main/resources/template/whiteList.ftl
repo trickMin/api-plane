@@ -99,6 +99,3 @@ spec:
   peers:
   - mtls:
       mode: STRICT
----
-# service account
-<#include "inner/whiteList-serviceAccount.ftl"/>
