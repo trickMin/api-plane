@@ -61,7 +61,7 @@ public class API {
     /**
      * 重试次数
      */
-    private Integer retries;
+    private Integer retries = 5;
 
     private Long connectTimeout;
 

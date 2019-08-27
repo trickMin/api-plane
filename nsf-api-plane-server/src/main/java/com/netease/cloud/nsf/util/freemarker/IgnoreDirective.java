@@ -1,4 +1,4 @@
-package com.netease.cloud.nsf.util;
+package com.netease.cloud.nsf.util.freemarker;
 
 import freemarker.core.Environment;
 import freemarker.template.*;
@@ -13,12 +13,12 @@ import java.util.Map;
  **/
 public class IgnoreDirective implements TemplateDirectiveModel {
 
-    private static final String IGNORE = "ignore";
+    private static final String LIST = "list";
 
     @Override
     public void execute(Environment environment, Map parameters, TemplateModel[] loopVars, TemplateDirectiveBody body) throws TemplateException, IOException {
 
-        String ignore = null;
+        String ignoreList = null;
         final Iterator iterator = parameters.entrySet().iterator();
         while (iterator.hasNext())
         {
@@ -26,9 +26,9 @@ public class IgnoreDirective implements TemplateDirectiveModel {
             final String name = (String) entry.getKey();
             final TemplateModel value = (TemplateModel) entry.getValue();
 
-            if (name.equals(IGNORE))
+            if (name.equals(LIST))
             {
-                ignore = ((SimpleScalar) value).getAsString();
+                ignoreList = ((SimpleScalar) value).getAsString();
             }
             else
             {
@@ -42,15 +42,18 @@ public class IgnoreDirective implements TemplateDirectiveModel {
         final String lineFeed = "\n";
         final boolean containsLineFeed = string.contains(lineFeed) == true;
         final String[] tokens = string.split(lineFeed);
-//        final String p = "^\\s*" + ignore + ".*";
+
+        String[] ignores = ignoreList.split(",");
 
         for (String token : tokens) {
-            if (token.contains(ignore + ": ")) {
-                token = token.substring(token.indexOf(ignore) + ignore.length() + 2);
+            for (String ignore : ignores) {
+                if (token.contains(ignore + ": ")) {
+                    token = token.substring(token.indexOf(ignore) + ignore.length() + 2);
+                    break;
+                }
             }
             environment.getOut().write(token + (containsLineFeed == true ? lineFeed : ""));
         }
-
         writer.close();
     }
 }
