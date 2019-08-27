@@ -1,6 +1,9 @@
 package com.netease.cloud.nsf.core.operator;
 
+import com.netease.cloud.nsf.core.editor.ResourceGenerator;
+import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.util.K8sResourceEnum;
+import com.netease.cloud.nsf.util.PathExpressionEnum;
 import com.netease.cloud.nsf.util.function.Equals;
 import me.snowdrop.istio.api.networking.v1alpha3.DestinationRule;
 import me.snowdrop.istio.api.networking.v1alpha3.DestinationRuleSpec;
@@ -44,5 +47,22 @@ public class DestinationRuleOperator implements IstioResourceOperator<Destinatio
         return destinationRule == null ||
                 destinationRule.getSpec() == null ||
                   CollectionUtils.isEmpty(destinationRule.getSpec().getSubsets());
+    }
+
+    @Override
+    public DestinationRule subtract(DestinationRule old, String service, String api) {
+        ResourceGenerator gen = ResourceGenerator.newInstance(old, ResourceType.OBJECT);
+        gen.removeElement(PathExpressionEnum.REMOVE_DST_SUBSET.translate(buildSubsetApi(service, api)));
+        return gen.object(DestinationRule.class);
+    }
+
+    /**
+     * 在DestinationRule的Subset中加了api属性，根据service+api生成api对应值
+     * @param service
+     * @param api
+     * @return
+     */
+    public String buildSubsetApi(String service, String api) {
+        return String.format("%s-%s", service, api);
     }
 }

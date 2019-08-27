@@ -3,6 +3,7 @@ package com.netease.cloud.nsf.core.operator;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
 import me.snowdrop.istio.api.IstioResource;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -24,6 +25,14 @@ public class IntegratedResourceOperator {
         return resolve(old).merge(old, fresh);
     }
 
+    public IstioResource subtract(IstioResource old, String service, String api) {
+
+        if (old == null) throw new ApiPlaneException(ExceptionConst.RESOURCE_NON_EXIST);
+        if (StringUtils.isEmpty(service)) throw new ApiPlaneException(ExceptionConst.SERVICE_NON_EXIST);
+        if (StringUtils.isEmpty(api)) throw new ApiPlaneException(ExceptionConst.API_NON_EXIST);
+
+        return resolve(old).subtract(old, service, api);
+    }
 
     private boolean sameIdentity(IstioResource old, IstioResource fresh) {
         return old.getKind().equals(fresh.getKind()) &&

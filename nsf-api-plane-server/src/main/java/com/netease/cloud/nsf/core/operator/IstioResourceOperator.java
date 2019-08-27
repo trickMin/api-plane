@@ -14,7 +14,10 @@ public interface IstioResourceOperator<T extends IstioResource> {
 
     T merge(T old, T fresh);
 
-//    T subtract(T old, String name);
+    default T subtract(T old, String service, String name) {
+        //please override
+        return old;
+    }
 
     boolean adapt(String name);
 

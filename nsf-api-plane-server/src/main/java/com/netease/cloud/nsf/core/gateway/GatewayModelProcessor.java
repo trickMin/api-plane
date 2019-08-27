@@ -2,7 +2,6 @@ package com.netease.cloud.nsf.core.gateway;
 
 import com.google.common.collect.ImmutableMap;
 import com.netease.cloud.nsf.core.editor.EditorContext;
-import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.k8s.K8sResourceGenerator;
 import com.netease.cloud.nsf.core.operator.IntegratedResourceOperator;
@@ -16,7 +15,6 @@ import com.netease.cloud.nsf.meta.Endpoint;
 import com.netease.cloud.nsf.meta.ServiceInfo;
 import com.netease.cloud.nsf.service.PluginService;
 import com.netease.cloud.nsf.util.K8sResourceEnum;
-import com.netease.cloud.nsf.util.PathExpressionEnum;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
 import me.snowdrop.istio.api.IstioResource;
@@ -256,21 +254,7 @@ public class GatewayModelProcessor {
      * @return
      */
     public IstioResource subtract(IstioResource old, String service, String api) {
-        K8sResourceEnum resource = K8sResourceEnum.get(old.getKind());
-        switch (resource) {
-            case VirtualService: {
-                ResourceGenerator gen = ResourceGenerator.newInstance(old, ResourceType.OBJECT, editorContext);
-                gen.removeElement(PathExpressionEnum.REMOVE_VS_HTTP.translate(api));
-                return (IstioResource) gen.object(resource.mappingType());
-            }
-            case DestinationRule: {
-                ResourceGenerator gen = ResourceGenerator.newInstance(old, ResourceType.OBJECT, editorContext);
-                gen.removeElement(PathExpressionEnum.REMOVE_DST_SUBSET.translate(buildSubsetApi(service, api)));
-                return (IstioResource) gen.object(resource.mappingType());
-            }
-            default:
-                return old;
-        }
+        return operator.subtract(old, service, api);
     }
 
     public boolean isUseless(IstioResource i) {
@@ -319,15 +303,7 @@ public class GatewayModelProcessor {
         return destinationStr;
     }
 
-    /**
-     * 在DestinationRule的Subset中加了api属性，根据service+api生成api对应值
-     * @param service
-     * @param api
-     * @return
-     */
-    public String buildSubsetApi(String service, String api) {
-        return String.format("%s-%s", service, api);
-    }
+
 
     private String buildGatewayName(String serviceName, String gw) {
         return gw;
