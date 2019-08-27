@@ -11,3 +11,6 @@ headers:
   remove: Host
 </#if>
 </#if>
+<#list t_api_extra_plugins as p>
+${p}
+</#list>
