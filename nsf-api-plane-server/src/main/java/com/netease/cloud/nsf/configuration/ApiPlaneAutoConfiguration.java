@@ -6,8 +6,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import com.google.common.collect.ImmutableList;
-import com.netease.cloud.nsf.util.IgnoreDirective;
-import com.netease.cloud.nsf.util.IndentationDirective;
+import com.netease.cloud.nsf.util.freemarker.SupplyDirective;
+import com.netease.cloud.nsf.util.freemarker.IgnoreDirective;
+import com.netease.cloud.nsf.util.freemarker.IndentationDirective;
 import com.netease.cloud.nsf.util.interceptor.RestTemplateLogInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -68,7 +69,7 @@ public class ApiPlaneAutoConfiguration {
     void configureFreemarkerConfig() {
         freemarkerConfig.setSharedVariable("indent", new IndentationDirective());
         freemarkerConfig.setSharedVariable("ignore", new IgnoreDirective());
+        freemarkerConfig.setSharedVariable("supply", new SupplyDirective());
     }
-
 
 }

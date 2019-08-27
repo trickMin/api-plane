@@ -1,4 +1,4 @@
-package com.netease.cloud.nsf.util;
+package com.netease.cloud.nsf.util.freemarker;
 
 import freemarker.core.Environment;
 import freemarker.template.*;

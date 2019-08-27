@@ -1,29 +1,26 @@
 package com.netease.cloud.nsf.core.gateway;
 
 import com.google.common.collect.ImmutableList;
-import com.netease.cloud.nsf.ApiPlaneApplication;
+import com.netease.cloud.nsf.core.BaseTest;
 import com.netease.cloud.nsf.core.editor.EditorContext;
 import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.k8s.K8sResourceGenerator;
 import com.netease.cloud.nsf.core.k8s.KubernetesClient;
 import com.netease.cloud.nsf.meta.API;
+import com.netease.cloud.nsf.meta.Endpoint;
 import com.netease.cloud.nsf.util.K8sResourceEnum;
 import me.snowdrop.istio.api.IstioResource;
 import me.snowdrop.istio.api.networking.v1alpha3.VirtualService;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.Arrays;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = ApiPlaneApplication.class)
-@PropertySource("classpath:application.properties")
-public class GatewayModelProcessorTest {
+import static org.mockito.Mockito.when;
+
+public class GatewayModelProcessorTest extends BaseTest {
 
     @Autowired
     GatewayModelProcessor processor;
@@ -34,8 +31,21 @@ public class GatewayModelProcessorTest {
     @MockBean
     KubernetesClient kubernetesClient;
 
-//    @Test
+    @MockBean
+    IstioHttpClient istioHttpClient;
+
+    @Test
     public void translate() {
+
+        Endpoint endpoint1 = new Endpoint();
+        endpoint1.setHostname("a.default.svc.cluster.local");
+        endpoint1.setPort(9090);
+
+        Endpoint endpoint2 = new Endpoint();
+        endpoint2.setHostname("b.default.svc.cluster.local");
+        endpoint2.setPort(9000);
+
+        when(istioHttpClient.getEndpointList()).thenReturn(Arrays.asList(endpoint1, endpoint2));
 
         API api = new API();
         api.setGateways(ImmutableList.of("gateway1", "gateway2"));
@@ -166,8 +176,6 @@ public class GatewayModelProcessorTest {
         VirtualService subtractedVs = (VirtualService) processor.subtract(vs, "service-zero", "plane-istio-test");
 
         Assert.assertTrue(subtractedVs.getSpec().getHttp().size() == 1);
-
-
     }
 
 }

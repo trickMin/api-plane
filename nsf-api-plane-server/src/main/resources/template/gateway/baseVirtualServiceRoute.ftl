@@ -1,4 +1,3 @@
-
 <#if t_virtual_service_destinations??>
 route:
 <#list t_virtual_service_destinations as ds>

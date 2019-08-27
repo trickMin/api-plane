@@ -14,9 +14,6 @@ spec:
   </#list>
   http:
 <#list t_api_match_plugins as p>
-<@ignore list="nsfExtra,nsfMatch,nsfRoute"><@indent count=2>${p}</@indent></@ignore>
+<@supply><@indent count=2>${p}</@indent></@supply>
 </#list>
-  - name: ${t_api_name}
-<@indent count=4>${t_virtual_service_match}</@indent>
-<@indent count=4>${t_virtual_service_route}</@indent>
-<@indent count=4>${t_virtual_service_extra}</@indent>
+<@supply></@supply>

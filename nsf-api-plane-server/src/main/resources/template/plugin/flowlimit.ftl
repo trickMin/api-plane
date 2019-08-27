@@ -34,6 +34,3 @@
        percentage:
          value: 80
        httpStatus: 302
-  name: ${r'${t_api_name}'}
-${r'<@indent count=4 firstLine=2>${t_virtual_service_match}</@indent>'}
-${r'<@indent count=4 firstLine=2>${t_virtual_service_route}</@indent>'}
