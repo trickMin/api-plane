@@ -9,4 +9,7 @@ public enum FragmentTypeEnum {
     DEFAULT_MATCH,
     // GatewayModelProcessor会将Fragment作为新match创建到VirtualService中
     NEW_MATCH,
+
+    // SharedConfigs的新限限流configs
+    NEW_DESCRIPTORS,
 }

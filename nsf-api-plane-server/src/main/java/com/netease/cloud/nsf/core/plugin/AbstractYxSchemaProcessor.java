@@ -121,6 +121,13 @@ public abstract class AbstractYxSchemaProcessor implements SchemaProcessor<Servi
         throw new ApiPlaneException(String.format("Target endpoint %s does not exist", targetHost));
     }
 
+    /**
+     * 将一个普通expression作为regex表达式，转移其中所有特殊字符，并填充到json中时需要转义,
+     * 例如 . 转义为 \\\\. 第一个反斜杠转义是不作为正则表达式中的特殊字符.第二个反斜杆是在json中特殊字符需要转义
+     *
+     * @param keyword
+     * @return
+     */
     protected String escapeExprSpecialWord(String keyword) {
         if (StringUtils.isNotBlank(keyword)) {
             String[] fbsArr = {"\\", "$", "(", ")", "*", "+", ".", "[", "]", "?", "^", "{", "}", "|"};
@@ -133,7 +140,19 @@ public abstract class AbstractYxSchemaProcessor implements SchemaProcessor<Servi
         return keyword;
     }
 
+    /**
+     * 将一个正则expression填充到json中时，需要转义\
+     * @param keyword
+     * @return
+     */
+    protected String escapeBackSlash(String keyword) {
+        if (StringUtils.isNotBlank(keyword)) {
+            keyword = keyword.replaceAll("\\\\", "\\\\\\\\");
+        }
+        return keyword;
+    }
+
     protected void appendExtra(ResourceGenerator gen) {
-        gen.createOrUpdateValue("$[*]","extra", "<@indent count=4>${t_virtual_service_extra}</@indent>");
+        gen.createOrUpdateValue("$[*]", "extra", "<@indent count=4>${t_virtual_service_extra}</@indent>");
     }
 }

@@ -98,6 +98,18 @@ public class WhiteList {
         return getNamespace();
     }
 
+    public List<VerboseSource> getVerboseSources() {
+        return getSources().stream()
+            .map(source -> {
+                String[] splits = source.split("\\.");
+                if (splits.length != 2) {
+                    logger.error("source service format error: {}", source);
+                }
+                return new VerboseSource(splits[0], splits[1]);
+            })
+            .collect(Collectors.toList());
+    }
+
     public List<String> getConfigPassedPaths() {
         List<String> result = simplifyPaths(allPaths);
         for (String authPath : simplifyPaths(authPaths)) {
@@ -139,4 +151,31 @@ public class WhiteList {
 //		configPassedPaths.stream();
 //    }
 
+    public static class VerboseSource {
+        private String name;
+        private String namespace;
+
+        public VerboseSource(String name, String namespace) {
+            this.name = name;
+            this.namespace = namespace;
+        }
+
+        public VerboseSource() {}
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getNamespace() {
+            return namespace;
+        }
+
+        public void setNamespace(String namespace) {
+            this.namespace = namespace;
+        }
+    }
 }

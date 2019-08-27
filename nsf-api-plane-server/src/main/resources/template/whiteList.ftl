@@ -55,8 +55,8 @@ metadata:
   namespace: ${namespace}
 spec:
   subjects:
-<#list sources! as val>
-  - user: cluster.local/ns/${sourcesNamespace}/sa/${val}
+<#list verboseSources! as val>
+  - user: cluster.local/ns/${val.namespace}/sa/${val.name}
 </#list>
   roleRef:
     kind: ServiceRole
@@ -99,6 +99,3 @@ spec:
   peers:
   - mtls:
       mode: STRICT
----
-# service account
-<#include "inner/whiteList-serviceAccount.ftl"/>

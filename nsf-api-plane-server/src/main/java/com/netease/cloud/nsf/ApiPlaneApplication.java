@@ -9,6 +9,7 @@ import org.springframework.context.annotation.PropertySource;
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/7/15
  **/
+
 @SpringBootApplication
 @PropertySource("classpath:k8s.properties")
 public class ApiPlaneApplication extends SpringBootServletInitializer {
