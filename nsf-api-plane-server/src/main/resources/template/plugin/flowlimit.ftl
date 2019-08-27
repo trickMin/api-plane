@@ -1,6 +1,6 @@
 #@type=pluginSchema
 #@version=1.0
-#@description=百分比限流
+#@description=百分比限流插件schema
 {
   "fields": {
     "kind": {
@@ -25,12 +25,20 @@
   "no_consumer": true
 }
 ---
+#demo
+{
+  "version": "${version}",
+  "kind": "flowlimit",
+  "limit_percent": 50,
+  "hash_key" : "source|key1"
+}
+---
 #@type=istioResource
 #@version=1.0
 #@resourceType=VirtualService
-#@fragmentType=NEW_MATCH
-- fault:
-    abort:
-       percentage:
-         value: 80
-       httpStatus: 302
+#@fragmentType=DEFAULT_MATCH
+fault:
+ abort:
+  percentage:
+    value: ${limit_percent}
+  httpStatus: 429

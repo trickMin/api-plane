@@ -11,6 +11,8 @@ public class FragmentHolder {
 
     private FragmentWrapper gatewayFragment;
 
+    private FragmentWrapper sharedConfigFragment;
+
     public FragmentWrapper getVirtualServiceFragment() {
         return virtualServiceFragment;
     }
@@ -33,5 +35,13 @@ public class FragmentHolder {
 
     public void setGatewayFragment(FragmentWrapper gatewayFragment) {
         this.gatewayFragment = gatewayFragment;
+    }
+
+    public FragmentWrapper getSharedConfigFragment() {
+        return sharedConfigFragment;
+    }
+
+    public void setSharedConfigFragment(FragmentWrapper sharedConfigFragment) {
+        this.sharedConfigFragment = sharedConfigFragment;
     }
 }

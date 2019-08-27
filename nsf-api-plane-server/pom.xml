@@ -11,7 +11,14 @@
     <packaging>war</packaging>
 
     <artifactId>nsf-api-plane-server</artifactId>
-
+    <repositories>
+        <repository>
+            <id>hzntes</id>
+            <name>NTES-HZ Maven Repository</name>
+            <url>http://mvn.hz.netease.com/artifactory/repo</url>
+            <layout>default</layout>
+        </repository>
+    </repositories>
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -69,6 +76,7 @@
             <artifactId>json-path</artifactId>
             <version>2.4.0</version>
         </dependency>
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -85,8 +93,10 @@
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
+                    <skip>true</skip>
                     <encoding>UTF-8</encoding>
                 </configuration>
+
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
