@@ -34,7 +34,7 @@ public class VirtualServiceOperator implements IstioResourceOperator<VirtualServ
     private class HttpRouteEquals implements Equals<HTTPRoute> {
         @Override
         public boolean apply(HTTPRoute ot, HTTPRoute nt) {
-            return Objects.equals(ot.getName(), nt.getName());
+            return Objects.equals(ot.getApi(), nt.getApi());
         }
     }
 

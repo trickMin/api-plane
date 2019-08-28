@@ -17,11 +17,12 @@ import java.util.*;
 public class SupplyDirective implements TemplateDirectiveModel {
 
     enum Keyword {
+        EXTRA("extra: ", TemplateConst.VIRTUAL_SERVICE_EXTRA),
+        MATCH("match: ", TemplateConst.VIRTUAL_SERVICE_MATCH),
+        ROUTE("route: ", TemplateConst.VIRTUAL_SERVICE_ROUTE),
 
-        MATCH("match:", indent(wrap(TemplateConst.VIRTUAL_SERVICE_MATCH), 4)),
-        ROUTE("route:", indent(wrap(TemplateConst.VIRTUAL_SERVICE_ROUTE), 4)),
-        EXTRA("extra:", indent(wrap(TemplateConst.VIRTUAL_SERVICE_EXTRA), 4)),
-        NAME("name:", indent("name: " + wrap(TemplateConst.VIRTUAL_SERVICE_NAME), 4))
+        // PUT IT IN THE END. DO NOT MODIFY THE SEQUENCE
+        API("api: ", TemplateConst.VIRTUAL_SERVICE_API),
         ;
 
         String name;
@@ -41,6 +42,10 @@ public class SupplyDirective implements TemplateDirectiveModel {
         return "${" + str + "}";
     }
 
+    private static String decorate(String str, int count) {
+        return indent(wrap(str), count);
+    }
+
     @Override
     public void execute(Environment environment, Map parameters, TemplateModel[] loopVars, TemplateDirectiveBody body) throws TemplateException, IOException {
 
@@ -50,8 +55,6 @@ public class SupplyDirective implements TemplateDirectiveModel {
         }
         final String string = writer.toString();
         final String lineFeed = "\n";
-        final boolean containsLineFeed = string.contains(lineFeed) == true;
-        final String end = containsLineFeed == true ? lineFeed : "";
         final String[] tokens = string.split(lineFeed);
 
         List<Keyword> keywords = new ArrayList<>(Arrays.asList(Keyword.values()));
@@ -67,13 +70,18 @@ public class SupplyDirective implements TemplateDirectiveModel {
             }
         }
 
-        for (String token : tokens) {
-            environment.getOut().write(token + end);
+        StringBuffer buffer = new StringBuffer();
+        for (int i = 0; i < tokens.length; i++) {
+            buffer.append(tokens[i] + lineFeed);
         }
 
-        for (Keyword keyword : keywords) {
-            environment.getOut().write(keyword.replacement + end);
+        for (int i = 0; i < keywords.size(); i++) {
+            int count = 4;
+            if (i == keywords.size() - 1) count = 2;
+            buffer.insert(0, decorate(keywords.get(i).replacement, count) + lineFeed);
         }
+
+        environment.getOut().write(buffer.toString());
         writer.close();
     }
 }

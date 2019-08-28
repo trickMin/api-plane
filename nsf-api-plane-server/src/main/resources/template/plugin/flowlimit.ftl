@@ -38,7 +38,7 @@
 #@resourceType=VirtualService
 #@fragmentType=DEFAULT_MATCH
 fault:
- abort:
-  percentage:
-    value: ${limit_percent}
-  httpStatus: 429
+  abort:
+    percentage:
+      value: ${limit_percent}
+    httpStatus: 429
