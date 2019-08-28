@@ -22,10 +22,10 @@ public class SupplyDirective implements TemplateDirectiveModel {
 
     enum Keyword {
 
-        MATCH("match:", indent(wrap(TemplateConst.VIRTUAL_SERVICE_MATCH), 4)),
-        ROUTE("route:", indent(wrap(TemplateConst.VIRTUAL_SERVICE_ROUTE), 4)),
-        EXTRA("extra:", indent(wrap(TemplateConst.VIRTUAL_SERVICE_EXTRA), 4)),
-        NAME("name:", indent("name: " + wrap(TemplateConst.VIRTUAL_SERVICE_NAME), 4));
+        MATCH("match:", indent(wrap(TemplateConst.VIRTUAL_SERVICE_MATCH), 2)),
+        ROUTE("route:", indent(wrap(TemplateConst.VIRTUAL_SERVICE_ROUTE), 2)),
+        EXTRA("extra:", indent(wrap(TemplateConst.VIRTUAL_SERVICE_EXTRA), 2)),
+        NAME("name:", indent("name: " + wrap(TemplateConst.VIRTUAL_SERVICE_NAME), 2));
 
         String name;
         String replacement;
@@ -53,15 +53,15 @@ public class SupplyDirective implements TemplateDirectiveModel {
         }
         String string = writer.toString();
         if (StringUtils.isEmpty(string)) {
-            string = "[]";
+            string = "[{}]";
         }
         ResourceGenerator gen = ResourceGenerator.newInstance(string, ResourceType.YAML);
-        gen.createOrUpdateValue("$[?]", "nsf-template-key", Keyword.MATCH.replacement, Criteria.where("match").exists(false));
-        gen.createOrUpdateValue("$[?]", "nsf-template-key", Keyword.ROUTE.replacement, Criteria.where("route").exists(false));
-        gen.createOrUpdateValue("$[?]", "nsf-template-key", Keyword.EXTRA.replacement, Criteria.where("extra").exists(false));
+        gen.createOrUpdateValue("$[?]", "nsf-template-match", Keyword.MATCH.replacement, Criteria.where("match").exists(false));
+        gen.createOrUpdateValue("$[?]", "nsf-template-route", Keyword.ROUTE.replacement, Criteria.where("route").exists(false));
+        gen.createOrUpdateValue("$[?]", "nsf-template-extra", Keyword.EXTRA.replacement, Criteria.where("extra").exists(false));
 
         String yaml = gen.yamlString();
-        yaml = yaml.replaceAll("(?m)^(?:\\s*)nsf-template-key:(?:\\s*)(.*)$", "$1");
+        yaml = yaml.replaceAll("(?m)^(?:[\\s|-]*)nsf-template-.*?:(?:\\s*)(<.*>)", "$1");
 
         environment.getOut().write(yaml);
         writer.close();
