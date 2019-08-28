@@ -21,6 +21,14 @@ public abstract class AbstractYxSchemaProcessor implements SchemaProcessor<Servi
     @Autowired
     protected EditorContext editorContext;
 
+    protected String getApiName(ServiceInfo serviceInfo) {
+        return serviceInfo.getApi().getName();
+    }
+
+    protected String getServiceName(ServiceInfo serviceInfo) {
+        return serviceInfo.getApi().getService();
+    }
+
     protected String getDefaultRoute(ServiceInfo serviceInfo) {
         ResourceGenerator rg = ResourceGenerator.newInstance(serviceInfo.getRoute(), ResourceType.YAML, editorContext);
         Object route = rg.getValue("$.route");
@@ -142,6 +150,7 @@ public abstract class AbstractYxSchemaProcessor implements SchemaProcessor<Servi
 
     /**
      * 将一个正则expression填充到json中时，需要转义\
+     *
      * @param keyword
      * @return
      */

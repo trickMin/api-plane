@@ -35,10 +35,14 @@ public class RateLimitProcessor extends AbstractYxSchemaProcessor implements Sch
 
         limits.forEach(limit -> {
             ResourceGenerator rg = ResourceGenerator.newInstance(limit, ResourceType.OBJECT, editorContext);
-            String headerDescriptor = getHeaderDescriptor(headerNo.getAndIncrement(), getMatchHeader(rg));
+            // 频控计算的不同维度，例如second, minute, hour, day(month, year暂时不支持)
+            Integer no = headerNo.getAndIncrement();
+            getUnits(rg).forEach((unit, duration) -> {
+                String headerDescriptor = getHeaderDescriptor(no, getMatchHeader(rg), unit);
+                rateLimitGen.addJsonElement("$.rate_limits", createRateLimits(rg, serviceInfo, headerDescriptor));
+                shareConfigGen.addJsonElement("$.descriptors", createShareConfig(serviceInfo, headerDescriptor, unit, duration));
+            });
 
-            rateLimitGen.addJsonElement("$.rate_limits", createRateLimits(rg, serviceInfo, headerDescriptor));
-            shareConfigGen.addJsonElement("$.descriptors", createShareConfig(rg, serviceInfo, headerDescriptor));
         });
         holder.setSharedConfigFragment(
                 new FragmentWrapper.Builder()
@@ -59,7 +63,7 @@ public class RateLimitProcessor extends AbstractYxSchemaProcessor implements Sch
 
 
     private String createRateLimits(ResourceGenerator rg, ServiceInfo serviceInfo, String headerDescriptor) {
-        ResourceGenerator vs = ResourceGenerator.newInstance(String.format("{\"stage\":0,\"action\":[{\"generic_key\":{\"descriptor_value\":\"%s\"}}]}", serviceInfo.getApiName()));
+        ResourceGenerator vs = ResourceGenerator.newInstance(String.format("{\"stage\":0,\"action\":[{\"generic_key\":{\"descriptor_value\":\"%s\"}}]}", getGenericKey(serviceInfo)));
 
         String matchHeader = getMatchHeader(rg);
 
@@ -97,11 +101,11 @@ public class RateLimitProcessor extends AbstractYxSchemaProcessor implements Sch
         return vs.jsonString();
     }
 
-    private String createShareConfig(ResourceGenerator rg, ServiceInfo serviceInfo, String headerDescriptor) {
-        Long duration = getDuration(rg);
-        ResourceGenerator shareConfig = ResourceGenerator.newInstance(String.format("{\"key\":\"generic_key\",\"value\":\"%s\",\"descriptors\":[{\"key\":\"header_match\",\"value\":\"%s\",\"rate_limit\":{\"unit\":\"SECOND\",\"requests_per_unit\":%d}}]}",
-                serviceInfo.getApiName(),
+    private String createShareConfig(ServiceInfo serviceInfo, String headerDescriptor, String unit, Integer duration) {
+        ResourceGenerator shareConfig = ResourceGenerator.newInstance(String.format("{\"key\":\"generic_key\",\"value\":\"%s\",\"descriptors\":[{\"key\":\"header_match\",\"value\":\"%s\",\"rate_limit\":{\"unit\":\"%s\",\"requests_per_unit\":%d}}]}",
+                getGenericKey(serviceInfo),
                 headerDescriptor,
+                unit,
                 duration
         ));
         return shareConfig.jsonString();
@@ -122,37 +126,27 @@ public class RateLimitProcessor extends AbstractYxSchemaProcessor implements Sch
         return matchHeader;
     }
 
-    private Long getDuration(ResourceGenerator generator) {
-        Long result = 0L;
-        String[] units = new String[]{"$.second", "$.minute", "$.hour", "$.day", "$.month", "$.year"};
-        for (String unit : units) {
-            if (generator.contain(unit)) {
-                switch (unit) {
-                    case "$.second":
-                        result += 1;
-                        break;
-                    case "$.minute":
-                        result += 60;
-                        break;
-                    case "$.hour":
-                        result += 60 * 60;
-                        break;
-                    case "$.day":
-                        result += 24 * 60 * 60;
-                        break;
-                    case "$.month":
-                        result += 30 * 24 * 60 * 60;
-                        break;
-                    case "$.year":
-                        result += 12 * 30 * 24 * 60 * 60;
-                        break;
-                }
+    private Map<String, Integer> getUnits(ResourceGenerator rg) {
+        Map<String, Integer> ret = new LinkedHashMap<>();
+        String[][] map = new String[][]{
+                {"$.second", "SECOND"},
+                {"$.minute", "MINUTE"},
+                {"$.hour", "HOUR"},
+                {"$.day", "DAY"}
+        };
+        for (String[] obj : map) {
+            if (rg.contain(obj[0])) {
+                ret.put(obj[1], rg.getValue(obj[0]));
             }
         }
-        return result;
+        return ret;
     }
 
-    private String getHeaderDescriptor(Integer no, String headerName) {
-        return String.format("Header[%s][%d]", headerName, no);
+    private String getHeaderDescriptor(Integer no, String headerName, String unit) {
+        return String.format("Header[%s][%s][%d]", headerName, unit, no);
+    }
+
+    private String getGenericKey(ServiceInfo serviceInfo) {
+        return String.format("%s-%s", getServiceName(serviceInfo), getApiName(serviceInfo));
     }
 }
