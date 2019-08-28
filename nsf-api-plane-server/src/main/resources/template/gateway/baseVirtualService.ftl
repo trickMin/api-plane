@@ -16,4 +16,4 @@ spec:
 <#list t_api_match_plugins as p>
 <@indent count=2><@supply>${p}</@supply></@indent>
 </#list>
-<@supply></@supply>
+<@indent count=2><@supply></@supply></@indent>

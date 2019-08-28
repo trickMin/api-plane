@@ -19,7 +19,6 @@ public class IndentationDirective implements TemplateDirectiveModel {
 
     @Override
     public void execute(Environment environment, Map parameters, TemplateModel[] loopVars, TemplateDirectiveBody body) throws TemplateException, IOException {
-
         Integer count = null;
         Integer firstLine = null;
         final Iterator iterator = parameters.entrySet().iterator();
@@ -63,18 +62,20 @@ public class IndentationDirective implements TemplateDirectiveModel {
             throw new TemplateModelException("The required \"" + COUNT + "\" parameter" + "is missing");
         }
 
-        final String indentation = StringUtils.repeat(' ', count);
+        Integer column = environment.getCurrentDirectiveCallPlace().getBeginColumn();
+        final String indentation = StringUtils.repeat(' ', count + column - 1);
         final StringWriter writer = new StringWriter();
         body.render(writer);
         final String string = writer.toString();
+
         final String lineFeed = "\n";
         final boolean containsLineFeed = string.contains(lineFeed) == true;
         final String[] tokens = string.split(lineFeed);
 
         for (int i = 0; i < tokens.length; i++) {
             String indent = indentation;
-            if (i == 0 && firstLine != null) {
-                indent = StringUtils.repeat(' ', firstLine);
+            if (i == 0) {
+                indent = StringUtils.repeat(' ',  count);
             }
             environment.getOut().write(indent + tokens[i] + (containsLineFeed == true ? lineFeed : ""));
         }

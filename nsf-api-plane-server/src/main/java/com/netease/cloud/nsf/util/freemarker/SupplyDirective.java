@@ -53,7 +53,7 @@ public class SupplyDirective implements TemplateDirectiveModel {
         }
         String string = writer.toString();
         if (StringUtils.isEmpty(string)) {
-            string = "[{}]";
+            string = "[{\"api\":\"${t_api_name}\"}]";
         }
         ResourceGenerator gen = ResourceGenerator.newInstance(string, ResourceType.YAML);
         gen.createOrUpdateValue("$[?]", "nsf-template-match", Keyword.MATCH.replacement, Criteria.where("match").exists(false));
