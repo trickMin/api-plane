@@ -63,7 +63,7 @@ public class RateLimitProcessor extends AbstractYxSchemaProcessor implements Sch
 
 
     private String createRateLimits(ResourceGenerator rg, ServiceInfo serviceInfo, String headerDescriptor) {
-        ResourceGenerator vs = ResourceGenerator.newInstance(String.format("{\"stage\":0,\"action\":[{\"generic_key\":{\"descriptor_value\":\"%s\"}}]}", getApiName(serviceInfo)));
+        ResourceGenerator vs = ResourceGenerator.newInstance(String.format("{\"stage\":0,\"action\":[{\"generic_key\":{\"descriptor_value\":\"%s\"}}]}", getGenericKey(serviceInfo)));
 
         String matchHeader = getMatchHeader(rg);
 
@@ -103,7 +103,7 @@ public class RateLimitProcessor extends AbstractYxSchemaProcessor implements Sch
 
     private String createShareConfig(ServiceInfo serviceInfo, String headerDescriptor, String unit, Integer duration) {
         ResourceGenerator shareConfig = ResourceGenerator.newInstance(String.format("{\"key\":\"generic_key\",\"value\":\"%s\",\"descriptors\":[{\"key\":\"header_match\",\"value\":\"%s\",\"rate_limit\":{\"unit\":\"%s\",\"requests_per_unit\":%d}}]}",
-                getApiName(serviceInfo),
+                getGenericKey(serviceInfo),
                 headerDescriptor,
                 unit,
                 duration
@@ -144,5 +144,9 @@ public class RateLimitProcessor extends AbstractYxSchemaProcessor implements Sch
 
     private String getHeaderDescriptor(Integer no, String headerName, String unit) {
         return String.format("Header[%s][%s][%d]", headerName, unit, no);
+    }
+
+    private String getGenericKey(ServiceInfo serviceInfo) {
+        return String.format("%s-%s", getServiceName(serviceInfo), getApiName(serviceInfo));
     }
 }

@@ -25,6 +25,10 @@ public abstract class AbstractYxSchemaProcessor implements SchemaProcessor<Servi
         return serviceInfo.getApi().getName();
     }
 
+    protected String getServiceName(ServiceInfo serviceInfo) {
+        return serviceInfo.getApi().getService();
+    }
+
     protected String getDefaultRoute(ServiceInfo serviceInfo) {
         ResourceGenerator rg = ResourceGenerator.newInstance(serviceInfo.getRoute(), ResourceType.YAML, editorContext);
         Object route = rg.getValue("$.route");
