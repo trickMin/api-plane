@@ -1,11 +1,15 @@
 package com.netease.cloud.nsf.util.freemarker;
 
+import com.jayway.jsonpath.Criteria;
+import com.netease.cloud.nsf.core.editor.ResourceGenerator;
+import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.template.TemplateConst;
 import freemarker.core.Environment;
 import freemarker.template.TemplateDirectiveBody;
 import freemarker.template.TemplateDirectiveModel;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateModel;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -21,8 +25,7 @@ public class SupplyDirective implements TemplateDirectiveModel {
         MATCH("match:", indent(wrap(TemplateConst.VIRTUAL_SERVICE_MATCH), 4)),
         ROUTE("route:", indent(wrap(TemplateConst.VIRTUAL_SERVICE_ROUTE), 4)),
         EXTRA("extra:", indent(wrap(TemplateConst.VIRTUAL_SERVICE_EXTRA), 4)),
-        NAME("name:", indent("name: " + wrap(TemplateConst.VIRTUAL_SERVICE_NAME), 4))
-        ;
+        NAME("name:", indent("name: " + wrap(TemplateConst.VIRTUAL_SERVICE_NAME), 4));
 
         String name;
         String replacement;
@@ -48,32 +51,19 @@ public class SupplyDirective implements TemplateDirectiveModel {
         if (body != null) {
             body.render(writer);
         }
-        final String string = writer.toString();
-        final String lineFeed = "\n";
-        final boolean containsLineFeed = string.contains(lineFeed) == true;
-        final String end = containsLineFeed == true ? lineFeed : "";
-        final String[] tokens = string.split(lineFeed);
-
-        List<Keyword> keywords = new ArrayList<>(Arrays.asList(Keyword.values()));
-
-        Iterator<Keyword> iterator = keywords.iterator();
-        while(iterator.hasNext()) {
-            Keyword k = iterator.next();
-            for (String token :tokens) {
-                if (token.contains(k.name)) {
-                    iterator.remove();
-                    break;
-                }
-            }
+        String string = writer.toString();
+        if (StringUtils.isEmpty(string)) {
+            string = "[]";
         }
+        ResourceGenerator gen = ResourceGenerator.newInstance(string, ResourceType.YAML);
+        gen.createOrUpdateValue("$[?]", "nsf-template-key", Keyword.MATCH.replacement, Criteria.where("match").exists(false));
+        gen.createOrUpdateValue("$[?]", "nsf-template-key", Keyword.ROUTE.replacement, Criteria.where("route").exists(false));
+        gen.createOrUpdateValue("$[?]", "nsf-template-key", Keyword.EXTRA.replacement, Criteria.where("extra").exists(false));
 
-        for (String token : tokens) {
-            environment.getOut().write(token + end);
-        }
+        String yaml = gen.yamlString();
+        yaml = yaml.replaceAll("(?m)^(?:\\s*)nsf-template-key:(?:\\s*)(.*)$", "$1");
 
-        for (Keyword keyword : keywords) {
-            environment.getOut().write(keyword.replacement + end);
-        }
+        environment.getOut().write(yaml);
         writer.close();
     }
 }
