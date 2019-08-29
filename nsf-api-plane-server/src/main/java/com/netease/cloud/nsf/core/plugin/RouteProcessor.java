@@ -73,7 +73,6 @@ public class RouteProcessor extends AbstractYxSchemaProcessor implements SchemaP
 
         ResourceGenerator result = ResourceGenerator.newInstance("[]", ResourceType.JSON, editorContext);
         pluginMap.values().forEach(item -> item.forEach(o -> result.addJsonElement("$", o)));
-        appendExtra(result);
 
         FragmentHolder holder = new FragmentHolder();
         FragmentWrapper wrapper = new FragmentWrapper.Builder()
@@ -89,7 +88,6 @@ public class RouteProcessor extends AbstractYxSchemaProcessor implements SchemaP
         List<Endpoint> endpoints = istioHttpClient.getEndpointList();
 
         ResourceGenerator ret = ResourceGenerator.newInstance("{}", ResourceType.JSON, editorContext);
-        ret.createOrUpdateJson("$", "match", createMatch(rg, info));
         ret.createOrUpdateJson("$", "route", "[]");
         ret.createOrUpdateJson("$", "name", getApiName(info));
 
@@ -112,7 +110,6 @@ public class RouteProcessor extends AbstractYxSchemaProcessor implements SchemaP
         ret.createOrUpdateJson("$", "return",
                 String.format("{\"body\":{\"inlineString\":\"%s\"},\"code\":%s}", rg.getValue("$.action.body"), rg.getValue("$.action.code")));
         ret.createOrUpdateJson("$", "name", getApiName(info));
-        ret.createOrUpdateJson("$", "route", getDefaultRoute(info));
         return ret.jsonString();
     }
 
@@ -131,7 +128,6 @@ public class RouteProcessor extends AbstractYxSchemaProcessor implements SchemaP
         ret.createOrUpdateJson("$", "requestTransform", String.format("{\"new\":{\"path\":\"%s\"},\"original\":{\"path\":\"%s\"}}"
                 , rg.getValue("$.action.target", String.class), rg.getValue("$.action.rewrite_regex")));
         ret.createOrUpdateJson("$", "name", getApiName(info));
-        ret.createOrUpdateJson("$", "route", getDefaultRoute(info));
         return ret.jsonString();
     }
 }
