@@ -39,6 +39,7 @@ public interface TemplateConst {
     String VIRTUAL_SERVICE_ROUTE = "t_virtual_service_route";
     String VIRTUAL_SERVICE_EXTRA = "t_virtual_service_extra";
     String VIRTUAL_SERVICE_HOSTS = "t_virtual_service_hosts";
+    String VIRTUAL_SERVICE_API = "t_virtual_service_api";
 
     String API_MATCH_PLUGINS = "t_api_match_plugins";
     String API_EXTRA_PLUGINS = "t_api_extra_plugins";
@@ -73,7 +74,8 @@ public interface TemplateConst {
     String GATEWAY_HOSTS = "t_gateway_hosts";
 
 
-
+    /** SharedConfig **/
+    String SHARED_CONFIG_DESCRIPTOR = "t_shared_config_descriptor";
 
 
     /** ---------- 模板占位符名 end ---------- **/

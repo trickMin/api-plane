@@ -9,6 +9,8 @@ import com.netease.cloud.nsf.util.K8sResourceEnum;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 import java.util.*;
 
@@ -34,7 +36,8 @@ public class RouteProcessor extends AbstractYxSchemaProcessor implements SchemaP
 
     @Override
     public FragmentHolder process(String plugin, ServiceInfo serviceInfo) {
-        Map<String, String> pluginMap = new LinkedHashMap<>();
+        MultiValueMap<String, String> pluginMap = new LinkedMultiValueMap<>();
+
         ResourceGenerator total = ResourceGenerator.newInstance(plugin, ResourceType.JSON, editorContext);
         // 将路由plugin细分，例如rewrite部分,redirect部分
         List<Object> plugins = total.getValue("$.rule");
@@ -43,19 +46,19 @@ public class RouteProcessor extends AbstractYxSchemaProcessor implements SchemaP
             String innerType = rg.getValue("$.name");
             switch (innerType) {
                 case "rewrite": {
-                    pluginMap.put(innerType, createRewrite(rg, serviceInfo));
+                    pluginMap.add(innerType, createRewrite(rg, serviceInfo));
                     break;
                 }
                 case "redirect": {
-                    pluginMap.put(innerType, createRedirect(rg, serviceInfo));
+                    pluginMap.add(innerType, createRedirect(rg, serviceInfo));
                     break;
                 }
                 case "return": {
-                    pluginMap.put(innerType, createReturn(rg, serviceInfo));
+                    pluginMap.add(innerType, createReturn(rg, serviceInfo));
                     break;
                 }
                 case "pass_proxy": {
-                    pluginMap.put(innerType, createPassProxy(rg, serviceInfo));
+                    pluginMap.add(innerType, createPassProxy(rg, serviceInfo));
                     break;
                 }
                 default:
@@ -69,7 +72,7 @@ public class RouteProcessor extends AbstractYxSchemaProcessor implements SchemaP
         }
 
         ResourceGenerator result = ResourceGenerator.newInstance("[]", ResourceType.JSON, editorContext);
-        pluginMap.values().forEach(o -> result.addJsonElement("$", o));
+        pluginMap.values().forEach(item -> item.forEach(o -> result.addJsonElement("$", o)));
         appendExtra(result);
 
         FragmentHolder holder = new FragmentHolder();
@@ -88,7 +91,7 @@ public class RouteProcessor extends AbstractYxSchemaProcessor implements SchemaP
         ResourceGenerator ret = ResourceGenerator.newInstance("{}", ResourceType.JSON, editorContext);
         ret.createOrUpdateJson("$", "match", createMatch(rg, info));
         ret.createOrUpdateJson("$", "route", "[]");
-        ret.createOrUpdateJson("$", "name", info.getApiName());
+        ret.createOrUpdateJson("$", "name", getApiName(info));
 
         int length = rg.getValue("$.action.pass_proxy_target.length()");
         for (int i = 0; i < length; i++) {
@@ -108,7 +111,7 @@ public class RouteProcessor extends AbstractYxSchemaProcessor implements SchemaP
         ret.createOrUpdateJson("$", "match", createMatch(rg, info));
         ret.createOrUpdateJson("$", "return",
                 String.format("{\"body\":{\"inlineString\":\"%s\"},\"code\":%s}", rg.getValue("$.action.body"), rg.getValue("$.action.code")));
-        ret.createOrUpdateJson("$", "name", info.getApiName());
+        ret.createOrUpdateJson("$", "name", getApiName(info));
         ret.createOrUpdateJson("$", "route", getDefaultRoute(info));
         return ret.jsonString();
     }
@@ -118,7 +121,7 @@ public class RouteProcessor extends AbstractYxSchemaProcessor implements SchemaP
         ret.createOrUpdateJson("$", "match", createMatch(rg, info));
         //todo: authority
         ret.createOrUpdateJson("$", "redirect", String.format("{\"uri\":\"%s\"}", rg.getValue("$.action.target", String.class)));
-        ret.createOrUpdateJson("$", "name", info.getApiName());
+        ret.createOrUpdateJson("$", "name", getApiName(info));
         return ret.jsonString();
     }
 
@@ -127,7 +130,7 @@ public class RouteProcessor extends AbstractYxSchemaProcessor implements SchemaP
         ret.createOrUpdateJson("$", "match", createMatch(rg, info));
         ret.createOrUpdateJson("$", "requestTransform", String.format("{\"new\":{\"path\":\"%s\"},\"original\":{\"path\":\"%s\"}}"
                 , rg.getValue("$.action.target", String.class), rg.getValue("$.action.rewrite_regex")));
-        ret.createOrUpdateJson("$", "name", info.getApiName());
+        ret.createOrUpdateJson("$", "name", getApiName(info));
         ret.createOrUpdateJson("$", "route", getDefaultRoute(info));
         return ret.jsonString();
     }

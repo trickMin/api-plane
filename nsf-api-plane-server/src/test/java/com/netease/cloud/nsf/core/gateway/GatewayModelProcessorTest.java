@@ -90,7 +90,7 @@ public class GatewayModelProcessorTest extends BaseTest {
                 "          regex: rewrite\n" +
                 "      uri:\n" +
                 "        regex: (?:.*.*)\n" +
-                "    name: plane-istio-test\n" +
+                "    api: plane-istio-test\n" +
                 "    requestTransform:\n" +
                 "      new:\n" +
                 "        path: /{{backendUrl}}\n" +
@@ -113,7 +113,7 @@ public class GatewayModelProcessorTest extends BaseTest {
                 "        regex: GET|POST\n" +
                 "      uri:\n" +
                 "        regex: (?:.*.*)\n" +
-                "    name: plane-istio-test\n" +
+                "    api: plane-istio-test\n" +
                 "    redirect:\n" +
                 "      uri: /redirect\n" +
                 "  - match:\n" +
@@ -124,7 +124,7 @@ public class GatewayModelProcessorTest extends BaseTest {
                 "        regex: GET|POST\n" +
                 "      uri:\n" +
                 "        regex: (?:.*.*)\n" +
-                "    name: plane-istio-test\n" +
+                "    api: plane-istio-test\n" +
                 "    return:\n" +
                 "      body:\n" +
                 "        inlineString: '{is return plugin}'\n" +
@@ -141,7 +141,7 @@ public class GatewayModelProcessorTest extends BaseTest {
                 "        regex: GET|POST\n" +
                 "      uri:\n" +
                 "        regex: (?:.*.*)\n" +
-                "    name: plane-istio-test\n" +
+                "    api: plane-istio-test\n" +
                 "    route:\n" +
                 "    - destination:\n" +
                 "        host: productpage.default.svc.cluster.local\n" +
@@ -160,7 +160,7 @@ public class GatewayModelProcessorTest extends BaseTest {
                 "        regex: GET|POST\n" +
                 "      uri:\n" +
                 "        regex: .*\n" +
-                "    name: plane-istio-test-1\n" +
+                "    api: plane-istio-test-1\n" +
                 "    route:\n" +
                 "    - destination:\n" +
                 "        host: productpage.default.svc.cluster.local\n" +
