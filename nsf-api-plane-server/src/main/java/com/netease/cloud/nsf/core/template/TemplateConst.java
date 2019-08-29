@@ -74,7 +74,8 @@ public interface TemplateConst {
     String GATEWAY_HOSTS = "t_gateway_hosts";
 
 
-
+    /** SharedConfig **/
+    String SHARED_CONFIG_DESCRIPTOR = "t_shared_config_descriptor";
 
 
     /** ---------- 模板占位符名 end ---------- **/

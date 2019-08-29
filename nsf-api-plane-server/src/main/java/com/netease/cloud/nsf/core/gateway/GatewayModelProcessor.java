@@ -61,6 +61,7 @@ public class GatewayModelProcessor {
     private static final String baseVirtualServiceRoute = "gateway/baseVirtualServiceRoute";
     private static final String baseVirtualServiceExtra = "gateway/baseVirtualServiceExtra";
     private static final String baseVirtualServiceApi = "gateway/baseVirtualServiceApi";
+    private static final String baseSharedConfig = "gateway/baseSharedConfig";
 
     /**
      * 将api转换为istio对应的规则
@@ -90,7 +91,7 @@ public class GatewayModelProcessor {
         List<String> rawGateways = buildGateways(api, envoys, baseParams);
         List<String> rawVirtualServices = buildVirtualServices(api, baseParams, endpoints, rawResourceContainer.getVirtualServices());
         List<String> rawDestinationRules = buildDestinationRules(api, baseParams);
-        List<String> rawSharedConfigs = buildSharedConfigs(api, rawResourceContainer.getSharedConfigs());
+        List<String> rawSharedConfigs = buildSharedConfigs(api, baseParams, rawResourceContainer.getSharedConfigs());
 
         List<String> rawResources = new ArrayList<>();
         rawResources.addAll(rawGateways);
@@ -111,12 +112,28 @@ public class GatewayModelProcessor {
         return resources;
     }
 
-    private List<String> buildSharedConfigs(API api, List<FragmentWrapper> fragments) {
+    /**
+     * sharedconfig 全局唯一，仅创建一个
+     *
+     * @param api
+     * @param baseParams
+     * @param fragments
+     * @return
+     */
+    private List<String> buildSharedConfigs(API api, TemplateParams baseParams, List<FragmentWrapper> fragments) {
 
         if (CollectionUtils.isEmpty(fragments)) return Collections.emptyList();
-        return fragments.stream()
+
+        List<String> descriptors = fragments.stream()
+                .filter(f -> f != null)
                 .map(f -> f.getContent())
                 .collect(Collectors.toList());
+
+        TemplateParams sharedConfigsParams = TemplateParams.instance()
+                                .setParent(baseParams)
+                                .put(SHARED_CONFIG_DESCRIPTOR, descriptors);
+
+        return Arrays.asList(templateTranslator.translate(baseSharedConfig, sharedConfigsParams.output()));
     }
 
 
