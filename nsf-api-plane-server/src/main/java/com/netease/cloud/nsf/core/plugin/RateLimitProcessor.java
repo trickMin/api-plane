@@ -31,7 +31,7 @@ public class RateLimitProcessor extends AbstractYxSchemaProcessor implements Sch
         AtomicInteger headerNo = new AtomicInteger(0);
 
         ResourceGenerator rateLimitGen = ResourceGenerator.newInstance("{\"rateLimits\":[]}");
-        ResourceGenerator shareConfigGen = ResourceGenerator.newInstance("{\"domain\":\"qingzhou\",\"descriptors\":[]}");
+        ResourceGenerator shareConfigGen = ResourceGenerator.newInstance("[{\"domain\":\"qingzhou\",\"descriptors\":[]}]");
 
         limits.forEach(limit -> {
             ResourceGenerator rg = ResourceGenerator.newInstance(limit, ResourceType.OBJECT, editorContext);
@@ -40,7 +40,7 @@ public class RateLimitProcessor extends AbstractYxSchemaProcessor implements Sch
             getUnits(rg).forEach((unit, duration) -> {
                 String headerDescriptor = getHeaderDescriptor(serviceInfo, no, getMatchHeader(rg), unit);
                 rateLimitGen.addJsonElement("$.rateLimits", createRateLimits(rg, serviceInfo, headerDescriptor));
-                shareConfigGen.addJsonElement("$.descriptors", createShareConfig(serviceInfo, headerDescriptor, unit, duration));
+                shareConfigGen.addJsonElement("$[0].descriptors", createShareConfig(serviceInfo, headerDescriptor, unit, duration));
             });
 
         });
