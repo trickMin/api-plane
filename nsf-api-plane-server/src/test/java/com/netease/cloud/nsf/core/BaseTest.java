@@ -1,7 +1,6 @@
 package com.netease.cloud.nsf.core;
 
 import com.netease.cloud.nsf.ApiPlaneApplication;
-import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.PropertySource;
@@ -14,7 +13,4 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @SpringBootTest(classes = ApiPlaneApplication.class)
 @PropertySource("classpath:application.properties")
 public class BaseTest {
-
-    @Test
-    public void init() {}
 }

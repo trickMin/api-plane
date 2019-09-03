@@ -9,6 +9,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -48,6 +49,11 @@ public class GatewayServiceImpl implements GatewayService {
     @Override
     public List<Endpoint> getServiceList() {
         return istioClient.getEndpointList();
+    }
+
+    @Override
+    public List<Endpoint> getServiceList(String label) {
+        return istioClient.getEndpointList(Arrays.asList(label));
     }
 
     @Override

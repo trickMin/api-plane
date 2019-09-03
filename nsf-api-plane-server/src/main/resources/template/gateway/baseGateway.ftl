@@ -5,7 +5,7 @@ metadata:
   namespace: ${t_namespace}
 spec:
   selector:
-    app: ${t_api_gateway}
+    gw_cluster: ${t_api_gateway}
   servers:
   - port:
       name: http

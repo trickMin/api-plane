@@ -18,9 +18,17 @@ public interface GatewayService {
 
     List<Endpoint> getServiceList();
 
+    /**
+     * 根据网关对应labels，获取网关后的服务
+     * @param label
+     * @return
+     */
+    List<Endpoint> getServiceList(String label);
+
     List<Gateway> getGatewayList();
 
     List<PluginTemplate> getPluginList();
 
     List<GatewaySync> getGatewaySyncList();
+
 }
