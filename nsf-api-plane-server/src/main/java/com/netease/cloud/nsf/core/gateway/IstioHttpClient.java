@@ -113,8 +113,9 @@ public class IstioHttpClient {
         for (String rawLabel : labels) {
             if (!rawLabel.contains(COLON)) continue;
             String[] split = rawLabel.split(COLON);
-            labelMap.put(split[0], split[1]);
+            labelMap.put(split[0].trim(), split[1].trim());
         }
+        if (labelMap.isEmpty()) return Collections.emptyList();
 
         ResponseEntity response = getForEntity(getIstioUrl() + GET_CONFIGZ_PATH, String.class);
         ResourceGenerator gen = ResourceGenerator.newInstance(response.getBody(), ResourceType.JSON);
