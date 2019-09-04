@@ -20,10 +20,10 @@ public interface GatewayService {
 
     /**
      * 根据网关对应labels，获取网关后的服务
-     * @param label
+     * @param labels
      * @return
      */
-    List<Endpoint> getServiceList(String label);
+    List<Endpoint> getServiceListByGateway(List<String> labels);
 
     List<Gateway> getGatewayList();
 

@@ -43,9 +43,9 @@ public class GatewayAPIController extends BaseController{
     }
 
     @RequestMapping(params = "Action=GetServiceListByGatewayLabel", method = RequestMethod.GET)
-    public String getGatewayServiceList(@RequestParam(name = "Label") String label) {
+    public String getGatewayServiceList(@RequestParam(name = "Label") List<String> labels) {
         Map<String, Object> result = new HashMap<>();
-        List<Endpoint> serviceList = gatewayService.getServiceList(label);
+        List<Endpoint> serviceList = gatewayService.getServiceListByGateway(labels);
 
         result.put(RESULT_LIST, serviceList);
         ErrorCode code = ApiPlaneErrorCode.Success;
