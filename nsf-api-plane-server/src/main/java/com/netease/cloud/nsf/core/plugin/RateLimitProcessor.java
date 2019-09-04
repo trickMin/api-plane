@@ -102,7 +102,7 @@ public class RateLimitProcessor extends AbstractYxSchemaProcessor implements Sch
     }
 
     private String createShareConfig(ServiceInfo serviceInfo, String headerDescriptor, String unit, Integer duration) {
-        ResourceGenerator shareConfig = ResourceGenerator.newInstance(String.format("{\"api\":\"%s\",\"key\":\"headerMatch\",\"value\":\"%s\",\"rateLimit\":{\"unit\":\"%s\",\"requestsPerUnit\":%d}}",
+        ResourceGenerator shareConfig = ResourceGenerator.newInstance(String.format("{\"api\":\"%s\",\"key\":\"header_match\",\"value\":\"%s\",\"rateLimit\":{\"unit\":\"%s\",\"requestsPerUnit\":%d}}",
                 getApiName(serviceInfo),
                 headerDescriptor,
                 unit,
