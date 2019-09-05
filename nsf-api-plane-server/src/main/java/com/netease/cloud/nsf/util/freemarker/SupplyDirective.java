@@ -22,9 +22,10 @@ public class SupplyDirective implements TemplateDirectiveModel {
 
     enum Keyword {
 
-        MATCH("match:", indent(wrap(TemplateConst.VIRTUAL_SERVICE_MATCH), 2)),
-        ROUTE("route:", indent(wrap(TemplateConst.VIRTUAL_SERVICE_ROUTE), 2)),
-        EXTRA("extra:", indent(wrap(TemplateConst.VIRTUAL_SERVICE_EXTRA), 2)),
+        MATCH("match:", indent(wrap(TemplateConst.VIRTUAL_SERVICE_MATCH_YAML), 2)),
+        ROUTE("route:", indent(wrap(TemplateConst.VIRTUAL_SERVICE_ROUTE_YAML), 2)),
+        EXTRA("extra:", indent(wrap(TemplateConst.VIRTUAL_SERVICE_EXTRA_YAML), 2)),
+        HOSTS("hosts:", indent(wrap(TemplateConst.VIRTUAL_SERVICE_HOSTS_YAML), 2)),
 
         ;
 
@@ -60,6 +61,7 @@ public class SupplyDirective implements TemplateDirectiveModel {
         gen.createOrUpdateValue("$[?]", "nsf-template-match", Keyword.MATCH.replacement, Criteria.where("match").exists(false));
         gen.createOrUpdateValue("$[?]", "nsf-template-route", Keyword.ROUTE.replacement, Criteria.where("route").exists(false));
         gen.createOrUpdateValue("$[?]", "nsf-template-extra", Keyword.EXTRA.replacement, Criteria.where("extra").exists(false));
+        gen.createOrUpdateValue("$[?]", "nsf-template-hosts", Keyword.HOSTS.replacement, Criteria.where("hosts").exists(false));
 
         String yaml = gen.yamlString();
         yaml = yaml.replaceAll("(?m)^(?:[\\s|-]*)nsf-template-.*?:(?:\\s*)(<.*>)", "$1");
