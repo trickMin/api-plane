@@ -8,6 +8,7 @@ import com.netease.cloud.nsf.core.gateway.IstioHttpClient;
 import com.netease.cloud.nsf.core.k8s.K8sResourceGenerator;
 import com.netease.cloud.nsf.meta.*;
 import com.netease.cloud.nsf.service.GatewayService;
+import com.netease.cloud.nsf.util.CommonUtil;
 import com.netease.cloud.nsf.util.K8sResourceEnum;
 import me.snowdrop.istio.api.IstioResource;
 import me.snowdrop.istio.api.networking.v1alpha3.VirtualService;
@@ -18,7 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -50,6 +50,7 @@ public class GatewayServiceImpl implements GatewayService {
     private API transform(YxAPIModel yxApi) {
 
         API api = new API();
+
         // FIXME
         BeanUtils.copyProperties(yxApi, api);
         return api;
@@ -73,7 +74,7 @@ public class GatewayServiceImpl implements GatewayService {
     @Override
     public List<Endpoint> getServiceListByGateway(List<String> labels) {
 
-        Map<String, String> labelMap = new HashMap<>();
+        Map<String, String> labelMap = CommonUtil.strs2Label(labels);
         for (String rawLabel : labels) {
             if (!rawLabel.contains(COLON)) continue;
             String[] split = rawLabel.split(COLON);
