@@ -6,6 +6,8 @@ import com.netease.cloud.nsf.util.K8sResourceEnum;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
 import me.snowdrop.istio.api.IstioResource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -21,6 +23,8 @@ import java.util.stream.Collectors;
 @Component
 public class GatewayConfigManager implements ConfigManager {
 
+    private static final Logger logger = LoggerFactory.getLogger(GatewayConfigManager.class);
+
     @Autowired
     private GatewayModelProcessor modelProcessor;
 
@@ -33,12 +37,20 @@ public class GatewayConfigManager implements ConfigManager {
     @Override
     public void updateConfig(API api, String namespace) {
         List<IstioResource> resources = modelProcessor.translate(api, namespace);
-        for (IstioResource latest : resources) {
-            IstioResource old = configStore.get(latest);
-            if (old != null) {
-                configStore.update(modelProcessor.merge(old, latest));
+        List<IstioResource> snapshots = new ArrayList<>();
+        try {
+            for (IstioResource latest : resources) {
+                IstioResource old = configStore.get(latest);
+                snapshots.add(old);
+                if (old != null) {
+                    configStore.update(modelProcessor.merge(old, latest));
+                    continue;
+                }
+                configStore.update(latest);
             }
-            configStore.update(latest);
+        } catch (Exception e) {
+            logger.warn("update config failed, and rollback", e);
+            snapshots.forEach(s -> configStore.update(s));
         }
     }
 
