@@ -33,6 +33,7 @@ public enum ErrorCodeEnum {
     RepeatValue("RepeatValue", "%s value is repeat", "%s值重复", 400),
     DryRunOperation("DryRunOperation", "The quest would have successed, but the DryRun parameter was used.", "签名认证通过，但是使用了 DryRun 参数", 400),
     ApiFreqOutOfLimit("ApiFreqOutOfLimit", "Api freq out of limit.", "访问频率过高，请稍后再试", 403),
+    ResourceConflict("ResourceConflict", "Resource handling conflicts", "资源处理冲突", 409),
 
     // 如下几个枚举用于异常处理
     MethodNotAllowed("MethodNotAllow", "Http method not allowed.", "http 方法不支持", 405),
@@ -65,7 +66,7 @@ public enum ErrorCodeEnum {
 
     ResourceNotFound("ResourceNotFound", "The resource requested is not found.", "请求的资源不存在", 404),
     UserStatusAbnormal("UserStatusAbnormal", "User status abnormal.", "用户状态异常", 403),
-	TooManyRequest("TooManyRequest", "Too Many Request, Please try again later.", "访问频率过快，请稍后重试。", 429), 
+	TooManyRequest("TooManyRequest", "Too Many Request, Please try again later.", "访问频率过快，请稍后重试。", 429),
 	TimeRangeTooLarge("TimeRangeTooLarge", "Does not support interval queries greater than 7 days.", "暂不支持大于7天的区间查询.", 400),
 
 	PolicyAlreadyExist("PolicyAlreadyExist", "The policy already exists, you cannot create it repeatedly.", "策略已存在，不允许重复创建", 400),
