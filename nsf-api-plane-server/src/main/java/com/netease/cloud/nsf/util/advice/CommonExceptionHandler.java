@@ -6,6 +6,7 @@ import com.jayway.jsonpath.InvalidJsonException;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.errorcode.ErrorCode;
 import com.netease.cloud.nsf.util.errorcode.ExceptionHandlerErrorCode;
+import com.netease.cloud.nsf.util.exception.ResourceConflictException;
 import com.netease.cloud.nsf.web.holder.LogTraceUUIDHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +52,7 @@ public class CommonExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> handleIllegalArgumentException(IllegalArgumentException ex) {
         return newResponse("illegal argument " + ex.getMessage(), "Illegal Argument", 400, ex);
     }
+
     /*
      *	参数类型不匹配
      */
@@ -62,8 +64,14 @@ public class CommonExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(InvalidJsonException.class)
-    public ResponseEntity<Object> handleInvalidJsonException(InvalidJsonException exception){
+    public ResponseEntity<Object> handleInvalidJsonException(InvalidJsonException exception) {
         ErrorCode errorCode = ExceptionHandlerErrorCode.InvalidBodyFormat;
+        return newResponse(errorCode, exception);
+    }
+
+    @ExceptionHandler(ResourceConflictException.class)
+    public ResponseEntity<Object> handleResourceConflictException(ResourceConflictException exception) {
+        ErrorCode errorCode = ExceptionHandlerErrorCode.ResourceConflict;
         return newResponse(errorCode, exception);
     }
 
@@ -130,7 +138,7 @@ public class CommonExceptionHandler extends ResponseEntityExceptionHandler {
         if (ex.getMessage().startsWith("Required request body is missing")) {
             return newResponse(ExceptionHandlerErrorCode.InvalidBodyFormat, ex);
         }
-        if (ex.getCause().getClass().isAssignableFrom(JsonMappingException.class)){
+        if (ex.getCause().getClass().isAssignableFrom(JsonMappingException.class)) {
             return newResponse(ExceptionHandlerErrorCode.InvalidBodyFormat, ex);
         }
         return newResponse(ExceptionHandlerErrorCode.InternalServerError, ex);
