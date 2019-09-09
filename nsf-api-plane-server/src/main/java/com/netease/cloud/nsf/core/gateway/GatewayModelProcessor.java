@@ -209,6 +209,7 @@ public class GatewayModelProcessor {
 
     private List<FragmentHolder> renderPlugins(API api) {
 
+        if (CollectionUtils.isEmpty(api.getPlugins())) return Collections.emptyList();
         List<String> plugins = api.getPlugins().stream()
                                 .filter(p -> !StringUtils.isEmpty(p))
                                 .collect(Collectors.toList());

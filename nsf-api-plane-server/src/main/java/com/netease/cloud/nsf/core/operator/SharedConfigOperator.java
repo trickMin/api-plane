@@ -43,7 +43,7 @@ public class SharedConfigOperator implements IstioResourceOperator<SharedConfig>
             }
         }
 
-        latestSpec.setRateLimitConfigs(mergeList(freshConfigs, oldConfigs, new RateLimitConfigEquals()));
+        latestSpec.setRateLimitConfigs(mergeList(freshConfigs, latestConfigs, new RateLimitConfigEquals()));
         return latest;
     }
 

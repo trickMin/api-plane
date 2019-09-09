@@ -13,4 +13,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @SpringBootTest(classes = ApiPlaneApplication.class)
 @PropertySource("classpath:application.properties")
 public class BaseTest {
+
+
 }
