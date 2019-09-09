@@ -35,20 +35,18 @@ public class GatewayOperator implements IstioResourceOperator<Gateway> {
 
         List<Server> freshServers = fresh.getSpec().getServers();
         if (CollectionUtils.isEmpty(freshServers)) {
-            return old;
+            return latestGateway;
         }
         Server firstFreshServer = freshServers.get(0);
         List<String> freshHosts = firstFreshServer.getHosts();
         if (CollectionUtils.isEmpty(freshHosts)) {
-            return old;
+            return latestGateway;
         }
 
         Server firstLatestServer = latestGateway.getSpec().getServers().get(0);
         firstLatestServer.setHosts(mergeList(oldHosts, freshHosts, (ot, nt) -> Objects.equals(ot, nt)));
         return latestGateway;
     }
-
-
 
     @Override
     public boolean adapt(String name) {

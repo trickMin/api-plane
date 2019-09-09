@@ -3,14 +3,11 @@ package com.netease.cloud.nsf.core.gateway;
 import com.google.common.collect.ImmutableSet;
 import com.netease.cloud.nsf.meta.API;
 import com.netease.cloud.nsf.util.K8sResourceEnum;
-import com.netease.cloud.nsf.util.exception.ApiPlaneException;
-import com.netease.cloud.nsf.util.exception.ExceptionConst;
 import me.snowdrop.istio.api.IstioResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,20 +34,15 @@ public class GatewayConfigManager implements ConfigManager {
     @Override
     public void updateConfig(API api, String namespace) {
         List<IstioResource> resources = modelProcessor.translate(api, namespace);
-        List<IstioResource> snapshots = new ArrayList<>();
-        try {
-            for (IstioResource latest : resources) {
-                IstioResource old = configStore.get(latest);
-                snapshots.add(old);
-                if (old != null) {
-                    configStore.update(modelProcessor.merge(old, latest));
-                    continue;
-                }
-                configStore.update(latest);
+
+        //TODO rollback mechanism
+        for (IstioResource latest : resources) {
+            IstioResource old = configStore.get(latest);
+            if (old != null) {
+                configStore.update(modelProcessor.merge(old, latest));
+                continue;
             }
-        } catch (Exception e) {
-            logger.warn("update config failed, and rollback", e);
-            snapshots.forEach(s -> configStore.update(s));
+            configStore.update(latest);
         }
     }
 
@@ -64,7 +56,6 @@ public class GatewayConfigManager implements ConfigManager {
                 existResources.add(exist);
             }
         }
-        if (CollectionUtils.isEmpty(existResources)) throw new ApiPlaneException(ExceptionConst.RESOURCE_NON_EXIST);
         existResources.stream()
                 .map(er -> modelProcessor.subtract(er, api.getService(), api.getName()))
                 .filter(i -> i != null)

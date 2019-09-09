@@ -21,7 +21,7 @@ public class IntegratedResourceOperator {
     public IstioResource merge(IstioResource old, IstioResource fresh) {
 
         if (old == null || fresh == null) throw new ApiPlaneException(ExceptionConst.RESOURCE_NON_EXIST);
-        if (!sameIdentity(old, fresh)) throw new ApiPlaneException(ExceptionConst.RESOURCES_DIFF_IDENTITY);
+        if (!identical(old, fresh)) throw new ApiPlaneException(ExceptionConst.RESOURCES_DIFF_IDENTITY);
         return resolve(old).merge(old, fresh);
     }
 
@@ -34,7 +34,7 @@ public class IntegratedResourceOperator {
         return resolve(old).subtract(old, service, api);
     }
 
-    private boolean sameIdentity(IstioResource old, IstioResource fresh) {
+    private boolean identical(IstioResource old, IstioResource fresh) {
         return old.getKind().equals(fresh.getKind()) &&
                 old.getMetadata().getNamespace().equals(fresh.getMetadata().getNamespace()) &&
                 old.getMetadata().getName().equals(fresh.getMetadata().getName());

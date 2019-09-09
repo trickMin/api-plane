@@ -195,8 +195,8 @@ public class GatewayModelProcessor {
                     ;
 
             // 根据api级别的插件和高级功能生成extra部分，该部分为所有match通用的部分
-            String extra = productExtra(gatewayParams);
-            gatewayParams.put(VIRTUAL_SERVICE_EXTRA_YAML, extra);
+            String extraYaml = productExtra(gatewayParams);
+            gatewayParams.put(VIRTUAL_SERVICE_EXTRA_YAML, extraYaml);
             Map<String, Object> mergedParams = gatewayParams.output();
             //先基础渲染
             String tempVs = templateTranslator.translate(baseVirtualService, mergedParams);
@@ -206,8 +206,6 @@ public class GatewayModelProcessor {
         });
         return virtualservices;
     }
-
-
 
     private List<FragmentHolder> renderPlugins(API api) {
 

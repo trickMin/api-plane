@@ -32,7 +32,7 @@ public class SharedConfigOperator implements IstioResourceOperator<SharedConfig>
 
         if (CollectionUtils.isEmpty(oldConfigs)) {
             latestSpec.setRateLimitConfigs(freshConfigs);
-            return old;
+            return latest;
         }
 
         for (RateLimitConfig latestConfig : latestConfigs) {
