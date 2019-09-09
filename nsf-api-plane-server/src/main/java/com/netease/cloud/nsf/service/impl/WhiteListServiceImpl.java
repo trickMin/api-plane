@@ -21,6 +21,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.netease.cloud.nsf.util.K8sResourceEnum.*;
 
@@ -98,11 +100,15 @@ public class WhiteListServiceImpl implements WhiteListService {
         ServiceRole ingressWhitelistRole = client.getObject(ServiceRole.name(), whiteList.getNamespace(), "qz-ingress-whitelist");
         ResourceGenerator whitelistGenerator = ResourceGenerator.newInstance(ingressWhitelistRole, ResourceType.OBJECT, editorContext);
 
+        //约定云外到云内的请求头中是不包含namespace(tag)的
+        List<String> sourcesWithoutNamespace = whiteList.getVerboseSources().stream()
+            .map(WhiteList.VerboseSource::getName)
+            .collect(Collectors.toList());
         AccessRule iwRule = new AccessRuleBuilder()
             .withServices(whiteList.getFullService())
             .withConstraints(new ConstraintBuilder()
                 .withKey("request.headers[Source-External]")
-                .withValues(whiteList.getSources())
+                .withValues(sourcesWithoutNamespace)
                 .build())
             .build();
         whitelistGenerator.removeElement(PathExpressionEnum.REMOVE_RBAC_SERVICE.translate(),

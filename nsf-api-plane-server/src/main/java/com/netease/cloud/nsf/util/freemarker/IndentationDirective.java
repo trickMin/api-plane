@@ -15,51 +15,27 @@ import java.util.Map;
 public class IndentationDirective implements TemplateDirectiveModel {
 
     private static final String COUNT = "count";
-    private static final String FIRST_LINE = "firstLine";
 
     @Override
     public void execute(Environment environment, Map parameters, TemplateModel[] loopVars, TemplateDirectiveBody body) throws TemplateException, IOException {
-        Integer count = null;
-        Integer firstLine = null;
+        Integer count = 0;
         final Iterator iterator = parameters.entrySet().iterator();
-        while (iterator.hasNext())
-        {
+        while (iterator.hasNext()) {
             final Map.Entry entry = (Map.Entry) iterator.next();
             final String name = (String) entry.getKey();
             final TemplateModel value = (TemplateModel) entry.getValue();
 
-            if (name.equals(COUNT))
-            {
-                if (value instanceof TemplateNumberModel == false)
-                {
+            if (name.equals(COUNT)) {
+                if (value instanceof TemplateNumberModel == false) {
                     throw new TemplateModelException("The \"" + COUNT + "\" parameter " + "must be a number");
                 }
                 count = ((TemplateNumberModel) value).getAsNumber().intValue();
-                if (count < 0)
-                {
+                if (count < 0) {
                     throw new TemplateModelException("The \"" + COUNT + "\" parameter " + "cannot be negative");
                 }
-            }
-            else if (name.equals(FIRST_LINE))
-            {
-                if (value instanceof TemplateNumberModel == false)
-                {
-                    throw new TemplateModelException("The \"" + FIRST_LINE + "\" parameter " + "must be a number");
-                }
-                firstLine = ((TemplateNumberModel) value).getAsNumber().intValue();
-                if (firstLine < 0)
-                {
-                    throw new TemplateModelException("The \"" + FIRST_LINE + "\" parameter " + "cannot be negative");
-                }
-            }
-            else
-            {
+            } else {
                 throw new TemplateModelException("Unsupported parameter '" + name + "'");
             }
-        }
-        if (count == null)
-        {
-            throw new TemplateModelException("The required \"" + COUNT + "\" parameter" + "is missing");
         }
 
         Integer column = environment.getCurrentDirectiveCallPlace().getBeginColumn();
@@ -68,16 +44,19 @@ public class IndentationDirective implements TemplateDirectiveModel {
         body.render(writer);
         final String string = writer.toString();
 
-        final String lineFeed = "\n";
-        final boolean containsLineFeed = string.contains(lineFeed) == true;
+        final String lineFeed = string.contains("\n") ? "\n" : "";
         final String[] tokens = string.split(lineFeed);
 
         for (int i = 0; i < tokens.length; i++) {
             String indent = indentation;
             if (i == 0) {
-                indent = StringUtils.repeat(' ',  count);
+                indent = StringUtils.repeat(' ', count);
             }
-            environment.getOut().write(indent + tokens[i] + (containsLineFeed == true ? lineFeed : ""));
+            if (i == tokens.length - 1) {
+                environment.getOut().write(indent + tokens[i]);
+            }else{
+                environment.getOut().write(indent + tokens[i] + lineFeed);
+            }
         }
         writer.close();
     }

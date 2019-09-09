@@ -105,13 +105,13 @@ public abstract class AbstractYxSchemaProcessor implements SchemaProcessor<Servi
             case "!=":
                 return String.format("((?!%s).)*", escapeExprSpecialWord(value));
             case "regex":
-                return value;
+                return escapeBackSlash(value);
             case "startsWith":
                 return String.format("%s.*", escapeExprSpecialWord(value));
             case "endsWith":
                 return String.format(".*%s", escapeExprSpecialWord(value));
             case "nonRegex":
-                return String.format("((?!%s).)*", value);
+                return String.format("((?!%s).)*", escapeBackSlash(value));
             default:
                 throw new ApiPlaneException("Unsupported op.");
         }

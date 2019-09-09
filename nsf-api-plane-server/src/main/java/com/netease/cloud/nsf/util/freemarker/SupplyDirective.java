@@ -22,10 +22,12 @@ public class SupplyDirective implements TemplateDirectiveModel {
 
     enum Keyword {
 
-        MATCH("match:", indent(wrap(TemplateConst.VIRTUAL_SERVICE_MATCH_YAML), 2)),
-        ROUTE("route:", indent(wrap(TemplateConst.VIRTUAL_SERVICE_ROUTE_YAML), 2)),
-        EXTRA("extra:", indent(wrap(TemplateConst.VIRTUAL_SERVICE_EXTRA_YAML), 2)),
-        HOSTS("hosts:", indent(wrap(TemplateConst.VIRTUAL_SERVICE_HOSTS_YAML), 2)),
+        MATCH("match:", indent(wrap(TemplateConst.VIRTUAL_SERVICE_MATCH_YAML))),
+        ROUTE("route:", indent(wrap(TemplateConst.VIRTUAL_SERVICE_ROUTE_YAML))),
+        EXTRA("extra:", indent(wrap(TemplateConst.VIRTUAL_SERVICE_EXTRA_YAML))),
+        HOSTS("hosts:", indent(wrap(TemplateConst.VIRTUAL_SERVICE_HOSTS_YAML))),
+        API("api:", wrap(TemplateConst.API_NAME)),
+
 
         ;
 
@@ -38,8 +40,8 @@ public class SupplyDirective implements TemplateDirectiveModel {
         }
     }
 
-    private static String indent(String str, int count) {
-        return "<@indent count=" + count + ">" + str + "</@indent>";
+    private static String indent(String str) {
+        return "<@indent>" + str + "</@indent>";
     }
 
     private static String wrap(String str) {
@@ -48,23 +50,23 @@ public class SupplyDirective implements TemplateDirectiveModel {
 
     @Override
     public void execute(Environment environment, Map parameters, TemplateModel[] loopVars, TemplateDirectiveBody body) throws TemplateException, IOException {
-
         final StringWriter writer = new StringWriter();
         if (body != null) {
             body.render(writer);
         }
         String string = writer.toString();
         if (StringUtils.isEmpty(string)) {
-            string = "[{\"api\":\"${t_api_name}\"}]";
+            string = "[{}]";
         }
         ResourceGenerator gen = ResourceGenerator.newInstance(string, ResourceType.YAML);
         gen.createOrUpdateValue("$[?]", "nsf-template-match", Keyword.MATCH.replacement, Criteria.where("match").exists(false));
         gen.createOrUpdateValue("$[?]", "nsf-template-route", Keyword.ROUTE.replacement, Criteria.where("route").exists(false));
         gen.createOrUpdateValue("$[?]", "nsf-template-extra", Keyword.EXTRA.replacement, Criteria.where("extra").exists(false));
         gen.createOrUpdateValue("$[?]", "nsf-template-hosts", Keyword.HOSTS.replacement, Criteria.where("hosts").exists(false));
+        gen.createOrUpdateValue("$[?]", "api", Keyword.API.replacement, Criteria.where("api").exists(false));
 
         String yaml = gen.yamlString();
-        yaml = yaml.replaceAll("(?m)^(?:[\\s|-]*)nsf-template-.*?:(?:\\s*)(<.*>)", "$1");
+        yaml = yaml.replaceAll("(?m)^(-?\\s*)nsf-template-.*?:(?:\\s*)(<.*>)", "$1$2");
 
         environment.getOut().write(yaml);
         writer.close();

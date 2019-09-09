@@ -104,6 +104,7 @@ public class WhiteList {
                 String[] splits = source.split("\\.");
                 if (splits.length != 2) {
                     logger.error("source service format error: {}", source);
+                    return new VerboseSource(""+source, "unknown");
                 }
                 return new VerboseSource(splits[0], splits[1]);
             })

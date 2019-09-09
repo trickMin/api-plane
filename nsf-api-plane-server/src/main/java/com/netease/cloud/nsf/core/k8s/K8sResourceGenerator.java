@@ -35,7 +35,11 @@ public final class K8sResourceGenerator extends ResourceGenerator {
     }
 
     public String getNamespace() {
-        return getValue(GET_NAMESPACE.translate());
+        if(contain(GET_NAMESPACE.translate())){
+            return getValue(GET_NAMESPACE.translate());
+        }else{
+            return "default";
+        }
     }
 
     public String getKind() {

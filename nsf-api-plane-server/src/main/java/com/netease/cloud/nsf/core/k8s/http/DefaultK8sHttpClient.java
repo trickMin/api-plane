@@ -1,11 +1,11 @@
 package com.netease.cloud.nsf.core.k8s.http;
 
-import com.fasterxml.jackson.core.JsonParseException;
 import com.netease.cloud.nsf.core.editor.EditorContext;
 import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.util.K8sResourceEnum;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
+import com.netease.cloud.nsf.util.exception.ResourceConflictException;
 import com.sun.javafx.binding.StringFormatter;
 import io.fabric8.kubernetes.api.model.Status;
 import io.fabric8.kubernetes.api.model.StatusBuilder;
@@ -15,6 +15,7 @@ import okhttp3.*;
 import okio.Buffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
@@ -69,13 +70,13 @@ public class DefaultK8sHttpClient implements K8sHttpClient {
             logger.info(request.toString());
         }
         Buffer buffer = new Buffer();
-        if (Objects.nonNull(request.body())) {
-            try {
+        try {
+            if (Objects.nonNull(request.body()) && request.body().contentLength() != 0) {
                 request.body().writeTo(buffer);
                 logger.info("Request body: \n{}", ResourceGenerator.prettyJson(buffer.readString(Charset.defaultCharset())));
-            } catch (IOException e) {
-                e.printStackTrace();
             }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         try (Response response = httpClient.newCall(request).execute()) {
             if (Objects.nonNull(responseConsumer)) responseConsumer.accept(request, response);
@@ -208,7 +209,13 @@ public class DefaultK8sHttpClient implements K8sHttpClient {
     public String put(String url, String resource) {
         RequestBody body = RequestBody.create(JSON, resource);
         Request.Builder requestBuilder = new Request.Builder().put(body).url(url);
-        return handleResponse(requestBuilder);
+        return handleResponse(requestBuilder, (request, response) -> {
+            int statusCode = response.code();
+            if (statusCode == HttpStatus.CONFLICT.value()) {
+                throw new ResourceConflictException(String.format("Resource put %s conflict.", url));
+            }
+            assertResponseCode(request, response);
+        }, null);
     }
 
     @Override

@@ -30,8 +30,8 @@ public class RateLimitProcessor extends AbstractYxSchemaProcessor implements Sch
         List<Object> limits = total.getValue("$.config.limit_by_list");
         AtomicInteger headerNo = new AtomicInteger(0);
 
-        ResourceGenerator rateLimitGen = ResourceGenerator.newInstance("{\"rate_limits\":[]}");
-        ResourceGenerator shareConfigGen = ResourceGenerator.newInstance("{\"domain\":\"qingzhou\",\"descriptors\":[]}");
+        ResourceGenerator rateLimitGen = ResourceGenerator.newInstance("{\"rateLimits\":[]}");
+        ResourceGenerator shareConfigGen = ResourceGenerator.newInstance("[{\"domain\":\"qingzhou\",\"descriptors\":[]}]");
 
         limits.forEach(limit -> {
             ResourceGenerator rg = ResourceGenerator.newInstance(limit, ResourceType.OBJECT, editorContext);
@@ -39,8 +39,8 @@ public class RateLimitProcessor extends AbstractYxSchemaProcessor implements Sch
             Integer no = headerNo.getAndIncrement();
             getUnits(rg).forEach((unit, duration) -> {
                 String headerDescriptor = getHeaderDescriptor(serviceInfo, no, getMatchHeader(rg), unit);
-                rateLimitGen.addJsonElement("$.rate_limits", createRateLimits(rg, serviceInfo, headerDescriptor));
-                shareConfigGen.addJsonElement("$.descriptors", createShareConfig(serviceInfo, headerDescriptor, unit, duration));
+                rateLimitGen.addJsonElement("$.rateLimits", createRateLimits(rg, serviceInfo, headerDescriptor));
+                shareConfigGen.addJsonElement("$[0].descriptors", createShareConfig(serviceInfo, headerDescriptor, unit, duration));
             });
 
         });
@@ -70,7 +70,7 @@ public class RateLimitProcessor extends AbstractYxSchemaProcessor implements Sch
         //todo: if !rg.contain($.pre_condition)
         if (rg.contain("$.pre_condition")) {
             vs.addJsonElement("$.actions",
-                    String.format("{\"header_value_match\":{\"headers\":[],\"descriptor_value\":\"%s\"}}", headerDescriptor));
+                    String.format("{\"headerValueMatch\":{\"headers\":[],\"descriptorValue\":\"%s\"}}", headerDescriptor));
 
             int length = rg.getValue("$.pre_condition.length()");
             for (int i = 0; i < length; i++) {
@@ -94,15 +94,15 @@ public class RateLimitProcessor extends AbstractYxSchemaProcessor implements Sch
                         throw new ApiPlaneException(String.format("Unsupported $.config.limit_by_list.pre_condition.operator: %s", operator));
                 }
 
-                vs.addJsonElement("$.actions[0].header_value_match.headers",
-                        String.format("{\"name\":\"%s\",\"regex_match\":\"%s\"}", matchHeader, regex));
+                vs.addJsonElement("$.actions[0].headerValueMatch.headers",
+                        String.format("{\"name\":\"%s\",\"regexMatch\":\"%s\"}", matchHeader, regex));
             }
         }
         return vs.jsonString();
     }
 
     private String createShareConfig(ServiceInfo serviceInfo, String headerDescriptor, String unit, Integer duration) {
-        ResourceGenerator shareConfig = ResourceGenerator.newInstance(String.format("{\"api\":\"%s\",\"key\":\"header_match\",\"value\":\"%s\",\"rate_limit\":{\"unit\":\"%s\",\"requests_per_unit\":%d}}",
+        ResourceGenerator shareConfig = ResourceGenerator.newInstance(String.format("{\"api\":\"%s\",\"key\":\"header_match\",\"value\":\"%s\",\"rateLimit\":{\"unit\":\"%s\",\"requestsPerUnit\":%d}}",
                 getApiName(serviceInfo),
                 headerDescriptor,
                 unit,

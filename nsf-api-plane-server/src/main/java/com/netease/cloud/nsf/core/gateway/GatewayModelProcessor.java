@@ -1,7 +1,9 @@
 package com.netease.cloud.nsf.core.gateway;
 
 import com.google.common.collect.ImmutableMap;
+import com.jayway.jsonpath.Criteria;
 import com.netease.cloud.nsf.core.editor.EditorContext;
+import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.k8s.K8sResourceGenerator;
 import com.netease.cloud.nsf.core.operator.IntegratedResourceOperator;
@@ -131,8 +133,8 @@ public class GatewayModelProcessor {
                 .collect(Collectors.toList());
 
         TemplateParams sharedConfigsParams = TemplateParams.instance()
-                                .setParent(baseParams)
-                                .put(SHARED_CONFIG_DESCRIPTOR, descriptors);
+                .setParent(baseParams)
+                .put(SHARED_CONFIG_DESCRIPTOR, descriptors);
 
         return Arrays.asList(templateTranslator.translate(baseSharedConfig, sharedConfigsParams.output()));
     }
@@ -165,19 +167,19 @@ public class GatewayModelProcessor {
         List<String> extraPlugins = new ArrayList<>();
 
         fragments.stream()
-            .forEach(f -> {
-                if (f.getFragmentType().equals(FragmentTypeEnum.NEW_MATCH)) {
-                    matchPlugins.add(f.getContent());
-                } else if (f.getFragmentType().equals(FragmentTypeEnum.DEFAULT_MATCH)) {
-                    extraPlugins.add(f.getContent());
-                }
-            });
+                .forEach(f -> {
+                    if (f.getFragmentType().equals(FragmentTypeEnum.NEW_MATCH)) {
+                        matchPlugins.add(f.getContent());
+                    } else if (f.getFragmentType().equals(FragmentTypeEnum.DEFAULT_MATCH)) {
+                        extraPlugins.add(f.getContent());
+                    }
+                });
 
         String matchYaml = produceMatch(baseParams);
         String httpApiYaml = produceHttpApi(baseParams);
         String hostsYaml = produceHosts(baseParams);
 
-        api.getGateways().stream().forEach( gw -> {
+        api.getGateways().stream().forEach(gw -> {
             String subset = buildVirtualServiceSubsetName(api.getService(), api.getName(), gw);
 
             String route = produceRoute(api, endpoints, subset);
@@ -191,8 +193,7 @@ public class GatewayModelProcessor {
                     .put(VIRTUAL_SERVICE_API_YAML, httpApiYaml)
                     .put(VIRTUAL_SERVICE_HOSTS_YAML, hostsYaml)
                     .put(API_MATCH_PLUGINS, matchPlugins)
-                    .put(API_EXTRA_PLUGINS, extraPlugins)
-                    ;
+                    .put(API_EXTRA_PLUGINS, extraPlugins);
 
             // 根据api级别的插件和高级功能生成extra部分，该部分为所有match通用的部分
             String extraYaml = productExtra(gatewayParams);
@@ -202,9 +203,16 @@ public class GatewayModelProcessor {
             String tempVs = templateTranslator.translate(baseVirtualService, mergedParams);
             //二次渲染插件中的内容
             String rawVs = templateTranslator.translate("tempVs", tempVs, mergedParams);
-            virtualservices.add(rawVs);
+            virtualservices.add(adjustVs(rawVs));
         });
         return virtualservices;
+    }
+
+    private String adjustVs(String rawVs) {
+        ResourceGenerator gen = ResourceGenerator.newInstance(rawVs, ResourceType.YAML);
+        gen.removeElement("$.spec.http[?].route", Criteria.where("redirect").exists(true));
+        gen.removeElement("$.spec.http[?].fault", Criteria.where("redirect").exists(true));
+        return gen.yamlString();
     }
 
     private List<FragmentHolder> renderPlugins(API api) {
@@ -230,7 +238,7 @@ public class GatewayModelProcessor {
     private List<String> buildGateways(API api, List<String> envoys, TemplateParams baseParams) {
 
         List<String> gateways = new ArrayList<>();
-        envoys.stream().forEach( gw -> {
+        envoys.stream().forEach(gw -> {
             TemplateParams gatewayParams = TemplateParams.instance()
                     .setParent(baseParams)
                     .put(API_GATEWAY, gw)
@@ -243,6 +251,7 @@ public class GatewayModelProcessor {
 
     /**
      * 初始化渲染所需的基本参数
+     *
      * @param api
      * @param namespace
      * @return
@@ -272,6 +281,7 @@ public class GatewayModelProcessor {
 
     /**
      * 合并两个crd,新的和旧的重叠部分会用新的覆盖旧的
+     *
      * @param old
      * @param fresh
      * @return
@@ -322,15 +332,15 @@ public class GatewayModelProcessor {
     private String produceRoute(API api, List<Endpoint> endpoints, String subset) {
         List<Map<String, Object>> destinations = new ArrayList<>();
         List<String> proxies = api.getProxyUris();
-        for (int i = 0; i < proxies.size() ; i++) {
+        for (int i = 0; i < proxies.size(); i++) {
             boolean isMatch = false;
             for (Endpoint e : endpoints) {
                 if (e.getHostname().equals(proxies.get(i))) {
                     Map<String, Object> param = new HashMap<>();
                     param.put("port", e.getPort());
-                    int weight = 100/proxies.size();
+                    int weight = 100 / proxies.size();
                     if (i == proxies.size() - 1) {
-                        weight = 100 - 100*(proxies.size()-1)/proxies.size();
+                        weight = 100 - 100 * (proxies.size() - 1) / proxies.size();
                     }
                     param.put("weight", weight);
                     param.put("host", e.getHostname());
@@ -339,7 +349,8 @@ public class GatewayModelProcessor {
                     break;
                 }
             }
-            if (!isMatch) throw new ApiPlaneException(String.format("%s:%s", ExceptionConst.TARGET_SERVICE_NON_EXIST, proxies.get(i)));
+            if (!isMatch)
+                throw new ApiPlaneException(String.format("%s:%s", ExceptionConst.TARGET_SERVICE_NON_EXIST, proxies.get(i)));
         }
         String destinationStr = templateTranslator
                 .translate(baseVirtualServiceRoute,
@@ -347,7 +358,6 @@ public class GatewayModelProcessor {
                                 VIRTUAL_SERVICE_SUBSET_NAME, subset));
         return destinationStr;
     }
-
 
 
     private String buildGatewayName(String serviceName, String gw) {
@@ -359,6 +369,6 @@ public class GatewayModelProcessor {
     }
 
     private String buildVirtualServiceSubsetName(String serviceName, String apiName, String gw) {
-        return String.format("%s-%s-%s", serviceName, apiName, gw) ;
+        return String.format("%s-%s-%s", serviceName, apiName, gw);
     }
 }
