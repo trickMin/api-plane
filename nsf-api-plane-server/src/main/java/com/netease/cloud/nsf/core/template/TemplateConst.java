@@ -35,11 +35,12 @@ public interface TemplateConst {
     String VIRTUAL_SERVICE_NAME = "t_virtual_service_name";
     String VIRTUAL_SERVICE_SUBSET_NAME = "t_virtual_service_subset_name";
     String VIRTUAL_SERVICE_DESTINATIONS = "t_virtual_service_destinations";
-    String VIRTUAL_SERVICE_MATCH = "t_virtual_service_match";
-    String VIRTUAL_SERVICE_ROUTE = "t_virtual_service_route";
-    String VIRTUAL_SERVICE_EXTRA = "t_virtual_service_extra";
+    String VIRTUAL_SERVICE_MATCH_YAML = "t_virtual_service_match_yaml";
+    String VIRTUAL_SERVICE_ROUTE_YAML = "t_virtual_service_route_yaml";
+    String VIRTUAL_SERVICE_EXTRA_YAML = "t_virtual_service_extra_yaml";
+    String VIRTUAL_SERVICE_HOSTS_YAML = "t_virtual_service_hosts_yaml";
+    String VIRTUAL_SERVICE_API_YAML = "t_virtual_service_api_yaml";
     String VIRTUAL_SERVICE_HOSTS = "t_virtual_service_hosts";
-    String VIRTUAL_SERVICE_API = "t_virtual_service_api";
 
     String API_MATCH_PLUGINS = "t_api_match_plugins";
     String API_EXTRA_PLUGINS = "t_api_extra_plugins";

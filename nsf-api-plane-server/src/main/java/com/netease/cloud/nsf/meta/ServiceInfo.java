@@ -26,7 +26,7 @@ public class ServiceInfo {
 
     // 提供uri占位符，例如${t_api_request_uris},后续GatewayModelProcessor会进行渲染
     // 也可直接从API中获得uri
-    @JsonProperty(VIRTUAL_SERVICE_HOSTS)
+    @JsonProperty(VIRTUAL_SERVICE_HOSTS_YAML)
     private String uri;
 
     // 提供subset占位符，例如${t_virtual_service_subset_name},后续GatewayModelProcessor会进行渲染，不能从API中获得
@@ -42,7 +42,7 @@ public class ServiceInfo {
      *     subset: service-zero-plane-istio-test-gateway-yx
      *   weight: 100
      */
-    @JsonProperty(VIRTUAL_SERVICE_ROUTE)
+    @JsonProperty(VIRTUAL_SERVICE_ROUTE_YAML)
     private String route;
 
     /**
@@ -53,7 +53,7 @@ public class ServiceInfo {
      *   method:
      *     regex: GET|POST
      */
-    @JsonProperty(VIRTUAL_SERVICE_MATCH)
+    @JsonProperty(VIRTUAL_SERVICE_MATCH_YAML)
     private String match;
 
 
@@ -88,7 +88,7 @@ public class ServiceInfo {
         return uri;
     }
 
-    @JsonProperty(VIRTUAL_SERVICE_HOSTS)
+    @JsonProperty(VIRTUAL_SERVICE_HOSTS_YAML)
     public void setUri(String uri) {
         this.uri = uri;
     }
@@ -106,7 +106,7 @@ public class ServiceInfo {
         return route;
     }
 
-    @JsonProperty(VIRTUAL_SERVICE_ROUTE)
+    @JsonProperty(VIRTUAL_SERVICE_ROUTE_YAML)
     public void setRoute(String route) {
         this.route = route;
     }
@@ -115,7 +115,7 @@ public class ServiceInfo {
         return match;
     }
 
-    @JsonProperty(VIRTUAL_SERVICE_MATCH)
+    @JsonProperty(VIRTUAL_SERVICE_MATCH_YAML)
     public void setMatch(String match) {
         this.match = match;
     }

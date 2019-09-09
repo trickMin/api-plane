@@ -1,6 +1,5 @@
 package com.netease.cloud.nsf.core.gateway;
 
-import com.netease.cloud.nsf.core.editor.EditorContext;
 import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.k8s.KubernetesClient;
@@ -21,11 +20,11 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+
 
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/7/25
@@ -40,6 +39,9 @@ public class IstioHttpClient {
     private static final String NAME = "pilot";
 
     private static final String GET_ENDPOINTZ_PATH = "/debug/endpointz";
+    private static final String GET_CONFIGZ_PATH = "/debug/configz";
+
+
 
     @Value(value = "${istioHttpUrl:#{null}}")
     private String istioHttpUrl;
@@ -49,9 +51,6 @@ public class IstioHttpClient {
 
     @Autowired
     private KubernetesClient client;
-
-    @Autowired
-    private EditorContext editorContext;
 
     private String getIstioUrl() {
         if (!StringUtils.isEmpty(istioHttpUrl)) return istioHttpUrl;
@@ -67,11 +66,11 @@ public class IstioHttpClient {
     public List<Endpoint> getEndpointList() {
         List<Endpoint> endpoints = new ArrayList<>();
         ResponseEntity response = getForEntity(getIstioUrl() + GET_ENDPOINTZ_PATH, String.class);
-        List svcs = ResourceGenerator.newInstance(response.getBody(), ResourceType.JSON, editorContext).getValue(PathExpressionEnum.ISTIO_GET_SVC.translate());
+        List svcs = ResourceGenerator.newInstance(response.getBody(), ResourceType.JSON).getValue(PathExpressionEnum.ISTIO_GET_SVC.translate());
         svcs.stream().forEach(
                 svc -> {
                     Endpoint endpoint = new Endpoint();
-                    ResourceGenerator gen = ResourceGenerator.newInstance(svc, ResourceType.OBJECT, editorContext);
+                    ResourceGenerator gen = ResourceGenerator.newInstance(svc, ResourceType.OBJECT);
                     endpoint.setHostname(gen.getValue("$.service.hostname"));
                     endpoint.setAddress(gen.getValue("$.endpoint.Address"));
                     endpoint.setPort(gen.getValue("$.endpoint.ServicePort.port"));
@@ -88,10 +87,10 @@ public class IstioHttpClient {
     public List<Gateway> getGatewayList() {
         List<Gateway> gateways = new ArrayList<>();
         ResponseEntity response = getForEntity(getIstioUrl() + GET_ENDPOINTZ_PATH, String.class);
-        List svcs = ResourceGenerator.newInstance(response.getBody(), ResourceType.JSON, editorContext).getValue(PathExpressionEnum.ISTIO_GET_GATEWAY.translate("gateway-proxy.*"));
+        List svcs = ResourceGenerator.newInstance(response.getBody(), ResourceType.JSON).getValue(PathExpressionEnum.ISTIO_GET_GATEWAY.translate("gateway-proxy.*"));
         svcs.stream().forEach(svc -> {
             Gateway gateway = new Gateway();
-            ResourceGenerator gen = ResourceGenerator.newInstance(svc, ResourceType.OBJECT, editorContext);
+            ResourceGenerator gen = ResourceGenerator.newInstance(svc, ResourceType.OBJECT);
             gateway.setHostname(gen.getValue("$.service.hostname"));
             gateway.setAddress(gen.getValue("$.endpoint.Address"));
             gateway.setLabels(gen.getValue("$.labels"));

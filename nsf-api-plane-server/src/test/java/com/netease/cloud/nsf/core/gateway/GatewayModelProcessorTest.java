@@ -10,13 +10,14 @@ import com.netease.cloud.nsf.meta.API;
 import com.netease.cloud.nsf.meta.Endpoint;
 import com.netease.cloud.nsf.util.K8sResourceEnum;
 import me.snowdrop.istio.api.IstioResource;
-import me.snowdrop.istio.api.networking.v1alpha3.VirtualService;
+import me.snowdrop.istio.api.networking.v1alpha3.*;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.Arrays;
+import java.util.List;
 
 import static org.mockito.Mockito.when;
 
@@ -47,6 +48,8 @@ public class GatewayModelProcessorTest extends BaseTest {
 
         when(istioHttpClient.getEndpointList()).thenReturn(Arrays.asList(endpoint1, endpoint2));
 
+        //base api test
+
         API api = new API();
         api.setGateways(ImmutableList.of("gateway1", "gateway2"));
         api.setName("api-name");
@@ -56,7 +59,30 @@ public class GatewayModelProcessorTest extends BaseTest {
         api.setProxyUris(ImmutableList.of("a.default.svc.cluster.local", "b.default.svc.cluster.local"));
         api.setService("service-zero");
 
-        System.out.println(processor.translate(api, "gateway-system"));
+        List<IstioResource> resources = processor.translate(api, "gateway-system");
+
+        Assert.assertTrue(resources.size() == 6);
+
+        resources.stream()
+                .forEach(r -> {
+                    if (r.getKind().equals(VirtualService.class.getSimpleName())) {
+                        VirtualService vs = (VirtualService) r;
+                        HTTPRoute httpRoute = vs.getSpec().getHttp().get(0);
+                        HTTPMatchRequest match = httpRoute.getMatch().get(0);
+
+                        Assert.assertTrue(vs.getSpec().getHosts().size() == 2);
+                        Assert.assertTrue(vs.getSpec().getHosts().contains("service-a"));
+                        Assert.assertTrue(vs.getSpec().getHosts().contains("service-b"));
+
+                        RegexMatchType methodMatch = (RegexMatchType) match.getMethod().getMatchType();
+                        Assert.assertTrue(methodMatch.getRegex().equals("HTTP|POST"));
+
+                        RegexMatchType uriMatch = (RegexMatchType) match.getUri().getMatchType();
+                        Assert.assertTrue(uriMatch.getRegex().equals("/a|/b"));
+
+                    }
+                });
+
     }
 
     @Test

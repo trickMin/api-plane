@@ -6,6 +6,7 @@ import com.netease.cloud.nsf.util.K8sResourceEnum;
 import com.netease.cloud.nsf.util.PathExpressionEnum;
 import com.netease.cloud.nsf.util.function.Equals;
 import me.snowdrop.istio.api.networking.v1alpha3.DestinationRule;
+import me.snowdrop.istio.api.networking.v1alpha3.DestinationRuleBuilder;
 import me.snowdrop.istio.api.networking.v1alpha3.DestinationRuleSpec;
 import me.snowdrop.istio.api.networking.v1alpha3.Subset;
 import org.springframework.stereotype.Component;
@@ -25,8 +26,11 @@ public class DestinationRuleOperator implements IstioResourceOperator<Destinatio
         DestinationRuleSpec oldSpec = old.getSpec();
         DestinationRuleSpec freshSpec = fresh.getSpec();
 
-        oldSpec.setSubsets(mergeList(oldSpec.getSubsets(), freshSpec.getSubsets(), new SubsetEquals()));
-        return old;
+        DestinationRule latest = new DestinationRuleBuilder(old).build();
+        DestinationRuleSpec latestSpec = latest.getSpec();
+
+        latestSpec.setSubsets(mergeList(oldSpec.getSubsets(), freshSpec.getSubsets(), new SubsetEquals()));
+        return latest;
     }
 
     private class SubsetEquals implements Equals<Subset> {
