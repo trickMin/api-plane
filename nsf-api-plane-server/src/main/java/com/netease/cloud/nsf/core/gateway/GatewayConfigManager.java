@@ -3,13 +3,11 @@ package com.netease.cloud.nsf.core.gateway;
 import com.google.common.collect.ImmutableSet;
 import com.netease.cloud.nsf.meta.API;
 import com.netease.cloud.nsf.util.K8sResourceEnum;
-import com.netease.cloud.nsf.util.exception.ApiPlaneException;
-import com.netease.cloud.nsf.util.exception.ExceptionConst;
 import me.snowdrop.istio.api.IstioResource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,33 +20,35 @@ import java.util.stream.Collectors;
 @Component
 public class GatewayConfigManager implements ConfigManager {
 
+    private static final Logger logger = LoggerFactory.getLogger(GatewayConfigManager.class);
+
     @Autowired
     private GatewayModelProcessor modelProcessor;
 
     @Autowired
     private ConfigStore configStore;
 
-    @Value("${apiNamespace:gateway-system}")
-    private String apiNamespace;
-
     private static final Set<String> API_REFERENCE_TYPES = ImmutableSet.of(K8sResourceEnum.VirtualService.name(), K8sResourceEnum.DestinationRule.name(),
             K8sResourceEnum.Gateway.name());
 
     @Override
-    public void updateConfig(API api) {
-        List<IstioResource> resources = modelProcessor.translate(api, apiNamespace);
+    public void updateConfig(API api, String namespace) {
+        List<IstioResource> resources = modelProcessor.translate(api, namespace);
+
+        //TODO rollback mechanism
         for (IstioResource latest : resources) {
             IstioResource old = configStore.get(latest);
             if (old != null) {
                 configStore.update(modelProcessor.merge(old, latest));
+                continue;
             }
             configStore.update(latest);
         }
     }
 
     @Override
-    public void deleteConfig(API api) {
-        List<IstioResource> resources = modelProcessor.translate(api, apiNamespace);
+    public void deleteConfig(API api, String namespace) {
+        List<IstioResource> resources = modelProcessor.translate(api, namespace);
         List<IstioResource> existResources = new ArrayList<>();
         for (IstioResource resource : resources) {
             IstioResource exist = configStore.get(resource);
@@ -56,7 +56,6 @@ public class GatewayConfigManager implements ConfigManager {
                 existResources.add(exist);
             }
         }
-        if (CollectionUtils.isEmpty(existResources)) throw new ApiPlaneException(ExceptionConst.RESOURCE_NON_EXIST);
         existResources.stream()
                 .map(er -> modelProcessor.subtract(er, api.getService(), api.getName()))
                 .filter(i -> i != null)
@@ -72,13 +71,12 @@ public class GatewayConfigManager implements ConfigManager {
     }
 
     @Override
-    public List<IstioResource> getConfigResources(String service) {
+    public List<IstioResource> getConfigResources(String service, String namespace) {
 
         return API_REFERENCE_TYPES.stream()
-                    .map(kind -> configStore.get(kind, apiNamespace, service))
+                    .map(kind -> configStore.get(kind, namespace, service))
                     .filter(i -> i != null)
                     .collect(Collectors.toList());
     }
-
 
 }

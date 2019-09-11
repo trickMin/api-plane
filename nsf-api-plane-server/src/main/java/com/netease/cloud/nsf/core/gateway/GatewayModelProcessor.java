@@ -62,6 +62,7 @@ public class GatewayModelProcessor {
     private static final String baseVirtualServiceMatch = "gateway/baseVirtualServiceMatch";
     private static final String baseVirtualServiceRoute = "gateway/baseVirtualServiceRoute";
     private static final String baseVirtualServiceExtra = "gateway/baseVirtualServiceExtra";
+    private static final String baseVirtualServiceHosts = "gateway/baseVirtualServiceHosts";
     private static final String baseVirtualServiceApi = "gateway/baseVirtualServiceApi";
     private static final String baseSharedConfig = "gateway/baseSharedConfig";
 
@@ -174,8 +175,9 @@ public class GatewayModelProcessor {
                     }
                 });
 
-        String match = produceMatch(baseParams);
-        String httpApi = produceHttpApi(baseParams);
+        String matchYaml = produceMatch(baseParams);
+        String httpApiYaml = produceHttpApi(baseParams);
+        String hostsYaml = produceHosts(baseParams);
 
         api.getGateways().stream().forEach(gw -> {
             String subset = buildVirtualServiceSubsetName(api.getService(), api.getName(), gw);
@@ -186,15 +188,16 @@ public class GatewayModelProcessor {
                     .put(GATEWAY_NAME, buildGatewayName(api.getService(), gw))
                     .put(VIRTUAL_SERVICE_NAME, buildVirtualServiceName(api.getService(), gw))
                     .put(VIRTUAL_SERVICE_SUBSET_NAME, subset)
-                    .put(VIRTUAL_SERVICE_MATCH, match)
-                    .put(VIRTUAL_SERVICE_ROUTE, route)
-                    .put(VIRTUAL_SERVICE_API, httpApi)
+                    .put(VIRTUAL_SERVICE_MATCH_YAML, matchYaml)
+                    .put(VIRTUAL_SERVICE_ROUTE_YAML, route)
+                    .put(VIRTUAL_SERVICE_API_YAML, httpApiYaml)
+                    .put(VIRTUAL_SERVICE_HOSTS_YAML, hostsYaml)
                     .put(API_MATCH_PLUGINS, matchPlugins)
                     .put(API_EXTRA_PLUGINS, extraPlugins);
 
             // 根据api级别的插件和高级功能生成extra部分，该部分为所有match通用的部分
-            String extra = productExtra(gatewayParams);
-            gatewayParams.put(VIRTUAL_SERVICE_EXTRA, extra);
+            String extraYaml = productExtra(gatewayParams);
+            gatewayParams.put(VIRTUAL_SERVICE_EXTRA_YAML, extraYaml);
             Map<String, Object> mergedParams = gatewayParams.output();
             //先基础渲染
             String tempVs = templateTranslator.translate(baseVirtualService, mergedParams);
@@ -214,8 +217,11 @@ public class GatewayModelProcessor {
 
     private List<FragmentHolder> renderPlugins(API api) {
 
-        List<String> plugins = api.getPlugins();
-        if (CollectionUtils.isEmpty(plugins)) return Collections.emptyList();
+        if (CollectionUtils.isEmpty(api.getPlugins())) return Collections.emptyList();
+        List<String> plugins = api.getPlugins().stream()
+                                .filter(p -> !StringUtils.isEmpty(p))
+                                .collect(Collectors.toList());
+        api.setPlugins(plugins);
         ServiceInfo service = new ServiceInfo();
         service.setApiName(wrap(API_NAME));
         service.setUri(wrap(API_REQUEST_URIS));
@@ -317,6 +323,10 @@ public class GatewayModelProcessor {
 
     private String produceHttpApi(TemplateParams params) {
         return templateTranslator.translate(baseVirtualServiceApi, params.output());
+    }
+
+    private String produceHosts(TemplateParams params) {
+        return templateTranslator.translate(baseVirtualServiceHosts, params.output());
     }
 
     private String produceRoute(API api, List<Endpoint> endpoints, String subset) {

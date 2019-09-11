@@ -1,7 +1,6 @@
 package com.netease.cloud.nsf.core.editor;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.PrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import com.jayway.jsonpath.Configuration;
@@ -9,6 +8,7 @@ import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.Predicate;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.util.List;
@@ -290,6 +290,7 @@ public class ResourceGenerator implements Editor {
     }
 
     public static String prettyJson(String json) {
+        if (StringUtils.isEmpty(json)) return json;
         return prettyJson(json, defaultContext);
     }
 

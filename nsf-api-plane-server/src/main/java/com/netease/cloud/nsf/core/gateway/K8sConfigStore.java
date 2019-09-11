@@ -7,6 +7,9 @@ import me.snowdrop.istio.api.IstioResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/7/25
  **/
@@ -43,6 +46,16 @@ public class K8sConfigStore implements ConfigStore {
     @Override
     public IstioResource get(String kind, String namespace, String name) {
         return client.getObject(kind, namespace, name);
+    }
+
+    @Override
+    public List<IstioResource> get(String kind, String namespace) {
+        return client.getObjectList(kind, namespace);
+    }
+
+    @Override
+    public List<IstioResource> get(String kind, String namespace, Map<String, String> labels) {
+        return client.getObjectList(kind, namespace, labels);
     }
 
     @Override

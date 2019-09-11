@@ -4,6 +4,7 @@ import com.netease.cloud.nsf.util.K8sResourceEnum;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
 import me.snowdrop.istio.api.networking.v1alpha3.Gateway;
+import me.snowdrop.istio.api.networking.v1alpha3.GatewayBuilder;
 import me.snowdrop.istio.api.networking.v1alpha3.Server;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -26,23 +27,26 @@ public class GatewayOperator implements IstioResourceOperator<Gateway> {
         if (CollectionUtils.isEmpty(oldServers)) {
             throw new ApiPlaneException(ExceptionConst.RESOURCE_NON_EXIST);
         }
+
+        Gateway latestGateway = new GatewayBuilder(old).build();
+
         Server firstOldServer = oldServers.get(0);
         List<String> oldHosts = firstOldServer.getHosts();
 
         List<Server> freshServers = fresh.getSpec().getServers();
         if (CollectionUtils.isEmpty(freshServers)) {
-            return old;
+            return latestGateway;
         }
         Server firstFreshServer = freshServers.get(0);
         List<String> freshHosts = firstFreshServer.getHosts();
         if (CollectionUtils.isEmpty(freshHosts)) {
-            return old;
+            return latestGateway;
         }
-        firstOldServer.setHosts(mergeList(oldHosts, freshHosts, (ot, nt) -> Objects.equals(ot, nt)));
-        return old;
+
+        Server firstLatestServer = latestGateway.getSpec().getServers().get(0);
+        firstLatestServer.setHosts(mergeList(oldHosts, freshHosts, (ot, nt) -> Objects.equals(ot, nt)));
+        return latestGateway;
     }
-
-
 
     @Override
     public boolean adapt(String name) {

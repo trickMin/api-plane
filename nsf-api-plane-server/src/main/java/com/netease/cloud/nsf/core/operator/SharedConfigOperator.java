@@ -23,25 +23,28 @@ public class SharedConfigOperator implements IstioResourceOperator<SharedConfig>
         SharedConfigSpec oldSpec = old.getSpec();
         SharedConfigSpec freshSpec = fresh.getSpec();
 
+        SharedConfig latest = new SharedConfigBuilder(old).build();
+        SharedConfigSpec latestSpec = latest.getSpec();
+        List<RateLimitConfig> latestConfigs = latestSpec.getRateLimitConfigs();
+
         List<RateLimitConfig> oldConfigs = oldSpec.getRateLimitConfigs();
         List<RateLimitConfig> freshConfigs = freshSpec.getRateLimitConfigs();
 
         if (CollectionUtils.isEmpty(oldConfigs)) {
-            oldSpec.setRateLimitConfigs(freshConfigs);
-            return old;
+            latestSpec.setRateLimitConfigs(freshConfigs);
+            return latest;
         }
 
-        for (RateLimitConfig oldConfig : oldConfigs) {
+        for (RateLimitConfig latestConfig : latestConfigs) {
             for (RateLimitConfig freshConfig : freshConfigs) {
-                if (oldConfig.getDomain().equals(freshConfig.getDomain())) {
-                    oldConfig.setDescriptors(mergeList(oldConfig.getDescriptors(), freshConfig.getDescriptors(), new RateLimitDescriptorEquals()));
+                if (latestConfig.getDomain().equals(freshConfig.getDomain())) {
+                    latestConfig.setDescriptors(mergeList(latestConfig.getDescriptors(), freshConfig.getDescriptors(), new RateLimitDescriptorEquals()));
                 }
             }
         }
 
-        oldSpec.setRateLimitConfigs(mergeList(freshConfigs, oldConfigs, new RateLimitConfigEquals()));
-
-        return old;
+        latestSpec.setRateLimitConfigs(mergeList(freshConfigs, latestConfigs, new RateLimitConfigEquals()));
+        return latest;
     }
 
     private class RateLimitConfigEquals implements Equals<RateLimitConfig> {
@@ -77,12 +80,6 @@ public class SharedConfigOperator implements IstioResourceOperator<SharedConfig>
         return gen.object(SharedConfig.class);
     }
 
-    /**
-     * 在DestinationRule的Subset中加了api属性，根据service+api生成api对应值
-     * @param service
-     * @param api
-     * @return
-     */
     public String buildDescriptorValue(String service, String api) {
         return String.format("%s-%s", service, api);
     }

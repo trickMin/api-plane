@@ -30,12 +30,12 @@ public class VirtualServiceOperatorTest {
         VirtualService old = new VirtualService();
         VirtualServiceSpec oldSpec = new VirtualServiceSpec();
         HTTPRoute oldHttpA = new HTTPRoute();
-        oldHttpA.setName("a");
+        oldHttpA.setApi("a");
         HTTPRoute oldHttpB = new HTTPRoute();
-        oldHttpB.setName("b");
+        oldHttpB.setApi("b");
         oldHttpB.setMatch(threeMatches);
         HTTPRoute oldHttpA1 = new HTTPRoute();
-        oldHttpA1.setName("a");
+        oldHttpA1.setApi("a");
 
         oldSpec.setHttp(Arrays.asList(oldHttpA, oldHttpB, oldHttpA1));
         old.setSpec(oldSpec);
@@ -43,14 +43,14 @@ public class VirtualServiceOperatorTest {
         VirtualService fresh = new VirtualService();
         VirtualServiceSpec freshSpec = new VirtualServiceSpec();
         HTTPRoute freshHttpA = new HTTPRoute();
-        freshHttpA.setName("a");
+        freshHttpA.setApi("a");
         freshHttpA.setMatch(twoMatches);
         HTTPRoute freshHttpB = new HTTPRoute();
-        freshHttpB.setName("b");
+        freshHttpB.setApi("b");
         HTTPRoute freshHttpC = new HTTPRoute();
-        freshHttpC.setName("c");
+        freshHttpC.setApi("c");
         HTTPRoute freshHttpC1 = new HTTPRoute();
-        freshHttpC1.setName("c");
+        freshHttpC1.setApi("c");
 
         freshSpec.setHttp(Arrays.asList(freshHttpA, freshHttpB, freshHttpC, freshHttpC1));
         fresh.setSpec(freshSpec);
@@ -62,12 +62,12 @@ public class VirtualServiceOperatorTest {
         int cCount = 0;
 
         for (HTTPRoute httpRoute : merge.getSpec().getHttp()) {
-            if (httpRoute.getName().equals("a")) {
+            if (httpRoute.getApi().equals("a")) {
                 aCount++;
                 assertTrue(httpRoute.getMatch().size() == 2);
-            } else if (httpRoute.getName().equals("b")) {
+            } else if (httpRoute.getApi().equals("b")) {
                 assertTrue(httpRoute.getMatch() == null || httpRoute.getMatch().size() == 0);
-            } else if (httpRoute.getName().equals("c")) {
+            } else if (httpRoute.getApi().equals("c")) {
                 cCount++;
             }
         }
