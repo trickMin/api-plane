@@ -33,6 +33,12 @@ public class YxAPIModel {
     private List<String> requestUris;
 
     /**
+     * 请求uri匹配方式
+     */
+    @JsonProperty(value = "UriMatch")
+    private String uriMatch;
+
+    /**
      * 请求方法,GET、POST...
      */
     @JsonProperty(value = "Methods")
@@ -136,82 +142,97 @@ public class YxAPIModel {
         this.option = option;
     }
 
+    public String getUriMatch() {
+        return uriMatch;
+    }
 
-    public static final class APIModelBuilder {
+    public void setUriMatch(String uriMatch) {
+        this.uriMatch = uriMatch;
+    }
+
+
+    public static final class YxAPIModelBuilder {
         private List<String> gateways;
         private String name;
         private List<String> hosts;
         private List<String> requestUris;
+        private String uriMatch;
         private List<String> methods;
         private List<String> proxyUris;
         private String service;
         private List<String> plugins;
         private ApiOption option;
 
-        private APIModelBuilder() {
+        private YxAPIModelBuilder() {
         }
 
-        public static APIModelBuilder anAPIModel() {
-            return new APIModelBuilder();
+        public static YxAPIModelBuilder anYxAPIModel() {
+            return new YxAPIModelBuilder();
         }
 
-        public APIModelBuilder withGateways(List<String> gateways) {
+        public YxAPIModelBuilder withGateways(List<String> gateways) {
             this.gateways = gateways;
             return this;
         }
 
-        public APIModelBuilder withName(String name) {
+        public YxAPIModelBuilder withName(String name) {
             this.name = name;
             return this;
         }
 
-        public APIModelBuilder withHosts(List<String> hosts) {
+        public YxAPIModelBuilder withHosts(List<String> hosts) {
             this.hosts = hosts;
             return this;
         }
 
-        public APIModelBuilder withRequestUris(List<String> requestUris) {
+        public YxAPIModelBuilder withRequestUris(List<String> requestUris) {
             this.requestUris = requestUris;
             return this;
         }
 
-        public APIModelBuilder withMethods(List<String> methods) {
+        public YxAPIModelBuilder withUriMatch(String uriMatch) {
+            this.uriMatch = uriMatch;
+            return this;
+        }
+
+        public YxAPIModelBuilder withMethods(List<String> methods) {
             this.methods = methods;
             return this;
         }
 
-        public APIModelBuilder withProxyUris(List<String> proxyUris) {
+        public YxAPIModelBuilder withProxyUris(List<String> proxyUris) {
             this.proxyUris = proxyUris;
             return this;
         }
 
-        public APIModelBuilder withService(String service) {
+        public YxAPIModelBuilder withService(String service) {
             this.service = service;
             return this;
         }
 
-        public APIModelBuilder withPlugins(List<String> plugins) {
+        public YxAPIModelBuilder withPlugins(List<String> plugins) {
             this.plugins = plugins;
             return this;
         }
 
-        public APIModelBuilder withOption(ApiOption option) {
+        public YxAPIModelBuilder withOption(ApiOption option) {
             this.option = option;
             return this;
         }
 
         public YxAPIModel build() {
-            YxAPIModel aPIModel = new YxAPIModel();
-            aPIModel.setGateways(gateways);
-            aPIModel.setName(name);
-            aPIModel.setHosts(hosts);
-            aPIModel.setRequestUris(requestUris);
-            aPIModel.setMethods(methods);
-            aPIModel.setProxyUris(proxyUris);
-            aPIModel.setService(service);
-            aPIModel.setPlugins(plugins);
-            aPIModel.setOption(option);
-            return aPIModel;
+            YxAPIModel yxAPIModel = new YxAPIModel();
+            yxAPIModel.setGateways(gateways);
+            yxAPIModel.setName(name);
+            yxAPIModel.setHosts(hosts);
+            yxAPIModel.setRequestUris(requestUris);
+            yxAPIModel.setUriMatch(uriMatch);
+            yxAPIModel.setMethods(methods);
+            yxAPIModel.setProxyUris(proxyUris);
+            yxAPIModel.setService(service);
+            yxAPIModel.setPlugins(plugins);
+            yxAPIModel.setOption(option);
+            return yxAPIModel;
         }
     }
 }

@@ -23,6 +23,11 @@ public class API {
     private List<String> requestUris;
 
     /**
+     * 请求uri匹配方式, REGEX,PREFIX,EXACT
+     */
+    private UriMatch uriMatch;
+
+    /**
      * 请求方法,GET、POST...
      */
     private List<String> methods;
@@ -234,5 +239,13 @@ public class API {
 
     public void setPort(Integer port) {
         this.port = port;
+    }
+
+    public UriMatch getUriMatch() {
+        return uriMatch;
+    }
+
+    public void setUriMatch(UriMatch uriMatch) {
+        this.uriMatch = uriMatch;
     }
 }
