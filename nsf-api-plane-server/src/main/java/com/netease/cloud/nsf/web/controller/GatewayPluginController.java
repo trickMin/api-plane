@@ -1,5 +1,6 @@
 package com.netease.cloud.nsf.web.controller;
 
+import com.google.common.collect.ImmutableMap;
 import com.netease.cloud.nsf.meta.PluginTemplate;
 import com.netease.cloud.nsf.service.PluginService;
 import com.netease.cloud.nsf.util.errorcode.ApiPlaneErrorCode;
@@ -22,10 +23,10 @@ public class GatewayPluginController extends BaseController {
     private PluginService pluginService;
 
     @RequestMapping(params = "Action=GetTemplate", method = RequestMethod.GET)
-    public String getTemplate(@RequestParam("name") String name, @RequestParam("version") String version) {
+    public String getTemplate(@RequestParam("Name") String name, @RequestParam("Version") String version) {
 
         PluginTemplate template = pluginService.getTemplate(name, version);
         ErrorCode code = ApiPlaneErrorCode.Success;
-        return apiReturn(code.getStatusCode(), code.getCode(),code.getMessage(), new HashMap(){{put("Result", template);}});
+        return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), ImmutableMap.of("Result", template));
     }
 }
