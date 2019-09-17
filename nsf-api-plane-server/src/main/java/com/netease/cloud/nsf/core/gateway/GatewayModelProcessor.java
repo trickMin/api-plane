@@ -15,6 +15,7 @@ import com.netease.cloud.nsf.core.template.TemplateTranslator;
 import com.netease.cloud.nsf.meta.API;
 import com.netease.cloud.nsf.meta.Endpoint;
 import com.netease.cloud.nsf.meta.ServiceInfo;
+import com.netease.cloud.nsf.meta.UriMatch;
 import com.netease.cloud.nsf.service.PluginService;
 import com.netease.cloud.nsf.util.K8sResourceEnum;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
@@ -62,7 +63,7 @@ public class GatewayModelProcessor {
     private static final String baseVirtualServiceMatch = "gateway/baseVirtualServiceMatch";
     private static final String baseVirtualServiceRoute = "gateway/baseVirtualServiceRoute";
     private static final String baseVirtualServiceExtra = "gateway/baseVirtualServiceExtra";
-    private static final String baseVirtualServiceHosts = "gateway/baseVirtualServiceHosts";
+//    private static final String baseVirtualServiceHosts = "gateway/baseVirtualServiceHosts";
     private static final String baseVirtualServiceApi = "gateway/baseVirtualServiceApi";
     private static final String baseSharedConfig = "gateway/baseSharedConfig";
 
@@ -177,7 +178,7 @@ public class GatewayModelProcessor {
 
         String matchYaml = produceMatch(baseParams);
         String httpApiYaml = produceHttpApi(baseParams);
-        String hostsYaml = produceHosts(baseParams);
+//        String hostsYaml = produceHosts(baseParams);
 
         api.getGateways().stream().forEach(gw -> {
             String subset = buildVirtualServiceSubsetName(api.getService(), api.getName(), gw);
@@ -191,7 +192,7 @@ public class GatewayModelProcessor {
                     .put(VIRTUAL_SERVICE_MATCH_YAML, matchYaml)
                     .put(VIRTUAL_SERVICE_ROUTE_YAML, route)
                     .put(VIRTUAL_SERVICE_API_YAML, httpApiYaml)
-                    .put(VIRTUAL_SERVICE_HOSTS_YAML, hostsYaml)
+//                    .put(VIRTUAL_SERVICE_HOSTS_YAML, hostsYaml)
                     .put(API_MATCH_PLUGINS, matchPlugins)
                     .put(API_EXTRA_PLUGINS, extraPlugins);
 
@@ -258,8 +259,9 @@ public class GatewayModelProcessor {
      */
     private TemplateParams initTemplateParams(API api, String namespace) {
 
-        String uris = String.join("|", api.getRequestUris());
+        String uris = getUris(api);
         String methods = String.join("|", api.getMethods());
+        String hosts = String.join("|", api.getHosts());
 
         TemplateParams tp = TemplateParams.instance()
                 .put(NAMESPACE, namespace)
@@ -275,8 +277,21 @@ public class GatewayModelProcessor {
                 .put(API_CONNECT_TIMEOUT, api.getConnectTimeout())
                 .put(API_IDLE_TIMEOUT, api.getIdleTimeout())
                 .put(GATEWAY_HOSTS, api.getHosts())
-                .put(VIRTUAL_SERVICE_HOSTS, api.getHosts());
+                .put(VIRTUAL_SERVICE_HOSTS, hosts);
         return tp;
+    }
+
+    private String getUris(API api) {
+
+        String suffix = "";
+        if (api.getUriMatch().equals(UriMatch.PREFIX)) {
+            suffix = ".*";
+        }
+        List<String> uris = api.getRequestUris();
+        for (int i = 0; i < uris.size(); i++) {
+            uris.set(i, uris.get(i) + suffix);
+        }
+        return String.join("|", api.getRequestUris());
     }
 
     /**
@@ -325,9 +340,9 @@ public class GatewayModelProcessor {
         return templateTranslator.translate(baseVirtualServiceApi, params.output());
     }
 
-    private String produceHosts(TemplateParams params) {
-        return templateTranslator.translate(baseVirtualServiceHosts, params.output());
-    }
+//    private String produceHosts(TemplateParams params) {
+//        return templateTranslator.translate(baseVirtualServiceHosts, params.output());
+//    }
 
     private String produceRoute(API api, List<Endpoint> endpoints, String subset) {
         List<Map<String, Object>> destinations = new ArrayList<>();

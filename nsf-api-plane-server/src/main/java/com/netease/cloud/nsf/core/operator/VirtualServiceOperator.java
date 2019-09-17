@@ -29,14 +29,7 @@ public class VirtualServiceOperator implements IstioResourceOperator<VirtualServ
 
         List<HTTPRoute> latestHttp = mergeList(oldSpec.getHttp(), freshSpec.getHttp(), new HttpRouteEquals());
         latest.getSpec().setHttp(latestHttp);
-        // 根据每个http中的hosts，得到最终的hosts
-        List<String> latestHosts = latestHttp.stream()
-                .map(http -> http.getHosts())
-                .flatMap(hosts -> hosts.stream())
-                .distinct()
-                .collect(Collectors.toList());
 
-        latest.getSpec().setHosts(latestHosts);
         return latest;
     }
 
@@ -62,19 +55,12 @@ public class VirtualServiceOperator implements IstioResourceOperator<VirtualServ
     @Override
     public VirtualService subtract(VirtualService old, String service, String name) {
 
-        //先根据api name删除httpRoute
+        //根据api name删除httpRoute
         List<HTTPRoute> latestHttp = old.getSpec().getHttp().stream()
                 .filter(h -> !h.getApi().equals(name))
                 .collect(Collectors.toList());
-        //根据最新的httpRoute,重新计算hosts
-        List<String> latestHosts = latestHttp.stream()
-                .map(http -> http.getHosts())
-                .flatMap(hosts -> hosts.stream())
-                .distinct()
-                .collect(Collectors.toList());
 
         old.getSpec().setHttp(latestHttp);
-        old.getSpec().setHosts(latestHosts);
         return old;
     }
 }
