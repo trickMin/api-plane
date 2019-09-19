@@ -53,6 +53,7 @@ public class GatewayServiceImpl implements GatewayService {
 
         // FIXME
         BeanUtils.copyProperties(yxApi, api);
+        api.setUriMatch(UriMatch.get(yxApi.getUriMatch()));
         return api;
     }
 

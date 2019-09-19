@@ -1,8 +1,8 @@
 package com.netease.cloud.nsf;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.netease.cloud.nsf.meta.ApiOption;
+import com.netease.cloud.nsf.meta.YxAPIModel;
+import com.netease.cloud.nsf.service.GatewayService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -11,9 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import com.netease.cloud.nsf.meta.ApiOption;
-import com.netease.cloud.nsf.meta.YxAPIModel;
-import com.netease.cloud.nsf.service.GatewayService;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by caukie on 2019/8/5.
@@ -48,7 +47,7 @@ public class ApiConfigTest {
         ApiOption apiOption = new ApiOption();
 
 
-        YxAPIModel apiModel = YxAPIModel.APIModelBuilder.anAPIModel()
+        YxAPIModel apiModel = YxAPIModel.YxAPIModelBuilder.anYxAPIModel()
                 .withGateways(gateways)
                 .withName("demo")
                 .withHosts(hosts)
