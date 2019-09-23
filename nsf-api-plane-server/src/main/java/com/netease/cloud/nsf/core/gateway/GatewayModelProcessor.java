@@ -191,19 +191,27 @@ public class GatewayModelProcessor {
     private List<String> buildDestinations(PortalService service, String namespace) {
         List<String> destinations = new ArrayList<>();
         TemplateParams params = TemplateParams.instance()
-                .put(DESTINATION_RULE_NAME, service.getBackendService())
+                .put(DESTINATION_RULE_NAME, service.getCode().toLowerCase())
                 .put(DESTINATION_RULE_HOST, service.getBackendService())
                 .put(NAMESPACE, namespace)
                 .put(API_SERVICE, service.getCode())
                 .put(API_GATEWAY, service.getGateway());
 
-        destinations.add(templateTranslator.translate(serviceDestinationRule, params.output()));
+        // host由服务类型决定，
+        // 1. 当为动态时，则直接使用服务的后端地址，一般为httpbin.default.svc类似，
+        // 2. 当为静态时，后端地址为IP或域名，使用服务的code作为host
+
+        String host = service.getBackendService();
         if (Const.PROXY_SERVICE_TYPE_STATIC.equals(service.getType())) {
+
+            host = service.getCode();
             //TODO translate service entry
             String backendService = service.getBackendService();
 
             destinations.add(templateTranslator.translate(serviceServiceEntry, params.output()));
         }
+        params.put(DESTINATION_RULE_HOST, host);
+        destinations.add(templateTranslator.translate(serviceDestinationRule, params.output()));
         return destinations;
     }
 
@@ -403,10 +411,11 @@ public class GatewayModelProcessor {
 
                 Map<String, Object> param = new HashMap<>();
                 param.put("weight", service.getWeight());
-                param.put("host", service.getCode());
+
                 param.put("subset", service.getCode() + "-" + gateway);
 
                 Integer port = -1;
+                String host = service.getCode();
                 String addr = service.getBackendService();
 
                 if (Const.PROXY_SERVICE_TYPE_STATIC.equals(service.getType())) {
@@ -419,11 +428,16 @@ public class GatewayModelProcessor {
                     for (Endpoint e : endpoints) {
                         if (e.getHostname().equals(service.getBackendService())) {
                             port = e.getPort();
+                            host = service.getBackendService();
                             break;
                         }
                     }
                 }
+
+                if (port == -1) throw new ApiPlaneException(String.format("%s:%s", ExceptionConst.TARGET_SERVICE_NON_EXIST, service.getBackendService()));
+
                 param.put("port", port);
+                param.put("host", host);
                 destinations.add(param);
             }
 

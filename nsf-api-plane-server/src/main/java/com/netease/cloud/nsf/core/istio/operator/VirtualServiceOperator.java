@@ -60,7 +60,9 @@ public class VirtualServiceOperator implements IstioResourceOperator<VirtualServ
                 .filter(h -> !h.getApi().equals(name))
                 .collect(Collectors.toList());
 
-        old.getSpec().getPlugins().entrySet().removeIf(e -> e.getKey().equals(name));
+        if (!CollectionUtils.isEmpty(old.getSpec().getPlugins())) {
+            old.getSpec().getPlugins().entrySet().removeIf(e -> e.getKey().equals(name));
+        }
 
         old.getSpec().setHttp(latestHttp);
         return old;

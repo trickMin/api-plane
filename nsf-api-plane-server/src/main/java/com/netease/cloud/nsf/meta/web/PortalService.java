@@ -1,5 +1,6 @@
 package com.netease.cloud.nsf.meta.web;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -8,6 +9,7 @@ import javax.validation.constraints.Pattern;
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/9/19
  **/
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class PortalService {
 
     /**
