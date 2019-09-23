@@ -1,6 +1,7 @@
 package com.netease.cloud.nsf.service;
 
 import com.netease.cloud.nsf.meta.*;
+import com.netease.cloud.nsf.meta.web.PortalService;
 import me.snowdrop.istio.api.IstioResource;
 
 import java.util.List;
@@ -10,9 +11,13 @@ import java.util.List;
  **/
 public interface GatewayService {
 
-    void updateAPI(YxAPIModel api);
+    void updateAPI(API api);
 
-    void deleteAPI(YxAPIModel api);
+    void deleteAPI(API api);
+
+    void updateService(PortalService cluster);
+
+    void deleteService(PortalService service);
 
     List<IstioResource> getAPIResources(String service);
 

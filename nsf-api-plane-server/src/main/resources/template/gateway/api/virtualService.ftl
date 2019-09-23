@@ -15,3 +15,9 @@ spec:
 <@indent count=2><@supply>${p}</@supply></@indent>
 </#list>
 <@indent count=2><@supply></@supply></@indent>
+
+<#if t_virtual_service_extra_yaml ??>
+plugins:
+  ${t_api_name}:
+<@indent count=4>${t_virtual_service_extra_yaml}</@indent>
+</#if>

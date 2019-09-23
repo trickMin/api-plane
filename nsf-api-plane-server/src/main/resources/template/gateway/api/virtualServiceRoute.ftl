@@ -5,7 +5,7 @@ route:
     host: ${ds.host}
     port:
       number: ${ds.port?c}
-    subset: ${t_virtual_service_subset_name}
+    subset: ${ds.subset}
   weight: ${ds.weight}
 </#list>
 </#if>

@@ -1,4 +1,4 @@
-package com.netease.cloud.nsf.core.gateway;
+package com.netease.cloud.nsf.core.istio;
 
 import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;

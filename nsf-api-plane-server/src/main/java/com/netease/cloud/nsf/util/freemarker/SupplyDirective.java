@@ -24,7 +24,7 @@ public class SupplyDirective implements TemplateDirectiveModel {
 
         MATCH("match:", indent(wrap(TemplateConst.VIRTUAL_SERVICE_MATCH_YAML))),
         ROUTE("route:", indent(wrap(TemplateConst.VIRTUAL_SERVICE_ROUTE_YAML))),
-        EXTRA("extra:", indent(wrap(TemplateConst.VIRTUAL_SERVICE_EXTRA_YAML))),
+//        EXTRA("extra:", indent(wrap(TemplateConst.VIRTUAL_SERVICE_EXTRA_YAML))),
 //        HOSTS("hosts:", indent(wrap(TemplateConst.VIRTUAL_SERVICE_HOSTS_YAML))),
         API("api:", wrap(TemplateConst.API_NAME)),
 
@@ -61,7 +61,7 @@ public class SupplyDirective implements TemplateDirectiveModel {
         ResourceGenerator gen = ResourceGenerator.newInstance(string, ResourceType.YAML);
         gen.createOrUpdateValue("$[?]", "nsf-template-match", Keyword.MATCH.replacement, Criteria.where("match").exists(false));
         gen.createOrUpdateValue("$[?]", "nsf-template-route", Keyword.ROUTE.replacement, Criteria.where("route").exists(false));
-        gen.createOrUpdateValue("$[?]", "nsf-template-extra", Keyword.EXTRA.replacement, Criteria.where("extra").exists(false));
+//        gen.createOrUpdateValue("$[?]", "nsf-template-extra", Keyword.EXTRA.replacement, Criteria.where("extra").exists(false));
 //        gen.createOrUpdateValue("$[?]", "nsf-template-hosts", Keyword.HOSTS.replacement, Criteria.where("hosts").exists(false));
         gen.createOrUpdateValue("$[?]", "api", Keyword.API.replacement, Criteria.where("api").exists(false));
 
