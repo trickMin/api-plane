@@ -7,6 +7,7 @@ import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.utils.HttpClientUtils;
 import okhttp3.OkHttpClient;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,6 +30,7 @@ public class IstioSupportConfiguration {
     private String keyData;
 
     @Bean
+    @ConditionalOnProperty(value = "k8sApiServer")
     public Config config() {
         Config config = new ConfigBuilder()
                 .withMasterUrl(k8sApiServer)
@@ -42,6 +44,13 @@ public class IstioSupportConfiguration {
                 .withRequestTimeout(5000)
                 .withTlsVersions(TLS_1_2, TLS_1_1)
                 .build();
+        return config;
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(Config.class)
+    public Config defaultConfig() {
+        Config config = Config.autoConfigure(null);
         return config;
     }
 

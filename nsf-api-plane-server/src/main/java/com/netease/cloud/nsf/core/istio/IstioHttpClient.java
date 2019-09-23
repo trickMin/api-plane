@@ -34,14 +34,12 @@ public class IstioHttpClient {
 
     private static final Logger logger = LoggerFactory.getLogger(IstioHttpClient.class);
 
-    @Value(value = "${istioNamespace:gateway-system}")
+    @Value(value = "${istioNamespace:istio-system}")
     private String NAMESPACE;
     private static final String NAME = "pilot";
 
     private static final String GET_ENDPOINTZ_PATH = "/debug/endpointz";
     private static final String GET_CONFIGZ_PATH = "/debug/configz";
-
-
 
     @Value(value = "${istioHttpUrl:#{null}}")
     private String istioHttpUrl;
