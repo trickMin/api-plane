@@ -9,7 +9,6 @@ import com.netease.cloud.nsf.core.gateway.service.ResourceManager;
 import com.netease.cloud.nsf.core.istio.operator.IntegratedResourceOperator;
 import com.netease.cloud.nsf.core.k8s.K8sResourceGenerator;
 import com.netease.cloud.nsf.core.plugin.FragmentHolder;
-import com.netease.cloud.nsf.core.plugin.FragmentTypeEnum;
 import com.netease.cloud.nsf.core.plugin.FragmentWrapper;
 import com.netease.cloud.nsf.core.template.TemplateParams;
 import com.netease.cloud.nsf.core.template.TemplateTranslator;
@@ -222,14 +221,7 @@ public class GatewayModelProcessor {
         List<String> apiPlugins = new ArrayList<>();
         List<String> hostPlugins = new ArrayList<>();
 
-        fragments.stream()
-                .forEach(f -> {
-                    if (f.getFragmentType().equals(FragmentTypeEnum.VS_MATCH)) {
-                        matchPlugins.add(f.getContent());
-                    } else if (f.getFragmentType().equals(FragmentTypeEnum.VS_API)) {
-                        apiPlugins.add(f.getContent());
-                    }
-                });
+        distributePlugins(fragments, matchPlugins, apiPlugins, hostPlugins);
 
         String matchYaml = produceMatch(baseParams);
         String httpApiYaml = produceHttpApi(baseParams);
@@ -261,6 +253,31 @@ public class GatewayModelProcessor {
             virtualservices.add(adjustVs(rawVs));
         });
         return virtualservices;
+    }
+
+    /**
+     * 分配插件
+     * @param fragments
+     * @param matchPlugins
+     * @param apiPlugins
+     * @param hostPlugins
+     */
+    private void distributePlugins(List<FragmentWrapper> fragments, List<String> matchPlugins, List<String> apiPlugins, List<String> hostPlugins) {
+        fragments.stream()
+            .forEach(f -> {
+                switch (f.getFragmentType()) {
+                    case VS_MATCH :
+                        matchPlugins.add(f.getContent());
+                        break;
+                    case VS_API   :
+                        apiPlugins.add(f.getContent());
+                        break;
+                    case VS_HOST  :
+                        hostPlugins.add(f.getContent());
+                        break;
+                    default:
+                }
+            });
     }
 
     private String adjustVs(String rawVs) {

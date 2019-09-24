@@ -24,7 +24,9 @@ spec:
 <#if t_api_api_plugins ??>
 plugins:
   ${t_api_name}:
+<#if t_api_api_plugins ??>
 <#list t_api_api_plugins as p>
 <@indent count=4>${p}</@indent>
 </#list>
+</#if>
 </#if>
