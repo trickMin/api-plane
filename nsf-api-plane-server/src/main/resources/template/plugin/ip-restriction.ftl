@@ -26,7 +26,7 @@
 #@type=istioResource
 #@version=1.0
 #@resourceType=VirtualService
-#@fragmentType=DEFAULT_MATCH
+#@fragmentType=VS_API
 ipRestriction:
   type: ${type}
   ip:

@@ -46,14 +46,14 @@ public class RateLimitProcessor extends AbstractYxSchemaProcessor implements Sch
         });
         holder.setSharedConfigFragment(
                 new FragmentWrapper.Builder()
-                        .withFragmentType(FragmentTypeEnum.NEW_DESCRIPTORS)
+                        .withFragmentType(FragmentTypeEnum.SHARECONFIG)
                         .withResourceType(K8sResourceEnum.SharedConfig)
                         .withContent(shareConfigGen.yamlString())
                         .build()
         );
         holder.setVirtualServiceFragment(
                 new FragmentWrapper.Builder()
-                        .withFragmentType(FragmentTypeEnum.DEFAULT_MATCH)
+                        .withFragmentType(FragmentTypeEnum.VS_HOST)
                         .withResourceType(K8sResourceEnum.VirtualService)
                         .withContent(rateLimitGen.yamlString())
                         .build()

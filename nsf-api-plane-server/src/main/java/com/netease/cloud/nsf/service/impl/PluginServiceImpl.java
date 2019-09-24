@@ -22,12 +22,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.netease.cloud.nsf.util.PathExpressionEnum.*;
@@ -102,15 +101,9 @@ public class PluginServiceImpl implements PluginService {
             ret.addAll(rg.getValue("$.rule[*].action.target"));
             ret.addAll(rg.getValue("$.rule[*].action.pass_proxy_target[*].url"));
         });
-        return ret.stream().distinct().filter(Objects::nonNull).map(item -> {
-            try {
-                URI uri = new URI(item);
-                return uri.getHost();
-            } catch (URISyntaxException e) {
-                logger.warn("Not standard uri format : {}", item);
-                return null;
-            }
-        }).filter(Objects::nonNull).collect(Collectors.toList());
+        return ret.stream().distinct().filter(Objects::nonNull)
+                .filter(item -> Pattern.compile("(.*?)\\.(.*?)\\.svc.(.*?)\\.(.*?)").matcher(item).find())
+                .collect(Collectors.toList());
     }
 
     private FragmentHolder processWithJsonAndSvc(TemplateWrapper templateWrapper, String json, ServiceInfo svcInstance) {

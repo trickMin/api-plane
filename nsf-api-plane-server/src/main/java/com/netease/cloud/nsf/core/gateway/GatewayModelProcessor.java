@@ -224,9 +224,9 @@ public class GatewayModelProcessor {
 
         fragments.stream()
                 .forEach(f -> {
-                    if (f.getFragmentType().equals(FragmentTypeEnum.NEW_MATCH)) {
+                    if (f.getFragmentType().equals(FragmentTypeEnum.VS_MATCH)) {
                         matchPlugins.add(f.getContent());
-                    } else if (f.getFragmentType().equals(FragmentTypeEnum.DEFAULT_MATCH)) {
+                    } else if (f.getFragmentType().equals(FragmentTypeEnum.VS_API)) {
                         apiPlugins.add(f.getContent());
                     }
                 });

@@ -1,5 +1,8 @@
 package com.netease.cloud.nsf.core.istio;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.k8s.KubernetesClient;
@@ -20,10 +23,12 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
+import javax.annotation.PostConstruct;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
 
 
 /**
@@ -41,6 +46,7 @@ public class IstioHttpClient {
     private static final String GET_ENDPOINTZ_PATH = "/debug/endpointz";
     private static final String GET_CONFIGZ_PATH = "/debug/configz";
 
+
     @Value(value = "${istioHttpUrl:#{null}}")
     private String istioHttpUrl;
 
@@ -50,9 +56,33 @@ public class IstioHttpClient {
     @Autowired
     private KubernetesClient client;
 
+    @Value(value = "${endpointExpired:10}")
+    private Long endpointCacheExpired;
+
+
+    LoadingCache<String, Object> endpointsCache;
+
+    @PostConstruct
+    void cacheInit() {
+        endpointsCache = CacheBuilder.newBuilder()
+                .maximumSize(1)
+                .initialCapacity(1)
+                .expireAfterWrite(endpointCacheExpired, TimeUnit.SECONDS)
+                .recordStats()
+                .build(new CacheLoader<String, Object>() {
+                    @Override
+                    public Object load(String key) throws Exception {
+                        return getForEntity(getIstioUrl() + GET_ENDPOINTZ_PATH, String.class).getBody();
+                    }
+                });
+    }
+
+
     private String getIstioUrl() {
         if (!StringUtils.isEmpty(istioHttpUrl)) return istioHttpUrl;
-        List<Pod> istioPods = client.getObjectList(K8sResourceEnum.Pod.name(), NAMESPACE, new HashMap(){{put("app", NAME);}});
+        List<Pod> istioPods = client.getObjectList(K8sResourceEnum.Pod.name(), NAMESPACE, new HashMap() {{
+            put("app", NAME);
+        }});
         if (CollectionUtils.isEmpty(istioPods)) throw new ApiPlaneException(ExceptionConst.ISTIO_POD_NON_EXIST);
         Pod istioPod = istioPods.get(0);
         String ip = istioPod.getStatus().getPodIP();
@@ -61,10 +91,19 @@ public class IstioHttpClient {
         return String.format("http://%s:%s", ip, port);
     }
 
+
+    private String getEndpoints() {
+        try {
+            return (String) endpointsCache.get("endpoints");
+        } catch (ExecutionException e) {
+            throw new ApiPlaneException(e.getMessage(), e);
+        }
+    }
+
+
     public List<Endpoint> getEndpointList() {
         List<Endpoint> endpoints = new ArrayList<>();
-        ResponseEntity response = getForEntity(getIstioUrl() + GET_ENDPOINTZ_PATH, String.class);
-        List svcs = ResourceGenerator.newInstance(response.getBody(), ResourceType.JSON).getValue(PathExpressionEnum.ISTIO_GET_SVC.translate());
+        List svcs = ResourceGenerator.newInstance(getEndpoints(), ResourceType.JSON).getValue(PathExpressionEnum.ISTIO_GET_SVC.translate());
         svcs.stream().forEach(
                 svc -> {
                     Endpoint endpoint = new Endpoint();
@@ -84,8 +123,7 @@ public class IstioHttpClient {
 
     public List<Gateway> getGatewayList() {
         List<Gateway> gateways = new ArrayList<>();
-        ResponseEntity response = getForEntity(getIstioUrl() + GET_ENDPOINTZ_PATH, String.class);
-        List svcs = ResourceGenerator.newInstance(response.getBody(), ResourceType.JSON).getValue(PathExpressionEnum.ISTIO_GET_GATEWAY.translate("gateway-proxy.*"));
+        List svcs = ResourceGenerator.newInstance(getEndpoints(), ResourceType.JSON).getValue(PathExpressionEnum.ISTIO_GET_GATEWAY.translate("gateway-proxy.*"));
         svcs.stream().forEach(svc -> {
             Gateway gateway = new Gateway();
             ResourceGenerator gen = ResourceGenerator.newInstance(svc, ResourceType.OBJECT);
