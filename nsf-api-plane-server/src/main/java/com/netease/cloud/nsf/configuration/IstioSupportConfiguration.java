@@ -29,7 +29,7 @@ public class IstioSupportConfiguration {
 
     @Bean
     public Config config() {
-        Config config = !StringUtils.isEmpty(k8sApiServer) ? Config.autoConfigure(null) :
+        Config config = StringUtils.isEmpty(k8sApiServer) ? Config.autoConfigure(null) :
                     new ConfigBuilder()
                         .withMasterUrl(k8sApiServer)
                         .withTrustCerts(true)
