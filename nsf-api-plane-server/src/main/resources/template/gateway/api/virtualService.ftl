@@ -10,14 +10,21 @@ spec:
   - ${t_gateway_name}
   hosts:
     - "*"
+<#if t_api_api_plugins ??>
+<#list t_api_host_plugins as p>
+<@indent count=2>${p}</@indent>
+</#list>
+</#if>
   http:
 <#list t_api_match_plugins as p>
 <@indent count=2><@supply>${p}</@supply></@indent>
 </#list>
 <@indent count=2><@supply></@supply></@indent>
 
-<#if t_virtual_service_extra_yaml ??>
+<#if t_api_api_plugins ??>
 plugins:
   ${t_api_name}:
-<@indent count=4>${t_virtual_service_extra_yaml}</@indent>
+<#list t_api_api_plugins as p>
+<@indent count=4>${p}</@indent>
+</#list>
 </#if>

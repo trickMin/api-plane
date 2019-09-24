@@ -65,7 +65,6 @@ public class GatewayModelProcessor {
     private static final String apiVirtualServiceMatch = "gateway/api/virtualServiceMatch";
     private static final String apiVirtualServiceRoute = "gateway/api/virtualServiceRoute";
     private static final String apiVirtualServiceExtra = "gateway/api/virtualServiceExtra";
-//    private static final String baseVirtualServiceHosts = "gateway/api/VirtualServiceHosts";
     private static final String apiVirtualServiceApi = "gateway/api/virtualServiceApi";
     private static final String apiSharedConfig = "gateway/api/sharedConfig";
 
@@ -218,16 +217,17 @@ public class GatewayModelProcessor {
     private List<String> buildVirtualServices(API api, TemplateParams baseParams, List<Endpoint> endpoints, List<FragmentWrapper> fragments) {
 
         List<String> virtualservices = new ArrayList<>();
-        // 插件分为自身有match的插件和api级别的插件
+        // 插件分为match、api、host三个级别
         List<String> matchPlugins = new ArrayList<>();
-        List<String> extraPlugins = new ArrayList<>();
+        List<String> apiPlugins = new ArrayList<>();
+        List<String> hostPlugins = new ArrayList<>();
 
         fragments.stream()
                 .forEach(f -> {
                     if (f.getFragmentType().equals(FragmentTypeEnum.NEW_MATCH)) {
                         matchPlugins.add(f.getContent());
                     } else if (f.getFragmentType().equals(FragmentTypeEnum.DEFAULT_MATCH)) {
-                        extraPlugins.add(f.getContent());
+                        apiPlugins.add(f.getContent());
                     }
                 });
 
@@ -247,9 +247,10 @@ public class GatewayModelProcessor {
                     .put(VIRTUAL_SERVICE_ROUTE_YAML, route)
                     .put(VIRTUAL_SERVICE_API_YAML, httpApiYaml)
                     .put(API_MATCH_PLUGINS, matchPlugins)
-                    .put(API_EXTRA_PLUGINS, extraPlugins);
+                    .put(API_API_PLUGINS, apiPlugins)
+                    .put(API_HOST_PLUGINS, hostPlugins);
 
-            // 根据api级别的插件和高级功能生成extra部分，该部分为所有match通用的部分
+            // 根据api高级功能生成extra部分，该部分为所有match通用的部分
             String extraYaml = productExtra(gatewayParams);
             if (!StringUtils.isEmpty(extraYaml)) gatewayParams.put(VIRTUAL_SERVICE_EXTRA_YAML, extraYaml);
             Map<String, Object> mergedParams = gatewayParams.output();
