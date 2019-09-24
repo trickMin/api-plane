@@ -76,7 +76,7 @@ public class RouteProcessor extends AbstractYxSchemaProcessor implements SchemaP
         FragmentWrapper wrapper = new FragmentWrapper.Builder()
                 .withContent(result.yamlString())
                 .withResourceType(K8sResourceEnum.VirtualService)
-                .withFragmentType(FragmentTypeEnum.NEW_MATCH)
+                .withFragmentType(FragmentTypeEnum.VS_MATCH)
                 .build();
         holder.setVirtualServiceFragment(wrapper);
         return holder;
