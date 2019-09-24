@@ -2,17 +2,17 @@ package com.netease.cloud.nsf.service.impl;
 
 import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
-import com.netease.cloud.nsf.core.gateway.ConfigManager;
-import com.netease.cloud.nsf.core.gateway.ConfigStore;
-import com.netease.cloud.nsf.core.gateway.IstioHttpClient;
+import com.netease.cloud.nsf.core.gateway.service.ConfigManager;
+import com.netease.cloud.nsf.core.gateway.service.ConfigStore;
+import com.netease.cloud.nsf.core.gateway.service.ResourceManager;
 import com.netease.cloud.nsf.core.k8s.K8sResourceGenerator;
 import com.netease.cloud.nsf.meta.*;
+import com.netease.cloud.nsf.meta.web.PortalService;
 import com.netease.cloud.nsf.service.GatewayService;
 import com.netease.cloud.nsf.util.CommonUtil;
 import com.netease.cloud.nsf.util.K8sResourceEnum;
 import me.snowdrop.istio.api.IstioResource;
 import me.snowdrop.istio.api.networking.v1alpha3.VirtualService;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -32,7 +32,7 @@ public class GatewayServiceImpl implements GatewayService {
     private static final String COLON = ":";
 
     @Autowired
-    private IstioHttpClient istioClient;
+    private ResourceManager resourceManager;
 
     @Autowired
     private ConfigManager configManager;
@@ -43,23 +43,24 @@ public class GatewayServiceImpl implements GatewayService {
     @Value("${apiNamespace:gateway-system}")
     private String apiNamespace;
 
-    public void updateAPI(YxAPIModel yxApi) {
-        configManager.updateConfig(transform(yxApi), apiNamespace);
-    }
-
-    private API transform(YxAPIModel yxApi) {
-
-        API api = new API();
-
-        // FIXME
-        BeanUtils.copyProperties(yxApi, api);
-        api.setUriMatch(UriMatch.get(yxApi.getUriMatch()));
-        return api;
+    @Override
+    public void updateAPI(API api) {
+        configManager.updateConfig(api, apiNamespace);
     }
 
     @Override
-    public void deleteAPI(YxAPIModel yxApi) {
-        configManager.deleteConfig(transform(yxApi), apiNamespace);
+    public void deleteAPI(API api) {
+        configManager.deleteConfig(api, apiNamespace);
+    }
+
+    @Override
+    public void updateService(PortalService service) {
+        configManager.updateConfig(service, apiNamespace);
+    }
+
+    @Override
+    public void deleteService(PortalService service) {
+        configManager.deleteConfig(service, apiNamespace);
     }
 
     @Override
@@ -69,7 +70,7 @@ public class GatewayServiceImpl implements GatewayService {
 
     @Override
     public List<Endpoint> getServiceList() {
-        return istioClient.getEndpointList();
+        return resourceManager.getEndpointList();
     }
 
     @Override
@@ -145,7 +146,7 @@ public class GatewayServiceImpl implements GatewayService {
 
     @Override
     public List<Gateway> getGatewayList() {
-        return istioClient.getGatewayList();
+        return resourceManager.getGatewayList();
     }
 
     @Override

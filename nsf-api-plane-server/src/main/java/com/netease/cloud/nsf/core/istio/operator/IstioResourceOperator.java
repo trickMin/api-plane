@@ -1,4 +1,4 @@
-package com.netease.cloud.nsf.core.operator;
+package com.netease.cloud.nsf.core.istio.operator;
 
 import com.netease.cloud.nsf.util.function.Equals;
 import me.snowdrop.istio.api.IstioResource;

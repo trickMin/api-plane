@@ -1,11 +1,13 @@
 package com.netease.cloud.nsf.core.operator;
 
+import com.netease.cloud.nsf.core.istio.operator.SharedConfigOperator;
 import me.snowdrop.istio.api.networking.v1alpha3.*;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/8/28
@@ -51,7 +53,6 @@ public class SharedConfigTest {
         spec.setRateLimitConfigs(Arrays.asList(config1, config2));
         sc.setSpec(spec);
 
-
         SharedConfig sc1 = new SharedConfig();
         SharedConfigSpec spec1 = new SharedConfigSpec();
 
@@ -67,7 +68,7 @@ public class SharedConfigTest {
         d1_2.setRateLimit(new SharedConfigRateLimit());
 
         config1_1.setDomain("qz");
-        config1_1.setDescriptors(Arrays.asList(d1_1, d1_2));
+        config1_1.setDescriptors(Arrays.asList(d1_2,d1_1));
 
         RateLimitConfig config1_2 = new RateLimitConfig();
         RateLimitDescriptor d1_3 = new RateLimitDescriptor();
@@ -106,6 +107,58 @@ public class SharedConfigTest {
                 Assert.assertTrue(rateLimitConfig.getDescriptors().size() == 1);
             }
         }
+
+        SharedConfig sc3 = new SharedConfig();
+        SharedConfigSpec spec3 = new SharedConfigSpec();
+
+        RateLimitConfig config3 = new RateLimitConfig();
+        RateLimitDescriptor d3_1 = new RateLimitDescriptor();
+        d3_1.setApi("sa-api1");
+        SharedConfigRateLimit limit3_1 = new SharedConfigRateLimit();
+        limit3_1.setRequestsPerUnit(10);
+        limit3_1.setUnit("MINUTE");
+        d3_1.setRateLimit(limit3_1);
+
+        RateLimitDescriptor d3_2 = new RateLimitDescriptor();
+        SharedConfigRateLimit limit3_2 = new SharedConfigRateLimit();
+        limit3_2.setRequestsPerUnit(5);
+        limit3_2.setUnit("HOUR");
+        d3_2.setApi("sa-api1");
+        d3_2.setRateLimit(limit3_2);
+
+        config3.setDomain("qz");
+        config3.setDescriptors(Arrays.asList(d3_1, d3_2));
+
+        spec3.setRateLimitConfigs(Arrays.asList(config3));
+        sc3.setSpec(spec3);
+
+        SharedConfig sc3_ = new SharedConfigBuilder(sc3).build();
+        List<RateLimitDescriptor> descriptors = sc3_.getSpec().getRateLimitConfigs().get(0).getDescriptors();
+        descriptors.get(0).getRateLimit().setUnit("HOUR");
+        descriptors.get(0).getRateLimit().setRequestsPerUnit(1);
+        descriptors.get(1).getRateLimit().setUnit("MINUTE");
+        descriptors.get(1).getRateLimit().setRequestsPerUnit(100);
+        RateLimitDescriptor nd3 = new RateLimitDescriptor();
+        SharedConfigRateLimit nrl3 = new SharedConfigRateLimit();
+        nd3.setApi("sa");
+        nrl3.setUnit("OOO");
+        nrl3.setRequestsPerUnit(99);
+        nd3.setRateLimit(nrl3);
+        descriptors.add(0, nd3);
+
+        RateLimitConfig nc3 = new RateLimitConfig();
+        nc3.setDomain("q1z");
+
+        sc3_.getSpec().getRateLimitConfigs().add(nc3);
+
+        SharedConfig result1 = operator.merge(sc3, sc3_);
+        Assert.assertTrue(result1.getSpec().getRateLimitConfigs().size() == 2);
+
+        result1.getSpec().getRateLimitConfigs().forEach(c -> {
+            if (c.getDomain().equals("qz")) {
+                Assert.assertTrue(c.getDescriptors().size() == 3);
+            }
+        });
 
     }
 

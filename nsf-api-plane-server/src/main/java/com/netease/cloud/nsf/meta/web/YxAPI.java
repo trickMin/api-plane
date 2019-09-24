@@ -1,13 +1,14 @@
-package com.netease.cloud.nsf.meta;
+package com.netease.cloud.nsf.meta.web;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.netease.cloud.nsf.meta.ApiOption;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
-public class YxAPIModel {
+public class YxAPI {
 
     /**
      * 网关名
@@ -220,8 +221,8 @@ public class YxAPIModel {
             return this;
         }
 
-        public YxAPIModel build() {
-            YxAPIModel yxAPIModel = new YxAPIModel();
+        public YxAPI build() {
+            YxAPI yxAPIModel = new YxAPI();
             yxAPIModel.setGateways(gateways);
             yxAPIModel.setName(name);
             yxAPIModel.setHosts(hosts);

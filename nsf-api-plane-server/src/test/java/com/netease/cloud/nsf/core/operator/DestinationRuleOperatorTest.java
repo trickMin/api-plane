@@ -2,6 +2,7 @@ package com.netease.cloud.nsf.core.operator;
 
 
 import com.google.common.collect.ImmutableMap;
+import com.netease.cloud.nsf.core.istio.operator.DestinationRuleOperator;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import me.snowdrop.istio.api.networking.v1alpha3.DestinationRule;
 import me.snowdrop.istio.api.networking.v1alpha3.DestinationRuleSpec;

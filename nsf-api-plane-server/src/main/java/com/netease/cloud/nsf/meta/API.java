@@ -37,10 +37,11 @@ public class API {
      */
     private List<String> proxyUris;
 
+    private List<Service> proxyServices;
     /**
      * 服务名
      */
-    private String service;
+    private String service = "default";
 
     /**
      * 插件
@@ -61,12 +62,12 @@ public class API {
     /**
      * 保留原始host
      */
-    private Boolean preserveHost = true;
+    private Boolean preserveHost;
 
     /**
      * 重试次数
      */
-    private Integer retries = 5;
+    private Integer retries;
 
     private Long connectTimeout;
 
@@ -247,5 +248,13 @@ public class API {
 
     public void setUriMatch(UriMatch uriMatch) {
         this.uriMatch = uriMatch;
+    }
+
+    public List<Service> getProxyServices() {
+        return proxyServices;
+    }
+
+    public void setProxyServices(List<Service> proxyServices) {
+        this.proxyServices = proxyServices;
     }
 }

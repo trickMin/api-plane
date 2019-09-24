@@ -2,7 +2,7 @@ package com.netease.cloud.nsf.core.plugin;
 
 import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
-import com.netease.cloud.nsf.core.gateway.IstioHttpClient;
+import com.netease.cloud.nsf.core.gateway.service.ResourceManager;
 import com.netease.cloud.nsf.meta.Endpoint;
 import com.netease.cloud.nsf.meta.ServiceInfo;
 import com.netease.cloud.nsf.util.K8sResourceEnum;
@@ -11,7 +11,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 
+import java.util.List;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 
 
@@ -26,8 +30,9 @@ import java.util.*;
  **/
 @Component
 public class RouteProcessor extends AbstractYxSchemaProcessor implements SchemaProcessor<ServiceInfo> {
+
     @Autowired
-    private IstioHttpClient istioHttpClient;
+    private ResourceManager resourceManager;
 
     @Override
     public String getName() {
@@ -66,11 +71,6 @@ public class RouteProcessor extends AbstractYxSchemaProcessor implements SchemaP
             }
         });
 
-        // pass_proxy兜底
-        if (pluginMap.containsKey("pass_proxy")) {
-            pluginMap.put("pass_proxy", pluginMap.remove("pass_proxy"));
-        }
-
         ResourceGenerator result = ResourceGenerator.newInstance("[]", ResourceType.JSON, editorContext);
         pluginMap.values().forEach(item -> item.forEach(o -> result.addJsonElement("$", o)));
 
@@ -78,16 +78,17 @@ public class RouteProcessor extends AbstractYxSchemaProcessor implements SchemaP
         FragmentWrapper wrapper = new FragmentWrapper.Builder()
                 .withContent(result.yamlString())
                 .withResourceType(K8sResourceEnum.VirtualService)
-                .withFragmentType(FragmentTypeEnum.NEW_MATCH)
+                .withFragmentType(FragmentTypeEnum.VS_MATCH)
                 .build();
         holder.setVirtualServiceFragment(wrapper);
         return holder;
     }
 
     private String createPassProxy(ResourceGenerator rg, ServiceInfo info) {
-        List<Endpoint> endpoints = istioHttpClient.getEndpointList();
+        List<Endpoint> endpoints = resourceManager.getEndpointList();
 
         ResourceGenerator ret = ResourceGenerator.newInstance("{}", ResourceType.JSON, editorContext);
+        ret.createOrUpdateJson("$", "match", createMatch(rg, info));
         ret.createOrUpdateJson("$", "route", "[]");
 
         int length = rg.getValue("$.action.pass_proxy_target.length()");
@@ -114,8 +115,24 @@ public class RouteProcessor extends AbstractYxSchemaProcessor implements SchemaP
     private String createRedirect(ResourceGenerator rg, ServiceInfo info) {
         ResourceGenerator ret = ResourceGenerator.newInstance("{}", ResourceType.JSON, editorContext);
         ret.createOrUpdateJson("$", "match", createMatch(rg, info));
-        //todo: authority
-        ret.createOrUpdateJson("$", "redirect", String.format("{\"uri\":\"%s\"}", rg.getValue("$.action.target", String.class)));
+        String target = rg.getValue("$.action.target", String.class);
+        try {
+            URI uri = new URI(target);
+            String authority = uri.getAuthority();
+            String path = uri.getPath();
+            String query = uri.getQuery();
+            String pathAndQuery = path;
+            if (!StringUtils.isEmpty(query)) {
+                pathAndQuery = String.format("%s?%s", path, query);
+            }
+            if (!StringUtils.isEmpty(authority)) {
+                ret.createOrUpdateJson("$", "redirect", String.format("{\"uri\":\"%s\",\"authority\":\"%s\"}", pathAndQuery, authority));
+            } else {
+                ret.createOrUpdateJson("$", "redirect", String.format("{\"uri\":\"%s\"}", pathAndQuery));
+            }
+        } catch (URISyntaxException e) {
+            throw new ApiPlaneException(e.getMessage(), e);
+        }
         return ret.jsonString();
     }
 

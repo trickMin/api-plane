@@ -5,11 +5,19 @@ package com.netease.cloud.nsf.core.plugin;
  * @date 2019/8/20
  **/
 public enum FragmentTypeEnum {
-    // GatewayModelProcessor会将Fragment合并VirtualService的一个默认match中
-    DEFAULT_MATCH,
-    // GatewayModelProcessor会将Fragment作为新match创建到VirtualService中
-    NEW_MATCH,
+//    // GatewayModelProcessor会将Fragment合并VirtualService的一个默认match中
+//    DEFAULT_MATCH,
+//    // GatewayModelProcessor会将Fragment作为新match创建到VirtualService中
+//    NEW_MATCH,
+//
+//    // SharedConfigs的新限限流configs
+//    NEW_DESCRIPTORS,
 
-    // SharedConfigs的新限限流configs
-    NEW_DESCRIPTORS,
+    VS_HOST,
+
+    VS_API,
+
+    VS_MATCH,
+
+    SHARECONFIG,
 }

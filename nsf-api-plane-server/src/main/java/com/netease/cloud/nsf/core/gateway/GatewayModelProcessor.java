@@ -5,18 +5,19 @@ import com.jayway.jsonpath.Criteria;
 import com.netease.cloud.nsf.core.editor.EditorContext;
 import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
+import com.netease.cloud.nsf.core.gateway.service.ResourceManager;
+import com.netease.cloud.nsf.core.istio.operator.IntegratedResourceOperator;
 import com.netease.cloud.nsf.core.k8s.K8sResourceGenerator;
-import com.netease.cloud.nsf.core.operator.IntegratedResourceOperator;
 import com.netease.cloud.nsf.core.plugin.FragmentHolder;
-import com.netease.cloud.nsf.core.plugin.FragmentTypeEnum;
 import com.netease.cloud.nsf.core.plugin.FragmentWrapper;
 import com.netease.cloud.nsf.core.template.TemplateParams;
 import com.netease.cloud.nsf.core.template.TemplateTranslator;
 import com.netease.cloud.nsf.meta.API;
-import com.netease.cloud.nsf.meta.Endpoint;
-import com.netease.cloud.nsf.meta.ServiceInfo;
-import com.netease.cloud.nsf.meta.UriMatch;
+import com.netease.cloud.nsf.meta.*;
+import com.netease.cloud.nsf.meta.web.PortalService;
 import com.netease.cloud.nsf.service.PluginService;
+import com.netease.cloud.nsf.util.CommonUtil;
+import com.netease.cloud.nsf.util.Const;
 import com.netease.cloud.nsf.util.K8sResourceEnum;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
@@ -52,20 +53,25 @@ public class GatewayModelProcessor {
     EditorContext editorContext;
 
     @Autowired
-    IstioHttpClient istioHttpClient;
+    ResourceManager resourceManager;
 
     @Autowired
     PluginService pluginService;
 
-    private static final String baseGateway = "gateway/baseGateway";
-    private static final String baseVirtualService = "gateway/baseVirtualService";
-    private static final String baseDestinationRule = "gateway/baseDestinationRule";
-    private static final String baseVirtualServiceMatch = "gateway/baseVirtualServiceMatch";
-    private static final String baseVirtualServiceRoute = "gateway/baseVirtualServiceRoute";
-    private static final String baseVirtualServiceExtra = "gateway/baseVirtualServiceExtra";
-//    private static final String baseVirtualServiceHosts = "gateway/baseVirtualServiceHosts";
-    private static final String baseVirtualServiceApi = "gateway/baseVirtualServiceApi";
-    private static final String baseSharedConfig = "gateway/baseSharedConfig";
+    private static final String apiGateway = "gateway/api/gateway";
+    private static final String apiVirtualService = "gateway/api/virtualService";
+    private static final String apiDestinationRule = "gateway/api/destinationRule";
+    private static final String apiVirtualServiceMatch = "gateway/api/virtualServiceMatch";
+    private static final String apiVirtualServiceRoute = "gateway/api/virtualServiceRoute";
+    private static final String apiVirtualServiceExtra = "gateway/api/virtualServiceExtra";
+    private static final String apiVirtualServiceApi = "gateway/api/virtualServiceApi";
+    private static final String apiSharedConfig = "gateway/api/sharedConfig";
+
+
+    private static final String serviceDestinationRule = "gateway/service/destinationRule";
+    private static final String serviceServiceEntry = "gateway/service/serviceEntry";
+
+
 
     /**
      * 将api转换为istio对应的规则
@@ -78,14 +84,11 @@ public class GatewayModelProcessor {
 
         List<IstioResource> resources = new ArrayList<>();
         List<String> envoys = api.getGateways();
-        Set<String> destinations = new HashSet<>(api.getProxyUris());
         RawResourceContainer rawResourceContainer = new RawResourceContainer();
 
         if (CollectionUtils.isEmpty(envoys)) throw new ApiPlaneException(ExceptionConst.GATEWAY_LIST_EMPTY);
 
-        if (CollectionUtils.isEmpty(destinations)) throw new ApiPlaneException(ExceptionConst.PROXY_URI_LIST_EMPTY);
-
-        List<Endpoint> endpoints = istioHttpClient.getEndpointList();
+        List<Endpoint> endpoints = resourceManager.getEndpointList();
         if (CollectionUtils.isEmpty(endpoints)) throw new ApiPlaneException(ExceptionConst.ENDPOINT_LIST_EMPTY);
 
         TemplateParams baseParams = initTemplateParams(api, namespace);
@@ -106,14 +109,29 @@ public class GatewayModelProcessor {
         logger.info("translated resources: ");
         rawResources.forEach(r -> logger.info(r));
         rawResources.stream()
-                .forEach(r -> {
-                    K8sResourceGenerator gen = K8sResourceGenerator.newInstance(r, ResourceType.YAML, editorContext);
-                    K8sResourceEnum resourceEnum = K8sResourceEnum.get(gen.getKind());
-                    IstioResource ir = (IstioResource) gen.object(resourceEnum.mappingType());
-                    resources.add(ir);
-                });
+                .forEach(r -> resources.add(str2IstioResource(r)));
 
         return resources;
+    }
+
+    public List<IstioResource> translate(PortalService service, String namespace) {
+
+        List<IstioResource> resources = new ArrayList<>();
+
+        List<String> destinations = buildDestinations(service, namespace);
+        logger.info("translated resources: ");
+        destinations.forEach(r -> logger.info(r));
+        destinations.stream()
+                .forEach(ds -> resources.add(str2IstioResource(ds)));
+
+        return resources;
+    }
+
+    private IstioResource str2IstioResource(String str) {
+        K8sResourceGenerator gen = K8sResourceGenerator.newInstance(str, ResourceType.YAML, editorContext);
+        K8sResourceEnum resourceEnum = K8sResourceEnum.get(gen.getKind());
+        IstioResource ir = (IstioResource) gen.object(resourceEnum.mappingType());
+        return ir;
     }
 
     /**
@@ -137,12 +155,14 @@ public class GatewayModelProcessor {
                 .setParent(baseParams)
                 .put(SHARED_CONFIG_DESCRIPTOR, descriptors);
 
-        return Arrays.asList(templateTranslator.translate(baseSharedConfig, sharedConfigsParams.output()));
+        return Arrays.asList(templateTranslator.translate(apiSharedConfig, sharedConfigsParams.output()));
     }
 
 
     private List<String> buildDestinationRules(API api, TemplateParams baseParams) {
 
+        // 带porxyService的情况下，不需要创建destinationrule
+        if (!CollectionUtils.isEmpty(api.getProxyServices())) return Collections.emptyList();
         List<String> destinationRules = new ArrayList<>();
         Set<String> destinations = new HashSet(api.getProxyUris());
         // 根据插件中的目标服务 得到额外的destination rule
@@ -155,35 +175,61 @@ public class GatewayModelProcessor {
                     .setParent(baseParams)
                     .put(DESTINATION_RULE_HOST, proxyUri)
                     .put(DESTINATION_RULE_NAME, proxyUri);
-            destinationRules.add(templateTranslator.translate(baseDestinationRule, destinationParams.output()));
+            destinationRules.add(templateTranslator.translate(apiDestinationRule, destinationParams.output()));
         });
         return destinationRules;
+    }
+
+    /**
+     * 创建DestinationRule or ServiceEntry
+     * @param service
+     * @param namespace
+     * @return
+     */
+    private List<String> buildDestinations(PortalService service, String namespace) {
+        List<String> destinations = new ArrayList<>();
+        TemplateParams params = TemplateParams.instance()
+                .put(DESTINATION_RULE_NAME, service.getCode().toLowerCase())
+                .put(DESTINATION_RULE_HOST, service.getBackendService())
+                .put(NAMESPACE, namespace)
+                .put(API_SERVICE, service.getCode())
+                .put(API_GATEWAY, service.getGateway());
+
+        // host由服务类型决定，
+        // 1. 当为动态时，则直接使用服务的后端地址，一般为httpbin.default.svc类似，
+        // 2. 当为静态时，后端地址为IP或域名，使用服务的code作为host
+
+        String host = service.getBackendService();
+        if (Const.PROXY_SERVICE_TYPE_STATIC.equals(service.getType())) {
+
+            host = service.getCode();
+            //TODO translate service entry
+            String backendService = service.getBackendService();
+
+            destinations.add(templateTranslator.translate(serviceServiceEntry, params.output()));
+        }
+        params.put(DESTINATION_RULE_HOST, host);
+        destinations.add(templateTranslator.translate(serviceDestinationRule, params.output()));
+        return destinations;
     }
 
     private List<String> buildVirtualServices(API api, TemplateParams baseParams, List<Endpoint> endpoints, List<FragmentWrapper> fragments) {
 
         List<String> virtualservices = new ArrayList<>();
-        // 插件分为自身有match的插件和api级别的插件
+        // 插件分为match、api、host三个级别
         List<String> matchPlugins = new ArrayList<>();
-        List<String> extraPlugins = new ArrayList<>();
+        List<String> apiPlugins = new ArrayList<>();
+        List<String> hostPlugins = new ArrayList<>();
 
-        fragments.stream()
-                .forEach(f -> {
-                    if (f.getFragmentType().equals(FragmentTypeEnum.NEW_MATCH)) {
-                        matchPlugins.add(f.getContent());
-                    } else if (f.getFragmentType().equals(FragmentTypeEnum.DEFAULT_MATCH)) {
-                        extraPlugins.add(f.getContent());
-                    }
-                });
+        distributePlugins(fragments, matchPlugins, apiPlugins, hostPlugins);
 
         String matchYaml = produceMatch(baseParams);
         String httpApiYaml = produceHttpApi(baseParams);
-//        String hostsYaml = produceHosts(baseParams);
 
         api.getGateways().stream().forEach(gw -> {
             String subset = buildVirtualServiceSubsetName(api.getService(), api.getName(), gw);
-
             String route = produceRoute(api, endpoints, subset);
+
             TemplateParams gatewayParams = TemplateParams.instance()
                     .setParent(baseParams)
                     .put(GATEWAY_NAME, buildGatewayName(api.getService(), gw))
@@ -192,21 +238,46 @@ public class GatewayModelProcessor {
                     .put(VIRTUAL_SERVICE_MATCH_YAML, matchYaml)
                     .put(VIRTUAL_SERVICE_ROUTE_YAML, route)
                     .put(VIRTUAL_SERVICE_API_YAML, httpApiYaml)
-//                    .put(VIRTUAL_SERVICE_HOSTS_YAML, hostsYaml)
                     .put(API_MATCH_PLUGINS, matchPlugins)
-                    .put(API_EXTRA_PLUGINS, extraPlugins);
+                    .put(API_API_PLUGINS, apiPlugins)
+                    .put(API_HOST_PLUGINS, hostPlugins);
 
-            // 根据api级别的插件和高级功能生成extra部分，该部分为所有match通用的部分
+            // 根据api高级功能生成extra部分，该部分为所有match通用的部分
             String extraYaml = productExtra(gatewayParams);
-            gatewayParams.put(VIRTUAL_SERVICE_EXTRA_YAML, extraYaml);
+            if (!StringUtils.isEmpty(extraYaml)) gatewayParams.put(VIRTUAL_SERVICE_EXTRA_YAML, extraYaml);
             Map<String, Object> mergedParams = gatewayParams.output();
             //先基础渲染
-            String tempVs = templateTranslator.translate(baseVirtualService, mergedParams);
+            String tempVs = templateTranslator.translate(apiVirtualService, mergedParams);
             //二次渲染插件中的内容
             String rawVs = templateTranslator.translate("tempVs", tempVs, mergedParams);
             virtualservices.add(adjustVs(rawVs));
         });
         return virtualservices;
+    }
+
+    /**
+     * 分配插件
+     * @param fragments
+     * @param matchPlugins
+     * @param apiPlugins
+     * @param hostPlugins
+     */
+    private void distributePlugins(List<FragmentWrapper> fragments, List<String> matchPlugins, List<String> apiPlugins, List<String> hostPlugins) {
+        fragments.stream()
+            .forEach(f -> {
+                switch (f.getFragmentType()) {
+                    case VS_MATCH :
+                        matchPlugins.add(f.getContent());
+                        break;
+                    case VS_API   :
+                        apiPlugins.add(f.getContent());
+                        break;
+                    case VS_HOST  :
+                        hostPlugins.add(f.getContent());
+                        break;
+                    default:
+                }
+            });
     }
 
     private String adjustVs(String rawVs) {
@@ -245,7 +316,7 @@ public class GatewayModelProcessor {
                     .put(API_GATEWAY, gw)
                     .put(GATEWAY_NAME, buildGatewayName(api.getService(), gw));
 
-            gateways.add(templateTranslator.translate(baseGateway, gatewayParams.output()));
+            gateways.add(templateTranslator.translate(apiGateway, gatewayParams.output()));
         });
         return gateways;
     }
@@ -283,15 +354,13 @@ public class GatewayModelProcessor {
 
     private String getUris(API api) {
 
-        String suffix = "";
+        final StringBuffer suffix = new StringBuffer();
         if (api.getUriMatch().equals(UriMatch.PREFIX)) {
-            suffix = ".*";
+            suffix.append(".*");
         }
-        List<String> uris = api.getRequestUris();
-        for (int i = 0; i < uris.size(); i++) {
-            uris.set(i, uris.get(i) + suffix);
-        }
-        return String.join("|", api.getRequestUris());
+        return String.join("|", api.getRequestUris().stream()
+                                            .map(u -> u + suffix.toString())
+                                            .collect(Collectors.toList()));
     }
 
     /**
@@ -329,48 +398,95 @@ public class GatewayModelProcessor {
     }
 
     private String productExtra(TemplateParams params) {
-        return templateTranslator.translate(baseVirtualServiceExtra, params.output());
+        return templateTranslator.translate(apiVirtualServiceExtra, params.output());
     }
 
     private String produceMatch(TemplateParams params) {
-        return templateTranslator.translate(baseVirtualServiceMatch, params.output());
+        return templateTranslator.translate(apiVirtualServiceMatch, params.output());
     }
 
     private String produceHttpApi(TemplateParams params) {
-        return templateTranslator.translate(baseVirtualServiceApi, params.output());
+        return templateTranslator.translate(apiVirtualServiceApi, params.output());
     }
 
 //    private String produceHosts(TemplateParams params) {
 //        return templateTranslator.translate(baseVirtualServiceHosts, params.output());
 //    }
 
+
     private String produceRoute(API api, List<Endpoint> endpoints, String subset) {
         List<Map<String, Object>> destinations = new ArrayList<>();
         List<String> proxies = api.getProxyUris();
-        for (int i = 0; i < proxies.size(); i++) {
-            boolean isMatch = false;
-            for (Endpoint e : endpoints) {
-                if (e.getHostname().equals(proxies.get(i))) {
-                    Map<String, Object> param = new HashMap<>();
-                    param.put("port", e.getPort());
-                    int weight = 100 / proxies.size();
-                    if (i == proxies.size() - 1) {
-                        weight = 100 - 100 * (proxies.size() - 1) / proxies.size();
+
+        // 适配带权重+动态静态的后端服务
+        if (!CollectionUtils.isEmpty(api.getProxyServices())) {
+
+            //only one gateway
+            List<String> gateways = api.getGateways();
+            String gateway = gateways.get(0);
+
+            for (Service service : api.getProxyServices()) {
+
+                Map<String, Object> param = new HashMap<>();
+                param.put("weight", service.getWeight());
+
+                param.put("subset", service.getCode() + "-" + gateway);
+
+                Integer port = -1;
+                String host = service.getCode();
+                String addr = service.getBackendService();
+
+                if (Const.PROXY_SERVICE_TYPE_STATIC.equals(service.getType())) {
+                    if (CommonUtil.isValidIPAddr(service.getBackendService())) {
+                        port = Integer.valueOf(addr.split(":")[1]);
+                    } else {
+                        port = 80;
                     }
-                    param.put("weight", weight);
-                    param.put("host", e.getHostname());
-                    destinations.add(param);
-                    isMatch = true;
-                    break;
+                } else if (Const.PROXY_SERVICE_TYPE_DYNAMIC.equals(service.getType())) {
+                    for (Endpoint e : endpoints) {
+                        if (e.getHostname().equals(service.getBackendService())) {
+                            port = e.getPort();
+                            host = service.getBackendService();
+                            break;
+                        }
+                    }
                 }
+
+                if (port == -1) throw new ApiPlaneException(String.format("%s:%s", ExceptionConst.TARGET_SERVICE_NON_EXIST, service.getBackendService()));
+
+                param.put("port", port);
+                param.put("host", host);
+                destinations.add(param);
             }
-            if (!isMatch)
-                throw new ApiPlaneException(String.format("%s:%s", ExceptionConst.TARGET_SERVICE_NON_EXIST, proxies.get(i)));
+
+        // 纯动态后端服务
+        } else {
+            for (int i = 0; i < proxies.size(); i++) {
+                boolean isMatch = false;
+                for (Endpoint e : endpoints) {
+                    if (e.getHostname().equals(proxies.get(i))) {
+                        Map<String, Object> param = new HashMap<>();
+                        param.put("port", e.getPort());
+                        int weight = 100 / proxies.size();
+                        if (i == proxies.size() - 1) {
+                            weight = 100 - 100 * (proxies.size() - 1) / proxies.size();
+                        }
+                        param.put("weight", weight);
+                        param.put("host", e.getHostname());
+                        param.put("subset", subset);
+                        destinations.add(param);
+                        isMatch = true;
+                        break;
+                    }
+                }
+                if (!isMatch)
+                    throw new ApiPlaneException(String.format("%s:%s", ExceptionConst.TARGET_SERVICE_NON_EXIST, proxies.get(i)));
+            }
         }
+
         String destinationStr = templateTranslator
-                .translate(baseVirtualServiceRoute,
-                        ImmutableMap.of(VIRTUAL_SERVICE_DESTINATIONS, destinations,
-                                VIRTUAL_SERVICE_SUBSET_NAME, subset));
+                .translate(apiVirtualServiceRoute,
+                        ImmutableMap.of(VIRTUAL_SERVICE_DESTINATIONS, destinations));
         return destinationStr;
     }
 
