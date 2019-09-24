@@ -97,6 +97,10 @@ public class RateLimitProcessor extends AbstractYxSchemaProcessor implements Sch
                 vs.addJsonElement("$.actions[0].headerValueMatch.headers",
                         String.format("{\"name\":\"%s\",\"regexMatch\":\"%s\"}", matchHeader, regex));
             }
+            vs.addJsonElement("$.actions[0].headerValueMatch.headers",
+                    String.format("{\"name\":\":path\",\"regexMatch\":\"%s\"}", serviceInfo.getUri()));
+            vs.addJsonElement("$.actions[0].headerValueMatch.headers",
+                    String.format("{\"name\":\":authority\",\"regexMatch\":\"%s\"}", String.join("|", serviceInfo.getApi().getHosts())));
         }
         return vs.jsonString();
     }
