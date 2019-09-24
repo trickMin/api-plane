@@ -56,9 +56,6 @@ public abstract class AbstractYxSchemaProcessor implements SchemaProcessor<Servi
                 String rightValue = rg.getValue(String.format("$.matcher[%d].right_value", i));
 
                 switch (sourceType) {
-                    case "URI":
-                        match.createOrUpdateJson("$[0]", "uri", String.format("{\"regex\":\"%s\"}", getRegexByOp(op, rightValue)));
-                        break;
                     case "Args":
                         match.createOrUpdateJson("$[0]", "queryParams", String.format("{\"%s\":{\"regex\":\"%s\"}}", leftValue, getRegexByOp(op, rightValue)));
                         break;
@@ -81,6 +78,13 @@ public abstract class AbstractYxSchemaProcessor implements SchemaProcessor<Servi
                             match.createOrUpdateJson("$[0].headers", "User-Agent", String.format("{\"regex\":\"%s\"}", getRegexByOp(op, rightValue)));
                         } else {
                             match.createOrUpdateJson("$[0]", "headers", String.format("{\"User-Agent\":{\"regex\":\"%s\"}}", getRegexByOp(op, rightValue)));
+                        }
+                        break;
+                    case "URI":
+                        if (match.contain("$[0].headers")) {
+                            match.createOrUpdateJson("$[0].headers", ":path", String.format("{\"regex\":\"%s\"}", getRegexByOp(op, rightValue)));
+                        } else {
+                            match.createOrUpdateJson("$[0]", "headers", String.format("{\":path\":{\"regex\":\"%s\"}}", getRegexByOp(op, rightValue)));
                         }
                         break;
                     case "Host":
@@ -159,9 +163,5 @@ public abstract class AbstractYxSchemaProcessor implements SchemaProcessor<Servi
             keyword = keyword.replaceAll("\\\\", "\\\\\\\\");
         }
         return keyword;
-    }
-
-    protected void appendExtra(ResourceGenerator gen) {
-        gen.createOrUpdateValue("$[*]", "extra", "<@indent count=4>${t_virtual_service_extra}</@indent>");
     }
 }
