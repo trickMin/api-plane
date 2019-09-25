@@ -32,11 +32,12 @@ public interface IstioResourceOperator<T extends IstioResource> {
      * @return
      */
     default List mergeList(List oldL, List newL, Equals eq) {
-        List result = new ArrayList(oldL);
+        List result = null;
         if (!CollectionUtils.isEmpty(newL)) {
             if (CollectionUtils.isEmpty(oldL)) {
                 return newL;
             } else {
+                result = new ArrayList(oldL);
                 for (Object no : newL) {
                     for (Object oo : oldL) {
                         if (eq.apply(no, oo)) {
@@ -51,11 +52,12 @@ public interface IstioResourceOperator<T extends IstioResource> {
     }
 
     default Map mergeMap(Map oldM, Map newM, Equals eq) {
-        Map result = new HashMap(oldM);
+        Map result = null;
         if (!CollectionUtils.isEmpty(newM)) {
             if (CollectionUtils.isEmpty(oldM)) {
                 return newM;
             } else {
+                result = new HashMap(oldM);
                 for (Object no : newM.keySet()) {
                     for (Object oo : oldM.keySet()) {
                         if (eq.apply(no, oo)) {

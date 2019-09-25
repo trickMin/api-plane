@@ -3,10 +3,12 @@ package com.netease.cloud.nsf.core.istio.operator;
 import com.netease.cloud.nsf.util.K8sResourceEnum;
 import me.snowdrop.istio.api.networking.v1alpha3.ServiceEntry;
 import me.snowdrop.istio.api.networking.v1alpha3.ServiceEntryBuilder;
+import org.springframework.stereotype.Component;
 
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/9/19
  **/
+@Component
 public class ServiceEntryOperator implements IstioResourceOperator<ServiceEntry> {
 
     @Override

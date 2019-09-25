@@ -41,7 +41,7 @@ public class API {
     /**
      * 服务名
      */
-    private String service = "default";
+    private String service = "qz";
 
     /**
      * 插件

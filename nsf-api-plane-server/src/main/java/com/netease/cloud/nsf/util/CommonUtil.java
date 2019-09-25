@@ -44,7 +44,7 @@ public class CommonUtil {
      * @param ipAddr ip:port
      * @return
      */
-    public static boolean isValidIPAddr(String ipAddr) {
+    public static boolean isValidIPPortAddr(String ipAddr) {
         return IP_PORT_PATTERN.matcher(ipAddr).matches();
     }
 }

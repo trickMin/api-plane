@@ -86,6 +86,7 @@ public class GatewayServiceImpl implements GatewayService {
 
         //1. 根据标签找到对应的gateway，然后得到gateway名
         List<IstioResource> gateways = configStore.get(K8sResourceEnum.Gateway.name(), apiNamespace);
+        if (CollectionUtils.isEmpty(gateways)) return Collections.emptyList();
         List<String> gatewayNames = gateways.stream()
                 .filter(g -> {
                     me.snowdrop.istio.api.networking.v1alpha3.Gateway gateway = (me.snowdrop.istio.api.networking.v1alpha3.Gateway) g;
@@ -107,6 +108,7 @@ public class GatewayServiceImpl implements GatewayService {
 
         //2. 得到关联了该gateway的virtualservice，并取出destination中的host
         List<IstioResource> virtualServices = configStore.get(K8sResourceEnum.VirtualService.name(), apiNamespace);
+        if (CollectionUtils.isEmpty(virtualServices)) return Collections.emptyList();
         List<String> vsHosts = virtualServices.stream()
                 .filter(i -> {
                     VirtualService vs = (VirtualService) i;
@@ -125,6 +127,7 @@ public class GatewayServiceImpl implements GatewayService {
 
         //3. 查找所有destination rule，与之前得到的host做对比，取有交集的部分
         List<IstioResource> destinationrules = configStore.get(K8sResourceEnum.DestinationRule.name(), apiNamespace);
+        if (CollectionUtils.isEmpty(destinationrules)) return Collections.emptyList();
         List<String> dsHosts = destinationrules.stream()
                 .map(i -> {
                     ResourceGenerator gen = K8sResourceGenerator.newInstance(i, ResourceType.OBJECT);

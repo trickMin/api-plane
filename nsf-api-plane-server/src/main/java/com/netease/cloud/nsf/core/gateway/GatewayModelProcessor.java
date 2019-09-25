@@ -202,15 +202,43 @@ public class GatewayModelProcessor {
         String host = service.getBackendService();
         if (Const.PROXY_SERVICE_TYPE_STATIC.equals(service.getType())) {
 
-            host = service.getCode();
+            host = decorateHost(service.getCode());
             //TODO translate service entry
             String backendService = service.getBackendService();
 
+            List<String> addrs = new ArrayList<>();
+            List<Endpoint> endpoints = new ArrayList<>();
+            if (backendService.contains(",")) {
+                addrs.addAll(Arrays.asList(backendService.split(",")));
+            } else {
+                addrs.add(backendService);
+            }
+
+            addrs.stream()
+                    .forEach(addr -> {
+                        Endpoint e = new Endpoint();
+                        if (CommonUtil.isValidIPPortAddr(addr)) {
+                            String[] ipPort = addr.split(":");
+                            e.setAddress(ipPort[0]);
+                            e.setPort(Integer.valueOf(ipPort[1]));
+                        } else {
+                            e.setAddress(addr);
+                        }
+                        endpoints.add(e);
+                    });
+
+            params.put("endpoints", endpoints)
+                  .put(SERVICE_ENTRY_NAME, service.getCode().toLowerCase())
+                  .put(SERVICE_ENTRY_HOST, host);
             destinations.add(templateTranslator.translate(serviceServiceEntry, params.output()));
         }
         params.put(DESTINATION_RULE_HOST, host);
         destinations.add(templateTranslator.translate(serviceDestinationRule, params.output()));
         return destinations;
+    }
+
+    private String decorateHost(String code) {
+        return String.format("com.netease.%s", code);
     }
 
     private List<String> buildVirtualServices(API api, TemplateParams baseParams, List<Endpoint> endpoints, List<FragmentWrapper> fragments) {
@@ -225,31 +253,27 @@ public class GatewayModelProcessor {
 
         String matchYaml = produceMatch(baseParams);
         String httpApiYaml = produceHttpApi(baseParams);
+        TemplateParams vsParams = TemplateParams.instance()
+                .setParent(baseParams)
+                .put(VIRTUAL_SERVICE_MATCH_YAML, matchYaml)
+                .put(VIRTUAL_SERVICE_API_YAML, httpApiYaml)
+                .put(API_MATCH_PLUGINS, matchPlugins)
+                .put(API_API_PLUGINS, apiPlugins)
+                .put(API_HOST_PLUGINS, hostPlugins);
 
         api.getGateways().stream().forEach(gw -> {
             String subset = buildVirtualServiceSubsetName(api.getService(), api.getName(), gw);
             String route = produceRoute(api, endpoints, subset);
 
-            TemplateParams gatewayParams = TemplateParams.instance()
-                    .setParent(baseParams)
-                    .put(GATEWAY_NAME, buildGatewayName(api.getService(), gw))
+            vsParams.put(GATEWAY_NAME, buildGatewayName(api.getService(), gw))
                     .put(VIRTUAL_SERVICE_NAME, buildVirtualServiceName(api.getService(), gw))
                     .put(VIRTUAL_SERVICE_SUBSET_NAME, subset)
-                    .put(VIRTUAL_SERVICE_MATCH_YAML, matchYaml)
                     .put(VIRTUAL_SERVICE_ROUTE_YAML, route)
-                    .put(VIRTUAL_SERVICE_API_YAML, httpApiYaml)
-                    .put(API_MATCH_PLUGINS, matchPlugins)
-                    .put(API_API_PLUGINS, apiPlugins)
-                    .put(API_HOST_PLUGINS, hostPlugins);
-
-            // 根据api高级功能生成extra部分，该部分为所有match通用的部分
-            String extraYaml = productExtra(gatewayParams);
-            if (!StringUtils.isEmpty(extraYaml)) gatewayParams.put(VIRTUAL_SERVICE_EXTRA_YAML, extraYaml);
-            Map<String, Object> mergedParams = gatewayParams.output();
+                    .put(VIRTUAL_SERVICE_EXTRA_YAML, productExtra(vsParams));
             //先基础渲染
-            String tempVs = templateTranslator.translate(apiVirtualService, mergedParams);
+            String tempVs = templateTranslator.translate(apiVirtualService, vsParams.output());
             //二次渲染插件中的内容
-            String rawVs = templateTranslator.translate("tempVs", tempVs, mergedParams);
+            String rawVs = templateTranslator.translate("tempVs", tempVs, vsParams.output());
             virtualservices.add(adjustVs(rawVs));
         });
         return virtualservices;
@@ -332,7 +356,7 @@ public class GatewayModelProcessor {
 
         String uris = getUris(api);
         String methods = String.join("|", api.getMethods());
-        String hosts = String.join("|", api.getHosts());
+        String hosts = getHosts(api);
 
         TemplateParams tp = TemplateParams.instance()
                 .put(NAMESPACE, namespace)
@@ -350,6 +374,16 @@ public class GatewayModelProcessor {
                 .put(GATEWAY_HOSTS, api.getHosts())
                 .put(VIRTUAL_SERVICE_HOSTS, hosts);
         return tp;
+    }
+
+    private String getHosts(API api) {
+        return String.join("|", api.getHosts().stream()
+                                             .map(h -> {
+                                                 if (h.equals("*")) {
+                                                     return ".*";
+                                                 }
+                                                 return h; })
+                                             .collect(Collectors.toList()));
     }
 
     private String getUris(API api) {
@@ -429,20 +463,12 @@ public class GatewayModelProcessor {
 
                 Map<String, Object> param = new HashMap<>();
                 param.put("weight", service.getWeight());
-
                 param.put("subset", service.getCode() + "-" + gateway);
 
                 Integer port = -1;
-                String host = service.getCode();
-                String addr = service.getBackendService();
+                String host = decorateHost(service.getCode());
 
-                if (Const.PROXY_SERVICE_TYPE_STATIC.equals(service.getType())) {
-                    if (CommonUtil.isValidIPAddr(service.getBackendService())) {
-                        port = Integer.valueOf(addr.split(":")[1]);
-                    } else {
-                        port = 80;
-                    }
-                } else if (Const.PROXY_SERVICE_TYPE_DYNAMIC.equals(service.getType())) {
+                if (Const.PROXY_SERVICE_TYPE_DYNAMIC.equals(service.getType())) {
                     for (Endpoint e : endpoints) {
                         if (e.getHostname().equals(service.getBackendService())) {
                             port = e.getPort();
@@ -450,6 +476,8 @@ public class GatewayModelProcessor {
                             break;
                         }
                     }
+                } else if (Const.PROXY_SERVICE_TYPE_STATIC.equals(service.getType())) {
+                    port = 80;
                 }
 
                 if (port == -1) throw new ApiPlaneException(String.format("%s:%s", ExceptionConst.TARGET_SERVICE_NON_EXIST, service.getBackendService()));
