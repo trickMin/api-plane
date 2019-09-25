@@ -78,8 +78,9 @@ public interface TemplateConst {
     String API_GATEWAYS = "t_api_gateways";
 
 
-
-
+    /** ServiceEntry **/
+    String SERVICE_ENTRY_NAME = "t_service_entry_name";
+    String SERVICE_ENTRY_HOST = "t_service_entry_host";
 
 
     /** Gateway **/

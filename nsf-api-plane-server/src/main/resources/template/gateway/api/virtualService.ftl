@@ -10,7 +10,7 @@ spec:
   - ${t_gateway_name}
   hosts:
     - "*"
-<#if t_api_api_plugins ??>
+<#if t_api_host_plugins ??>
 <#list t_api_host_plugins as p>
 <@indent count=2>${p}</@indent>
 </#list>
@@ -24,9 +24,7 @@ spec:
 <#if t_api_api_plugins ??>
 plugins:
   ${t_api_name}:
-<#if t_api_api_plugins ??>
 <#list t_api_api_plugins as p>
 <@indent count=4>${p}</@indent>
 </#list>
-</#if>
 </#if>

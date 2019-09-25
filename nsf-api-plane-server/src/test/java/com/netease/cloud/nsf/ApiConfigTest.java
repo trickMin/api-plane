@@ -57,6 +57,7 @@ public class ApiConfigTest {
                 .withProxyUris(proxyUris)
                 .withService("demo-service")
                 .withOption(apiOption)
+                .withUriMatch("EXACT")
                 .build();
 
         gatewayService.updateAPI(Trans.yxAPI2API(apiModel));
