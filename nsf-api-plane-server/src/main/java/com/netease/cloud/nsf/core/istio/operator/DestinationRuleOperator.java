@@ -1,4 +1,4 @@
-package com.netease.cloud.nsf.core.operator;
+package com.netease.cloud.nsf.core.istio.operator;
 
 import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
@@ -56,7 +56,7 @@ public class DestinationRuleOperator implements IstioResourceOperator<Destinatio
     @Override
     public DestinationRule subtract(DestinationRule old, String service, String api) {
         ResourceGenerator gen = ResourceGenerator.newInstance(old, ResourceType.OBJECT);
-        gen.removeElement(PathExpressionEnum.REMOVE_DST_SUBSET.translate(buildSubsetApi(service, api)));
+        gen.removeElement(PathExpressionEnum.REMOVE_DST_SUBSET_API.translate(buildSubsetApi(service, api)));
         return gen.object(DestinationRule.class);
     }
 

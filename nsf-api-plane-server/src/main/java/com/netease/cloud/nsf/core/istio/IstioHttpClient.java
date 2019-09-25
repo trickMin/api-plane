@@ -1,4 +1,4 @@
-package com.netease.cloud.nsf.core.gateway;
+package com.netease.cloud.nsf.core.istio;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -39,7 +39,7 @@ public class IstioHttpClient {
 
     private static final Logger logger = LoggerFactory.getLogger(IstioHttpClient.class);
 
-    @Value(value = "${istioNamespace:gateway-system}")
+    @Value(value = "${istioNamespace:istio-system}")
     private String NAMESPACE;
     private static final String NAME = "pilot";
 

@@ -42,8 +42,20 @@ public interface TemplateConst {
     String VIRTUAL_SERVICE_API_YAML = "t_virtual_service_api_yaml";
     String VIRTUAL_SERVICE_HOSTS = "t_virtual_service_hosts";
 
+    /**
+     * MATCH级別插件
+     */
     String API_MATCH_PLUGINS = "t_api_match_plugins";
-    String API_EXTRA_PLUGINS = "t_api_extra_plugins";
+
+    /**
+     * API级别插件
+     */
+    String API_API_PLUGINS = "t_api_api_plugins";
+
+    /**
+     * HOST级别插件
+     */
+    String API_HOST_PLUGINS = "t_api_host_plugins";
 
     /**
      * api请求uri

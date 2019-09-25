@@ -1,4 +1,4 @@
-package com.netease.cloud.nsf.core.operator;
+package com.netease.cloud.nsf.core.istio.operator;
 
 import com.netease.cloud.nsf.util.K8sResourceEnum;
 import com.netease.cloud.nsf.util.function.Equals;
@@ -59,6 +59,10 @@ public class VirtualServiceOperator implements IstioResourceOperator<VirtualServ
         List<HTTPRoute> latestHttp = old.getSpec().getHttp().stream()
                 .filter(h -> !h.getApi().equals(name))
                 .collect(Collectors.toList());
+
+        if (!CollectionUtils.isEmpty(old.getSpec().getPlugins())) {
+            old.getSpec().getPlugins().entrySet().removeIf(e -> e.getKey().equals(name));
+        }
 
         old.getSpec().setHttp(latestHttp);
         return old;

@@ -1,4 +1,4 @@
-package com.netease.cloud.nsf.core.gateway;
+package com.netease.cloud.nsf.core.gateway.service;
 
 
 import me.snowdrop.istio.api.IstioResource;

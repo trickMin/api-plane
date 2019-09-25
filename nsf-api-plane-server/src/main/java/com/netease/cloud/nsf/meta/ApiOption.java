@@ -25,13 +25,13 @@ public class ApiOption {
      * 保留原始host
      */
     @JsonProperty(value = "PreserveHost")
-    private Boolean preserveHost;
+    private Boolean preserveHost = true;
 
     /**
      * 重试次数
      */
     @JsonProperty(value = "Retries")
-    private Integer retries;
+    private Integer retries = 5;
 
     @JsonProperty(value = "ConnectTimeout")
     private Long connectTimeout;

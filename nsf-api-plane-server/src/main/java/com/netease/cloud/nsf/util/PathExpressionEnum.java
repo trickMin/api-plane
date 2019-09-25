@@ -22,7 +22,8 @@ public enum PathExpressionEnum {
     ADD_RBAC_SERVICE("$.spec.rules", 0),
     ADD_RBAC_SERVICE_TO_RBAC_CONFIG("$.spec.inclusion.services", 0),
     REMOVE_VS_HTTP("$.spec.http[?(@.api == '%s')]", 1),
-    REMOVE_DST_SUBSET("$.spec.subsets[?(@.api == '%s')]", 1),
+    REMOVE_DST_SUBSET_API("$.spec.subsets[?(@.api == '%s')]", 1),
+    REMOVE_DST_SUBSET_NAME("$.spec.subsets[?(@.name == '%s')]", 1),
     REMOVE_SC_RATELIMITDESC("$.spec.rateLimitConfigs[*].descriptors[?(@.api == '%s')]", 1),
 
     PLUGIN_GET_KIND("$.kind", 0),

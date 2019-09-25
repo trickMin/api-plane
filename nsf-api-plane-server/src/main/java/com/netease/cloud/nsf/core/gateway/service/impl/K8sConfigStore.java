@@ -1,6 +1,7 @@
-package com.netease.cloud.nsf.core.gateway;
+package com.netease.cloud.nsf.core.gateway.service.impl;
 
 import com.netease.cloud.nsf.core.editor.ResourceType;
+import com.netease.cloud.nsf.core.gateway.service.ConfigStore;
 import com.netease.cloud.nsf.core.k8s.KubernetesClient;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import me.snowdrop.istio.api.IstioResource;

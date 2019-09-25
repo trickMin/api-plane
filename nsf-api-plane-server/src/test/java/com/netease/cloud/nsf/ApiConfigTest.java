@@ -1,8 +1,9 @@
 package com.netease.cloud.nsf;
 
 import com.netease.cloud.nsf.meta.ApiOption;
-import com.netease.cloud.nsf.meta.YxAPIModel;
+import com.netease.cloud.nsf.meta.web.YxAPI;
 import com.netease.cloud.nsf.service.GatewayService;
+import com.netease.cloud.nsf.util.Trans;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -47,7 +48,7 @@ public class ApiConfigTest {
         ApiOption apiOption = new ApiOption();
 
 
-        YxAPIModel apiModel = YxAPIModel.YxAPIModelBuilder.anYxAPIModel()
+        YxAPI apiModel = YxAPI.YxAPIModelBuilder.anYxAPIModel()
                 .withGateways(gateways)
                 .withName("demo")
                 .withHosts(hosts)
@@ -58,7 +59,7 @@ public class ApiConfigTest {
                 .withOption(apiOption)
                 .build();
 
-        gatewayService.updateAPI(apiModel);
+        gatewayService.updateAPI(Trans.yxAPI2API(apiModel));
 
         // gatewayService.deleteAPI();
     }

@@ -1,6 +1,7 @@
-package com.netease.cloud.nsf.core.gateway;
+package com.netease.cloud.nsf.core.gateway.service;
 
 import com.netease.cloud.nsf.meta.API;
+import com.netease.cloud.nsf.meta.web.PortalService;
 import me.snowdrop.istio.api.IstioResource;
 
 import java.util.List;
@@ -17,9 +18,23 @@ public interface ConfigManager {
     void updateConfig(API api, String namespace);
 
     /**
+     * 更新服务
+     * @param service
+     * @param namespace
+     */
+    void updateConfig(PortalService service, String namespace);
+
+    /**
      * 删除API
      */
     void deleteConfig(API api, String namespace);
+
+    /**
+     * 删除服务
+     * @param service
+     * @param namespace
+     */
+    void deleteConfig(PortalService service, String namespace);
 
     /**
      * 获取服务对应的istio crd，一个服务对应一个istio crd，

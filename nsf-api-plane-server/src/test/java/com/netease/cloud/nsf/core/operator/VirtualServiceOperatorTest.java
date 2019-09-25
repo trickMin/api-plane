@@ -1,5 +1,6 @@
 package com.netease.cloud.nsf.core.operator;
 
+import com.netease.cloud.nsf.core.istio.operator.VirtualServiceOperator;
 import me.snowdrop.istio.api.networking.v1alpha3.HTTPMatchRequest;
 import me.snowdrop.istio.api.networking.v1alpha3.HTTPRoute;
 import me.snowdrop.istio.api.networking.v1alpha3.VirtualService;

@@ -2,7 +2,7 @@ package com.netease.cloud.nsf.core.plugin;
 
 import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
-import com.netease.cloud.nsf.core.gateway.IstioHttpClient;
+import com.netease.cloud.nsf.core.gateway.service.ResourceManager;
 import com.netease.cloud.nsf.meta.Endpoint;
 import com.netease.cloud.nsf.meta.ServiceInfo;
 import com.netease.cloud.nsf.util.K8sResourceEnum;
@@ -13,6 +13,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 
+import java.util.List;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
@@ -29,8 +30,9 @@ import java.util.*;
  **/
 @Component
 public class RouteProcessor extends AbstractYxSchemaProcessor implements SchemaProcessor<ServiceInfo> {
+
     @Autowired
-    private IstioHttpClient istioHttpClient;
+    private ResourceManager resourceManager;
 
     @Override
     public String getName() {
@@ -83,7 +85,7 @@ public class RouteProcessor extends AbstractYxSchemaProcessor implements SchemaP
     }
 
     private String createPassProxy(ResourceGenerator rg, ServiceInfo info) {
-        List<Endpoint> endpoints = istioHttpClient.getEndpointList();
+        List<Endpoint> endpoints = resourceManager.getEndpointList();
 
         ResourceGenerator ret = ResourceGenerator.newInstance("{}", ResourceType.JSON, editorContext);
         ret.createOrUpdateJson("$", "match", createMatch(rg, info));

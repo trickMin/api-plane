@@ -2,8 +2,9 @@ package com.netease.cloud.nsf.web.controller;
 
 import com.netease.cloud.nsf.meta.Endpoint;
 import com.netease.cloud.nsf.meta.Gateway;
-import com.netease.cloud.nsf.meta.YxAPIModel;
+import com.netease.cloud.nsf.meta.web.YxAPI;
 import com.netease.cloud.nsf.service.GatewayService;
+import com.netease.cloud.nsf.util.Trans;
 import com.netease.cloud.nsf.util.errorcode.ApiPlaneErrorCode;
 import com.netease.cloud.nsf.util.errorcode.ErrorCode;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,14 +21,14 @@ import java.util.stream.Collectors;
  **/
 @RestController
 @RequestMapping(value = "/api", params = "Version=2019-07-25")
-public class GatewayAPIController extends BaseController{
+public class YxGatewayController extends BaseController {
 
     @Autowired
     private GatewayService gatewayService;
 
     @RequestMapping(value = "/yx", params = "Action=DeleteAPI", method = RequestMethod.POST)
-    public String deleteApi(@RequestBody @Valid YxAPIModel api) {
-        gatewayService.deleteAPI(api);
+    public String deleteApi(@RequestBody @Valid YxAPI api) {
+        gatewayService.deleteAPI(Trans.yxAPI2API(api));
         return apiReturn(ApiPlaneErrorCode.Success);
     }
 
@@ -63,10 +64,10 @@ public class GatewayAPIController extends BaseController{
         return apiReturn(code.getStatusCode(), code.getCode(), null, result);
     }
 
-
     @RequestMapping(value = "/yx", params = "Action=PublishAPI", method = RequestMethod.POST)
-    public String publishAPI(@RequestBody @Valid YxAPIModel api) {
-        gatewayService.updateAPI(api);
+    public String publishYXAPI(@RequestBody @Valid YxAPI api) {
+        gatewayService.updateAPI(Trans.yxAPI2API(api));
         return apiReturn(ApiPlaneErrorCode.Success);
     }
+
 }
