@@ -203,7 +203,6 @@ public class GatewayModelProcessor {
         if (Const.PROXY_SERVICE_TYPE_STATIC.equals(service.getType())) {
 
             host = decorateHost(service.getCode());
-            //TODO translate service entry
             String backendService = service.getBackendService();
 
             List<String> addrs = new ArrayList<>();
