@@ -5,7 +5,9 @@ import me.snowdrop.istio.api.IstioResource;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/7/30
@@ -43,6 +45,25 @@ public interface IstioResourceOperator<T extends IstioResource> {
                     }
                 }
                 result.addAll(newL);
+            }
+        }
+        return result;
+    }
+
+    default Map mergeMap(Map oldM, Map newM, Equals eq) {
+        Map result = new HashMap(oldM);
+        if (!CollectionUtils.isEmpty(newM)) {
+            if (CollectionUtils.isEmpty(oldM)) {
+                return newM;
+            } else {
+                for (Object no : newM.keySet()) {
+                    for (Object oo : oldM.keySet()) {
+                        if (eq.apply(no, oo)) {
+                            result.remove(oo);
+                        }
+                    }
+                }
+                result.putAll(newM);
             }
         }
         return result;
