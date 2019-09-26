@@ -207,7 +207,7 @@ public class ResourceGenerator implements Editor {
         } else if (json.startsWith("{")) {
             addElement(path, json2obj(json, Map.class, editorContext), filter);
         } else {
-            addJsonElement(path, json, filter);
+            addElement(path, json, filter);
         }
     }
 
