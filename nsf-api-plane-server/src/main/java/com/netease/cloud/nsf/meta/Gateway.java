@@ -1,5 +1,6 @@
 package com.netease.cloud.nsf.meta;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Map;
@@ -10,7 +11,8 @@ import java.util.Objects;
  **/
 public class Gateway {
 
-    @JsonProperty(value = "Name")
+//    @JsonProperty(value = "Name")
+    @JsonIgnore
     private String hostname;
 
     @JsonProperty(value = "Address")

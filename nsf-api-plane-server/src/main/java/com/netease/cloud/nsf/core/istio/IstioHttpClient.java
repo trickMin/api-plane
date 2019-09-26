@@ -134,7 +134,9 @@ public class IstioHttpClient {
             gateway.setLabels(gen.getValue("$.labels"));
             gateways.add(gateway);
         });
-        return gateways.stream().filter(gateway -> gateway.getHostname() != null && gateway.getAddress() != null).distinct().collect(Collectors.toList());
+        Map<String, Gateway> temp = new HashMap<>();
+        gateways.forEach(gateway -> temp.putIfAbsent(gateway.getAddress(), gateway));
+        return new ArrayList<>(temp.values());
     }
 
     private <T> ResponseEntity getForEntity(String str, Class<T> clz) {
