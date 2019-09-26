@@ -24,6 +24,8 @@ public class LuaProcessor extends AbstractYxSchemaProcessor implements SchemaPro
         ResourceGenerator rg = ResourceGenerator.newInstance(plugin);
         String level = rg.getValue("$.level");
         rg.removeElement("$.level");
+        rg.removeElement("$.kind");
+        rg.removeElement("$.version");
         switch (level) {
             case "host":
                 wrapper = new FragmentWrapper.Builder()

@@ -6,8 +6,10 @@
 ---
 #demo
   {
-    "name": "ipRestriction",
+    "version": "1.0",
+    "kind": "lua",
     "level": "host",
+    "name": "ipRestriction",
     "config": {
       "fields": {
         "block_mesg": {
