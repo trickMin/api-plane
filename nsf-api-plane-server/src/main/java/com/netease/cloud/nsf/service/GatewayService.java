@@ -1,8 +1,13 @@
 package com.netease.cloud.nsf.service;
 
-import com.netease.cloud.nsf.meta.*;
-import com.netease.cloud.nsf.meta.web.PortalService;
-import me.snowdrop.istio.api.IstioResource;
+import com.netease.cloud.nsf.meta.Endpoint;
+import com.netease.cloud.nsf.meta.Gateway;
+import com.netease.cloud.nsf.meta.GatewaySync;
+import com.netease.cloud.nsf.meta.PluginTemplate;
+import com.netease.cloud.nsf.meta.dto.PluginOrderDTO;
+import com.netease.cloud.nsf.meta.dto.PortalAPIDTO;
+import com.netease.cloud.nsf.meta.dto.PortalServiceDTO;
+import com.netease.cloud.nsf.meta.dto.YxAPIDTO;
 
 import java.util.List;
 
@@ -11,15 +16,21 @@ import java.util.List;
  **/
 public interface GatewayService {
 
-    void updateAPI(API api);
+    void updateAPI(YxAPIDTO api);
 
-    void deleteAPI(API api);
+    void deleteAPI(YxAPIDTO api);
 
-    void updateService(PortalService cluster);
+    void updateAPI(PortalAPIDTO portalAPI);
 
-    void deleteService(PortalService service);
+    void deleteAPI(PortalAPIDTO portalAPI);
 
-    List<IstioResource> getAPIResources(String service);
+    void updateService(PortalServiceDTO service);
+
+    void deleteService(PortalServiceDTO service);
+
+    void updatePluginOrder(PluginOrderDTO pluginOrderDto);
+
+    void deletePluginOrder(PluginOrderDTO pluginOrderDTO);
 
     List<Endpoint> getServiceList();
 

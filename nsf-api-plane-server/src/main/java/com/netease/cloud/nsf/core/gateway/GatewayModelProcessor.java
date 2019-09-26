@@ -14,7 +14,6 @@ import com.netease.cloud.nsf.core.template.TemplateParams;
 import com.netease.cloud.nsf.core.template.TemplateTranslator;
 import com.netease.cloud.nsf.meta.API;
 import com.netease.cloud.nsf.meta.*;
-import com.netease.cloud.nsf.meta.web.PortalService;
 import com.netease.cloud.nsf.service.PluginService;
 import com.netease.cloud.nsf.util.CommonUtil;
 import com.netease.cloud.nsf.util.Const;
@@ -71,7 +70,9 @@ public class GatewayModelProcessor {
     private static final String serviceDestinationRule = "gateway/service/destinationRule";
     private static final String serviceServiceEntry = "gateway/service/serviceEntry";
 
+    private static final String pluginManager = "gateway/pluginManager";
 
+    private static final String DEFAULT_PLUGIN_MANAGER_NAME = "qz-global";
 
     /**
      * 将api转换为istio对应的规则
@@ -106,28 +107,65 @@ public class GatewayModelProcessor {
         rawResources.addAll(rawDestinationRules);
         rawResources.addAll(rawSharedConfigs);
 
-        logger.info("translated resources: ");
-        rawResources.forEach(r -> logger.info(r));
+
         rawResources.stream()
                 .forEach(r -> resources.add(str2IstioResource(r)));
 
         return resources;
     }
 
-    public List<IstioResource> translate(PortalService service, String namespace) {
+    public List<IstioResource> translate(Service service, String namespace) {
 
         List<IstioResource> resources = new ArrayList<>();
 
         List<String> destinations = buildDestinations(service, namespace);
-        logger.info("translated resources: ");
-        destinations.forEach(r -> logger.info(r));
         destinations.stream()
                 .forEach(ds -> resources.add(str2IstioResource(ds)));
 
         return resources;
     }
 
+    public List<IstioResource> translate(PluginOrder po, String namespace) {
+
+        List<IstioResource> resources = new ArrayList<>();
+
+        List<String> pluginManagers = buildPluginManager(po, namespace);
+        pluginManagers.stream()
+                .forEach(ds -> resources.add(str2IstioResource(ds)));
+        return resources;
+    }
+
+    private List<String> buildPluginManager(PluginOrder po, String namespace) {
+
+        String name = CollectionUtils.isEmpty(po.getGatewayLabels()) ?
+                DEFAULT_PLUGIN_MANAGER_NAME : joinLabelMap(po.getGatewayLabels());
+
+        TemplateParams pmParams = TemplateParams.instance()
+                                    .put(PLUGIN_MANAGER_NAME, name)
+                                    .put(PLUGIN_MANAGER_NAMESPACE, namespace)
+                                    .put(PLUGIN_MANAGER_WORKLOAD_LABELS, po.getGatewayLabels())
+                                    .put(PLUGIN_MANAGER_PLUGINS, po.getPlugins());
+        return Arrays.asList(templateTranslator.translate(pluginManager, pmParams.output()));
+    }
+
+
+    /**
+     * 将map中的key value用 "-" 连接
+     * 比如 k1-v1-k2-v2
+     * @param labelMap
+     * @return
+     */
+    private String joinLabelMap(Map<String, String> labelMap) {
+
+        List<String> labels = labelMap.entrySet().stream()
+                .map(e -> e.getKey() + "-" + e.getValue())
+                .collect(Collectors.toList());
+        return String.join("-", labels);
+    }
+
     private IstioResource str2IstioResource(String str) {
+
+        logger.info("raw resource: " + str);
         K8sResourceGenerator gen = K8sResourceGenerator.newInstance(str, ResourceType.YAML, editorContext);
         K8sResourceEnum resourceEnum = K8sResourceEnum.get(gen.getKind());
         IstioResource ir = (IstioResource) gen.object(resourceEnum.mappingType());
@@ -186,7 +224,7 @@ public class GatewayModelProcessor {
      * @param namespace
      * @return
      */
-    private List<String> buildDestinations(PortalService service, String namespace) {
+    private List<String> buildDestinations(Service service, String namespace) {
         List<String> destinations = new ArrayList<>();
         TemplateParams params = TemplateParams.instance()
                 .put(DESTINATION_RULE_NAME, service.getCode().toLowerCase())
@@ -377,11 +415,7 @@ public class GatewayModelProcessor {
 
     private String getHosts(API api) {
         return String.join("|", api.getHosts().stream()
-                                             .map(h -> {
-                                                 if (h.equals("*")) {
-                                                     return ".*";
-                                                 }
-                                                 return h; })
+                                             .map(h -> CommonUtil.host2Regex(h))
                                              .collect(Collectors.toList()));
     }
 

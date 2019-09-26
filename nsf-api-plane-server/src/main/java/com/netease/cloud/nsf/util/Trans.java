@@ -1,12 +1,10 @@
 package com.netease.cloud.nsf.util;
 
-import com.netease.cloud.nsf.meta.API;
-import com.netease.cloud.nsf.meta.ApiOption;
-import com.netease.cloud.nsf.meta.Service;
-import com.netease.cloud.nsf.meta.UriMatch;
-import com.netease.cloud.nsf.meta.web.PortalAPI;
-import com.netease.cloud.nsf.meta.web.PortalService;
-import com.netease.cloud.nsf.meta.web.YxAPI;
+import com.netease.cloud.nsf.meta.*;
+import com.netease.cloud.nsf.meta.dto.PluginOrderDTO;
+import com.netease.cloud.nsf.meta.dto.PortalAPIDTO;
+import com.netease.cloud.nsf.meta.dto.PortalServiceDTO;
+import com.netease.cloud.nsf.meta.dto.YxAPIDTO;
 import org.springframework.beans.BeanUtils;
 
 import java.util.Arrays;
@@ -18,7 +16,7 @@ import java.util.stream.Collectors;
 public class Trans {
 
 
-    public static API yxAPI2API(YxAPI yxApi) {
+    public static API yxAPI2API(YxAPIDTO yxApi) {
         API api = new API();
 
         ApiOption option = yxApi.getOption();
@@ -31,7 +29,7 @@ public class Trans {
         return api;
     }
 
-    public static API portalAPI2API(PortalAPI portalAPI) {
+    public static API portalAPI2API(PortalAPIDTO portalAPI) {
 
         API api = new API();
 
@@ -45,7 +43,7 @@ public class Trans {
         return api;
     }
 
-    public static Service portalService2Service(PortalService portalService) {
+    public static Service portalService2Service(PortalServiceDTO portalService) {
 
         Service s = new Service();
         s.setCode(portalService.getCode());
@@ -53,6 +51,14 @@ public class Trans {
         s.setWeight(portalService.getWeight());
         s.setBackendService(portalService.getBackendService());
         return s;
+    }
+
+    public static PluginOrder pluginOrderDTO2PluginOrder(PluginOrderDTO pluginOrderDTO) {
+
+        PluginOrder po = new PluginOrder();
+        po.setGatewayLabels(pluginOrderDTO.getGatewayLabels());
+        po.setPlugins(pluginOrderDTO.getPlugins());
+        return po;
     }
 
 }

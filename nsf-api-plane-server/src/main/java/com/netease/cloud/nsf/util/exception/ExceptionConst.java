@@ -19,4 +19,6 @@ public interface ExceptionConst {
     String ENDPOINT_LIST_EMPTY = "endpoint list is empty";
 
     String UNSUPPORTED_RESOURCE_TYPE = "unsupported resource type";
+
+    String UNSUPPORTED_OPERATION = "unsupported operation";
 }

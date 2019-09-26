@@ -1,10 +1,9 @@
 package com.netease.cloud.nsf.core.gateway.service;
 
 import com.netease.cloud.nsf.meta.API;
-import com.netease.cloud.nsf.meta.web.PortalService;
-import me.snowdrop.istio.api.IstioResource;
-
-import java.util.List;
+import com.netease.cloud.nsf.meta.PluginOrder;
+import com.netease.cloud.nsf.meta.Service;
+import com.netease.cloud.nsf.meta.dto.PluginOrderDTO;
 
 /**
  *  API配置客户端
@@ -22,7 +21,7 @@ public interface ConfigManager {
      * @param service
      * @param namespace
      */
-    void updateConfig(PortalService service, String namespace);
+    void updateConfig(Service service, String namespace);
 
     /**
      * 删除API
@@ -34,14 +33,9 @@ public interface ConfigManager {
      * @param service
      * @param namespace
      */
-    void deleteConfig(PortalService service, String namespace);
+    void deleteConfig(Service service, String namespace);
 
-    /**
-     * 获取服务对应的istio crd，一个服务对应一个istio crd，
-     * 使用服务名称即可查询
-     * @param service
-     * @return
-     */
-    List<IstioResource> getConfigResources(String service, String namespace);
+    void updateConfig(PluginOrder pluginOrder, String namespace);
 
+    void deleteConfig(PluginOrder pluginOrder, String namespace);
 }

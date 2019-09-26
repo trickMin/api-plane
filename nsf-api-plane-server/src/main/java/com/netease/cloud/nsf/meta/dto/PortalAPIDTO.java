@@ -1,4 +1,4 @@
-package com.netease.cloud.nsf.meta.web;
+package com.netease.cloud.nsf.meta.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/9/19
  **/
-public class PortalAPI {
+public class PortalAPIDTO {
 
     @NotEmpty(message = "gateway")
     @JsonProperty(value = "Gateway")
@@ -23,24 +23,28 @@ public class PortalAPI {
     @JsonProperty(value = "Code")
     private String code;
 
+    @NotEmpty(message = "hosts")
     @JsonProperty(value = "Hosts")
     private List<String> hosts;
 
     /**
      * 请求uri
      */
+    @NotEmpty(message = "request uris")
     @JsonProperty(value = "RequestUris")
     private List<String> requestUris;
 
     /**
      * 请求uri匹配方式
      */
+    @NotEmpty(message = "uri match")
     @JsonProperty(value = "UriMatch")
     private String uriMatch;
 
     /**
      * 请求方法,GET、POST...
      */
+    @NotEmpty(message = "http methods")
     @JsonProperty(value = "Methods")
     private List<String> methods;
 
@@ -50,7 +54,7 @@ public class PortalAPI {
     @Valid
     @JsonProperty(value = "ProxyServices")
     @NotNull(message = "proxyServices")
-    private List<PortalService> proxyServices;
+    private List<PortalServiceDTO> proxyServices;
 
     /**
      * 插件
@@ -106,11 +110,11 @@ public class PortalAPI {
         this.methods = methods;
     }
 
-    public List<PortalService> getProxyServices() {
+    public List<PortalServiceDTO> getProxyServices() {
         return proxyServices;
     }
 
-    public void setProxyServices(List<PortalService> proxyServices) {
+    public void setProxyServices(List<PortalServiceDTO> proxyServices) {
         this.proxyServices = proxyServices;
     }
 

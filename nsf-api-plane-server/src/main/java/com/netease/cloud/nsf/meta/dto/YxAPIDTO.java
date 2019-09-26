@@ -1,4 +1,4 @@
-package com.netease.cloud.nsf.meta.web;
+package com.netease.cloud.nsf.meta.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.netease.cloud.nsf.meta.ApiOption;
@@ -8,7 +8,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
-public class YxAPI {
+public class YxAPIDTO {
 
     /**
      * 网关名
@@ -24,36 +24,42 @@ public class YxAPI {
     @JsonProperty(value = "Name")
     private String name;
 
+    @NotEmpty(message = "hosts")
     @JsonProperty(value = "Hosts")
     private List<String> hosts;
 
     /**
      * 请求uri
      */
+    @NotEmpty(message = "request uris")
     @JsonProperty(value = "RequestUris")
     private List<String> requestUris;
 
     /**
      * 请求uri匹配方式
      */
+    @NotEmpty(message = "uri match")
     @JsonProperty(value = "UriMatch")
     private String uriMatch;
 
     /**
      * 请求方法,GET、POST...
      */
+    @NotEmpty(message = "http methods")
     @JsonProperty(value = "Methods")
     private List<String> methods;
 
     /**
      * 映射到后端的uri
      */
+    @NotEmpty(message = "proxy uris")
     @JsonProperty(value = "ProxyUris")
     private List<String> proxyUris;
 
     /**
      * 服务名
      */
+    @NotEmpty(message = "service name")
     @JsonProperty(value = "Service")
     private String service;
 
@@ -221,8 +227,8 @@ public class YxAPI {
             return this;
         }
 
-        public YxAPI build() {
-            YxAPI yxAPIModel = new YxAPI();
+        public YxAPIDTO build() {
+            YxAPIDTO yxAPIModel = new YxAPIDTO();
             yxAPIModel.setGateways(gateways);
             yxAPIModel.setName(name);
             yxAPIModel.setHosts(hosts);

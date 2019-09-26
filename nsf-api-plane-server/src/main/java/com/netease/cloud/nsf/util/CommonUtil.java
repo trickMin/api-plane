@@ -47,4 +47,18 @@ public class CommonUtil {
     public static boolean isValidIPPortAddr(String ipAddr) {
         return IP_PORT_PATTERN.matcher(ipAddr).matches();
     }
+
+    /**
+     * host变为正则
+     *
+     * . -> \.
+     * * -> .+
+     *
+     * *.163.com -> .+\.163\.com
+     * @return
+     */
+    public static String host2Regex(String host) {
+        return host.replace(".", "\\.")
+                    .replace("*", ".+");
+    }
 }

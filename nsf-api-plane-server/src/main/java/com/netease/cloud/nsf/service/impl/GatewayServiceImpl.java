@@ -7,10 +7,14 @@ import com.netease.cloud.nsf.core.gateway.service.ConfigStore;
 import com.netease.cloud.nsf.core.gateway.service.ResourceManager;
 import com.netease.cloud.nsf.core.k8s.K8sResourceGenerator;
 import com.netease.cloud.nsf.meta.*;
-import com.netease.cloud.nsf.meta.web.PortalService;
+import com.netease.cloud.nsf.meta.dto.PluginOrderDTO;
+import com.netease.cloud.nsf.meta.dto.PortalAPIDTO;
+import com.netease.cloud.nsf.meta.dto.PortalServiceDTO;
+import com.netease.cloud.nsf.meta.dto.YxAPIDTO;
 import com.netease.cloud.nsf.service.GatewayService;
 import com.netease.cloud.nsf.util.CommonUtil;
 import com.netease.cloud.nsf.util.K8sResourceEnum;
+import com.netease.cloud.nsf.util.Trans;
 import me.snowdrop.istio.api.IstioResource;
 import me.snowdrop.istio.api.networking.v1alpha3.VirtualService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,28 +48,46 @@ public class GatewayServiceImpl implements GatewayService {
     private String apiNamespace;
 
     @Override
-    public void updateAPI(API api) {
-        configManager.updateConfig(api, apiNamespace);
+    public void updateAPI(YxAPIDTO api) {
+        configManager.updateConfig(Trans.yxAPI2API(api), apiNamespace);
     }
 
     @Override
-    public void deleteAPI(API api) {
-        configManager.deleteConfig(api, apiNamespace);
+    public void deleteAPI(YxAPIDTO api) {
+        configManager.deleteConfig(Trans.yxAPI2API(api), apiNamespace);
     }
 
     @Override
-    public void updateService(PortalService service) {
-        configManager.updateConfig(service, apiNamespace);
+    public void updateAPI(PortalAPIDTO api) {
+        configManager.updateConfig(Trans.portalAPI2API(api), apiNamespace);
     }
 
     @Override
-    public void deleteService(PortalService service) {
-        configManager.deleteConfig(service, apiNamespace);
+    public void deleteAPI(PortalAPIDTO api) {
+        configManager.deleteConfig(Trans.portalAPI2API(api), apiNamespace);
+    }
+
+
+    @Override
+    public void updateService(PortalServiceDTO service) {
+        configManager.updateConfig(Trans.portalService2Service(service), apiNamespace);
     }
 
     @Override
-    public List<IstioResource> getAPIResources(String service) {
-        return configManager.getConfigResources(service, apiNamespace);
+    public void deleteService(PortalServiceDTO service) {
+        configManager.deleteConfig(Trans.portalService2Service(service), apiNamespace);
+    }
+
+    @Override
+    public void updatePluginOrder(PluginOrderDTO pluginOrderDto) {
+        PluginOrder pluginOrder = Trans.pluginOrderDTO2PluginOrder(pluginOrderDto);
+        configManager.updateConfig(pluginOrder, apiNamespace);
+    }
+
+    @Override
+    public void deletePluginOrder(PluginOrderDTO pluginOrderDTO) {
+        PluginOrder pluginOrder = Trans.pluginOrderDTO2PluginOrder(pluginOrderDTO);
+        configManager.deleteConfig(pluginOrder, apiNamespace);
     }
 
     @Override

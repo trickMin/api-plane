@@ -24,6 +24,11 @@ public class Service {
      */
     private Integer weight;
 
+    /**
+     * 所属网关
+     */
+    private String gateway;
+
     public String getCode() {
         return code;
     }
@@ -54,5 +59,13 @@ public class Service {
 
     public void setWeight(Integer weight) {
         this.weight = weight;
+    }
+
+    public String getGateway() {
+        return gateway;
+    }
+
+    public void setGateway(String gateway) {
+        this.gateway = gateway;
     }
 }
