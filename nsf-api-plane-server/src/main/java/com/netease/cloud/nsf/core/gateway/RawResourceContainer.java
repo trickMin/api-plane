@@ -13,8 +13,6 @@ import java.util.List;
 public class RawResourceContainer {
 
     List<FragmentWrapper> virtualServices = new ArrayList<>();
-    List<FragmentWrapper> destinationRules = new ArrayList<>();
-    List<FragmentWrapper> gateways = new ArrayList<>();
     List<FragmentWrapper> sharedConfigs = new ArrayList<>();
 
     public void add(FragmentHolder holder) {
@@ -23,12 +21,6 @@ public class RawResourceContainer {
 
         if (holder.getVirtualServiceFragment() != null) {
             virtualServices.add(holder.getVirtualServiceFragment());
-        }
-        if (holder.getDestinationRuleFragment() != null) {
-            destinationRules.add(holder.getDestinationRuleFragment());
-        }
-        if (holder.getGatewayFragment() != null) {
-            gateways.add(holder.getGatewayFragment());
         }
         if (holder.getSharedConfigFragment() != null) {
             sharedConfigs.add(holder.getSharedConfigFragment());
@@ -42,14 +34,6 @@ public class RawResourceContainer {
 
     public List<FragmentWrapper> getVirtualServices() {
         return virtualServices;
-    }
-
-    public List<FragmentWrapper> getDestinationRules() {
-        return destinationRules;
-    }
-
-    public List<FragmentWrapper> getGateways() {
-        return gateways;
     }
 
     public List<FragmentWrapper> getSharedConfigs() {

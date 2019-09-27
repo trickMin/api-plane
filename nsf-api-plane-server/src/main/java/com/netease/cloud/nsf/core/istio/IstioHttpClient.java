@@ -3,6 +3,7 @@ package com.netease.cloud.nsf.core.istio;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.jayway.jsonpath.Criteria;
 import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.k8s.KubernetesClient;
@@ -123,7 +124,8 @@ public class IstioHttpClient {
 
     public List<Gateway> getGatewayList() {
         List<Gateway> gateways = new ArrayList<>();
-        List svcs = ResourceGenerator.newInstance(getEndpoints(), ResourceType.JSON).getValue(PathExpressionEnum.ISTIO_GET_GATEWAY.translate("gateway-proxy.*"));
+        List svcs = ResourceGenerator.newInstance(getEndpoints(), ResourceType.JSON)
+                .getValue(PathExpressionEnum.ISTIO_GET_GATEWAY.translate(), Criteria.where("labels.gw_cluster").exists(true));
         svcs.stream().forEach(svc -> {
             Gateway gateway = new Gateway();
             ResourceGenerator gen = ResourceGenerator.newInstance(svc, ResourceType.OBJECT);
@@ -132,7 +134,9 @@ public class IstioHttpClient {
             gateway.setLabels(gen.getValue("$.labels"));
             gateways.add(gateway);
         });
-        return gateways.stream().filter(gateway -> gateway.getHostname() != null && gateway.getAddress() != null).distinct().collect(Collectors.toList());
+        Map<String, Gateway> temp = new HashMap<>();
+        gateways.forEach(gateway -> temp.putIfAbsent(gateway.getAddress(), gateway));
+        return new ArrayList<>(temp.values());
     }
 
     private <T> ResponseEntity getForEntity(String str, Class<T> clz) {

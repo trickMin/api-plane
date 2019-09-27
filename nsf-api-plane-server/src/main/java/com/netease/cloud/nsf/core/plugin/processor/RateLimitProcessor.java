@@ -1,7 +1,11 @@
-package com.netease.cloud.nsf.core.plugin;
+package com.netease.cloud.nsf.core.plugin.processor;
 
+import com.google.common.collect.ImmutableList;
 import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
+import com.netease.cloud.nsf.core.plugin.FragmentHolder;
+import com.netease.cloud.nsf.core.plugin.FragmentTypeEnum;
+import com.netease.cloud.nsf.core.plugin.FragmentWrapper;
 import com.netease.cloud.nsf.meta.ServiceInfo;
 import com.netease.cloud.nsf.util.K8sResourceEnum;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
@@ -11,6 +15,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * @auther wupenghuai@corp.netease.com
@@ -61,6 +66,49 @@ public class RateLimitProcessor extends AbstractYxSchemaProcessor implements Sch
         return holder;
     }
 
+    @Override
+    public List<FragmentHolder> process(List<String> plugins, ServiceInfo serviceInfo) {
+        List<FragmentHolder> holders = plugins.stream()
+                .map(plugin -> process(plugin, serviceInfo))
+                .collect(Collectors.toList());
+
+        List<FragmentWrapper> virtualServices = holders.stream()
+                .map(FragmentHolder::getVirtualServiceFragment)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+        List<FragmentWrapper> sharedConfigs = holders.stream()
+                .map(FragmentHolder::getSharedConfigFragment)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+        ResourceGenerator rateLimitGen = ResourceGenerator.newInstance("{\"rateLimits\":[]}");
+        ResourceGenerator shareConfigGen = ResourceGenerator.newInstance("[{\"domain\":\"qingzhou\",\"descriptors\":[]}]");
+        List<Object> ratelimits = new ArrayList<>();
+        List<Object> descriptors = new ArrayList<>();
+        virtualServices.forEach(wrapper -> ratelimits.addAll(ResourceGenerator.newInstance(wrapper.getContent(), ResourceType.YAML).getValue("$.rateLimits[*]")));
+        sharedConfigs.forEach(wrapper -> descriptors.addAll(ResourceGenerator.newInstance(wrapper.getContent(), ResourceType.YAML).getValue("$[0].descriptors[*]")));
+
+        ratelimits.forEach(rateLimit -> rateLimitGen.addElement("$.rateLimits", rateLimit));
+        descriptors.forEach(descriptor -> shareConfigGen.addElement("$[0].descriptors", descriptor));
+
+        FragmentHolder holder = new FragmentHolder();
+        holder.setSharedConfigFragment(
+                new FragmentWrapper.Builder()
+                        .withFragmentType(FragmentTypeEnum.SHARECONFIG)
+                        .withResourceType(K8sResourceEnum.SharedConfig)
+                        .withContent(shareConfigGen.yamlString())
+                        .build()
+        );
+        holder.setVirtualServiceFragment(
+                new FragmentWrapper.Builder()
+                        .withFragmentType(FragmentTypeEnum.VS_HOST)
+                        .withResourceType(K8sResourceEnum.VirtualService)
+                        .withContent(rateLimitGen.yamlString())
+                        .build()
+        );
+        return ImmutableList.of(holder);
+    }
 
     private String createRateLimits(ResourceGenerator rg, ServiceInfo serviceInfo, String headerDescriptor) {
         ResourceGenerator vs = ResourceGenerator.newInstance("{\"stage\":0,\"actions\":[]}");
@@ -97,6 +145,10 @@ public class RateLimitProcessor extends AbstractYxSchemaProcessor implements Sch
                 vs.addJsonElement("$.actions[0].headerValueMatch.headers",
                         String.format("{\"name\":\"%s\",\"regexMatch\":\"%s\"}", matchHeader, regex));
             }
+            vs.addJsonElement("$.actions[0].headerValueMatch.headers",
+                    String.format("{\"name\":\":path\",\"regexMatch\":\"%s\"}", serviceInfo.getUri()));
+            vs.addJsonElement("$.actions[0].headerValueMatch.headers",
+                    String.format("{\"name\":\":authority\",\"regexMatch\":\"%s\"}", String.join("|", serviceInfo.getApi().getHosts())));
         }
         return vs.jsonString();
     }
@@ -144,9 +196,5 @@ public class RateLimitProcessor extends AbstractYxSchemaProcessor implements Sch
 
     private String getHeaderDescriptor(ServiceInfo serviceInfo, Integer no, String headerName, String unit) {
         return String.format("Service[%s]-Api[%s]-Header[%s][%s][%d]", getServiceName(serviceInfo), getApiName(serviceInfo), headerName, unit, no);
-    }
-
-    private String getGenericKey(ServiceInfo serviceInfo) {
-        return String.format("%s-%s", getServiceName(serviceInfo), getApiName(serviceInfo));
     }
 }

@@ -35,10 +35,5 @@
 ---
 #@type=istioResource
 #@version=1.0
-#@resourceType=VirtualService
-#@fragmentType=VS_API
-fault:
-  abort:
-    percentage:
-      value: ${limit_percent}
-    httpStatus: 429
+#@processor=FlowLimitProcessor
+{}

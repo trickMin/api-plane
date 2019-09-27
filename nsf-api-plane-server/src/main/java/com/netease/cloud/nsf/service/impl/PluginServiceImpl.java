@@ -3,10 +3,8 @@ package com.netease.cloud.nsf.service.impl;
 import com.netease.cloud.nsf.core.editor.EditorContext;
 import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
-import com.netease.cloud.nsf.core.plugin.FragmentHolder;
-import com.netease.cloud.nsf.core.plugin.FragmentTypeEnum;
-import com.netease.cloud.nsf.core.plugin.FragmentWrapper;
-import com.netease.cloud.nsf.core.plugin.SchemaProcessor;
+import com.netease.cloud.nsf.core.plugin.*;
+import com.netease.cloud.nsf.core.plugin.processor.SchemaProcessor;
 import com.netease.cloud.nsf.core.template.TemplateTranslator;
 import com.netease.cloud.nsf.core.template.TemplateUtils;
 import com.netease.cloud.nsf.core.template.TemplateWrapper;
@@ -14,6 +12,7 @@ import com.netease.cloud.nsf.meta.PluginTemplate;
 import com.netease.cloud.nsf.meta.ServiceInfo;
 import com.netease.cloud.nsf.service.PluginService;
 import com.netease.cloud.nsf.util.K8sResourceEnum;
+import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.sun.javafx.binding.StringFormatter;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -21,11 +20,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -91,6 +89,35 @@ public class PluginServiceImpl implements PluginService {
             return processors.stream().filter(processor -> processBean.equals(processor.getName())).findAny().get().process(plugin, serviceInfo);
         }
         return processWithJsonAndSvc(wrapper, plugin, serviceInfo);
+    }
+
+    @Override
+    public List<FragmentHolder> processSchema(List<String> plugins, ServiceInfo serviceInfo) {
+        List<FragmentHolder> ret = new ArrayList<>();
+
+        // 1. 将Plugin 按照kind分类
+        List<Plugin> totalPlugin = plugins.stream().map(Plugin::new).collect(Collectors.toList());
+        MultiValueMap<String, Plugin> pluginMap = new LinkedMultiValueMap<>();
+        totalPlugin.forEach(plugin -> pluginMap.add(plugin.getKind(), plugin));
+
+        // 2. 不同类的Plugin List使用不同的Processor处理
+        Set<String> kinds = pluginMap.keySet();
+        for (String kind : kinds) {
+            List<Plugin> classifiedPlugins = pluginMap.get(kind);
+            List<String> versions = classifiedPlugins.stream().map(Plugin::getVersion).distinct().collect(Collectors.toList());
+            if (versions.size() > 1) {
+                throw new ApiPlaneException("There are multiple versions of the plugin :" + kind);
+            }
+            Template template = TemplateUtils.getTemplate(getTemplateName(kind), configuration);
+            TemplateWrapper wrapper = TemplateUtils.getWrapperWithFilter(template,
+                    templateWrapper -> templateWrapper.containLabel(LABEL_TYPE, VALUE_ISTIO_FRAGMENT) && templateWrapper.containLabel(LABEL_VERSION, versions.get(0))
+            );
+            SchemaProcessor processor = processors.stream().filter(p -> p.getName().equals(wrapper.getLabelValue(LABEL_PROCESSOR))).findAny().get();
+            List<String> pluginStrs = classifiedPlugins.stream().map(Plugin::jsonString).collect(Collectors.toList());
+            ret.addAll(processor.process(pluginStrs, serviceInfo));
+        }
+
+        return ret;
     }
 
     @Override

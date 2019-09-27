@@ -1,8 +1,11 @@
-package com.netease.cloud.nsf.core.plugin;
+package com.netease.cloud.nsf.core.plugin.processor;
 
 import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.gateway.service.ResourceManager;
+import com.netease.cloud.nsf.core.plugin.FragmentHolder;
+import com.netease.cloud.nsf.core.plugin.FragmentTypeEnum;
+import com.netease.cloud.nsf.core.plugin.FragmentWrapper;
 import com.netease.cloud.nsf.meta.Endpoint;
 import com.netease.cloud.nsf.meta.ServiceInfo;
 import com.netease.cloud.nsf.util.K8sResourceEnum;
@@ -16,7 +19,6 @@ import org.springframework.util.StringUtils;
 import java.util.List;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.*;
 
 
 /**
@@ -109,6 +111,14 @@ public class RouteProcessor extends AbstractYxSchemaProcessor implements SchemaP
         ret.createOrUpdateJson("$", "match", createMatch(rg, info));
         ret.createOrUpdateJson("$", "return",
                 String.format("{\"body\":{\"inlineString\":\"%s\"},\"code\":%s}", rg.getValue("$.action.body"), rg.getValue("$.action.code")));
+        if (rg.contain("$.action.header")) {
+            ret.createOrUpdateJson("$", "appendHeaders", "{}");
+            List<Object> headers = rg.getValue("$.action.header[*]");
+            for (Object header : headers) {
+                ResourceGenerator h = ResourceGenerator.newInstance(header, ResourceType.OBJECT);
+                ret.createOrUpdateValue("$.appendHeaders", h.getValue("$.name"), h.getValue("$.value"));
+            }
+        }
         return ret.jsonString();
     }
 
