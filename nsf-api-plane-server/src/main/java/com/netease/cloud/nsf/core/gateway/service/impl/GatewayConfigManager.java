@@ -1,18 +1,19 @@
 package com.netease.cloud.nsf.core.gateway.service.impl;
 
-import com.google.common.collect.ImmutableSet;
 import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
-import com.netease.cloud.nsf.core.gateway.GatewayModelProcessor;
+import com.netease.cloud.nsf.core.gateway.GatewayModelOpeartor;
 import com.netease.cloud.nsf.core.gateway.service.ConfigManager;
 import com.netease.cloud.nsf.core.gateway.service.ConfigStore;
 import com.netease.cloud.nsf.meta.API;
-import com.netease.cloud.nsf.meta.web.PortalService;
+import com.netease.cloud.nsf.meta.PluginOrder;
+import com.netease.cloud.nsf.meta.Service;
 import com.netease.cloud.nsf.util.K8sResourceEnum;
 import com.netease.cloud.nsf.util.PathExpressionEnum;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import me.snowdrop.istio.api.IstioResource;
 import me.snowdrop.istio.api.networking.v1alpha3.DestinationRule;
+import me.snowdrop.istio.api.networking.v1alpha3.PluginManager;
 import me.snowdrop.istio.api.networking.v1alpha3.ServiceEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,9 +24,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/7/25
@@ -36,13 +35,10 @@ public class GatewayConfigManager implements ConfigManager {
     private static final Logger logger = LoggerFactory.getLogger(GatewayConfigManager.class);
 
     @Autowired
-    private GatewayModelProcessor modelProcessor;
+    private GatewayModelOpeartor modelProcessor;
 
     @Autowired
     private ConfigStore configStore;
-
-    private static final Set<String> API_REFERENCE_TYPES = ImmutableSet.of(K8sResourceEnum.VirtualService.name(), K8sResourceEnum.DestinationRule.name(),
-            K8sResourceEnum.Gateway.name());
 
     @Override
     public void updateConfig(API api, String namespace) {
@@ -51,7 +47,7 @@ public class GatewayConfigManager implements ConfigManager {
     }
 
     @Override
-    public void updateConfig(PortalService service, String namespace) {
+    public void updateConfig(Service service, String namespace) {
         List<IstioResource> resources = modelProcessor.translate(service, namespace);
         update(resources);
     }
@@ -77,7 +73,7 @@ public class GatewayConfigManager implements ConfigManager {
     }
 
     @Override
-    public void deleteConfig(PortalService service, String namespace) {
+    public void deleteConfig(Service service, String namespace) {
         if (StringUtils.isEmpty(service.getGateway())) return;
         List<IstioResource> resources = modelProcessor.translate(service, namespace);
         delete(resources, r -> {
@@ -91,6 +87,25 @@ public class GatewayConfigManager implements ConfigManager {
                 ServiceEntry se = (ServiceEntry) r;
                 se.setSpec(null);
                 return se;
+            }
+            throw new ApiPlaneException("Unsupported operation");
+        });
+    }
+
+    @Override
+    public void updateConfig(PluginOrder pluginOrder, String namespace) {
+        List<IstioResource> resources = modelProcessor.translate(pluginOrder, namespace);
+        update(resources);
+    }
+
+    @Override
+    public void deleteConfig(PluginOrder pluginOrder, String namespace) {
+        List<IstioResource> resources = modelProcessor.translate(pluginOrder, namespace);
+        delete(resources, r -> {
+            if (r.getKind().equals(K8sResourceEnum.PluginManager.name())) {
+                PluginManager pm = (PluginManager) r;
+                pm.setSpec(null);
+                return pm;
             }
             throw new ApiPlaneException("Unsupported operation");
         });
@@ -118,15 +133,6 @@ public class GatewayConfigManager implements ConfigManager {
         } else {
             configStore.update(i);
         }
-    }
-
-    @Override
-    public List<IstioResource> getConfigResources(String service, String namespace) {
-
-        return API_REFERENCE_TYPES.stream()
-                    .map(kind -> configStore.get(kind, namespace, service))
-                    .filter(i -> i != null)
-                    .collect(Collectors.toList());
     }
 
 }

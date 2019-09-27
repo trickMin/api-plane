@@ -5,7 +5,7 @@ package com.netease.cloud.nsf.meta;
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/9/20
  **/
-public class Service {
+public class Service extends CommonModel {
 
     private String code;
 
@@ -23,6 +23,11 @@ public class Service {
      * 权重
      */
     private Integer weight;
+
+    /**
+     * 所属网关
+     */
+    private String gateway;
 
     public String getCode() {
         return code;
@@ -54,5 +59,13 @@ public class Service {
 
     public void setWeight(Integer weight) {
         this.weight = weight;
+    }
+
+    public String getGateway() {
+        return gateway;
+    }
+
+    public void setGateway(String gateway) {
+        this.gateway = gateway;
     }
 }

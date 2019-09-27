@@ -91,6 +91,11 @@ public interface TemplateConst {
     /** SharedConfig **/
     String SHARED_CONFIG_DESCRIPTOR = "t_shared_config_descriptor";
 
+    /** PluginManager **/
+    String PLUGIN_MANAGER_NAME = "t_plugin_manager_name";
+    String PLUGIN_MANAGER_NAMESPACE = "t_plugin_manager_namespace";
+    String PLUGIN_MANAGER_WORKLOAD_LABELS = "t_plugin_manager_workload_labels";
+    String PLUGIN_MANAGER_PLUGINS = "t_plugin_manager_plugins";
 
     /** ---------- 模板占位符名 end ---------- **/
 

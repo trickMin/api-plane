@@ -1,20 +1,15 @@
 package com.netease.cloud.nsf.web.controller;
 
-import com.netease.cloud.nsf.meta.Endpoint;
-import com.netease.cloud.nsf.meta.Gateway;
-import com.netease.cloud.nsf.meta.web.YxAPI;
+import com.netease.cloud.nsf.meta.dto.YxAPIDTO;
 import com.netease.cloud.nsf.service.GatewayService;
-import com.netease.cloud.nsf.util.Trans;
 import com.netease.cloud.nsf.util.errorcode.ApiPlaneErrorCode;
-import com.netease.cloud.nsf.util.errorcode.ErrorCode;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/7/19
@@ -27,46 +22,14 @@ public class YxGatewayController extends BaseController {
     private GatewayService gatewayService;
 
     @RequestMapping(value = "/yx", params = "Action=DeleteAPI", method = RequestMethod.POST)
-    public String deleteApi(@RequestBody @Valid YxAPI api) {
-        gatewayService.deleteAPI(Trans.yxAPI2API(api));
+    public String deleteApi(@RequestBody @Valid YxAPIDTO api) {
+        gatewayService.deleteAPI(api);
         return apiReturn(ApiPlaneErrorCode.Success);
     }
 
-    @RequestMapping(params = "Action=GetServiceList", method = RequestMethod.GET)
-    public String getServiceList() {
-
-        Map<String, Object> result = new HashMap<>();
-        List<String> serviceList = gatewayService.getServiceList().stream().map(endpoint -> endpoint.getHostname()).distinct().collect(Collectors.toList());
-
-        result.put(RESULT_LIST, serviceList);
-        ErrorCode code = ApiPlaneErrorCode.Success;
-        return apiReturn(code.getStatusCode(), code.getCode(), null, result);
-    }
-
-    @RequestMapping(params = "Action=GetServiceListByGatewayLabel", method = RequestMethod.GET)
-    public String getGatewayServiceList(@RequestParam(name = "Label") List<String> labels) {
-        Map<String, Object> result = new HashMap<>();
-        List<Endpoint> serviceList = gatewayService.getServiceListByGateway(labels);
-
-        result.put(RESULT_LIST, serviceList);
-        ErrorCode code = ApiPlaneErrorCode.Success;
-        return apiReturn(code.getStatusCode(), code.getCode(), null, result);
-    }
-
-    @RequestMapping(params = "Action=GetGatewayList", method = RequestMethod.GET)
-    public String getGatewayList() {
-
-        Map<String, Object> result = new HashMap<>();
-        List<Gateway> gatewayList = gatewayService.getGatewayList();
-
-        result.put(RESULT_LIST, gatewayList);
-        ErrorCode code = ApiPlaneErrorCode.Success;
-        return apiReturn(code.getStatusCode(), code.getCode(), null, result);
-    }
-
     @RequestMapping(value = "/yx", params = "Action=PublishAPI", method = RequestMethod.POST)
-    public String publishYXAPI(@RequestBody @Valid YxAPI api) {
-        gatewayService.updateAPI(Trans.yxAPI2API(api));
+    public String publishYXAPI(@RequestBody @Valid YxAPIDTO api) {
+        gatewayService.updateAPI(api);
         return apiReturn(ApiPlaneErrorCode.Success);
     }
 
