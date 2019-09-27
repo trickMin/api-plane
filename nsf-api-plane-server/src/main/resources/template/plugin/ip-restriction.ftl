@@ -25,11 +25,5 @@
 ---
 #@type=istioResource
 #@version=1.0
-#@resourceType=VirtualService
-#@fragmentType=VS_API
-ipRestriction:
-  type: ${type}
-  ip:
-   <#list ip as item>
-    - ${item}
-   </#list>
+#@processor=IpRestrictionProcessor
+{}

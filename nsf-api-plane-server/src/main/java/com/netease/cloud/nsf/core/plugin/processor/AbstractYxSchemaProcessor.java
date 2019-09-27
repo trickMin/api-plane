@@ -1,4 +1,4 @@
-package com.netease.cloud.nsf.core.plugin;
+package com.netease.cloud.nsf.core.plugin.processor;
 
 import com.netease.cloud.nsf.core.editor.EditorContext;
 import com.netease.cloud.nsf.core.editor.ResourceGenerator;
@@ -27,18 +27,6 @@ public abstract class AbstractYxSchemaProcessor implements SchemaProcessor<Servi
 
     protected String getServiceName(ServiceInfo serviceInfo) {
         return serviceInfo.getApi().getService();
-    }
-
-    protected String getDefaultRoute(ServiceInfo serviceInfo) {
-        ResourceGenerator rg = ResourceGenerator.newInstance(serviceInfo.getRoute(), ResourceType.YAML, editorContext);
-        Object route = rg.getValue("$.route");
-        return ResourceGenerator.obj2json(route, editorContext);
-    }
-
-    protected String getDefaultMatch(ServiceInfo serviceInfo) {
-        ResourceGenerator rg = ResourceGenerator.newInstance(serviceInfo.getMatch(), ResourceType.YAML, editorContext);
-        Object route = rg.getValue("$.match");
-        return ResourceGenerator.obj2json(route, editorContext);
     }
 
     protected String createMatch(ResourceGenerator rg, ServiceInfo info) {
