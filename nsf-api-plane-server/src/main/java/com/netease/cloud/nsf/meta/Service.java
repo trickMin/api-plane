@@ -5,7 +5,7 @@ package com.netease.cloud.nsf.meta;
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/9/20
  **/
-public class Service {
+public class Service extends CommonModel {
 
     private String code;
 

@@ -2,7 +2,7 @@ package com.netease.cloud.nsf.core.gateway.service.impl;
 
 import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
-import com.netease.cloud.nsf.core.gateway.GatewayModelProcessor;
+import com.netease.cloud.nsf.core.gateway.GatewayModelOpeartor;
 import com.netease.cloud.nsf.core.gateway.service.ConfigManager;
 import com.netease.cloud.nsf.core.gateway.service.ConfigStore;
 import com.netease.cloud.nsf.meta.API;
@@ -35,7 +35,7 @@ public class GatewayConfigManager implements ConfigManager {
     private static final Logger logger = LoggerFactory.getLogger(GatewayConfigManager.class);
 
     @Autowired
-    private GatewayModelProcessor modelProcessor;
+    private GatewayModelOpeartor modelProcessor;
 
     @Autowired
     private ConfigStore configStore;

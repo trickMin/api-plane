@@ -30,7 +30,7 @@ import static org.mockito.Mockito.when;
 public class GatewayModelProcessorTest extends BaseTest {
 
     @Autowired
-    GatewayModelProcessor processor;
+    GatewayModelOpeartor processor;
 
     @Autowired
     EditorContext editorContext;

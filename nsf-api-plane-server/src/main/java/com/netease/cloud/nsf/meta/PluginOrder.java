@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/9/26
  **/
-public class PluginOrder {
+public class PluginOrder extends CommonModel {
 
     private Map<String, String> gatewayLabels;
 
