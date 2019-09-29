@@ -1,6 +1,8 @@
 package com.netease.cloud.nsf.core.gateway;
 
+import com.jayway.jsonpath.Criteria;
 import com.netease.cloud.nsf.core.editor.EditorContext;
+import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.gateway.handler.*;
 import com.netease.cloud.nsf.core.gateway.processor.DefaultModelProcessor;
@@ -108,7 +110,7 @@ public class GatewayModelOpeartor {
 
         List<String> rawResources = new ArrayList<>();
         rawResources.addAll(rawGateways);
-        rawResources.addAll(rawVirtualServices);
+        rawResources.addAll(rawVirtualServices.stream().map(vs -> adjustVs(vs)).collect(Collectors.toList()));
         rawResources.addAll(rawDestinationRules);
         rawResources.addAll(rawSharedConfigs);
 
@@ -167,6 +169,13 @@ public class GatewayModelOpeartor {
 
     public boolean isUseless(IstioResource i) {
         return operator.isUseless(i);
+    }
+
+    private String adjustVs(String rawVs) {
+        ResourceGenerator gen = ResourceGenerator.newInstance(rawVs, ResourceType.YAML);
+        gen.removeElement("$.spec.http[?].route", Criteria.where("redirect").exists(true));
+        gen.removeElement("$.spec.http[?].fault", Criteria.where("redirect").exists(true));
+        return gen.yamlString();
     }
 
     private List<FragmentHolder> renderPlugins(API api) {
