@@ -32,7 +32,7 @@ public class RateLimitProcessor extends AbstractYxSchemaProcessor implements Sch
     public FragmentHolder process(String plugin, ServiceInfo serviceInfo) {
         FragmentHolder holder = new FragmentHolder();
         ResourceGenerator total = ResourceGenerator.newInstance(plugin, ResourceType.JSON, editorContext);
-        List<Object> limits = total.getValue("$.config.limit_by_list");
+        List<Object> limits = total.getValue("$.limit_by_list");
         AtomicInteger headerNo = new AtomicInteger(0);
 
         ResourceGenerator rateLimitGen = ResourceGenerator.newInstance("{\"rateLimits\":[]}");
