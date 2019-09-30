@@ -1,20 +1,14 @@
 package com.netease.cloud.nsf.core.gateway.service.impl;
 
-import com.netease.cloud.nsf.core.editor.ResourceGenerator;
-import com.netease.cloud.nsf.core.editor.ResourceType;
-import com.netease.cloud.nsf.core.gateway.GatewayModelOpeartor;
+import com.google.common.collect.ImmutableMap;
+import com.netease.cloud.nsf.core.gateway.GatewayModelOperator;
 import com.netease.cloud.nsf.core.gateway.service.ConfigManager;
 import com.netease.cloud.nsf.core.gateway.service.ConfigStore;
 import com.netease.cloud.nsf.meta.API;
 import com.netease.cloud.nsf.meta.PluginOrder;
 import com.netease.cloud.nsf.meta.Service;
 import com.netease.cloud.nsf.util.K8sResourceEnum;
-import com.netease.cloud.nsf.util.PathExpressionEnum;
-import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import me.snowdrop.istio.api.IstioResource;
-import me.snowdrop.istio.api.networking.v1alpha3.DestinationRule;
-import me.snowdrop.istio.api.networking.v1alpha3.PluginManager;
-import me.snowdrop.istio.api.networking.v1alpha3.ServiceEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +29,7 @@ public class GatewayConfigManager implements ConfigManager {
     private static final Logger logger = LoggerFactory.getLogger(GatewayConfigManager.class);
 
     @Autowired
-    private GatewayModelOpeartor modelProcessor;
+    private GatewayModelOperator modelProcessor;
 
     @Autowired
     private ConfigStore configStore;
@@ -55,7 +49,6 @@ public class GatewayConfigManager implements ConfigManager {
     private void update(List<IstioResource> resources) {
         if (CollectionUtils.isEmpty(resources)) return;
 
-        //TODO rollback mechanism
         for (IstioResource latest : resources) {
             IstioResource old = configStore.get(latest);
             if (old != null) {
@@ -69,27 +62,25 @@ public class GatewayConfigManager implements ConfigManager {
     @Override
     public void deleteConfig(API api, String namespace) {
         List<IstioResource> resources = modelProcessor.translate(api, namespace);
-        delete(resources, resource -> modelProcessor.subtract(resource, api.getService(), api.getName()));
+
+        ImmutableMap<String, String> toBeDeletedMap = ImmutableMap
+                .of(K8sResourceEnum.VirtualService.name(), api.getName(),
+                    K8sResourceEnum.DestinationRule.name(), String.format("%s-%s", api.getService(), api.getName(),
+                    K8sResourceEnum.SharedConfig.name(), String.format("%s-%s", api.getService(), api.getName())));
+
+        delete(resources, resource -> modelProcessor.subtract(resource, toBeDeletedMap));
     }
 
     @Override
     public void deleteConfig(Service service, String namespace) {
         if (StringUtils.isEmpty(service.getGateway())) return;
         List<IstioResource> resources = modelProcessor.translate(service, namespace);
-        delete(resources, r -> {
-            if (r.getKind().equals(K8sResourceEnum.DestinationRule.name())) {
-                DestinationRule ds = (DestinationRule) r;
-                ResourceGenerator gen = ResourceGenerator.newInstance(ds, ResourceType.OBJECT);
-                gen.removeElement(PathExpressionEnum.REMOVE_DST_SUBSET_NAME
-                                .translate(service.getCode() + "-" + service.getGateway()));
-                return gen.object(DestinationRule.class);
-            } else if (r.getKind().equals(K8sResourceEnum.ServiceEntry)) {
-                ServiceEntry se = (ServiceEntry) r;
-                se.setSpec(null);
-                return se;
-            }
-            throw new ApiPlaneException("Unsupported operation");
-        });
+
+        ImmutableMap<String, String> toBeDeletedMap = ImmutableMap
+                .of(K8sResourceEnum.DestinationRule.name(), service.getCode() + "-" + service.getGateway(),
+                    K8sResourceEnum.ServiceEntry.name(), null);
+
+        delete(resources, resource -> modelProcessor.subtract(resource, toBeDeletedMap));
     }
 
     @Override
@@ -101,14 +92,11 @@ public class GatewayConfigManager implements ConfigManager {
     @Override
     public void deleteConfig(PluginOrder pluginOrder, String namespace) {
         List<IstioResource> resources = modelProcessor.translate(pluginOrder, namespace);
-        delete(resources, r -> {
-            if (r.getKind().equals(K8sResourceEnum.PluginManager.name())) {
-                PluginManager pm = (PluginManager) r;
-                pm.setSpec(null);
-                return pm;
-            }
-            throw new ApiPlaneException("Unsupported operation");
-        });
+
+        ImmutableMap<String, String> toBeDeletedMap = ImmutableMap
+                .of(K8sResourceEnum.PluginManager.name(), null);
+
+        delete(resources, resource -> modelProcessor.subtract(resource, toBeDeletedMap));
     }
 
     private void delete(List<IstioResource> resources, Function<IstioResource, IstioResource> fun) {

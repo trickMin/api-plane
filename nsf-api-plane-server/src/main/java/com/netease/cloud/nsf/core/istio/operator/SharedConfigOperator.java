@@ -74,9 +74,9 @@ public class SharedConfigOperator implements IstioResourceOperator<SharedConfig>
     }
 
     @Override
-    public SharedConfig subtract(SharedConfig old, String service, String api) {
+    public SharedConfig subtract(SharedConfig old, String value) {
         ResourceGenerator gen = ResourceGenerator.newInstance(old, ResourceType.OBJECT);
-        gen.removeElement(PathExpressionEnum.REMOVE_SC_RATELIMITDESC.translate(buildDescriptorValue(service, api)));
+        gen.removeElement(PathExpressionEnum.REMOVE_SC_RATELIMITDESC.translate(value));
         return gen.object(SharedConfig.class);
     }
 

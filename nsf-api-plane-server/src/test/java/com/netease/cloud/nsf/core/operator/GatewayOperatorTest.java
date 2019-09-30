@@ -21,29 +21,31 @@ public class GatewayOperatorTest {
         operator = new GatewayOperator();
     }
 
-
     @Test
     public void testMerge() {
 
-        List<String> oldHosts = Arrays.asList("a", "b");
-        List<String> freshHosts = Arrays.asList("b", "c", "d");
-
-        Gateway old = new Gateway();
-        GatewaySpec oldSpec = new GatewaySpec();
-        Server oldServer = new Server();
-        oldServer.setHosts(oldHosts);
-        oldSpec.setServers(Arrays.asList(oldServer));
-        old.setSpec(oldSpec);
-
-        Gateway fresh = new Gateway();
-        GatewaySpec freshSpec = new GatewaySpec();
-        Server freshServer = new Server();
-        freshServer.setHosts(freshHosts);
-        freshSpec.setServers(Arrays.asList(freshServer));
-        fresh.setSpec(freshSpec);
+        Gateway old = getGateway(getGatewaySpec(Arrays.asList(getServer(Arrays.asList("a", "b")))));
+        Gateway fresh = getGateway(getGatewaySpec(Arrays.asList(getServer(Arrays.asList("b", "c", "d")))));
 
         Gateway merge = operator.merge(old, fresh);
         Assert.assertTrue(merge.getSpec().getServers().get(0).getHosts().size() == 4);
+    }
 
+    private static Server getServer(List<String> hosts) {
+        Server server = new Server();
+        server.setHosts(hosts);
+        return server;
+    }
+
+    private static GatewaySpec getGatewaySpec(List<Server> servers) {
+        GatewaySpec spec = new GatewaySpec();
+        spec.setServers(servers);
+        return spec;
+    }
+
+    private static Gateway getGateway(GatewaySpec spec) {
+        Gateway gateway = new Gateway();
+        gateway.setSpec(spec);
+        return gateway;
     }
 }

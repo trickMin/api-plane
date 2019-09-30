@@ -29,6 +29,7 @@ import org.springframework.util.StringUtils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.netease.cloud.nsf.core.template.TemplateConst.*;
@@ -38,9 +39,9 @@ import static com.netease.cloud.nsf.core.template.TemplateConst.*;
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/7/17
  **/
 @Component
-public class GatewayModelOpeartor {
+public class GatewayModelOperator {
 
-    private static final Logger logger = LoggerFactory.getLogger(GatewayModelOpeartor.class);
+    private static final Logger logger = LoggerFactory.getLogger(GatewayModelOperator.class);
 
     @Autowired
     IntegratedResourceOperator operator;
@@ -159,12 +160,9 @@ public class GatewayModelOpeartor {
     /**
      * 在已有的istio crd中删去对应api部分
      *
-     * @param old
-     * @param api
-     * @return
      */
-    public IstioResource subtract(IstioResource old, String service, String api) {
-        return operator.subtract(old, service, api);
+    public IstioResource subtract(IstioResource old, Map<String, String> values) {
+        return operator.subtract(old, values.get(old.getKind()));
     }
 
     public boolean isUseless(IstioResource i) {

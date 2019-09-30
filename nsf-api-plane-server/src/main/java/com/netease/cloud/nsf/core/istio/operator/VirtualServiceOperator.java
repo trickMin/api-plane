@@ -54,15 +54,15 @@ public class VirtualServiceOperator implements IstioResourceOperator<VirtualServ
     }
 
     @Override
-    public VirtualService subtract(VirtualService old, String service, String name) {
+    public VirtualService subtract(VirtualService old, String value) {
 
         //根据api name删除httpRoute
         List<HTTPRoute> latestHttp = old.getSpec().getHttp().stream()
-                .filter(h -> !h.getApi().equals(name))
+                .filter(h -> !h.getApi().equals(value))
                 .collect(Collectors.toList());
 
         if (!CollectionUtils.isEmpty(old.getSpec().getPlugins())) {
-            old.getSpec().getPlugins().entrySet().removeIf(e -> e.getKey().equals(name));
+            old.getSpec().getPlugins().entrySet().removeIf(e -> e.getKey().equals(value));
         }
 
         old.getSpec().setHttp(latestHttp);

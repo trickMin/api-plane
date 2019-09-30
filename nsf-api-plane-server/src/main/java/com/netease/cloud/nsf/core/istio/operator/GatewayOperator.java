@@ -49,6 +49,12 @@ public class GatewayOperator implements IstioResourceOperator<Gateway> {
     }
 
     @Override
+    public Gateway subtract(Gateway old, String value) {
+        //do nothing
+        return old;
+    }
+
+    @Override
     public boolean adapt(String name) {
         return K8sResourceEnum.Gateway.name().equals(name);
     }
