@@ -162,7 +162,7 @@ public class GatewayModelOperator {
      *
      */
     public IstioResource subtract(IstioResource old, Map<String, String> values) {
-        return operator.subtract(old, values.getOrDefault(old.getKind(), null));
+        return operator.subtract(old, values.get(old.getKind()));
     }
 
     public boolean isUseless(IstioResource i) {
