@@ -54,9 +54,9 @@ public class DestinationRuleOperator implements IstioResourceOperator<Destinatio
     }
 
     @Override
-    public DestinationRule subtract(DestinationRule old, String service, String api) {
+    public DestinationRule subtract(DestinationRule old, String value) {
         ResourceGenerator gen = ResourceGenerator.newInstance(old, ResourceType.OBJECT);
-        gen.removeElement(PathExpressionEnum.REMOVE_DST_SUBSET_API.translate(buildSubsetApi(service, api)));
+        gen.removeElement(PathExpressionEnum.REMOVE_DST_SUBSET_API.translate(value));
         return gen.object(DestinationRule.class);
     }
 

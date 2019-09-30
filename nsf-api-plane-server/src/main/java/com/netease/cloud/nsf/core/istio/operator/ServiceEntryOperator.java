@@ -29,4 +29,10 @@ public class ServiceEntryOperator implements IstioResourceOperator<ServiceEntry>
         return serviceEntry == null ||
                 serviceEntry.getSpec() == null;
     }
+
+    @Override
+    public ServiceEntry subtract(ServiceEntry old, String value) {
+        old.setSpec(null);
+        return old;
+    }
 }

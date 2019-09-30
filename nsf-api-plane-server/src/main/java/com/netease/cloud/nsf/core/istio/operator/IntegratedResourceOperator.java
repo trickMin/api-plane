@@ -25,13 +25,11 @@ public class IntegratedResourceOperator {
         return resolve(old).merge(old, fresh);
     }
 
-    public IstioResource subtract(IstioResource old, String service, String api) {
+    public IstioResource subtract(IstioResource old, String value) {
 
         if (old == null) throw new ApiPlaneException(ExceptionConst.RESOURCE_NON_EXIST);
-        if (StringUtils.isEmpty(service)) throw new ApiPlaneException(ExceptionConst.SERVICE_NON_EXIST);
-        if (StringUtils.isEmpty(api)) throw new ApiPlaneException(ExceptionConst.API_NON_EXIST);
 
-        return resolve(old).subtract(old, service, api);
+        return resolve(old).subtract(old, value);
     }
 
     private boolean identical(IstioResource old, IstioResource fresh) {

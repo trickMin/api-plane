@@ -31,4 +31,10 @@ public class PluginManagerOperator implements IstioResourceOperator<PluginManage
         return pm.getSpec() == null ||
                 CollectionUtils.isEmpty(pm.getSpec().getPlugins());
     }
+
+    @Override
+    public PluginManager subtract(PluginManager old, String value) {
+        old.setSpec(null);
+        return old;
+    }
 }

@@ -30,7 +30,7 @@ import static org.mockito.Mockito.when;
 public class GatewayModelProcessorTest extends BaseTest {
 
     @Autowired
-    GatewayModelOpeartor processor;
+    GatewayModelOperator processor;
 
     @Autowired
     EditorContext editorContext;
@@ -293,7 +293,8 @@ public class GatewayModelProcessorTest extends BaseTest {
         K8sResourceEnum resourceEnum = K8sResourceEnum.get(gen.getKind());
         IstioResource vs = (IstioResource) gen.object(resourceEnum.mappingType());
 
-        VirtualService subtractedVs = (VirtualService) processor.subtract(vs, "service-zero", "plane-istio-test");
+        VirtualService subtractedVs = (VirtualService) processor.subtract(vs,
+                ImmutableMap.of(K8sResourceEnum.VirtualService.name(), "plane-istio-test"));
 
         Assert.assertTrue(subtractedVs.getSpec().getHttp().size() == 1);
     }
