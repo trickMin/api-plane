@@ -15,6 +15,7 @@ import com.netease.cloud.nsf.core.template.TemplateTranslator;
 import com.netease.cloud.nsf.meta.API;
 import com.netease.cloud.nsf.meta.*;
 import com.netease.cloud.nsf.service.PluginService;
+import com.netease.cloud.nsf.util.Const;
 import com.netease.cloud.nsf.util.K8sResourceEnum;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
@@ -73,6 +74,7 @@ public class GatewayModelOperator {
 
     private static final String pluginManager = "gateway/pluginManager";
 
+    private static final String serviceServiceEntry = "gateway/service/serviceEntry";
 
     /**
      * 将api转换为istio对应的规则
@@ -125,8 +127,10 @@ public class GatewayModelOperator {
 
         List<IstioResource> resources = new ArrayList<>();
         service.setNamespace(namespace);
-        List<String> destinations = defaultModelProcessor.process(
-                serviceDestinationRule, service, new PortalDestinationRuleServiceDataHandler(defaultModelProcessor));
+        List<String> destinations = defaultModelProcessor.process(serviceDestinationRule, service, new PortalDestinationRuleServiceDataHandler());
+        if (Const.PROXY_SERVICE_TYPE_STATIC.equals(service.getType())) {
+            destinations.addAll(defaultModelProcessor.process(serviceServiceEntry, service, new PortalServiceEntryServiceDataHandler()));
+        }
         destinations.stream()
                 .forEach(ds -> resources.add(str2IstioResource(ds)));
 

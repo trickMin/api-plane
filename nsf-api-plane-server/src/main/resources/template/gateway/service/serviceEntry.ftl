@@ -9,7 +9,7 @@ spec:
   - address: ${e.address}
 <#if e.port ??>
     ports:
-      http: ${e.port}
+      http: ${e.port?c}
 </#if>
 </#list>
   exportTo:

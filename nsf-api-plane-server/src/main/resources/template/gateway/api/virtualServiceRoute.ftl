@@ -1,4 +1,4 @@
-<#if t_virtual_service_destinations??>
+<#if t_virtual_service_destinations?has_content>
 route:
 <#list t_virtual_service_destinations as ds>
 - destination:

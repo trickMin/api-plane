@@ -37,20 +37,4 @@ public class DefaultModelProcessor<T> implements ModelProcessor<T> {
     public String process(String template, TemplateParams params) {
         return templateTranslator.translate(template, params.output());
     }
-
-    @Override
-    public List<String> processSource(String source, T t, DataHandler<T> dataHandler) {
-        List<TemplateParams> params = dataHandler.handle(t);
-        if (CollectionUtils.isEmpty(params)) return Collections.emptyList();
-
-        return params.stream()
-                .map(p -> templateTranslator.translate("tmp", source, p.output()))
-                .filter(r -> !StringUtils.isEmpty(r))
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public String processSource(String source, TemplateParams params) {
-        return templateTranslator.translate("tmp", source, params);
-    }
 }
