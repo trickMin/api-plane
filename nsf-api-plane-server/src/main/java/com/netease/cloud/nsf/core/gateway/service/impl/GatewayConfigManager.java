@@ -51,6 +51,7 @@ public class GatewayConfigManager implements ConfigManager {
 
         for (IstioResource latest : resources) {
             IstioResource old = configStore.get(latest);
+            if (old.equals(latest)) continue;
             if (old != null) {
                 configStore.update(modelProcessor.merge(old, latest));
                 continue;

@@ -11,7 +11,4 @@ public interface ModelProcessor<T> {
 
     String process(String template, TemplateParams params);
 
-    List<String> processSource(String source, T t, DataHandler<T> dataHandler);
-
-    String processSource(String source, TemplateParams params);
 }

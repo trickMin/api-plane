@@ -38,13 +38,4 @@ public class RenderTwiceModelProcessor<T> implements ModelProcessor<T> {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    public List<String> processSource(String source, T t, DataHandler<T> dataHandler) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public String processSource(String source, TemplateParams params) {
-        throw new UnsupportedOperationException();
-    }
 }
