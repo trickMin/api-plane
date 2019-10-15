@@ -31,11 +31,6 @@ public interface SchemaProcessor<T> {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
-        List<FragmentWrapper> sharedConfigs = holders.stream()
-                .map(FragmentHolder::getSharedConfigFragment)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-
         FragmentHolder combineHolder = new FragmentHolder();
         if (!CollectionUtils.isEmpty(virtualServices)) {
             List<String> contents = virtualServices.stream().map(FragmentWrapper::getContent).collect(Collectors.toList());
@@ -45,16 +40,6 @@ public interface SchemaProcessor<T> {
                     .withFragmentType(virtualServices.get(0).getFragmentType())
                     .build();
             combineHolder.setVirtualServiceFragment(wrapper);
-        }
-
-        if (!CollectionUtils.isEmpty(sharedConfigs)) {
-            List<String> contents = sharedConfigs.stream().map(FragmentWrapper::getContent).collect(Collectors.toList());
-            FragmentWrapper wrapper = new FragmentWrapper.Builder()
-                    .withContent(String.join("\n", contents))
-                    .withResourceType(sharedConfigs.get(0).getResourceType())
-                    .withFragmentType(sharedConfigs.get(0).getFragmentType())
-                    .build();
-            combineHolder.setSharedConfigFragment(wrapper);
         }
 
         return ImmutableList.of(combineHolder);

@@ -1,17 +1,22 @@
 package com.netease.cloud.nsf.service;
 
 import com.netease.cloud.nsf.core.plugin.FragmentHolder;
-import com.netease.cloud.nsf.meta.PluginTemplate;
+import com.netease.cloud.nsf.meta.Plugin;
 import com.netease.cloud.nsf.meta.ServiceInfo;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @auther wupenghuai@corp.netease.com
  * @date 2019/8/2
  **/
 public interface PluginService {
-    PluginTemplate getTemplate(String name, String version);
+    Plugin getPlugin(String name);
+
+    Map<String, Plugin> getPlugins();
+
+    String getPluginConfig();
 
     FragmentHolder processSchema(String plugin, ServiceInfo serviceInfo);
 

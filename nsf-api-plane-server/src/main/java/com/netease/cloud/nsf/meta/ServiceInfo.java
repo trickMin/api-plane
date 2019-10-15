@@ -119,4 +119,17 @@ public class ServiceInfo {
     public void setMatch(String match) {
         this.match = match;
     }
+
+    @Override
+    public String toString() {
+        return "ServiceInfo{" +
+                "api=" + api +
+                ", apiName='" + apiName + '\'' +
+                ", method='" + method + '\'' +
+                ", uri='" + uri + '\'' +
+                ", subset='" + subset + '\'' +
+                ", route='" + route + '\'' +
+                ", match='" + match + '\'' +
+                '}';
+    }
 }
