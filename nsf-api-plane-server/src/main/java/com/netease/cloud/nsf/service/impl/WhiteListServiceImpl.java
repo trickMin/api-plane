@@ -10,19 +10,10 @@ import com.netease.cloud.nsf.meta.WhiteList;
 import com.netease.cloud.nsf.service.WhiteListService;
 import com.netease.cloud.nsf.util.PathExpressionEnum;
 import com.sun.javafx.binding.StringFormatter;
-import me.snowdrop.istio.api.rbac.v1alpha1.AccessRule;
-import me.snowdrop.istio.api.rbac.v1alpha1.AccessRuleBuilder;
-import me.snowdrop.istio.api.rbac.v1alpha1.ConstraintBuilder;
-import me.snowdrop.istio.api.rbac.v1alpha1.RbacConfig;
-import me.snowdrop.istio.api.rbac.v1alpha1.ServiceRole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.netease.cloud.nsf.util.K8sResourceEnum.*;
 
@@ -48,30 +39,6 @@ public class WhiteListServiceImpl implements WhiteListService {
     private static final String WHITELIST_TEMPLATE_NAME = "whiteList";
     private static final String YAML_SPLIT = "---";
 
-    private void initNamespaceIfNeeded(WhiteList whiteList) {
-        if (client.get(ServiceRole.name(), whiteList.getNamespace(), "qz-ingress-whitelist") == null ||
-            client.get(ServiceRoleBinding.name(), whiteList.getNamespace(), "qz-ingress-whitelist") == null ||
-            client.get(ServiceRole.name(), whiteList.getNamespace(), "qz-ingress-passed") == null ||
-            client.get(ServiceRoleBinding.name(), whiteList.getNamespace(), "qz-ingress-passed") == null) {
-            Arrays.stream(templateTranslator.translate(RBAC_INGRESS_TEMPLATE_NAME, whiteList, YAML_SPLIT))
-                .filter(yaml -> yaml.contains("apiVersion"))
-                .forEach(yaml -> client.createOrUpdate(yaml, ResourceType.YAML));
-		}
-	}
-
-    private void addItemToClusterRbacConfig(WhiteList whiteList) {
-        RbacConfig rbacConfig = client.getObject(ClusterRbacConfig.name(), whiteList.getNamespace(), "default");
-        ResourceGenerator generator = ResourceGenerator.newInstance(rbacConfig, ResourceType.OBJECT, editorContext);
-		String fullService = whiteList.getFullService();
-        if (rbacConfig.getSpec().getInclusion().getServices().contains(fullService)) {
-            logger.info("rbac for {} already enabled.", fullService);
-            return;
-        }
-        generator.addElement(PathExpressionEnum.ADD_RBAC_SERVICE_TO_RBAC_CONFIG.translate(), fullService);
-        client.createOrUpdate(generator.jsonString(), ResourceType.JSON);
-        logger.info("successfully enable rbac for {}.", fullService);
-    }
-
     /**
      * 要求每次都上报全量的values
      *
@@ -79,14 +46,6 @@ public class WhiteListServiceImpl implements WhiteListService {
      */
     @Override
     public void updateService(WhiteList whiteList) {
-    	initNamespaceIfNeeded(whiteList);
-    	addItemToClusterRbacConfig(whiteList);
-        addRuleToIngressWhitelist(whiteList);
-        addRuleToIngressPassed(whiteList);
-        createOrUpdateServiceWhitelist(whiteList);
-    }
-
-    private void createOrUpdateServiceWhitelist(WhiteList whiteList) {
         String[] yamls = templateTranslator.translate(WHITELIST_TEMPLATE_NAME, whiteList, YAML_SPLIT);
         for (String yaml : yamls) {
             if (!yaml.contains("apiVersion")) {
@@ -94,41 +53,6 @@ public class WhiteListServiceImpl implements WhiteListService {
             }
             client.createOrUpdate(yaml, ResourceType.YAML);
         }
-    }
-
-    private void addRuleToIngressWhitelist(WhiteList whiteList) {
-        ServiceRole ingressWhitelistRole = client.getObject(ServiceRole.name(), whiteList.getNamespace(), "qz-ingress-whitelist");
-        ResourceGenerator whitelistGenerator = ResourceGenerator.newInstance(ingressWhitelistRole, ResourceType.OBJECT, editorContext);
-
-        //约定云外到云内的请求头中是不包含namespace(tag)的
-        List<String> sourcesWithoutNamespace = whiteList.getVerboseSources().stream()
-            .map(WhiteList.VerboseSource::getName)
-            .collect(Collectors.toList());
-        AccessRule iwRule = new AccessRuleBuilder()
-            .withServices(whiteList.getFullService())
-            .withConstraints(new ConstraintBuilder()
-                .withKey("request.headers[Source-External]")
-                .withValues(sourcesWithoutNamespace)
-                .build())
-            .build();
-        whitelistGenerator.removeElement(PathExpressionEnum.REMOVE_RBAC_SERVICE.translate(),
-            Criteria.where("services").contains(whiteList.getFullService()));
-        whitelistGenerator.addElement(PathExpressionEnum.ADD_RBAC_SERVICE.translate(), iwRule);
-        client.createOrUpdate(whitelistGenerator.jsonString(), ResourceType.JSON);
-    }
-
-    private void addRuleToIngressPassed(WhiteList whiteList) {
-        ServiceRole ingressPassedRole = client.getObject(ServiceRole.name(), whiteList.getNamespace(), "qz-ingress-passed");
-        ResourceGenerator passedGenerator = ResourceGenerator.newInstance(ingressPassedRole, ResourceType.OBJECT, editorContext);
-
-        AccessRule passedRule = new AccessRuleBuilder()
-            .withServices(whiteList.getFullService())
-            .withPaths(whiteList.getConfigPassedPaths())
-            .build();
-        passedGenerator.removeElement(PathExpressionEnum.REMOVE_RBAC_SERVICE.translate(),
-            Criteria.where("services").contains(whiteList.getFullService()));
-        passedGenerator.addElement(PathExpressionEnum.ADD_RBAC_SERVICE.translate(), passedRule);
-        client.createOrUpdate(passedGenerator.jsonString(), ResourceType.JSON);
     }
 
     @Override
