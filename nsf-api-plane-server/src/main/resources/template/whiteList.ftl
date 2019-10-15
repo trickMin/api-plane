@@ -12,7 +12,6 @@ spec:
   - route:
     - destination:
         host: ${service}
-        subset: internal
       weight: 100
     - destination:
         host: qz-egress.istio-system.svc.cluster.local
@@ -29,10 +28,6 @@ spec:
     tls:
       mode: ISTIO_MUTUAL
   host: ${service}
-  subsets:
-  - name: internal
-    labels:
-      app: ${service}
 ---
 apiVersion: "authentication.istio.io/v1alpha1"
 kind: "Policy"
