@@ -56,6 +56,8 @@ public class ServiceInfo {
     @JsonProperty(VIRTUAL_SERVICE_MATCH_YAML)
     private String match;
 
+    @JsonProperty(VIRTUAL_SERVICE_HOSTS)
+    private String hosts;
 
     public API getApi() {
         return api;
@@ -120,6 +122,15 @@ public class ServiceInfo {
         this.match = match;
     }
 
+    public String getHosts() {
+        return hosts;
+    }
+
+    @JsonProperty(VIRTUAL_SERVICE_HOSTS)
+    public void setHosts(String hosts) {
+        this.hosts = hosts;
+    }
+
     @Override
     public String toString() {
         return "ServiceInfo{" +
@@ -130,6 +141,7 @@ public class ServiceInfo {
                 ", subset='" + subset + '\'' +
                 ", route='" + route + '\'' +
                 ", match='" + match + '\'' +
+                ", hosts='" + hosts + '\'' +
                 '}';
     }
 }
