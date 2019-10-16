@@ -110,7 +110,7 @@ public class RouteProcessor extends AbstractYxSchemaProcessor implements SchemaP
         ResourceGenerator ret = ResourceGenerator.newInstance("{}", ResourceType.JSON, editorContext);
         ret.createOrUpdateJson("$", "match", createMatch(rg, info));
         ret.createOrUpdateJson("$", "return",
-                String.format("{\"body\":{\"inlineString\":\"%s\"},\"code\":%s}", rg.getValue("$.action.return_target.body"), rg.getValue("$.action.code")));
+                String.format("{\"body\":{\"inlineString\":\"%s\"},\"code\":%s}", rg.getValue("$.action.return_target.body"), rg.getValue("$.action.return_target.code")));
         if (rg.contain("$.action.header")) {
             ret.createOrUpdateJson("$", "appendHeaders", "{}");
             List<Object> headers = rg.getValue("$.action.header[*]");
