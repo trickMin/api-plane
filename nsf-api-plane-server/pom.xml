@@ -54,7 +54,7 @@
         <dependency>
             <groupId>me.snowdrop</groupId>
             <artifactId>istio-model</artifactId>
-            <version>0.0.10-QZ-SNAPSHOT</version>
+            <version>0.0.11-QZ-SNAPSHOT</version>
         </dependency>
 
         <!-- k8s -->
