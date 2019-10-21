@@ -31,6 +31,7 @@ public class VirtualServiceOperator implements IstioResourceOperator<VirtualServ
         Map<String, ApiPlugin> latestPlugins = mergeMap(oldSpec.getPlugins(), freshSpec.getPlugins(), (o, n) -> Objects.equals(o, n));
         latest.getSpec().setPlugins(latestPlugins);
 
+        latest.getSpec().setRateLimits(fresh.getSpec().getRateLimits());
         return latest;
     }
 
