@@ -151,7 +151,7 @@ public class RouteProcessor extends AbstractYxSchemaProcessor implements SchemaP
     private String createRewrite(ResourceGenerator rg, ServiceInfo info) {
         ResourceGenerator ret = ResourceGenerator.newInstance("{}", ResourceType.JSON, editorContext);
         ret.createOrUpdateJson("$", "match", createMatch(rg, info));
-        ret.createOrUpdateJson("$", "transformation", "{\"requestTransformations\":[{\"transformation_template\":{\"extractors\":{},\"headers\":{}}}]}");
+        ret.createOrUpdateJson("$", "transformation", "{\"requestTransformations\":[{\"transformationTemplate\":{\"extractors\":{},\"headers\":{}}}]}");
         // $.action.target : 转换结果，格式如/$2/$1
         Matcher matcher = Pattern.compile("\\$\\d").matcher(rg.getValue("$.action.target"));
         int regexCount = 0;
@@ -163,9 +163,9 @@ public class RouteProcessor extends AbstractYxSchemaProcessor implements SchemaP
         for (int i = 1; i <= regexCount; i++) {
             String key = "$" + i;
             String value = String.format("{\"header\":\":path\",\"regex\":\"%s\",\"subgroup\":%s}", original, i);
-            ret.createOrUpdateJson("$.transformation.requestTransformations[0].transformation_template.extractors", key, value);
+            ret.createOrUpdateJson("$.transformation.requestTransformations[0].transformationTemplate.extractors", key, value);
         }
-        ret.createOrUpdateJson("$.transformation.requestTransformations[0].transformation_template.headers", ":path", String.format("{\"text\":\"%s\"}", target));
+        ret.createOrUpdateJson("$.transformation.requestTransformations[0].transformationTemplate.headers", ":path", String.format("{\"text\":\"%s\"}", target));
         return ret.jsonString();
     }
 }

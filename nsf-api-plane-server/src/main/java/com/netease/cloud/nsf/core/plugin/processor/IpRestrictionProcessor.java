@@ -24,11 +24,11 @@ public class IpRestrictionProcessor extends AbstractYxSchemaProcessor implements
     @Override
     public FragmentHolder process(String plugin, ServiceInfo serviceInfo) {
         ResourceGenerator rg = ResourceGenerator.newInstance(plugin);
-        ResourceGenerator ret = ResourceGenerator.newInstance("{\"ipRestriction\":{\"ip\":[]}}");
+        ResourceGenerator ret = ResourceGenerator.newInstance("{\"ipRestriction\":{\"list\":[]}}");
         ret.createOrUpdateJson("$.ipRestriction", "type", rg.getValue("$.type", String.class));
-        List<String> ips = rg.getValue("$.ip[*]");
+        List<String> ips = rg.getValue("$.list[*]");
         for (String ip : ips) {
-            ret.addJsonElement("$.ipRestriction.ip", ip);
+            ret.addJsonElement("$.ipRestriction.list", ip);
         }
         FragmentHolder fragmentHolder = new FragmentHolder();
         FragmentWrapper wrapper = new FragmentWrapper.Builder()
