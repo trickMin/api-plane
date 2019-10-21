@@ -194,9 +194,7 @@ public class GatewayModelOperator {
         service.setSubset(wrap(VIRTUAL_SERVICE_SUBSET_NAME));
         service.setApi(api);
 
-        List<FragmentHolder> fragments = plugins.stream()
-                .map(p -> pluginService.processSchema(p, service))
-                .collect(Collectors.toList());
+        List<FragmentHolder> fragments = pluginService.processSchema(plugins, service);
         return fragments;
     }
 

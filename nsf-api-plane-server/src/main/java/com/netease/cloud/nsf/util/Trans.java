@@ -46,7 +46,7 @@ public class Trans {
     public static Service portalService2Service(PortalServiceDTO portalService) {
 
         Service s = new Service();
-        s.setCode(portalService.getCode());
+        s.setCode(portalService.getCode().toLowerCase());
         s.setType(portalService.getType());
         s.setWeight(portalService.getWeight());
         s.setBackendService(portalService.getBackendService());
