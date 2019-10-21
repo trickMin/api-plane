@@ -50,6 +50,7 @@ public class Trans {
         s.setType(portalService.getType());
         s.setWeight(portalService.getWeight());
         s.setBackendService(portalService.getBackendService());
+        s.setGateway(portalService.getGateway());
         return s;
     }
 
