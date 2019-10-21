@@ -22,9 +22,9 @@ spec:
 <@indent count=2><@supply></@supply></@indent>
 
 <#if t_api_api_plugins?has_content>
-plugins:
-  ${t_api_name}:
+  plugins:
+    ${t_api_name}:
 <#list t_api_api_plugins as p>
-<@indent count=4>${p}</@indent>
+<@indent count=6>${p}</@indent>
 </#list>
 </#if>

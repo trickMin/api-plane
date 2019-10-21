@@ -3,14 +3,11 @@ package com.netease.cloud.nsf.core.istio;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.jayway.jsonpath.Criteria;
-import com.netease.cloud.nsf.core.editor.ResourceGenerator;
-import com.netease.cloud.nsf.core.editor.ResourceType;
+import com.google.common.collect.ImmutableMap;
 import com.netease.cloud.nsf.core.k8s.KubernetesClient;
 import com.netease.cloud.nsf.meta.Endpoint;
 import com.netease.cloud.nsf.meta.Gateway;
 import com.netease.cloud.nsf.util.K8sResourceEnum;
-import com.netease.cloud.nsf.util.PathExpressionEnum;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
 import io.fabric8.kubernetes.api.model.Pod;
@@ -25,9 +22,13 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -44,7 +45,7 @@ public class IstioHttpClient {
     private String NAMESPACE;
     private static final String NAME = "pilot";
 
-    private static final String GET_ENDPOINTZ_PATH = "/debug/endpointz";
+    private static final String GET_ENDPOINTZ_PATH = "/debug/endpointz?brief=true";
     private static final String GET_CONFIGZ_PATH = "/debug/configz";
 
 
@@ -81,9 +82,7 @@ public class IstioHttpClient {
 
     private String getIstioUrl() {
         if (!StringUtils.isEmpty(istioHttpUrl)) return istioHttpUrl;
-        List<Pod> istioPods = client.getObjectList(K8sResourceEnum.Pod.name(), NAMESPACE, new HashMap() {{
-            put("app", NAME);
-        }});
+        List<Pod> istioPods = client.getObjectList(K8sResourceEnum.Pod.name(), NAMESPACE, ImmutableMap.of("app", NAME));
         if (CollectionUtils.isEmpty(istioPods)) throw new ApiPlaneException(ExceptionConst.ISTIO_POD_NON_EXIST);
         Pod istioPod = istioPods.get(0);
         String ip = istioPod.getStatus().getPodIP();
@@ -104,18 +103,27 @@ public class IstioHttpClient {
 
     public List<Endpoint> getEndpointList() {
         List<Endpoint> endpoints = new ArrayList<>();
-        List svcs = ResourceGenerator.newInstance(getEndpoints(), ResourceType.JSON).getValue(PathExpressionEnum.ISTIO_GET_SVC.translate());
-        svcs.stream().forEach(
-                svc -> {
-                    Endpoint endpoint = new Endpoint();
-                    ResourceGenerator gen = ResourceGenerator.newInstance(svc, ResourceType.OBJECT);
-                    endpoint.setHostname(gen.getValue("$.service.hostname"));
-                    endpoint.setAddress(gen.getValue("$.endpoint.Address"));
-                    endpoint.setPort(gen.getValue("$.endpoint.ServicePort.port"));
-                    endpoint.setLabels(gen.getValue("$.labels"));
-                    endpoints.add(endpoint);
+        String[] rawValues = getEndpoints().split("\\n");
+        for (String rawValue : rawValues) {
+            Pattern pattern = Pattern.compile("(.*):http (.*) (.*):(.*) (.*) (.*)");
+            Matcher matcher = pattern.matcher(rawValue);
+            if (matcher.find()) {
+                Endpoint endpoint = new Endpoint();
+                endpoint.setHostname(matcher.group(1));
+                endpoint.setAddress(matcher.group(3));
+                endpoint.setPort(Integer.valueOf(matcher.group(4)));
+                Map<String, String> labelMap = new HashMap<>();
+                String[] labels = matcher.group(5).split(",");
+                for (String label : labels) {
+                    Matcher kv = Pattern.compile("(.*)=(.*)").matcher(label);
+                    if (kv.find()) {
+                        labelMap.put(kv.group(1), kv.group(2));
+                    }
                 }
-        );
+                endpoint.setLabels(labelMap);
+                endpoints.add(endpoint);
+            }
+        }
         return endpoints.stream()
                 .filter(endpoint -> endpoint.getAddress() != null && endpoint.getHostname() != null && endpoint.getPort() != null)
                 .filter(endpoint -> !Pattern.compile("(.*)\\.istio-system\\.(.*)\\.(.*)\\.(.*)").matcher(endpoint.getHostname()).find())
@@ -124,18 +132,30 @@ public class IstioHttpClient {
 
     public List<Gateway> getGatewayList() {
         List<Gateway> gateways = new ArrayList<>();
-        List svcs = ResourceGenerator.newInstance(getEndpoints(), ResourceType.JSON)
-                .getValue(PathExpressionEnum.ISTIO_GET_GATEWAY.translate(), Criteria.where("labels.gw_cluster").exists(true));
-        svcs.stream().forEach(svc -> {
-            Gateway gateway = new Gateway();
-            ResourceGenerator gen = ResourceGenerator.newInstance(svc, ResourceType.OBJECT);
-            gateway.setHostname(gen.getValue("$.service.hostname"));
-            gateway.setAddress(gen.getValue("$.endpoint.Address"));
-            gateway.setLabels(gen.getValue("$.labels"));
-            gateways.add(gateway);
-        });
+        String[] rawValues = getEndpoints().split("\\n");
+        for (String rawValue : rawValues) {
+            Pattern pattern = Pattern.compile("(.*):(.*) (.*) (.*):(.*) (.*) (.*)");
+            Matcher matcher = pattern.matcher(rawValue);
+            if (matcher.find()) {
+                Gateway gateway = new Gateway();
+                gateway.setHostname(matcher.group(1));
+                gateway.setAddress(matcher.group(4));
+                Map<String, String> labelMap = new HashMap<>();
+                String[] labels = matcher.group(6).split(",");
+                for (String label : labels) {
+                    Matcher kv = Pattern.compile("(.*)=(.*)").matcher(label);
+                    if (kv.find()) {
+                        labelMap.put(kv.group(1), kv.group(2));
+                    }
+                }
+                gateway.setLabels(labelMap);
+                gateways.add(gateway);
+            }
+        }
         Map<String, Gateway> temp = new HashMap<>();
-        gateways.forEach(gateway -> temp.putIfAbsent(gateway.getAddress(), gateway));
+        gateways.stream()
+                .filter(gateway -> gateway.getLabels().containsKey("gw_cluster"))
+                .forEach(gateway -> temp.putIfAbsent(gateway.getAddress(), gateway));
         return new ArrayList<>(temp.values());
     }
 
