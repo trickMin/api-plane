@@ -17,7 +17,9 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 /**
@@ -78,8 +80,7 @@ public class GatewayConfigManager implements ConfigManager {
         List<IstioResource> resources = modelProcessor.translate(service, namespace);
 
         ImmutableMap<String, String> toBeDeletedMap = ImmutableMap
-                .of(K8sResourceEnum.DestinationRule.name(), String.format("%s-%s", service.getCode(), service.getGateway()),
-                    K8sResourceEnum.ServiceEntry.name(), null);
+                .of(K8sResourceEnum.DestinationRule.name(), String.format("%s-%s", service.getCode(), service.getGateway()));
 
         delete(resources, resource -> modelProcessor.subtract(resource, toBeDeletedMap));
     }
@@ -94,9 +95,7 @@ public class GatewayConfigManager implements ConfigManager {
     public void deleteConfig(PluginOrder pluginOrder, String namespace) {
         List<IstioResource> resources = modelProcessor.translate(pluginOrder, namespace);
 
-        ImmutableMap<String, String> toBeDeletedMap = ImmutableMap
-                .of(K8sResourceEnum.PluginManager.name(), null);
-
+        Map<String, String> toBeDeletedMap = Collections.emptyMap();
         delete(resources, resource -> modelProcessor.subtract(resource, toBeDeletedMap));
     }
 
