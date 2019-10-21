@@ -19,6 +19,8 @@ import org.springframework.util.StringUtils;
 import java.util.List;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 /**
@@ -110,7 +112,7 @@ public class RouteProcessor extends AbstractYxSchemaProcessor implements SchemaP
         ResourceGenerator ret = ResourceGenerator.newInstance("{}", ResourceType.JSON, editorContext);
         ret.createOrUpdateJson("$", "match", createMatch(rg, info));
         ret.createOrUpdateJson("$", "return",
-                String.format("{\"body\":{\"inlineString\":\"%s\"},\"code\":%s}", rg.getValue("$.action.return_target.body"), rg.getValue("$.action.code")));
+                String.format("{\"body\":{\"inlineString\":\"%s\"},\"code\":%s}", rg.getValue("$.action.return_target.body"), rg.getValue("$.action.return_target.code")));
         if (rg.contain("$.action.header")) {
             ret.createOrUpdateJson("$", "appendHeaders", "{}");
             List<Object> headers = rg.getValue("$.action.header[*]");
@@ -149,8 +151,21 @@ public class RouteProcessor extends AbstractYxSchemaProcessor implements SchemaP
     private String createRewrite(ResourceGenerator rg, ServiceInfo info) {
         ResourceGenerator ret = ResourceGenerator.newInstance("{}", ResourceType.JSON, editorContext);
         ret.createOrUpdateJson("$", "match", createMatch(rg, info));
-        ret.createOrUpdateJson("$", "requestTransform", String.format("{\"new\":{\"path\":\"%s\"},\"original\":{\"path\":\"%s\"}}"
-                , rg.getValue("$.action.target", String.class), rg.getValue("$.action.rewrite_regex")));
+        ret.createOrUpdateJson("$", "transformation", "{\"requestTransformations\":[{\"transformation_template\":{\"extractors\":{},\"headers\":{}}}]}");
+        // $.action.target : 转换结果，格式如/$2/$1
+        Matcher matcher = Pattern.compile("\\$\\d").matcher(rg.getValue("$.action.target"));
+        int regexCount = 0;
+        while (matcher.find()) {
+            regexCount++;
+        }
+        String original = rg.getValue("$.action.rewrite_regex");
+        String target = rg.getValue("$.action.target", String.class).replaceAll("(\\$\\d)", "{{$1}}");
+        for (int i = 1; i <= regexCount; i++) {
+            String key = "$" + i;
+            String value = String.format("{\"header\":\":path\",\"regex\":\"%s\",\"subgroup\":%s}", original, i);
+            ret.createOrUpdateJson("$.transformation.requestTransformations[0].transformation_template.extractors", key, value);
+        }
+        ret.createOrUpdateJson("$.transformation.requestTransformations[0].transformation_template.headers", ":path", String.format("{\"text\":\"%s\"}", target));
         return ret.jsonString();
     }
 }

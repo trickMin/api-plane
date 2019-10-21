@@ -1,6 +1,3 @@
-#@type=pluginSchema
-#@version=1.0
-#@description=百分比限流插件schema
 {
   "fields": {
     "kind": {
@@ -24,16 +21,3 @@
   },
   "no_consumer": true
 }
----
-#demo
-{
-  "version": "${version}",
-  "kind": "flowlimit",
-  "limit_percent": 50,
-  "hash_key" : "source|key1"
-}
----
-#@type=istioResource
-#@version=1.0
-#@processor=FlowLimitProcessor
-{}

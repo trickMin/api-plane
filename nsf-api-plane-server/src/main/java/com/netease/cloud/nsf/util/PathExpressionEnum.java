@@ -27,10 +27,9 @@ public enum PathExpressionEnum {
     REMOVE_SC_RATELIMITDESC("$.spec.rateLimitConfigs[*].descriptors[?(@.api == '%s')]", 1),
 
     PLUGIN_GET_KIND("$.kind", 0),
-    PLUGIN_GET_VERSION("$.version", 0),
 
     ISTIO_GET_SVC("$[*].ep[*]", 0),
-    ISTIO_GET_GATEWAY("$[*].ep[?]",0),
+    ISTIO_GET_GATEWAY("$[*].ep[?]", 0),
     ;
 
     private String expression;
