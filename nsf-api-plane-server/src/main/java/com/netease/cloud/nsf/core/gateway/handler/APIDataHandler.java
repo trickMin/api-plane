@@ -51,7 +51,6 @@ public abstract class APIDataHandler implements DataHandler<API> {
                 .collect(Collectors.toList()));
     }
 
-
     private String getHosts(API api) {
         return String.join("|", api.getHosts().stream()
                 .map(h -> CommonUtil.host2Regex(h))
