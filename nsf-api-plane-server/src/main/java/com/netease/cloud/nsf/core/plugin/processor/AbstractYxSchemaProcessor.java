@@ -153,4 +153,8 @@ public abstract class AbstractYxSchemaProcessor implements SchemaProcessor<Servi
         }
         return keyword;
     }
+
+    protected String getXUserId(ResourceGenerator rg) {
+        return rg.getValue("$.x_user_id");
+    }
 }
