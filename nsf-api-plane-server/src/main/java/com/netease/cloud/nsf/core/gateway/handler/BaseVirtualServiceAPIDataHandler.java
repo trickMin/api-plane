@@ -7,6 +7,7 @@ import com.netease.cloud.nsf.core.template.TemplateParams;
 import com.netease.cloud.nsf.meta.API;
 import com.netease.cloud.nsf.meta.Endpoint;
 import com.netease.cloud.nsf.service.PluginService;
+import com.netease.cloud.nsf.util.CommonUtil;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
 
@@ -52,10 +53,12 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
 
         String matchYaml = produceMatch(baseParams);
         String httpApiYaml = produceHttpApi(baseParams);
+        String hosts = productHosts(api);
         TemplateParams vsParams = TemplateParams.instance()
                 .setParent(baseParams)
                 .put(VIRTUAL_SERVICE_MATCH_YAML, matchYaml)
                 .put(VIRTUAL_SERVICE_API_YAML, httpApiYaml)
+                .put(VIRTUAL_SERVICE_HOSTS, hosts)
                 .put(API_MATCH_PLUGINS, matchPlugins)
                 .put(API_API_PLUGINS, apiPlugins)
                 .put(API_HOST_PLUGINS, hostPlugins);
@@ -80,6 +83,12 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
 
     String buildVirtualServiceName(String serviceName, String apiName, String gw) {
         return String.format("%s-%s-%s", serviceName, apiName, gw);
+    }
+
+    String productHosts(API api) {
+        return String.join("|", api.getHosts().stream()
+                .map(h -> CommonUtil.host2Regex(h))
+                .collect(Collectors.toList()));
     }
 
     String productExtra(TemplateParams params) {
@@ -138,6 +147,7 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
 
     /**
      * 分配插件
+     *
      * @param fragments
      * @param matchPlugins
      * @param apiPlugins
@@ -147,13 +157,13 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
         fragments.stream()
                 .forEach(f -> {
                     switch (f.getFragmentType()) {
-                        case VS_MATCH :
+                        case VS_MATCH:
                             matchPlugins.add(f.getContent());
                             break;
-                        case VS_API   :
+                        case VS_API:
                             apiPlugins.add(f.getContent());
                             break;
-                        case VS_HOST  :
+                        case VS_HOST:
                             hostPlugins.add(f.getContent());
                             break;
                         default:

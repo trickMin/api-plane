@@ -163,7 +163,6 @@ public class GatewayModelOperator {
 
     /**
      * 在已有的istio crd中删去对应api部分
-     *
      */
     public IstioResource subtract(IstioResource old, Map<String, String> values) {
         return operator.subtract(old, values.get(old.getKind()));
@@ -192,10 +191,10 @@ public class GatewayModelOperator {
         service.setUri(wrap(API_REQUEST_URIS));
         service.setMethod(wrap(API_METHODS));
         service.setSubset(wrap(VIRTUAL_SERVICE_SUBSET_NAME));
+        service.setHosts(wrap(VIRTUAL_SERVICE_HOSTS));
         service.setApi(api);
 
-        List<FragmentHolder> fragments = pluginService.processSchema(plugins, service);
-        return fragments;
+        return pluginService.processSchema(plugins, service);
     }
 
     private String wrap(String raw) {

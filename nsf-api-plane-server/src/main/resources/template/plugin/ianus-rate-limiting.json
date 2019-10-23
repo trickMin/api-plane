@@ -1,6 +1,3 @@
-#@type=pluginSchema
-#@version=1.0
-#@description=频控插件schema
 {
   "self_check": "function",
   "fields": {
@@ -30,8 +27,8 @@
                     "!="
                   ]
                 },
-                "right_value":{
-                  "type":"string"
+                "right_value": {
+                  "type": "string"
                 }
               }
             },
@@ -113,37 +110,3 @@
     }
   }
 }
----
-#@type=demo
-{
-  "name": "ianus-rate-limiting",
-  "config": {
-    "limit_by_list": [
-      {
-        "identifier_extractor": "Header[User-Agent]",
-        "pre_condition": [
-          {
-            "operator":"≈",
-            "right_value":"Mozilla/5\\.0.*"
-          }
-        ],
-        "enable": true,
-        "second": 1,
-        "minute": 2,
-        "hour": 3,
-        "day": 4,
-        "month": 5,
-        "year": 6
-      }
-    ],
-    "policy": "global",
-    "hide_client_headers": true,
-    "refuse_strategy": "directly-refuse",
-    "fault_tolerant": true,
-  }
-}
----
-#@type=istioResource
-#@version=1.0
-#@processor=RateLimitProcessor
-{}

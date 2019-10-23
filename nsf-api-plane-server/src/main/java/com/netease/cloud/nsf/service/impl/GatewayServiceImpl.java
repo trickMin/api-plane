@@ -175,11 +175,6 @@ public class GatewayServiceImpl implements GatewayService {
     }
 
     @Override
-    public List<PluginTemplate> getPluginList() {
-        return null;
-    }
-
-    @Override
     public List<GatewaySync> getGatewaySyncList() {
         return null;
     }

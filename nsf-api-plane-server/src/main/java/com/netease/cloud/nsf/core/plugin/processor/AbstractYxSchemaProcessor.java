@@ -34,6 +34,7 @@ public abstract class AbstractYxSchemaProcessor implements SchemaProcessor<Servi
         // 添加默认的字段
         match.createOrUpdateJson("$[0]", "uri", String.format("{\"regex\":\"(?:%s.*)\"}", info.getUri()));
         match.createOrUpdateJson("$[0]", "method", String.format("{\"regex\":\"%s\"}", info.getMethod()));
+        match.createOrUpdateJson("$[0]", "headers", String.format("{\":authority\":{\"regex\":\"%s\"}}", info.getHosts()));
 
         if (rg.contain("$.matcher")) {
             int length = rg.getValue("$.matcher.length()");

@@ -1,0 +1,40 @@
+{
+  "item": [
+    {
+      "name": "ianus-percent-limit",
+      "resource": "plugin/ianus-percent-limit.json",
+      "description": "",
+      "processor": "FlowLimitProcessor"
+    },
+    {
+      "name": "ianus-rate-limiting",
+      "resource": "plugin/ianus-rate-limiting.json",
+      "description": "",
+      "processor": "RateLimitProcessor"
+    },
+    {
+      "name": "ianus-request-transformer",
+      "resource": "plugin/ianus-request-transformer.json",
+      "description": "",
+      "processor": "RequestTransformProcessor"
+    },
+    {
+      "name": "ianus-router",
+      "resource": "plugin/ianus-router.json",
+      "description": "",
+      "processor": "RouteProcessor"
+    },
+    {
+      "name": "ip-restriction",
+      "resource": "plugin/ip-restriction.json",
+      "description": "",
+      "processor": "IpRestrictionProcessor"
+    },
+    {
+      "name": "lua",
+      "resource": "plugin/lua.json",
+      "description": "",
+      "processor": "LuaProcessor"
+    }
+  ]
+}

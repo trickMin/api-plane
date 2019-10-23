@@ -25,7 +25,7 @@ public class IpRestrictionProcessor extends AbstractYxSchemaProcessor implements
     public FragmentHolder process(String plugin, ServiceInfo serviceInfo) {
         ResourceGenerator rg = ResourceGenerator.newInstance(plugin);
         ResourceGenerator ret = ResourceGenerator.newInstance("{\"ipRestriction\":{\"ip\":[]}}");
-        ret.createOrUpdateJson("$.ipRestriction", "type", rg.getValue("$.type"));
+        ret.createOrUpdateJson("$.ipRestriction", "type", rg.getValue("$.type", String.class));
         List<String> ips = rg.getValue("$.ip[*]");
         for (String ip : ips) {
             ret.addJsonElement("$.ipRestriction.ip", ip);
