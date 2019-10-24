@@ -80,7 +80,7 @@ public class GatewayConfigManager implements ConfigManager {
         List<IstioResource> resources = modelProcessor.translate(service, namespace);
 
         ImmutableMap<String, String> toBeDeletedMap = ImmutableMap
-                .of(K8sResourceEnum.DestinationRule.name(), String.format("%s-%s", service.getCode(), service.getGateway()));
+                .of(K8sResourceEnum.DestinationRule.name(), service.getCode());
 
         delete(resources, resource -> modelProcessor.subtract(resource, toBeDeletedMap));
     }
