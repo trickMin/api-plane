@@ -8,6 +8,7 @@ import me.snowdrop.istio.api.networking.v1alpha3.GatewayBuilder;
 import me.snowdrop.istio.api.networking.v1alpha3.Server;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -62,7 +63,8 @@ public class GatewayOperator implements IstioResourceOperator<Gateway> {
     @Override
     public boolean isUseless(Gateway gateway) {
         return gateway == null ||
-                gateway.getSpec() == null ||
-                 CollectionUtils.isEmpty(gateway.getSpec().getServers());
+                StringUtils.isEmpty(gateway.getApiVersion()) ||
+                 gateway.getSpec() == null ||
+                  CollectionUtils.isEmpty(gateway.getSpec().getServers());
     }
 }

@@ -5,6 +5,7 @@ import me.snowdrop.istio.api.networking.v1alpha3.PluginManager;
 import me.snowdrop.istio.api.networking.v1alpha3.PluginManagerBuilder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/9/26
@@ -29,7 +30,8 @@ public class PluginManagerOperator implements IstioResourceOperator<PluginManage
     @Override
     public boolean isUseless(PluginManager pm) {
         return pm.getSpec() == null ||
-                CollectionUtils.isEmpty(pm.getSpec().getPlugins());
+                StringUtils.isEmpty(pm.getApiVersion()) ||
+                 CollectionUtils.isEmpty(pm.getSpec().getPlugins());
     }
 
     @Override
