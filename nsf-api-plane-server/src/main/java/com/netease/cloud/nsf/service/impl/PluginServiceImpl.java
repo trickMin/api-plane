@@ -10,6 +10,7 @@ import com.netease.cloud.nsf.core.template.TemplateUtils;
 import com.netease.cloud.nsf.meta.Plugin;
 import com.netease.cloud.nsf.meta.ServiceInfo;
 import com.netease.cloud.nsf.service.PluginService;
+import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import freemarker.template.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +50,7 @@ public class PluginServiceImpl implements PluginService {
     @Override
     public Plugin getPlugin(String name) {
         Plugin p = getPlugins().get(name);
+        if(Objects.isNull(p)) throw new ApiPlaneException(String.format("plugin processor [%s] does not exit.", name));
         logger.info("get plugin {} :{}", name, p);
         return p;
     }
