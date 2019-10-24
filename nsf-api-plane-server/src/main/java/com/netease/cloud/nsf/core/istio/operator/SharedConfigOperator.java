@@ -8,6 +8,7 @@ import com.netease.cloud.nsf.util.function.Equals;
 import me.snowdrop.istio.api.networking.v1alpha3.*;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -69,7 +70,8 @@ public class SharedConfigOperator implements IstioResourceOperator<SharedConfig>
     @Override
     public boolean isUseless(SharedConfig sharedConfig) {
         return sharedConfig == null ||
-                sharedConfig.getSpec() == null ||
+                StringUtils.isEmpty(sharedConfig.getApiVersion()) ||
+                 sharedConfig.getSpec() == null ||
                   CollectionUtils.isEmpty(sharedConfig.getSpec().getRateLimitConfigs());
     }
 

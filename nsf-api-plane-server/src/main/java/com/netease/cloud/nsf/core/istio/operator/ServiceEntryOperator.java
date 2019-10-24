@@ -4,6 +4,7 @@ import com.netease.cloud.nsf.util.K8sResourceEnum;
 import me.snowdrop.istio.api.networking.v1alpha3.ServiceEntry;
 import me.snowdrop.istio.api.networking.v1alpha3.ServiceEntryBuilder;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/9/19
@@ -27,7 +28,8 @@ public class ServiceEntryOperator implements IstioResourceOperator<ServiceEntry>
     @Override
     public boolean isUseless(ServiceEntry serviceEntry) {
         return serviceEntry == null ||
-                serviceEntry.getSpec() == null;
+                StringUtils.isEmpty(serviceEntry.getApiVersion()) ||
+                 serviceEntry.getSpec() == null;
     }
 
     @Override
