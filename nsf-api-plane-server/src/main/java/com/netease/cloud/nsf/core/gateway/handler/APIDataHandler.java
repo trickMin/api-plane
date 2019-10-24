@@ -5,6 +5,7 @@ import com.netease.cloud.nsf.meta.API;
 import com.netease.cloud.nsf.meta.UriMatch;
 import com.netease.cloud.nsf.util.CommonUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -16,7 +17,7 @@ public abstract class APIDataHandler implements DataHandler<API> {
     public List<TemplateParams> handle(API api) {
 
         String uris = getUris(api);
-        String methods = String.join("|", api.getMethods());
+        String methods = getMethods(api);
         String hosts = getHosts(api);
 
         TemplateParams tp = TemplateParams.instance()
@@ -36,6 +37,16 @@ public abstract class APIDataHandler implements DataHandler<API> {
                 .put(VIRTUAL_SERVICE_HOSTS, hosts);
 
         return doHandle(tp, api);
+    }
+
+    private String getMethods(API api) {
+
+        List<String> methods = new ArrayList<>();
+        for (String m : api.getMethods()) {
+            if (m.equals("*")) return ".*";
+            methods.add(m);
+        }
+        return String.join("|", methods);
     }
 
     abstract List<TemplateParams> doHandle(TemplateParams tp, API api);
