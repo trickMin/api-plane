@@ -5,6 +5,7 @@ import com.netease.cloud.nsf.util.function.Equals;
 import me.snowdrop.istio.api.networking.v1alpha3.*;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,7 @@ public class VirtualServiceOperator implements IstioResourceOperator<VirtualServ
         Map<String, ApiPlugin> latestPlugins = mergeMap(oldSpec.getPlugins(), freshSpec.getPlugins(), (o, n) -> Objects.equals(o, n));
         latest.getSpec().setPlugins(latestPlugins);
 
+        latest.getSpec().setRateLimits(fresh.getSpec().getRateLimits());
         return latest;
     }
 
@@ -49,7 +51,8 @@ public class VirtualServiceOperator implements IstioResourceOperator<VirtualServ
     @Override
     public boolean isUseless(VirtualService virtualService) {
         return virtualService == null ||
-                virtualService.getSpec() == null ||
+                StringUtils.isEmpty(virtualService.getApiVersion()) ||
+                 virtualService.getSpec() == null ||
                   CollectionUtils.isEmpty(virtualService.getSpec().getHttp());
     }
 

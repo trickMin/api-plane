@@ -11,6 +11,7 @@ import me.snowdrop.istio.api.networking.v1alpha3.DestinationRuleSpec;
 import me.snowdrop.istio.api.networking.v1alpha3.Subset;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.Objects;
 
@@ -49,7 +50,8 @@ public class DestinationRuleOperator implements IstioResourceOperator<Destinatio
     @Override
     public boolean isUseless(DestinationRule destinationRule) {
         return destinationRule == null ||
-                destinationRule.getSpec() == null ||
+                StringUtils.isEmpty(destinationRule.getApiVersion()) ||
+                 destinationRule.getSpec() == null ||
                   CollectionUtils.isEmpty(destinationRule.getSpec().getSubsets());
     }
 
