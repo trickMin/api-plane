@@ -94,7 +94,7 @@ public class VirtualServiceOperatorTest {
         return new HTTPMatchRequest();
     }
 
-    private static VirtualServiceSpec getVirtualServiceSpec(List<HTTPRoute> routes, Map<String, ApiPlugin> plugins) {
+    private static VirtualServiceSpec getVirtualServiceSpec(List<HTTPRoute> routes, Map<String, ApiPlugins> plugins) {
         VirtualServiceSpec spec = new VirtualServiceSpec();
         spec.setHttp(routes);
         spec.setPlugins(plugins);
@@ -107,9 +107,9 @@ public class VirtualServiceOperatorTest {
         return vs;
     }
 
-    private static Map<String, ApiPlugin> getPlugins(List<String> apis) {
-        Map<String, ApiPlugin> pluginMap = new HashMap<>();
-        apis.forEach(a -> pluginMap.put(a, new ApiPlugin()));
+    private static Map<String, ApiPlugins> getPlugins(List<String> apis) {
+        Map<String, ApiPlugins> pluginMap = new HashMap<>();
+        apis.forEach(a -> pluginMap.put(a, new ApiPlugins()));
         return pluginMap;
     }
 }

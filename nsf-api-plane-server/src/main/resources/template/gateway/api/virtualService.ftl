@@ -24,7 +24,11 @@ spec:
 <#if t_api_api_plugins?has_content>
   plugins:
     ${t_api_name}:
-<#list t_api_api_plugins as p>
-<@indent count=6>${p}</@indent>
+      userPlugin:
+<#list t_api_api_plugins?keys as userId>
+<#list t_api_api_plugins[userId] as p>
+      - user: ${userId}
+<@indent count=8>${p}</@indent>
+</#list>
 </#list>
 </#if>
