@@ -58,6 +58,7 @@ public class CommonUtil {
      * @return
      */
     public static String host2Regex(String host) {
+        if (host.equals("*")) return ".*";
         return host.replace(".", "\\.")
                     .replace("*", ".+");
     }

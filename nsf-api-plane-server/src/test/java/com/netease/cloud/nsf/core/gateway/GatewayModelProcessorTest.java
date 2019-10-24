@@ -175,7 +175,7 @@ public class GatewayModelProcessorTest extends BaseTest {
         Assert.assertTrue(istioResources.size() == 1);
         DestinationRule ds = (DestinationRule) istioResources.get(0);
         DestinationRuleSpec spec = ds.getSpec();
-        Assert.assertTrue(spec.getHost().equals(decorateHost(service.getCode())));
+        Assert.assertTrue(spec.getHost().equals(service.getBackendService()));
 
         Service service1 = getService(Const.PROXY_SERVICE_TYPE_STATIC, "10.10.10.10:1024,10.10.10.9:1025", 100, "b", "gw2");
 
@@ -184,7 +184,7 @@ public class GatewayModelProcessorTest extends BaseTest {
         istioResources1.forEach(ir -> {
             if (ir.getKind().equals(K8sResourceEnum.DestinationRule.name())) {
                 DestinationRule ds1 = (DestinationRule) istioResources.get(0);
-                Assert.assertTrue(ds1.getSpec().getHost().equals(decorateHost(service.getCode())));
+                Assert.assertTrue(ds1.getSpec().getHost().equals(service.getBackendService()));
             } else if (ir.getKind().equals(K8sResourceEnum.ServiceEntry.name())) {
                 ServiceEntry se = (ServiceEntry) ir;
                 Assert.assertTrue(se.getSpec().getEndpoints().size() == 2);
