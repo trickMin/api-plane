@@ -3,12 +3,9 @@ package com.netease.cloud.nsf;
 import com.netease.cloud.nsf.meta.ApiOption;
 import com.netease.cloud.nsf.meta.dto.YxAPIDTO;
 import com.netease.cloud.nsf.service.GatewayService;
-import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,8 +13,8 @@ import java.util.List;
 /**
  * Created by caukie on 2019/8/5.
  */
-@RunWith(SpringRunner.class)
-@SpringBootTest
+//@RunWith(SpringRunner.class)
+//@SpringBootTest
 public class ApiConfigTest {
     private static Logger logger = LoggerFactory.getLogger(ApiConfigTest.class);
 
