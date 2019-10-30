@@ -3,7 +3,6 @@ package com.netease.cloud.nsf;
 import com.netease.cloud.nsf.meta.ApiOption;
 import com.netease.cloud.nsf.meta.dto.YxAPIDTO;
 import com.netease.cloud.nsf.service.GatewayService;
-import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +24,7 @@ public class ApiConfigTest {
     @Autowired
     private GatewayService gatewayService;
 
-    @Test
+//    @Test
     public void baseTest() throws Exception {
         System.out.println("功能测试环境");
         List<String> gateways = new ArrayList<>(3);
