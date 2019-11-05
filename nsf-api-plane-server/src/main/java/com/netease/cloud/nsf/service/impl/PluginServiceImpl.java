@@ -19,12 +19,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-import javax.annotation.processing.Processor;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.netease.cloud.nsf.util.PathExpressionEnum.PLUGIN_GET_KIND;
+import static com.netease.cloud.nsf.core.editor.PathExpressionEnum.PLUGIN_GET_KIND;
 
 /**
  * @auther wupenghuai@corp.netmask.com
@@ -50,7 +49,7 @@ public class PluginServiceImpl implements PluginService {
     @Override
     public Plugin getPlugin(String name) {
         Plugin p = getPlugins().get(name);
-        if(Objects.isNull(p)) throw new ApiPlaneException(String.format("plugin processor [%s] does not exit.", name));
+        if (Objects.isNull(p)) throw new ApiPlaneException(String.format("plugin processor [%s] does not exit.", name));
         logger.info("get plugin {} :{}", name, p);
         return p;
     }
@@ -77,16 +76,6 @@ public class PluginServiceImpl implements PluginService {
         String pluginConfig = TemplateUtils.getTemplate(PLUGIN_CONFIG, configuration).toString();
         logger.info("get plugin config: \n{}", pluginConfig);
         return pluginConfig;
-    }
-
-
-    @Override
-    public FragmentHolder processSchema(String plugin, ServiceInfo serviceInfo) {
-        ResourceGenerator gen = ResourceGenerator.newInstance(plugin, ResourceType.JSON, editorContext);
-        String kind = gen.getValue(PLUGIN_GET_KIND.translate());
-        Plugin p = getPlugin(kind);
-        logger.info("process plugin :[{}], json :[{}], serviceInfo :[{}]", p, plugin, serviceInfo);
-        return getProcessor(p.getProcessor()).process(plugin, serviceInfo);
     }
 
     @Override

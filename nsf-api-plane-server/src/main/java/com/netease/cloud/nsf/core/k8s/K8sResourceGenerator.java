@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import static com.netease.cloud.nsf.util.PathExpressionEnum.*;
+import static com.netease.cloud.nsf.core.editor.PathExpressionEnum.*;
 
 /**
  * @auther wupenghuai@corp.netease.com
@@ -22,12 +22,12 @@ public final class K8sResourceGenerator extends ResourceGenerator {
         super(resource, type, editorContext);
     }
 
-    public static K8sResourceGenerator newInstance(String json, EditorContext editorContext) {
-        return new K8sResourceGenerator(json, ResourceType.JSON, editorContext);
+    public static K8sResourceGenerator newInstance(String json) {
+        return new K8sResourceGenerator(json, ResourceType.JSON, defaultContext);
     }
 
-    public static K8sResourceGenerator newInstance(Object resource, ResourceType type, EditorContext editorContext) {
-        return new K8sResourceGenerator(resource, type, editorContext);
+    public static K8sResourceGenerator newInstance(Object resource, ResourceType type) {
+        return new K8sResourceGenerator(resource, type, defaultContext);
     }
 
     public String getName() {
@@ -35,9 +35,9 @@ public final class K8sResourceGenerator extends ResourceGenerator {
     }
 
     public String getNamespace() {
-        if(contain(GET_NAMESPACE.translate())){
+        if (contain(GET_NAMESPACE.translate())) {
             return getValue(GET_NAMESPACE.translate());
-        }else{
+        } else {
             return "default";
         }
     }

@@ -1,4 +1,4 @@
-package com.netease.cloud.nsf.util;
+package com.netease.cloud.nsf.core.k8s;
 
 
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
