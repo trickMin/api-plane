@@ -27,7 +27,7 @@ public class GatewayPluginController extends BaseController {
     @Autowired
     private PluginService pluginService;
 
-    @RequestMapping(params = "Action=GetTemplate", method = RequestMethod.GET)
+    @RequestMapping(params = "Action=GetPluginDetail", method = RequestMethod.GET)
     public String getTemplate(@RequestParam("Name") String name) {
 
         Plugin plugin = pluginService.getPlugin(name);
@@ -40,7 +40,7 @@ public class GatewayPluginController extends BaseController {
         return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), result);
     }
 
-    @RequestMapping(params = "Action=GetPlugins", method = RequestMethod.GET)
+    @RequestMapping(params = "Action=GetPluginList", method = RequestMethod.GET)
     public String getPlugins() {
         Map<String, Plugin> plugins = pluginService.getPlugins();
         ErrorCode code = ApiPlaneErrorCode.Success;
