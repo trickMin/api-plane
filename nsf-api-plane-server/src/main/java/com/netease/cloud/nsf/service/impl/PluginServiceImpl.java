@@ -66,7 +66,13 @@ public class PluginServiceImpl implements PluginService {
             String ftl = rg.getValue(String.format("$.item[%s].resource", i));
             String processor = rg.getValue(String.format("$.item[%s].processor", i));
             String description = rg.getValue(String.format("$.item[%s].description", i));
-            ret.put(name, createPlugin(name, ftl, processor, description));
+            String author = rg.getValue(String.format("$.item[%s].author", i));
+            String createTime = rg.getValue(String.format("$.item[%s].createTime", i));
+            String updateTime = rg.getValue(String.format("$.item[%s].updateTime", i));
+            String pluginScope = rg.getValue(String.format("$.item[%s].pluginScope", i));
+            String pluginPriority = rg.getValue(String.format("$.item[%s].pluginPriority", i));
+            String instructionForUse = rg.getValue(String.format("$.item[%s].instructionForUse", i));
+            ret.put(name, createPlugin(name, ftl, processor, description, author, createTime, updateTime, pluginScope, pluginPriority, instructionForUse));
         }
         return ret;
     }
@@ -122,7 +128,18 @@ public class PluginServiceImpl implements PluginService {
         return processors.stream().filter(item -> item.getName().equalsIgnoreCase(name)).findAny().get();
     }
 
-    private Plugin createPlugin(String name, String ftl, String processor, String description) {
+    private Plugin createPlugin(
+            String name,
+            String ftl,
+            String processor,
+            String description,
+            String author,
+            String createTime,
+            String updateTime,
+            String pluginScope,
+            String pluginPriority,
+            String instructionForUse
+    ) {
         logger.info("create plugin name:{}, ftl:{}, processor:{}, description:{}", name, ftl, processor, description);
         String schema = TemplateUtils.getTemplate(ftl, configuration).toString();
 
@@ -131,6 +148,12 @@ public class PluginServiceImpl implements PluginService {
         plugin.setDescription(description);
         plugin.setSchema(schema);
         plugin.setProcessor(processor);
+        plugin.setAuthor(author);
+        plugin.setCreateTime(createTime);
+        plugin.setUpdateTime(updateTime);
+        plugin.setPluginScope(pluginScope);
+        plugin.setPluginPriority(pluginPriority);
+        plugin.setInstructionForUse(instructionForUse);
         return plugin;
     }
 }
