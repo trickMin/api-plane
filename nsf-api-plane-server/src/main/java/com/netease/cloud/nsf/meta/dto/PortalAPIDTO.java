@@ -62,6 +62,20 @@ public class PortalAPIDTO {
     @JsonProperty(value = "Plugins")
     private List<String> plugins;
 
+    /**
+     * 请求头
+     */
+    @JsonProperty(value = "Headers")
+    @Valid
+    private List<PairMatchDTO> headers;
+
+    /**
+     * 请求的query params
+     */
+    @JsonProperty(value = "QueryParams")
+    @Valid
+    private List<PairMatchDTO> queryParams;
+
     public String getGateway() {
         return gateway;
     }
@@ -124,5 +138,21 @@ public class PortalAPIDTO {
 
     public void setPlugins(List<String> plugins) {
         this.plugins = plugins;
+    }
+
+    public List<PairMatchDTO> getHeaders() {
+        return headers;
+    }
+
+    public void setHeaders(List<PairMatchDTO> headers) {
+        this.headers = headers;
+    }
+
+    public List<PairMatchDTO> getQueryParams() {
+        return queryParams;
+    }
+
+    public void setQueryParams(List<PairMatchDTO> queryParams) {
+        this.queryParams = queryParams;
     }
 }

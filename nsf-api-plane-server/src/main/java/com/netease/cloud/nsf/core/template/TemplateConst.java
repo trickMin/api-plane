@@ -66,8 +66,15 @@ public interface TemplateConst {
      */
     String API_METHODS = "t_api_methods";
 
+    /**
+     * api请求header
+     */
+    String API_HEADERS = "t_api_headers";
 
-
+    /**
+     * api请求query params
+     */
+    String API_QUERY_PARAMS = "t_api_query_params";
 
 
     /** DestinationRule **/

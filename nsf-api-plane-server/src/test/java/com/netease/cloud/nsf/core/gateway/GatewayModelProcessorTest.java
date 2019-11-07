@@ -25,6 +25,7 @@ import org.springframework.util.CollectionUtils;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static org.mockito.Mockito.when;
 
@@ -49,9 +50,17 @@ public class GatewayModelProcessorTest extends BaseTest {
         return ep;
     }
 
+    private PairMatch getPairMatch(String k, String v, String type) {
+        PairMatch pm = new PairMatch();
+        pm.setKey(k);
+        pm.setValue(v);
+        pm.setType(type);
+        return pm;
+    }
+
     private API getAPI(String name, String service, List<String> gateways, List<String> hosts,
                        List<String> uris, List<String> methods, List<String> proxies, UriMatch uriMatch,
-                       List<Service> proxyServices) {
+                       List<Service> proxyServices, List<PairMatch> headers, List<PairMatch> queryParams) {
         API api = new API();
         api.setGateways(gateways);
         api.setName(name);
@@ -62,6 +71,8 @@ public class GatewayModelProcessorTest extends BaseTest {
         api.setProxyServices(proxyServices);
         api.setService(service);
         api.setUriMatch(uriMatch);
+        api.setHeaders(headers);
+        api.setQueryParams(queryParams);
         return api;
     }
 
@@ -86,7 +97,9 @@ public class GatewayModelProcessorTest extends BaseTest {
         //base api test
         API api = getAPI("api-name", "service-zero", ImmutableList.of("gateway1", "gateway2"),
                 ImmutableList.of("service-a", "service-b"), ImmutableList.of("/a", "/b"), ImmutableList.of("HTTP", "POST"),
-                ImmutableList.of("a.default.svc.cluster.local", "b.default.svc.cluster.local"), UriMatch.PREFIX, Collections.EMPTY_LIST);
+                ImmutableList.of("a.default.svc.cluster.local", "b.default.svc.cluster.local"), UriMatch.PREFIX, Collections.EMPTY_LIST,
+                ImmutableList.of(getPairMatch("k1", "v1", "exact"), getPairMatch("k2", "v2", "regex")),
+                ImmutableList.of(getPairMatch("k3", "v3", "prefix"), getPairMatch("k4", "v4", "regex")));
 
         List<IstioResource> resources = processor.translate(api, "gateway-system");
 
@@ -104,12 +117,21 @@ public class GatewayModelProcessorTest extends BaseTest {
 
                         RegexMatchType uriMatch = (RegexMatchType) match.getUri().getMatchType();
                         Assert.assertTrue(uriMatch.getRegex().equals("/a.*|/b.*"));
+
+                        Map<String, StringMatch> headers = match.getHeaders();
+                        Assert.assertTrue(headers.containsKey("k1"));
+                        Assert.assertTrue(headers.containsKey("k2"));
+
+                        Map<String, StringMatch> queryParams = match.getQueryParams();
+                        Assert.assertTrue(queryParams.containsKey("k3"));
+                        Assert.assertTrue(queryParams.containsKey("k4"));
                     }
                 });
 
         API api1 = getAPI("api-name", "default", ImmutableList.of("gateway1"),
                 ImmutableList.of("service-a", "service-b"), ImmutableList.of("/a", "/b"),
-                ImmutableList.of("HTTP", "POST"), Collections.EMPTY_LIST, UriMatch.REGEX, Collections.EMPTY_LIST);
+                ImmutableList.of("HTTP", "POST"), Collections.EMPTY_LIST, UriMatch.REGEX, Collections.EMPTY_LIST,
+                Collections.EMPTY_LIST, Collections.EMPTY_LIST);
 
         Service s1 = getService(Const.PROXY_SERVICE_TYPE_DYNAMIC, "a.default.svc.cluster.local",
                         33, "DYNAMIC_1", null);
