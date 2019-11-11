@@ -22,12 +22,10 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -100,8 +98,39 @@ public class IstioHttpClient {
         }
     }
 
+    public List<String> getServiceList(Predicate<Endpoint> filter) {
+        List<String> svcs = new ArrayList<>();
+        String[] rawValues = getEndpoints().split("\\n");
+        for (String rawValue : rawValues) {
+            Pattern pattern = Pattern.compile("(.*):http (.*) (.*):(.*) (.*) (.*)");
+            Matcher matcher = pattern.matcher(rawValue);
+            if (matcher.find()) {
+                String hostName = matcher.group(1);
+                svcs.add(hostName);
+                Endpoint endpoint = new Endpoint();
+                endpoint.setHostname(matcher.group(1));
+                endpoint.setAddress(matcher.group(3));
+                endpoint.setPort(Integer.valueOf(matcher.group(4)));
+                Map<String, String> labelMap = new HashMap<>();
+                String[] labels = matcher.group(5).split(",");
+                for (String label : labels) {
+                    Matcher kv = Pattern.compile("(.*)=(.*)").matcher(label);
+                    if (kv.find()) {
+                        labelMap.put(kv.group(1), kv.group(2));
+                    }
+                }
+                endpoint.setLabels(labelMap);
+                if (Objects.nonNull(filter) && !filter.test(endpoint)) {
+                    continue;
+                }
+                svcs.add(endpoint.getHostname());
 
-    public List<Endpoint> getEndpointList() {
+            }
+        }
+        return svcs.stream().distinct().collect(Collectors.toList());
+    }
+
+    public List<Endpoint> getEndpointList(Predicate<Endpoint> filter) {
         List<Endpoint> endpoints = new ArrayList<>();
         String[] rawValues = getEndpoints().split("\\n");
         for (String rawValue : rawValues) {
@@ -121,16 +150,16 @@ public class IstioHttpClient {
                     }
                 }
                 endpoint.setLabels(labelMap);
+                if (Objects.nonNull(filter) && !filter.test(endpoint)) {
+                    continue;
+                }
                 endpoints.add(endpoint);
             }
         }
-        return endpoints.stream()
-                .filter(endpoint -> endpoint.getAddress() != null && endpoint.getHostname() != null && endpoint.getPort() != null)
-                .filter(endpoint -> !Pattern.compile("(.*)\\.istio-system\\.(.*)\\.(.*)\\.(.*)").matcher(endpoint.getHostname()).find())
-                .distinct().collect(Collectors.toList());
+        return endpoints.stream().distinct().collect(Collectors.toList());
     }
 
-    public List<Gateway> getGatewayList() {
+    public List<Gateway> getGatewayList(Predicate<Gateway> filter) {
         List<Gateway> gateways = new ArrayList<>();
         String[] rawValues = getEndpoints().split("\\n");
         for (String rawValue : rawValues) {
@@ -149,13 +178,14 @@ public class IstioHttpClient {
                     }
                 }
                 gateway.setLabels(labelMap);
+                if (Objects.nonNull(filter) && !filter.test(gateway)) {
+                    continue;
+                }
                 gateways.add(gateway);
             }
         }
         Map<String, Gateway> temp = new HashMap<>();
-        gateways.stream()
-                .filter(gateway -> gateway.getLabels().containsKey("gw_cluster"))
-                .forEach(gateway -> temp.putIfAbsent(gateway.getAddress(), gateway));
+        gateways.forEach(gateway -> temp.putIfAbsent(gateway.getAddress(), gateway));
         return new ArrayList<>(temp.values());
     }
 
