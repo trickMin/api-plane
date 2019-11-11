@@ -17,11 +17,6 @@ public interface ConfigStore {
 
     void update(IstioResource t);
 
-    /**
-     * 根据kind,namespace,name来查询资源
-     * @param t
-     * @return
-     */
     IstioResource get(IstioResource t);
 
     IstioResource get(String kind, String namespace, String name);

@@ -2,8 +2,6 @@ package com.netease.cloud.nsf.service;
 
 import com.netease.cloud.nsf.meta.Endpoint;
 import com.netease.cloud.nsf.meta.Gateway;
-import com.netease.cloud.nsf.meta.GatewaySync;
-import com.netease.cloud.nsf.meta.Plugin;
 import com.netease.cloud.nsf.meta.dto.PluginOrderDTO;
 import com.netease.cloud.nsf.meta.dto.PortalAPIDTO;
 import com.netease.cloud.nsf.meta.dto.PortalServiceDTO;
@@ -34,15 +32,6 @@ public interface GatewayService {
 
     List<Endpoint> getServiceList();
 
-    /**
-     * 根据网关对应labels，获取网关后的服务
-     * @param labels
-     * @return
-     */
-    List<Endpoint> getServiceListByGateway(List<String> labels);
-
     List<Gateway> getGatewayList();
-
-    List<GatewaySync> getGatewaySyncList();
 
 }

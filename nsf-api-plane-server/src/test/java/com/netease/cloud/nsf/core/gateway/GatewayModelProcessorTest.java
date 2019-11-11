@@ -101,7 +101,7 @@ public class GatewayModelProcessorTest extends BaseTest {
                 ImmutableList.of(getPairMatch("k1", "v1", "exact"), getPairMatch("k2", "v2", "regex")),
                 ImmutableList.of(getPairMatch("k3", "v3", "prefix"), getPairMatch("k4", "v4", "regex")));
 
-        List<IstioResource> resources = processor.translate(api, "gateway-system");
+        List<IstioResource> resources = processor.translate(api);
 
         Assert.assertTrue(resources.size() == 6);
 
@@ -141,7 +141,7 @@ public class GatewayModelProcessorTest extends BaseTest {
                 34, "STATIC_2", null);
         api1.setProxyServices(Arrays.asList(s1, s2, s3));
 
-        List<IstioResource> resources1 = processor.translate(api1, "gateway-system");
+        List<IstioResource> resources1 = processor.translate(api1);
 
         resources1.stream()
                 .forEach(r -> {
@@ -165,7 +165,7 @@ public class GatewayModelProcessorTest extends BaseTest {
         po.setGatewayLabels(ImmutableMap.of("k1","v1", "k2", "v2"));
         po.setPlugins(ImmutableList.of("p1", "p2", "p3"));
 
-        List<IstioResource> res = processor.translate(Trans.pluginOrderDTO2PluginOrder(po), namespace);
+        List<IstioResource> res = processor.translate(Trans.pluginOrderDTO2PluginOrder(po));
 
         Assert.assertTrue(res.size() == 1);
 
@@ -177,7 +177,7 @@ public class GatewayModelProcessorTest extends BaseTest {
         PluginOrderDTO po1 = new PluginOrderDTO();
         po1.setPlugins(ImmutableList.of("p1", "p2"));
 
-        List<IstioResource> res1 = processor.translate(Trans.pluginOrderDTO2PluginOrder(po1), namespace);
+        List<IstioResource> res1 = processor.translate(Trans.pluginOrderDTO2PluginOrder(po1));
 
         Assert.assertTrue(res1.size() == 1);
 
@@ -192,7 +192,7 @@ public class GatewayModelProcessorTest extends BaseTest {
 
         Service service = getService(Const.PROXY_SERVICE_TYPE_DYNAMIC, "a.svc.cluster", 100, "a", "gw1");
 
-        List<IstioResource> istioResources = processor.translate(service, "gateway-system");
+        List<IstioResource> istioResources = processor.translate(service);
 
         Assert.assertTrue(istioResources.size() == 1);
         DestinationRule ds = (DestinationRule) istioResources.get(0);
@@ -201,7 +201,7 @@ public class GatewayModelProcessorTest extends BaseTest {
 
         Service service1 = getService(Const.PROXY_SERVICE_TYPE_STATIC, "10.10.10.10:1024,10.10.10.9:1025", 100, "b", "gw2");
 
-        List<IstioResource> istioResources1 = processor.translate(service1, "gateway-system");
+        List<IstioResource> istioResources1 = processor.translate(service1);
         Assert.assertTrue(istioResources1.size() == 2);
         istioResources1.forEach(ir -> {
             if (ir.getKind().equals(K8sResourceEnum.DestinationRule.name())) {

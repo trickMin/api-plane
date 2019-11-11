@@ -2,7 +2,6 @@ apiVersion: networking.istio.io/v1alpha3
 kind: Gateway
 metadata:
   name: ${t_gateway_name}
-  namespace: ${t_namespace}
 spec:
   selector:
     gw_cluster: ${t_api_gateway}

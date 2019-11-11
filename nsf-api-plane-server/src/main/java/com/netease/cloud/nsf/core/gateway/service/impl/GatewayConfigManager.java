@@ -3,7 +3,6 @@ package com.netease.cloud.nsf.core.gateway.service.impl;
 import com.google.common.collect.ImmutableMap;
 import com.netease.cloud.nsf.core.gateway.GatewayModelOperator;
 import com.netease.cloud.nsf.core.gateway.service.ConfigManager;
-import com.netease.cloud.nsf.core.gateway.service.ConfigStore;
 import com.netease.cloud.nsf.meta.API;
 import com.netease.cloud.nsf.meta.PluginOrder;
 import com.netease.cloud.nsf.meta.Service;
@@ -32,17 +31,17 @@ public class GatewayConfigManager implements ConfigManager {
     private GatewayModelOperator modelProcessor;
 
     @Autowired
-    private ConfigStore configStore;
+    private K8sConfigStore configStore;
 
     @Override
-    public void updateConfig(API api, String namespace) {
-        List<IstioResource> resources = modelProcessor.translate(api, namespace);
+    public void updateConfig(API api) {
+        List<IstioResource> resources = modelProcessor.translate(api);
         update(resources);
     }
 
     @Override
-    public void updateConfig(Service service, String namespace) {
-        List<IstioResource> resources = modelProcessor.translate(service, namespace);
+    public void updateConfig(Service service) {
+        List<IstioResource> resources = modelProcessor.translate(service);
         update(resources);
     }
 
@@ -61,8 +60,8 @@ public class GatewayConfigManager implements ConfigManager {
     }
 
     @Override
-    public void deleteConfig(API api, String namespace) {
-        List<IstioResource> resources = modelProcessor.translate(api, namespace);
+    public void deleteConfig(API api) {
+        List<IstioResource> resources = modelProcessor.translate(api);
 
         ImmutableMap<String, String> toBeDeletedMap = ImmutableMap
                 .of(K8sResourceEnum.VirtualService.name(), api.getName(),
@@ -73,22 +72,22 @@ public class GatewayConfigManager implements ConfigManager {
     }
 
     @Override
-    public void deleteConfig(Service service, String namespace) {
+    public void deleteConfig(Service service) {
         if (StringUtils.isEmpty(service.getGateway())) return;
-        List<IstioResource> resources = modelProcessor.translate(service, namespace);
+        List<IstioResource> resources = modelProcessor.translate(service);
         delete(resources, clearResource());
     }
 
 
     @Override
-    public void updateConfig(PluginOrder pluginOrder, String namespace) {
-        List<IstioResource> resources = modelProcessor.translate(pluginOrder, namespace);
+    public void updateConfig(PluginOrder pluginOrder) {
+        List<IstioResource> resources = modelProcessor.translate(pluginOrder);
         update(resources);
     }
 
     @Override
-    public void deleteConfig(PluginOrder pluginOrder, String namespace) {
-        List<IstioResource> resources = modelProcessor.translate(pluginOrder, namespace);
+    public void deleteConfig(PluginOrder pluginOrder) {
+        List<IstioResource> resources = modelProcessor.translate(pluginOrder);
         delete(resources, clearResource());
     }
 

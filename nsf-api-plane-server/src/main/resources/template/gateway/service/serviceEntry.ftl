@@ -2,7 +2,6 @@ apiVersion: networking.istio.io/v1alpha3
 kind: ServiceEntry
 metadata:
   name: ${t_service_entry_name}
-  namespace: ${t_namespace}
 spec:
   endpoints:
 <#list endpoints as e>
