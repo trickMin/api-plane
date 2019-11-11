@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
  * @date 2019/8/22
  **/
 @Component
-public class RateLimitProcessor extends AbstractYxSchemaProcessor implements SchemaProcessor<ServiceInfo> {
+public class RateLimitProcessor extends AbstractSchemaProcessor implements SchemaProcessor<ServiceInfo> {
     @Override
     public String getName() {
         return "RateLimitProcessor";

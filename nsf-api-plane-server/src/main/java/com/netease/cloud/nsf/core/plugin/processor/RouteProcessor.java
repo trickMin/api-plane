@@ -33,7 +33,7 @@ import java.util.regex.Pattern;
  * @date 2019/8/7
  **/
 @Component
-public class RouteProcessor extends AbstractYxSchemaProcessor implements SchemaProcessor<ServiceInfo> {
+public class RouteProcessor extends AbstractSchemaProcessor implements SchemaProcessor<ServiceInfo> {
 
     @Autowired
     private ResourceManager resourceManager;

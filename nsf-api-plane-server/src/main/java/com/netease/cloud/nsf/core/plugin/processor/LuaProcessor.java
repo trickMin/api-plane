@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
  * @date 2019/9/26
  **/
 @Component
-public class LuaProcessor extends AbstractYxSchemaProcessor implements SchemaProcessor<ServiceInfo> {
+public class LuaProcessor extends AbstractSchemaProcessor implements SchemaProcessor<ServiceInfo> {
     @Override
     public String getName() {
         return "LuaProcessor";

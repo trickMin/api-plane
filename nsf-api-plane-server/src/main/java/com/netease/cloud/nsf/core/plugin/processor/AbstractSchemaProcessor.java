@@ -16,7 +16,7 @@ import java.util.List;
  * @auther wupenghuai@corp.netease.com
  * @date 2019/8/20
  **/
-public abstract class AbstractYxSchemaProcessor implements SchemaProcessor<ServiceInfo> {
+public abstract class AbstractSchemaProcessor implements SchemaProcessor<ServiceInfo> {
 
     @Autowired
     protected EditorContext editorContext;

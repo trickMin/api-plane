@@ -15,7 +15,7 @@ import java.util.List;
  * @date 2019/9/26
  **/
 @Component
-public class IpRestrictionProcessor extends AbstractYxSchemaProcessor implements SchemaProcessor<ServiceInfo> {
+public class IpRestrictionProcessor extends AbstractSchemaProcessor implements SchemaProcessor<ServiceInfo> {
     @Override
     public String getName() {
         return "IpRestrictionProcessor";
