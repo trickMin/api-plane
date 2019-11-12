@@ -8,7 +8,7 @@ import com.netease.cloud.nsf.core.plugin.FragmentTypeEnum;
 import com.netease.cloud.nsf.core.plugin.FragmentWrapper;
 import com.netease.cloud.nsf.meta.Endpoint;
 import com.netease.cloud.nsf.meta.ServiceInfo;
-import com.netease.cloud.nsf.util.K8sResourceEnum;
+import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -33,7 +33,7 @@ import java.util.regex.Pattern;
  * @date 2019/8/7
  **/
 @Component
-public class RouteProcessor extends AbstractYxSchemaProcessor implements SchemaProcessor<ServiceInfo> {
+public class RouteProcessor extends AbstractSchemaProcessor implements SchemaProcessor<ServiceInfo> {
 
     @Autowired
     private ResourceManager resourceManager;

@@ -1,6 +1,6 @@
 package com.netease.cloud.nsf.core.istio.operator;
 
-import com.netease.cloud.nsf.util.K8sResourceEnum;
+import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
 import me.snowdrop.istio.api.networking.v1alpha3.Gateway;

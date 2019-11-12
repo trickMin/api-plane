@@ -12,7 +12,7 @@ import com.netease.cloud.nsf.meta.*;
 import com.netease.cloud.nsf.meta.Endpoint;
 import com.netease.cloud.nsf.meta.dto.PluginOrderDTO;
 import com.netease.cloud.nsf.util.Const;
-import com.netease.cloud.nsf.util.K8sResourceEnum;
+import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.util.Trans;
 import me.snowdrop.istio.api.IstioResource;
 import me.snowdrop.istio.api.networking.v1alpha3.*;
@@ -134,7 +134,7 @@ public class GatewayModelProcessorTest extends BaseTest {
                 Collections.EMPTY_LIST, Collections.EMPTY_LIST);
 
         Service s1 = getService(Const.PROXY_SERVICE_TYPE_DYNAMIC, "a.default.svc.cluster.local",
-                        33, "DYNAMIC_1", null);
+                33, "DYNAMIC_1", null);
         Service s2 = getService(Const.PROXY_SERVICE_TYPE_STATIC, "www.baidu.com",
                 33, "STATIC_1", null);
         Service s3 = getService(Const.PROXY_SERVICE_TYPE_STATIC, "10.10.10.10:1024,10.10.10.9:1024",
@@ -162,7 +162,7 @@ public class GatewayModelProcessorTest extends BaseTest {
         String namespace = "gateway-system";
 
         PluginOrderDTO po = new PluginOrderDTO();
-        po.setGatewayLabels(ImmutableMap.of("k1","v1", "k2", "v2"));
+        po.setGatewayLabels(ImmutableMap.of("k1", "v1", "k2", "v2"));
         po.setPlugins(ImmutableList.of("p1", "p2", "p3"));
 
         List<IstioResource> res = processor.translate(Trans.pluginOrderDTO2PluginOrder(po), namespace);
@@ -332,7 +332,7 @@ public class GatewayModelProcessorTest extends BaseTest {
                 "        subset: service-zero-plane-istio-test-gateway-yx\n" +
                 "      weight: 100";
 
-        K8sResourceGenerator gen = K8sResourceGenerator.newInstance(vsYaml, ResourceType.YAML, editorContext);
+        K8sResourceGenerator gen = K8sResourceGenerator.newInstance(vsYaml, ResourceType.YAML);
         K8sResourceEnum resourceEnum = K8sResourceEnum.get(gen.getKind());
         IstioResource vs = (IstioResource) gen.object(resourceEnum.mappingType());
 
