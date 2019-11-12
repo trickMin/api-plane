@@ -25,8 +25,8 @@ public class DefaultResourceManager implements ResourceManager {
                 endpoint.getAddress() != null &&
                         endpoint.getHostname() != null &&
                         endpoint.getPort() != null &&
-                        inIstioSystem(endpoint.getHostname()) &&
-                        inKubeSystem(endpoint.getHostname())
+                        !inIstioSystem(endpoint.getHostname()) &&
+                        !inKubeSystem(endpoint.getHostname())
         );
     }
 
@@ -39,8 +39,8 @@ public class DefaultResourceManager implements ResourceManager {
     public List<String> getServiceList() {
         return istioHttpClient.getServiceList(endpoint ->
                 endpoint.getHostname() != null &&
-                        inIstioSystem(endpoint.getHostname()) &&
-                        inKubeSystem(endpoint.getHostname())
+                        !inIstioSystem(endpoint.getHostname()) &&
+                        !inKubeSystem(endpoint.getHostname())
         );
     }
 

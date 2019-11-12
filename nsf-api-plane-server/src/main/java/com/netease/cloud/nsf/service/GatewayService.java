@@ -32,7 +32,7 @@ public interface GatewayService {
 
     void deletePluginOrder(PluginOrderDTO pluginOrderDTO);
 
-    List<Endpoint> getServiceList();
+    List<String> getServiceList();
 
     /**
      * 根据网关对应labels，获取网关后的服务

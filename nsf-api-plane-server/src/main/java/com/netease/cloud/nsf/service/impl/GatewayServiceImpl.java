@@ -91,8 +91,8 @@ public class GatewayServiceImpl implements GatewayService {
     }
 
     @Override
-    public List<Endpoint> getServiceList() {
-        return resourceManager.getEndpointList();
+    public List<String> getServiceList() {
+        return resourceManager.getServiceList();
     }
 
     @Override
@@ -165,7 +165,8 @@ public class GatewayServiceImpl implements GatewayService {
                 .map(h -> {
                     Endpoint e = new Endpoint();
                     e.setHostname(h);
-                    return e; })
+                    return e;
+                })
                 .collect(Collectors.toList());
     }
 

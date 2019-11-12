@@ -105,8 +105,6 @@ public class IstioHttpClient {
             Pattern pattern = Pattern.compile("(.*):http (.*) (.*):(.*) (.*) (.*)");
             Matcher matcher = pattern.matcher(rawValue);
             if (matcher.find()) {
-                String hostName = matcher.group(1);
-                svcs.add(hostName);
                 Endpoint endpoint = new Endpoint();
                 endpoint.setHostname(matcher.group(1));
                 endpoint.setAddress(matcher.group(3));
@@ -124,7 +122,6 @@ public class IstioHttpClient {
                     continue;
                 }
                 svcs.add(endpoint.getHostname());
-
             }
         }
         return svcs.stream().distinct().collect(Collectors.toList());

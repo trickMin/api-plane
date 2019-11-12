@@ -29,9 +29,7 @@ public class GatewayCommonController extends BaseController {
     public String getServiceList() {
 
         Map<String, Object> result = new HashMap<>();
-        List<String> serviceList = gatewayService.getServiceList().stream().map(endpoint -> endpoint.getHostname()).distinct().collect(Collectors.toList());
-
-        result.put(RESULT_LIST, serviceList);
+        result.put(RESULT_LIST, gatewayService.getServiceList());
         ErrorCode code = ApiPlaneErrorCode.Success;
         return apiReturn(code.getStatusCode(), code.getCode(), null, result);
     }
