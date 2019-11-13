@@ -27,3 +27,6 @@ spec:
 <@indent count=6>${p}</@indent>
 </#list>
 </#if>
+<#if t_api_priority??>
+  priority: ${t_api_priority}
+</#if>

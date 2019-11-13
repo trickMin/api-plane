@@ -43,6 +43,10 @@ public class PortalServiceDTO {
     @JsonProperty(value = "Gateway")
     private String gateway;
 
+    @JsonProperty(value = "Protocol")
+    @Pattern(regexp = "(http|https)", message = "protocol")
+    private String protocol = "http";
+
     public String getCode() {
         return code;
     }
@@ -81,5 +85,13 @@ public class PortalServiceDTO {
 
     public void setGateway(String gateway) {
         this.gateway = gateway;
+    }
+
+    public String getProtocol() {
+        return protocol;
+    }
+
+    public void setProtocol(String protocol) {
+        this.protocol = protocol;
     }
 }

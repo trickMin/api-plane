@@ -17,7 +17,7 @@ spec:
   - ${t_service_entry_host}
   location: MESH_EXTERNAL
   ports:
-  - name: http
-    number: 80
-    protocol: HTTP
+  - name: ${t_service_entry_protocol_name}
+    number: ${t_service_entry_protocol_port}
+    protocol: ${t_service_entry_protocol}
   resolution: DNS

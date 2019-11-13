@@ -9,7 +9,7 @@ spec:
     ${k}: ${v}
 </#list>
 </#if>
-  plugins:
+  plugin:
 <#list t_plugin_manager_plugins as p>
   - ${p}
 </#list>
