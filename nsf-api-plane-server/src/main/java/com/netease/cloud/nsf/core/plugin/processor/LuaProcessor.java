@@ -10,9 +10,14 @@ import com.netease.cloud.nsf.util.K8sResourceEnum;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -33,15 +38,18 @@ public class LuaProcessor extends AbstractYxSchemaProcessor implements SchemaPro
         ResourceGenerator rg = ResourceGenerator.newInstance("{\"resty\":{\"plugins\":[]}}");
         rg.addJsonElement("$.resty.plugins", plugin);
         String level = rg.getValue("$.resty.plugins[0].level");
+        String xUserId = rg.getValue("$.resty.plugins[0].x_user_id");
         rg.removeElement("$.resty.plugins[0].level");
         rg.removeElement("$.resty.plugins[0].kind");
         rg.removeElement("$.resty.plugins[0].version");
+        rg.removeElement("$.resty.plugins[0].x_user_id");
         switch (level) {
             case "host":
                 wrapper = new FragmentWrapper.Builder()
                         .withContent(rg.yamlString())
                         .withResourceType(K8sResourceEnum.VirtualService)
                         .withFragmentType(FragmentTypeEnum.VS_HOST)
+                        .withXUserId(xUserId)
                         .build();
                 break;
             case "api":
@@ -49,6 +57,7 @@ public class LuaProcessor extends AbstractYxSchemaProcessor implements SchemaPro
                         .withContent(rg.yamlString())
                         .withResourceType(K8sResourceEnum.VirtualService)
                         .withFragmentType(FragmentTypeEnum.VS_API)
+                        .withXUserId(xUserId)
                         .build();
                 break;
             case "match":
@@ -56,6 +65,7 @@ public class LuaProcessor extends AbstractYxSchemaProcessor implements SchemaPro
                         .withContent(rg.yamlString())
                         .withResourceType(K8sResourceEnum.VirtualService)
                         .withFragmentType(FragmentTypeEnum.VS_MATCH)
+                        .withXUserId(xUserId)
                         .build();
                 break;
             default:
@@ -81,6 +91,7 @@ public class LuaProcessor extends AbstractYxSchemaProcessor implements SchemaPro
                 new Object[]{apiLuas, FragmentTypeEnum.VS_API},
                 new Object[]{matchLuas, FragmentTypeEnum.VS_MATCH}
         };
+        // 根据 host api match级别分类lua插件
         for (Object[] item : wrapperMap) {
             item[0] = holders.stream()
                     .filter(holder -> holder.getVirtualServiceFragment().getFragmentType().equals(item[1]))
@@ -89,17 +100,35 @@ public class LuaProcessor extends AbstractYxSchemaProcessor implements SchemaPro
 
             List<FragmentWrapper> luas = (List<FragmentWrapper>) item[0];
             if (CollectionUtils.isEmpty(luas)) break;
-            ResourceGenerator rg = ResourceGenerator.newInstance("{\"resty\":{\"plugins\":[]}}");
-            luas.forEach(lua -> rg.addElement("$.resty.plugins",
-                    ResourceGenerator.newInstance(lua.getContent(), ResourceType.YAML).getValue("$.resty.plugins[0]")));
+            // 根据租户分类lua插件
+            MultiValueMap<String, FragmentWrapper> userLuaMap = new LinkedMultiValueMap<>();
+            luas.forEach(lua -> {
+                String xUserId = lua.getXUserId();
+                if (StringUtils.isEmpty(xUserId)) {
+                    userLuaMap.add("NoneUser", lua);
+                } else {
+                    userLuaMap.add(xUserId, lua);
+                }
+            });
 
-            FragmentHolder holder = new FragmentHolder();
-            holder.setVirtualServiceFragment(new FragmentWrapper.Builder()
-                    .withContent(rg.yamlString())
-                    .withResourceType(K8sResourceEnum.VirtualService)
-                    .withFragmentType((FragmentTypeEnum) item[1])
-                    .build());
-            ret.add(holder);
+            for (Map.Entry<String, List<FragmentWrapper>> luaMap : userLuaMap.entrySet()) {
+                ResourceGenerator rg = ResourceGenerator.newInstance("{\"resty\":{\"plugins\":[]}}");
+                luaMap.getValue().forEach(lua -> rg.addElement("$.resty.plugins",
+                        ResourceGenerator.newInstance(lua.getContent(), ResourceType.YAML).getValue("$.resty.plugins[0]")));
+
+                FragmentHolder holder = new FragmentHolder();
+                FragmentWrapper wrapper = new FragmentWrapper.Builder()
+                        .withContent(rg.yamlString())
+                        .withResourceType(K8sResourceEnum.VirtualService)
+                        .withFragmentType((FragmentTypeEnum) item[1])
+                        .build();
+                if (!"NoneUser".equals(luaMap.getKey())) {
+                    wrapper.setXUserId(luaMap.getKey());
+                }
+                holder.setVirtualServiceFragment(wrapper);
+                ret.add(holder);
+            }
+
         }
 
         return ret;
