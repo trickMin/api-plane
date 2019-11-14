@@ -15,4 +15,6 @@ public interface ResourceManager {
     List<Gateway> getGatewayList();
 
     List<String> getServiceList();
+
+    Integer getServicePort(List<Endpoint> endpoints, String targetHost);
 }
