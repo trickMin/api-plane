@@ -67,6 +67,7 @@ public class ApiPlaneAutoConfiguration {
 
     @PostConstruct
     void configureFreemarkerConfig() {
+        freemarkerConfig.setNumberFormat("#");
         freemarkerConfig.setSharedVariable("indent", new IndentationDirective());
         freemarkerConfig.setSharedVariable("ignore", new IgnoreDirective());
         freemarkerConfig.setSharedVariable("supply", new SupplyDirective());
