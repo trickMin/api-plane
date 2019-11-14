@@ -14,6 +14,7 @@ import java.util.List;
 public enum PathExpressionEnum {
     GET_KIND("$.kind", 0),
     GET_NAME("$.metadata.name", 0),
+    GET_LABEL("$.metadata.labels", 0),
     GET_NAMESPACE("$.metadata.namespace", 0),
     GET_APIVERSION("$.apiVersion", 0),
     GET_RESOURCEVERSION("$.metadata.resourceVersion", 0),

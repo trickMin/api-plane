@@ -4,6 +4,7 @@ package com.netease.cloud.nsf.util;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.sun.javafx.binding.StringFormatter;
 import io.fabric8.kubernetes.api.model.*;
+import io.fabric8.kubernetes.api.model.apps.*;
 import io.fabric8.kubernetes.client.utils.URLUtils;
 import me.snowdrop.istio.api.authentication.v1alpha1.*;
 import me.snowdrop.istio.api.networking.v1alpha3.*;
@@ -29,6 +30,11 @@ public enum K8sResourceEnum {
     SharedConfig(SharedConfig.class, SharedConfigList.class, "/apis/networking.istio.io/v1alpha3/namespaces/%s/sharedconfigs"),
     ServiceEntry(ServiceEntry.class, ServiceEntryList.class, "/apis/networking.istio.io/v1alpha3/namespaces/%s/serviceentries"),
     PluginManager(PluginManager.class, PluginManagerList.class, "/apis/networking.istio.io/v1alpha3/namespaces/%s/pluginmanagers"),
+    Deployment(Deployment.class, DeploymentList.class, "/apis/extensions/v1beta1/namespaces/%s/deployments"),
+    Endpoint(Endpoints.class, EndpointsList.class, "/api/v1/namespaces/%s/endpoints/"),
+    Service(Service.class, ServiceList.class, "/api/v1/namespaces/%s/services/"),
+    StatefulSet(StatefulSet.class, StatefulSetList.class, "/apis/apps/v1/namespaces/%s/statefulsets/"),
+    ReplicaSet(ReplicaSet.class, ReplicaSetList.class, "/apis/extensions/v1beta1/namespaces/%s/replicasets/"),
     ;
 
     private Class<? extends HasMetadata> mappingType;
