@@ -10,6 +10,7 @@ import com.netease.cloud.nsf.service.PluginService;
 import com.netease.cloud.nsf.util.CommonUtil;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,6 +30,8 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
     static final String apiVirtualServiceApi = "gateway/api/virtualServiceApi";
     static final String apiVirtualServiceRoute = "gateway/api/virtualServiceRoute";
 
+    static final String defaultUserId = "qz-default-user";
+
     ModelProcessor subModelProcessor;
     PluginService pluginService;
     List<FragmentWrapper> fragments;
@@ -46,7 +49,8 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
 
         // 插件分为match、api、host三个级别
         List<String> matchPlugins = new ArrayList<>();
-        List<String> apiPlugins = new ArrayList<>();
+        // api下的插件 可以根据插件划分
+        Map<String, List<String>> apiPlugins = new HashMap<>();
         List<String> hostPlugins = new ArrayList<>();
 
         distributePlugins(fragments, matchPlugins, apiPlugins, hostPlugins);
@@ -147,13 +151,12 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
 
     /**
      * 分配插件
-     *
      * @param fragments
      * @param matchPlugins
      * @param apiPlugins
      * @param hostPlugins
      */
-    void distributePlugins(List<FragmentWrapper> fragments, List<String> matchPlugins, List<String> apiPlugins, List<String> hostPlugins) {
+    void distributePlugins(List<FragmentWrapper> fragments, List<String> matchPlugins, Map<String, List<String>> apiPlugins, List<String> hostPlugins) {
         fragments.stream()
                 .forEach(f -> {
                     switch (f.getFragmentType()) {
@@ -161,7 +164,8 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
                             matchPlugins.add(f.getContent());
                             break;
                         case VS_API:
-                            apiPlugins.add(f.getContent());
+                            String userId = StringUtils.isEmpty(f.getXUserId()) ? defaultUserId : f.getXUserId();
+                            apiPlugins.computeIfAbsent(userId, k -> new ArrayList<>()).add(f.getContent());
                             break;
                         case VS_HOST:
                             hostPlugins.add(f.getContent());

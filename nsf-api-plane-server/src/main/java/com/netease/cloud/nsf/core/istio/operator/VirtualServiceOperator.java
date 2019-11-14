@@ -2,13 +2,15 @@ package com.netease.cloud.nsf.core.istio.operator;
 
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.util.function.Equals;
-import me.snowdrop.istio.api.networking.v1alpha3.*;
+import me.snowdrop.istio.api.networking.v1alpha3.HTTPRoute;
+import me.snowdrop.istio.api.networking.v1alpha3.VirtualService;
+import me.snowdrop.istio.api.networking.v1alpha3.VirtualServiceBuilder;
+import me.snowdrop.istio.api.networking.v1alpha3.VirtualServiceSpec;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -29,8 +31,7 @@ public class VirtualServiceOperator implements IstioResourceOperator<VirtualServ
         List<HTTPRoute> latestHttp = mergeList(oldSpec.getHttp(), freshSpec.getHttp(), new HttpRouteEquals());
         latest.getSpec().setHttp(latestHttp);
 
-        Map<String, ApiPlugin> latestPlugins = mergeMap(oldSpec.getPlugins(), freshSpec.getPlugins(), (o, n) -> Objects.equals(o, n));
-        latest.getSpec().setPlugins(latestPlugins);
+        latest.getSpec().setPlugins(fresh.getSpec().getPlugins());
 
         latest.getSpec().setRateLimits(fresh.getSpec().getRateLimits());
         return latest;
