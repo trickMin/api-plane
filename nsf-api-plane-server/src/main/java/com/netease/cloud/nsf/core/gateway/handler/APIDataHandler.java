@@ -4,6 +4,7 @@ import com.netease.cloud.nsf.core.template.TemplateParams;
 import com.netease.cloud.nsf.meta.API;
 import com.netease.cloud.nsf.meta.UriMatch;
 import com.netease.cloud.nsf.util.CommonUtil;
+import com.netease.cloud.nsf.util.PriorityUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +20,7 @@ public abstract class APIDataHandler implements DataHandler<API> {
         String uris = getUris(api);
         String methods = getMethods(api);
         String hosts = getHosts(api);
+        int priority = PriorityUtil.calculate(api);
 
         TemplateParams tp = TemplateParams.instance()
                 .put(NAMESPACE, api.getNamespace())
@@ -34,6 +36,7 @@ public abstract class APIDataHandler implements DataHandler<API> {
                 .put(API_CONNECT_TIMEOUT, api.getConnectTimeout())
                 .put(API_IDLE_TIMEOUT, api.getIdleTimeout())
                 .put(GATEWAY_HOSTS, api.getHosts())
+                .put(VIRTUAL_SERVICE_MATCH_PRIORITY, priority)
                 .put(VIRTUAL_SERVICE_HOSTS, hosts);
 
         return doHandle(tp, api);

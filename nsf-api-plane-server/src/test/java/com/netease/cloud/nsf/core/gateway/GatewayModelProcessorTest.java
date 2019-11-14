@@ -150,7 +150,7 @@ public class GatewayModelProcessorTest extends BaseTest {
         PluginManager pm = (PluginManager) res.get(0);
 
         Assert.assertTrue(pm.getSpec().getWorkloadLabels().size() == 2);
-        Assert.assertTrue(pm.getSpec().getPlugins().size() == 3);
+        Assert.assertTrue(pm.getSpec().getPlugin().size() == 3);
 
         PluginOrderDTO po1 = new PluginOrderDTO();
         po1.setPlugins(ImmutableList.of("p1", "p2"));

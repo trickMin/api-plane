@@ -29,7 +29,7 @@ public class VirtualServiceOperator implements IstioResourceOperator<VirtualServ
         List<HTTPRoute> latestHttp = mergeList(oldSpec.getHttp(), freshSpec.getHttp(), new HttpRouteEquals());
         latest.getSpec().setHttp(latestHttp);
 
-        Map<String, ApiPlugin> latestPlugins = mergeMap(oldSpec.getPlugins(), freshSpec.getPlugins(), (o, n) -> Objects.equals(o, n));
+        Map<String, ApiPlugins> latestPlugins = mergeMap(oldSpec.getPlugins(), freshSpec.getPlugins(), (o, n) -> Objects.equals(o, n));
         latest.getSpec().setPlugins(latestPlugins);
 
         latest.getSpec().setRateLimits(fresh.getSpec().getRateLimits());

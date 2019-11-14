@@ -10,3 +10,6 @@ match:
     :authority:
       regex: ${t_virtual_service_hosts}
 </#if>
+<#if t_virtual_service_match_priority??>
+priority: ${t_virtual_service_match_priority}
+</#if>

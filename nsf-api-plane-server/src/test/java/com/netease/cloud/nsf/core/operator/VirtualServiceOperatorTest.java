@@ -6,10 +6,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.Assert.assertTrue;
 
@@ -31,7 +28,7 @@ public class VirtualServiceOperatorTest {
                     getHTTPRoute("b",
                             Arrays.asList(getHTTPMatchRequest(), getHTTPMatchRequest())),
                     getHTTPRoute("a", null))
-                , null));
+                , getPlugins(Arrays.asList("a", "b"), 2)));
 
         VirtualService fresh = getVirtualService(getVirtualServiceSpec(
                 Arrays.asList(
@@ -40,7 +37,7 @@ public class VirtualServiceOperatorTest {
                         getHTTPRoute("b",null),
                         getHTTPRoute("c", null),
                         getHTTPRoute("c", null))
-                ,null));
+                ,getPlugins(Arrays.asList("a", "c"), 3)));
 
         VirtualService merge = operator.merge(old, fresh);
         assertTrue(merge.getSpec().getHttp().size() == 4);
@@ -61,6 +58,10 @@ public class VirtualServiceOperatorTest {
 
         assertTrue(aCount == 1);
         assertTrue(cCount == 2);
+        assertTrue(merge.getSpec().getPlugins().size() == 3);
+
+        Map<String, ApiPlugins> pluginMap = merge.getSpec().getPlugins();
+        assertTrue(pluginMap.get("a").getUserPlugin().size() == 3);
     }
 
     @Test
@@ -73,7 +74,7 @@ public class VirtualServiceOperatorTest {
                                 Arrays.asList(getHTTPMatchRequest(), getHTTPMatchRequest())),
                         getHTTPRoute("a", null),
                         getHTTPRoute("c", null))
-                , getPlugins(Arrays.asList("a", "b"))));
+                , getPlugins(Arrays.asList("a", "b"), 2)));
 
         VirtualService result = operator.subtract(old, "a");
         Assert.assertTrue(result.getSpec().getHttp().size() == 2);
@@ -94,7 +95,7 @@ public class VirtualServiceOperatorTest {
         return new HTTPMatchRequest();
     }
 
-    private static VirtualServiceSpec getVirtualServiceSpec(List<HTTPRoute> routes, Map<String, ApiPlugin> plugins) {
+    private static VirtualServiceSpec getVirtualServiceSpec(List<HTTPRoute> routes, Map<String, ApiPlugins> plugins) {
         VirtualServiceSpec spec = new VirtualServiceSpec();
         spec.setHttp(routes);
         spec.setPlugins(plugins);
@@ -107,9 +108,19 @@ public class VirtualServiceOperatorTest {
         return vs;
     }
 
-    private static Map<String, ApiPlugin> getPlugins(List<String> apis) {
-        Map<String, ApiPlugin> pluginMap = new HashMap<>();
-        apis.forEach(a -> pluginMap.put(a, new ApiPlugin()));
+    private static Map<String, ApiPlugins> getPlugins(List<String> apis, int apiPluginsNum) {
+        Map<String, ApiPlugins> pluginMap = new HashMap<>();
+        apis.forEach(a -> pluginMap.put(a, getApiPlugins(apiPluginsNum)));
         return pluginMap;
+    }
+
+    private static ApiPlugins getApiPlugins(int num) {
+        List<ApiPlugin> apList = new ArrayList<>();
+        for (int i = 0; i < num; i++) {
+            apList.add(new ApiPlugin());
+        }
+        ApiPlugins aps = new ApiPlugins();
+        aps.setUserPlugin(apList);
+        return aps;
     }
 }
