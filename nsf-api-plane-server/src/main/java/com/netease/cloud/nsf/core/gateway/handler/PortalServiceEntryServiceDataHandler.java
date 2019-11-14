@@ -48,7 +48,7 @@ public class PortalServiceEntryServiceDataHandler extends ServiceDataHandler {
             addrs.stream()
                     .forEach(addr -> {
                         Endpoint e = new Endpoint();
-                        if (CommonUtil.isValidIPPortAddr(addr)) {
+                        if (CommonUtil.isValidIPPortAddr(addr) || addr.contains(":")) {
                             String[] ipPort = addr.split(":");
                             e.setAddress(ipPort[0]);
                             e.setPort(Integer.valueOf(ipPort[1]));
