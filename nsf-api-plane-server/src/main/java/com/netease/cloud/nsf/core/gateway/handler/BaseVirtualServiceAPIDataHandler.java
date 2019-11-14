@@ -8,6 +8,7 @@ import com.netease.cloud.nsf.meta.API;
 import com.netease.cloud.nsf.meta.Endpoint;
 import com.netease.cloud.nsf.service.PluginService;
 import com.netease.cloud.nsf.util.CommonUtil;
+import com.netease.cloud.nsf.util.PriorityUtil;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
 import org.springframework.util.StringUtils;
@@ -58,6 +59,7 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
         String matchYaml = produceMatch(baseParams);
         String httpApiYaml = produceHttpApi(baseParams);
         String hosts = productHosts(api);
+        int priority = PriorityUtil.calculate(api);
         TemplateParams vsParams = TemplateParams.instance()
                 .setParent(baseParams)
                 .put(VIRTUAL_SERVICE_MATCH_YAML, matchYaml)
@@ -65,7 +67,8 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
                 .put(VIRTUAL_SERVICE_HOSTS, hosts)
                 .put(API_MATCH_PLUGINS, matchPlugins)
                 .put(API_API_PLUGINS, apiPlugins)
-                .put(API_HOST_PLUGINS, hostPlugins);
+                .put(API_HOST_PLUGINS, hostPlugins)
+                .put(VIRTUAL_SERVICE_MATCH_PRIORITY, priority);
 
         List<TemplateParams> collect = api.getGateways().stream()
                 .map(gw -> {

@@ -96,6 +96,7 @@ public class RouteProcessor extends AbstractSchemaProcessor implements SchemaPro
 
         ResourceGenerator ret = ResourceGenerator.newInstance("{}", ResourceType.JSON, editorContext);
         ret.createOrUpdateJson("$", "match", createMatch(rg, info, xUserId));
+        ret.createOrUpdateJson("$", "priority", info.getPriority());
         ret.createOrUpdateJson("$", "route", "[]");
 
         int length = rg.getValue("$.action.pass_proxy_target.length()");
@@ -114,6 +115,7 @@ public class RouteProcessor extends AbstractSchemaProcessor implements SchemaPro
     private String createReturn(ResourceGenerator rg, ServiceInfo info, String xUserId) {
         ResourceGenerator ret = ResourceGenerator.newInstance("{}", ResourceType.JSON, editorContext);
         ret.createOrUpdateJson("$", "match", createMatch(rg, info, xUserId));
+        ret.createOrUpdateJson("$", "priority", info.getPriority());
         ret.createOrUpdateJson("$", "return",
                 String.format("{\"body\":{\"inlineString\":\"%s\"},\"code\":%s}", rg.getValue("$.action.return_target.body"), rg.getValue("$.action.return_target.code")));
         if (rg.contain("$.action.header")) {
@@ -130,6 +132,7 @@ public class RouteProcessor extends AbstractSchemaProcessor implements SchemaPro
     private String createRedirect(ResourceGenerator rg, ServiceInfo info, String xUserId) {
         ResourceGenerator ret = ResourceGenerator.newInstance("{}", ResourceType.JSON, editorContext);
         ret.createOrUpdateJson("$", "match", createMatch(rg, info, xUserId));
+        ret.createOrUpdateJson("$", "priority", info.getPriority());
         String target = rg.getValue("$.action.target", String.class);
         try {
             URI uri = new URI(target);
@@ -154,6 +157,7 @@ public class RouteProcessor extends AbstractSchemaProcessor implements SchemaPro
     private String createRewrite(ResourceGenerator rg, ServiceInfo info, String xUserId) {
         ResourceGenerator ret = ResourceGenerator.newInstance("{}", ResourceType.JSON, editorContext);
         ret.createOrUpdateJson("$", "match", createMatch(rg, info, xUserId));
+        ret.createOrUpdateJson("$", "priority", info.getPriority());
         ret.createOrUpdateJson("$", "transformation", "{\"requestTransformations\":[{\"transformationTemplate\":{\"extractors\":{},\"headers\":{}}}]}");
         // $.action.target : 转换结果，格式如/$2/$1
         Matcher matcher = Pattern.compile("\\$\\d").matcher(rg.getValue("$.action.target"));
