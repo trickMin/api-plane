@@ -99,7 +99,7 @@ public class LuaProcessor extends AbstractSchemaProcessor implements SchemaProce
                     .collect(Collectors.toList());
 
             List<FragmentWrapper> luas = (List<FragmentWrapper>) item[0];
-            if (CollectionUtils.isEmpty(luas)) break;
+            if (CollectionUtils.isEmpty(luas)) continue;
             // 根据租户分类lua插件
             MultiValueMap<String, FragmentWrapper> userLuaMap = new LinkedMultiValueMap<>();
             luas.forEach(lua -> {
