@@ -95,18 +95,6 @@ public abstract class AbstractSchemaProcessor implements SchemaProcessor<Service
         }
     }
 
-    protected Integer getPort(List<Endpoint> endpoints, String targetHost) {
-        if (CollectionUtils.isEmpty(endpoints) || StringUtils.isBlank(targetHost)) {
-            throw new ApiPlaneException("Get port by targetHost fail. param cant be null.");
-        }
-        for (Endpoint endpoint : endpoints) {
-            if (targetHost.equals(endpoint.getHostname())) {
-                return endpoint.getPort();
-            }
-        }
-        throw new ApiPlaneException(String.format("Target endpoint %s does not exist", targetHost));
-    }
-
     /**
      * 将一个普通expression作为regex表达式，转移其中所有特殊字符，并填充到json中时需要转义,
      * 例如 . 转义为 \\\\. 第一个反斜杠转义是不作为正则表达式中的特殊字符.第二个反斜杆是在json中特殊字符需要转义
