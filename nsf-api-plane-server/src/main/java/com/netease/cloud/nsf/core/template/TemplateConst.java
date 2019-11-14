@@ -41,6 +41,7 @@ public interface TemplateConst {
     String VIRTUAL_SERVICE_HOSTS_YAML = "t_virtual_service_hosts_yaml";
     String VIRTUAL_SERVICE_API_YAML = "t_virtual_service_api_yaml";
     String VIRTUAL_SERVICE_HOSTS = "t_virtual_service_hosts";
+    String VIRTUAL_SERVICE_MATCH_PRIORITY = "t_virtual_service_match_priority";
 
     /**
      * MATCH级別插件

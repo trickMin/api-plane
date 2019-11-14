@@ -4,6 +4,7 @@ import com.netease.cloud.nsf.core.template.TemplateParams;
 import com.netease.cloud.nsf.meta.API;
 import com.netease.cloud.nsf.meta.UriMatch;
 import com.netease.cloud.nsf.util.CommonUtil;
+import com.netease.cloud.nsf.util.PriorityUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,10 +17,10 @@ public abstract class APIDataHandler implements DataHandler<API> {
     @Override
     public List<TemplateParams> handle(API api) {
 
-        // 全部转为正则，不支持数组
         String uris = getUris(api);
         String methods = getMethods(api);
         String hosts = getHosts(api);
+        int priority = PriorityUtil.calculate(api);
 
         TemplateParams tp = TemplateParams.instance()
                 .put(NAMESPACE, api.getNamespace())
@@ -32,15 +33,23 @@ public abstract class APIDataHandler implements DataHandler<API> {
                 .put(API_METHODS, methods)
                 .put(API_RETRIES, api.getRetries())
                 .put(API_PRESERVE_HOST, api.getPreserveHost())
-                .put(API_HEADERS, api.getHeaders())
-                .put(API_QUERY_PARAMS, api.getQueryParams())
                 .put(API_CONNECT_TIMEOUT, api.getConnectTimeout())
                 .put(API_IDLE_TIMEOUT, api.getIdleTimeout())
                 .put(GATEWAY_HOSTS, api.getHosts())
-                .put(VIRTUAL_SERVICE_HOSTS, hosts)
-                ;
+                .put(VIRTUAL_SERVICE_MATCH_PRIORITY, priority)
+                .put(VIRTUAL_SERVICE_HOSTS, hosts);
 
         return doHandle(tp, api);
+    }
+
+    private String getMethods(API api) {
+
+        List<String> methods = new ArrayList<>();
+        for (String m : api.getMethods()) {
+            if (m.equals("*")) return ".*";
+            methods.add(m);
+        }
+        return String.join("|", methods);
     }
 
     abstract List<TemplateParams> doHandle(TemplateParams tp, API api);
@@ -56,20 +65,9 @@ public abstract class APIDataHandler implements DataHandler<API> {
                 .collect(Collectors.toList()));
     }
 
-    String getHosts(API api) {
+    private String getHosts(API api) {
         return String.join("|", api.getHosts().stream()
                 .map(h -> CommonUtil.host2Regex(h))
                 .collect(Collectors.toList()));
     }
-
-    String getMethods(API api) {
-
-        List<String> methods = new ArrayList<>();
-        for (String m : api.getMethods()) {
-            if (m.equals("*")) return ".*";
-            methods.add(m);
-        }
-        return String.join("|", methods);
-    }
-
 }
