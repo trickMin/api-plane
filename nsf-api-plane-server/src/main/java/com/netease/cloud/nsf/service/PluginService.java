@@ -18,8 +18,6 @@ public interface PluginService {
 
     String getPluginConfig();
 
-    FragmentHolder processSchema(String plugin, ServiceInfo serviceInfo);
-
     List<FragmentHolder> processSchema(List<String> plugins, ServiceInfo serviceInfo);
 
     List<String> extractService(List<String> plugins);

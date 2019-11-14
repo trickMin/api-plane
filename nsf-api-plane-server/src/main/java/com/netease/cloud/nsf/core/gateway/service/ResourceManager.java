@@ -14,4 +14,5 @@ public interface ResourceManager {
 
     List<Gateway> getGatewayList();
 
+    List<String> getServiceList();
 }

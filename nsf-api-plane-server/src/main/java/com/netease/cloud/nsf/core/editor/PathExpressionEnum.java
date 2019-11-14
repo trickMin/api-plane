@@ -1,4 +1,4 @@
-package com.netease.cloud.nsf.util;
+package com.netease.cloud.nsf.core.editor;
 
 import com.jayway.jsonpath.Predicate;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
@@ -8,10 +8,14 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
+ * 提供给jsonpath的path expression
+ *
  * @auther wupenghuai@corp.netease.com
  * @date 2019/7/25
  **/
 public enum PathExpressionEnum {
+
+    /** k8s资源公用 **/
     GET_KIND("$.kind", 0),
     GET_NAME("$.metadata.name", 0),
     GET_LABEL("$.metadata.labels", 0),
@@ -19,18 +23,18 @@ public enum PathExpressionEnum {
     GET_APIVERSION("$.apiVersion", 0),
     GET_RESOURCEVERSION("$.metadata.resourceVersion", 0),
     GET_ITEMS("$.items", 0),
+
+    /** rbac **/
     REMOVE_RBAC_SERVICE("$.spec.rules[?]", 0),
-    ADD_RBAC_SERVICE("$.spec.rules", 0),
-    ADD_RBAC_SERVICE_TO_RBAC_CONFIG("$.spec.inclusion.services", 0),
-    REMOVE_VS_HTTP("$.spec.http[?(@.api == '%s')]", 1),
+
+    /** destinationrule **/
     REMOVE_DST_SUBSET_API("$.spec.subsets[?(@.api == '%s')]", 1),
-    REMOVE_DST_SUBSET_NAME("$.spec.subsets[?(@.name == '%s')]", 1),
+
+    /** sharedconfig **/
     REMOVE_SC_RATELIMITDESC("$.spec.rateLimitConfigs[*].descriptors[?(@.api == '%s')]", 1),
 
+    /** plugin **/
     PLUGIN_GET_KIND("$.kind", 0),
-
-    ISTIO_GET_SVC("$[*].ep[*]", 0),
-    ISTIO_GET_GATEWAY("$[*].ep[?]", 0),
     ;
 
     private String expression;

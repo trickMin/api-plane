@@ -71,7 +71,7 @@ public class TemplateServiceImpl implements TemplateService {
 
         // 2. 分割模板 + 删除
         splitContent(content).forEach(o -> {
-            K8sResourceGenerator gen = K8sResourceGenerator.newInstance(o, ResourceType.YAML, editorContext);
+            K8sResourceGenerator gen = K8sResourceGenerator.newInstance(o, ResourceType.YAML);
             deleteConfig(gen.getName(), gen.getNamespace(), gen.getKind());
         });
     }
@@ -93,7 +93,7 @@ public class TemplateServiceImpl implements TemplateService {
 
         // 3. 分割模板 + 查询
         splitContent(content).forEach(o -> {
-            K8sResourceGenerator gen = K8sResourceGenerator.newInstance(o, ResourceType.YAML, editorContext);
+            K8sResourceGenerator gen = K8sResourceGenerator.newInstance(o, ResourceType.YAML);
             remoteResources.add(getConfig(gen.getName(), gen.getNamespace(), gen.getKind()));
         });
         return remoteResources;

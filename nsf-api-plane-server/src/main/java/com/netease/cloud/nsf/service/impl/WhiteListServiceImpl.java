@@ -8,14 +8,14 @@ import com.netease.cloud.nsf.core.k8s.KubernetesClient;
 import com.netease.cloud.nsf.core.template.TemplateTranslator;
 import com.netease.cloud.nsf.meta.WhiteList;
 import com.netease.cloud.nsf.service.WhiteListService;
-import com.netease.cloud.nsf.util.PathExpressionEnum;
+import com.netease.cloud.nsf.core.editor.PathExpressionEnum;
 import com.sun.javafx.binding.StringFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import static com.netease.cloud.nsf.util.K8sResourceEnum.*;
+import static com.netease.cloud.nsf.core.k8s.K8sResourceEnum.*;
 
 /**
  * @auther wupenghuai@corp.netease.com
