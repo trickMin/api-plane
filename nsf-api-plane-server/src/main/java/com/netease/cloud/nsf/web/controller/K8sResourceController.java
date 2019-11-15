@@ -1,6 +1,7 @@
 package com.netease.cloud.nsf.web.controller;
 
 import com.netease.cloud.nsf.cache.ResourceCache;
+import com.netease.cloud.nsf.cache.ResourceStoreFactory;
 import com.netease.cloud.nsf.util.errorcode.ApiPlaneErrorCode;
 import com.netease.cloud.nsf.util.errorcode.ErrorCode;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,9 +29,10 @@ public class K8sResourceController extends BaseController {
     @RequestMapping(params = {"Action=GetWorkLoadByServiceInfo"}, method = RequestMethod.GET)
     public String getWorkLoadByServiceInfo(@RequestParam(name = "ServiceName") String serviceName,
                                            @RequestParam(name = "Namespace") String namespace,
-                                           @RequestParam(name = "ProjectId") String projectId) {
+                                           @RequestParam(name = "ProjectId") String projectId,
+                                           @RequestParam(name = "ClusterId") String clusterId) {
 
-        List workLoadByServiceInfo = resourceCache.getWorkLoadByServiceInfo(projectId, namespace, serviceName);
+        List workLoadByServiceInfo = resourceCache.getWorkLoadByServiceInfo(projectId, namespace, serviceName, clusterId);
         Map<String, Object> result = new HashMap<>();
         result.put("Result", workLoadByServiceInfo);
         ErrorCode code = ApiPlaneErrorCode.Success;
@@ -56,6 +58,16 @@ public class K8sResourceController extends BaseController {
         List podList = resourceCache.getAllWorkLoad();
         Map<String, Object> result = new HashMap<>();
         result.put("Result", podList);
+        ErrorCode code = ApiPlaneErrorCode.Success;
+        return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), result);
+    }
+
+    @RequestMapping(params = {"Action=GetClusterIdList"}, method = RequestMethod.GET)
+    public String getClusterIdList() {
+
+        List<String> clusterIdList = ResourceStoreFactory.listClusterId();
+        Map<String, Object> result = new HashMap<>();
+        result.put("Result", clusterIdList);
         ErrorCode code = ApiPlaneErrorCode.Success;
         return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), result);
     }

@@ -1,7 +1,5 @@
 package com.netease.cloud.nsf.cache;
 
-import com.netease.cloud.nsf.cache.meta.WorkLoadDto;
-
 import java.util.List;
 
 /**
@@ -16,9 +14,10 @@ public interface ResourceCache {
      * @param projectId 项目标识
      * @param namespace 命名空间
      * @param serviceName Service名称
+     * @param clusterId 集群Id
      * @return 负载列表
      */
-    List getWorkLoadByServiceInfo(String projectId, String namespace, String serviceName);
+    List getWorkLoadByServiceInfo(String projectId, String namespace, String serviceName, String clusterId);
 
     /**
      * 或取与指定负载信息关联的Pod列表
