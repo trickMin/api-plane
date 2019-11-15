@@ -1,6 +1,6 @@
 package com.netease.cloud.nsf.core.plugin;
 
-import com.netease.cloud.nsf.util.K8sResourceEnum;
+import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 
 /**
  * @auther wupenghuai@corp.netease.com

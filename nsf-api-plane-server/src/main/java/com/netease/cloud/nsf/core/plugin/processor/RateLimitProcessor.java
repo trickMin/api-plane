@@ -7,7 +7,7 @@ import com.netease.cloud.nsf.core.plugin.FragmentHolder;
 import com.netease.cloud.nsf.core.plugin.FragmentTypeEnum;
 import com.netease.cloud.nsf.core.plugin.FragmentWrapper;
 import com.netease.cloud.nsf.meta.ServiceInfo;
-import com.netease.cloud.nsf.util.K8sResourceEnum;
+import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import org.springframework.stereotype.Component;
 
@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
  * @date 2019/8/22
  **/
 @Component
-public class RateLimitProcessor extends AbstractYxSchemaProcessor implements SchemaProcessor<ServiceInfo> {
+public class RateLimitProcessor extends AbstractSchemaProcessor implements SchemaProcessor<ServiceInfo> {
     @Override
     public String getName() {
         return "RateLimitProcessor";

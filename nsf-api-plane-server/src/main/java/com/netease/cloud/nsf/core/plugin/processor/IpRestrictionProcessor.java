@@ -5,7 +5,7 @@ import com.netease.cloud.nsf.core.plugin.FragmentHolder;
 import com.netease.cloud.nsf.core.plugin.FragmentTypeEnum;
 import com.netease.cloud.nsf.core.plugin.FragmentWrapper;
 import com.netease.cloud.nsf.meta.ServiceInfo;
-import com.netease.cloud.nsf.util.K8sResourceEnum;
+import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -15,7 +15,7 @@ import java.util.List;
  * @date 2019/9/26
  **/
 @Component
-public class IpRestrictionProcessor extends AbstractYxSchemaProcessor implements SchemaProcessor<ServiceInfo> {
+public class IpRestrictionProcessor extends AbstractSchemaProcessor implements SchemaProcessor<ServiceInfo> {
     @Override
     public String getName() {
         return "IpRestrictionProcessor";

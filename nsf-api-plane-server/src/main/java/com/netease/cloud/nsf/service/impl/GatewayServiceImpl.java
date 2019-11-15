@@ -13,7 +13,7 @@ import com.netease.cloud.nsf.meta.dto.PortalServiceDTO;
 import com.netease.cloud.nsf.meta.dto.YxAPIDTO;
 import com.netease.cloud.nsf.service.GatewayService;
 import com.netease.cloud.nsf.util.CommonUtil;
-import com.netease.cloud.nsf.util.K8sResourceEnum;
+import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.util.Trans;
 import me.snowdrop.istio.api.IstioResource;
 import me.snowdrop.istio.api.networking.v1alpha3.VirtualService;
@@ -91,8 +91,8 @@ public class GatewayServiceImpl implements GatewayService {
     }
 
     @Override
-    public List<Endpoint> getServiceList() {
-        return resourceManager.getEndpointList();
+    public List<String> getServiceList() {
+        return resourceManager.getServiceList();
     }
 
     @Override
@@ -165,7 +165,8 @@ public class GatewayServiceImpl implements GatewayService {
                 .map(h -> {
                     Endpoint e = new Endpoint();
                     e.setHostname(h);
-                    return e; })
+                    return e;
+                })
                 .collect(Collectors.toList());
     }
 

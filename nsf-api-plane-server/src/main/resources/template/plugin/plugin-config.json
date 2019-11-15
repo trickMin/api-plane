@@ -4,37 +4,73 @@
       "name": "ianus-percent-limit",
       "resource": "plugin/ianus-percent-limit.json",
       "description": "",
-      "processor": "FlowLimitProcessor"
+      "processor": "FlowLimitProcessor",
+      "author": "",
+      "createTime": "",
+      "updateTime": "",
+      "pluginScope": "",
+      "pluginPriority": "",
+      "instructionForUse": ""
     },
     {
       "name": "ianus-rate-limiting",
       "resource": "plugin/ianus-rate-limiting.json",
       "description": "",
-      "processor": "RateLimitProcessor"
+      "processor": "RateLimitProcessor",
+      "author": "",
+      "createTime": "",
+      "updateTime": "",
+      "pluginScope": "",
+      "pluginPriority": "",
+      "instructionForUse": ""
     },
     {
       "name": "ianus-request-transformer",
       "resource": "plugin/ianus-request-transformer.json",
       "description": "",
-      "processor": "RequestTransformProcessor"
+      "processor": "RequestTransformProcessor",
+      "author": "",
+      "createTime": "",
+      "updateTime": "",
+      "pluginScope": "",
+      "pluginPriority": "",
+      "instructionForUse": ""
     },
     {
       "name": "ianus-router",
       "resource": "plugin/ianus-router.json",
       "description": "",
-      "processor": "RouteProcessor"
+      "processor": "RouteProcessor",
+      "author": "",
+      "createTime": "",
+      "updateTime": "",
+      "pluginScope": "",
+      "pluginPriority": "",
+      "instructionForUse": ""
     },
     {
       "name": "ip-restriction",
       "resource": "plugin/ip-restriction.json",
       "description": "",
-      "processor": "IpRestrictionProcessor"
+      "processor": "IpRestrictionProcessor",
+      "author": "",
+      "createTime": "",
+      "updateTime": "",
+      "pluginScope": "",
+      "pluginPriority": "",
+      "instructionForUse": ""
     },
     {
       "name": "lua",
       "resource": "plugin/lua.json",
       "description": "",
-      "processor": "LuaProcessor"
+      "processor": "LuaProcessor",
+      "author": "",
+      "createTime": "",
+      "updateTime": "",
+      "pluginScope": "",
+      "pluginPriority": "",
+      "instructionForUse": ""
     }
   ]
 }

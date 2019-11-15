@@ -3,7 +3,6 @@ package com.netease.cloud.nsf.core.k8s;
 import com.netease.cloud.nsf.core.editor.EditorContext;
 import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.k8s.http.DefaultK8sHttpClient;
-import com.netease.cloud.nsf.util.K8sResourceEnum;
 import io.fabric8.kubernetes.client.Config;
 import okhttp3.*;
 import org.springframework.util.StringUtils;
@@ -98,7 +97,7 @@ public class KubernetesClient extends DefaultK8sHttpClient {
         String obj = getWithNull(url);
         if (StringUtils.isEmpty(obj)) return null;
 
-        K8sResourceGenerator gen = K8sResourceGenerator.newInstance(obj, ResourceType.JSON, editorContext);
+        K8sResourceGenerator gen = K8sResourceGenerator.newInstance(obj, ResourceType.JSON);
         K8sResourceEnum resourceEnum = K8sResourceEnum.get(gen.getKind());
         return (T) gen.object(resourceEnum.mappingType());
     }
@@ -114,7 +113,7 @@ public class KubernetesClient extends DefaultK8sHttpClient {
         String obj = getWithNull(url);
         if (StringUtils.isEmpty(obj)) return null;
 
-        K8sResourceGenerator gen = K8sResourceGenerator.newInstance(obj, ResourceType.JSON, editorContext);
+        K8sResourceGenerator gen = K8sResourceGenerator.newInstance(obj, ResourceType.JSON);
         K8sResourceEnum resourceEnum = K8sResourceEnum.getItem(gen.getKind());
         return gen.object(resourceEnum.mappingListType()).getItems();
     }
@@ -126,13 +125,13 @@ public class KubernetesClient extends DefaultK8sHttpClient {
      * @param resourceType 资源类型
      */
     public void createOrUpdate(Object obj, ResourceType resourceType) {
-        K8sResourceGenerator gen = K8sResourceGenerator.newInstance(obj, resourceType, editorContext);
+        K8sResourceGenerator gen = K8sResourceGenerator.newInstance(obj, resourceType);
         String url = getUrl(gen.getKind(), gen.getNamespace(), gen.getName());
 
         String oldResource = getWithNull(url);
 
         if (oldResource != null) {
-            K8sResourceGenerator oldGenerator = K8sResourceGenerator.newInstance(oldResource, ResourceType.JSON, editorContext);
+            K8sResourceGenerator oldGenerator = K8sResourceGenerator.newInstance(oldResource, ResourceType.JSON);
             gen.setResourceVersion(resourceVersionGenerator(oldGenerator.getResourceVersion()));
             put(url, gen.jsonString());
             return;

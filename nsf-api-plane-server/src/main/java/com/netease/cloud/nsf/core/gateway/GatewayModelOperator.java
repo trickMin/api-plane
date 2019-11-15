@@ -16,7 +16,7 @@ import com.netease.cloud.nsf.meta.API;
 import com.netease.cloud.nsf.meta.*;
 import com.netease.cloud.nsf.service.PluginService;
 import com.netease.cloud.nsf.util.Const;
-import com.netease.cloud.nsf.util.K8sResourceEnum;
+import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
 import me.snowdrop.istio.api.IstioResource;
@@ -205,7 +205,7 @@ public class GatewayModelOperator {
     private IstioResource str2IstioResource(String str) {
 
         logger.info("raw resource: " + str);
-        K8sResourceGenerator gen = K8sResourceGenerator.newInstance(str, ResourceType.YAML, editorContext);
+        K8sResourceGenerator gen = K8sResourceGenerator.newInstance(str, ResourceType.YAML);
         K8sResourceEnum resourceEnum = K8sResourceEnum.get(gen.getKind());
         IstioResource ir = (IstioResource) gen.object(resourceEnum.mappingType());
         return ir;

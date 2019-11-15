@@ -1,13 +1,11 @@
 package com.netease.cloud.nsf.util;
 
 import com.netease.cloud.nsf.meta.*;
-import com.netease.cloud.nsf.meta.dto.PluginOrderDTO;
-import com.netease.cloud.nsf.meta.dto.PortalAPIDTO;
-import com.netease.cloud.nsf.meta.dto.PortalServiceDTO;
-import com.netease.cloud.nsf.meta.dto.YxAPIDTO;
+import com.netease.cloud.nsf.meta.dto.*;
 import org.springframework.beans.BeanUtils;
+import org.springframework.util.CollectionUtils;
 
-import java.util.Arrays;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -32,7 +30,6 @@ public class Trans {
     public static API portalAPI2API(PortalAPIDTO portalAPI) {
 
         API api = new API();
-
         BeanUtils.copyProperties(portalAPI, api);
         api.setUriMatch(UriMatch.get(portalAPI.getUriMatch()));
         api.setProxyServices(portalAPI.getProxyServices().stream()
@@ -40,6 +37,9 @@ public class Trans {
                                 .collect(Collectors.toList()));
         api.setGateways(Arrays.asList(portalAPI.getGateway()));
         api.setName(portalAPI.getCode());
+
+        api.setHeaders(pairsDTO2Pairs(portalAPI.getHeaders()));
+        api.setQueryParams(pairsDTO2Pairs(portalAPI.getQueryParams()));
         return api;
     }
 
@@ -62,4 +62,19 @@ public class Trans {
         return po;
     }
 
+    private static List<PairMatch> pairsDTO2Pairs(List<PairMatchDTO> pairMatchDTOS) {
+        if (CollectionUtils.isEmpty(pairMatchDTOS)) return Collections.emptyList();
+        return pairMatchDTOS.stream()
+                        .map(dto -> pairDTO2Pair(dto))
+                        .collect(Collectors.toList());
+    }
+
+    private static PairMatch pairDTO2Pair(PairMatchDTO pairMatchDTO) {
+        PairMatch pm = new PairMatch();
+        if (pairMatchDTO == null) return pm;
+        pm.setType(pairMatchDTO.getType());
+        pm.setKey(pairMatchDTO.getKey());
+        pm.setValue(pairMatchDTO.getValue());
+        return pm;
+    }
 }

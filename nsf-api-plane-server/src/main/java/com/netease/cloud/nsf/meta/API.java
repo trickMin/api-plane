@@ -33,6 +33,16 @@ public class API extends CommonModel {
     private List<String> methods;
 
     /**
+     * 请求headers
+     */
+    private List<PairMatch> headers;
+
+    /**
+     * 请求参数
+     */
+    private List<PairMatch> queryParams;
+
+    /**
      * 映射到后端的uri
      */
     private List<String> proxyUris;
@@ -256,5 +266,21 @@ public class API extends CommonModel {
 
     public void setProxyServices(List<Service> proxyServices) {
         this.proxyServices = proxyServices;
+    }
+
+    public List<PairMatch> getHeaders() {
+        return headers;
+    }
+
+    public void setHeaders(List<PairMatch> headers) {
+        this.headers = headers;
+    }
+
+    public List<PairMatch> getQueryParams() {
+        return queryParams;
+    }
+
+    public void setQueryParams(List<PairMatch> queryParams) {
+        this.queryParams = queryParams;
     }
 }
