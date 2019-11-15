@@ -1,7 +1,7 @@
 package com.netease.cloud.nsf.cache;
 
+import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.k8s.http.K8sHttpClient;
-import com.netease.cloud.nsf.util.K8sResourceEnum;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.client.KubernetesClientException;
 import io.fabric8.kubernetes.client.Watcher;

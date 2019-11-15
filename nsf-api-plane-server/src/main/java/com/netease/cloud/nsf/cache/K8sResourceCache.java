@@ -5,8 +5,8 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.netease.cloud.nsf.cache.meta.PodDto;
 import com.netease.cloud.nsf.cache.meta.WorkLoadDto;
+import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.util.Const;
-import com.netease.cloud.nsf.util.K8sResourceEnum;
 import com.netease.cloud.nsf.util.RestTemplateClient;
 import io.fabric8.kubernetes.api.model.EndpointAddress;
 import io.fabric8.kubernetes.api.model.Endpoints;
@@ -27,7 +27,8 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.netease.cloud.nsf.util.K8sResourceEnum.*;
+import static com.netease.cloud.nsf.core.k8s.K8sResourceEnum.*;
+
 
 /**
  * @author zhangzihao
@@ -41,7 +42,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     @Autowired
     private KubernetesClient kubernetesClient;
 
-    private Map<K8sResourceEnum, K8sResourceInformer> resourceInformerMap = new HashMap<>();
+    private Map<K8sResourceEnum, K8sResourceInformer> resourceInformerMap = new HashMap<com.netease.cloud.nsf.core.k8s.K8sResourceEnum, K8sResourceInformer>();
     private static final Logger log = LoggerFactory.getLogger(K8sResourceCache.class);
     private static final String UPDATE_RESOURCE_DURATION = "0 0/1 * * * ?";
     private static int WORK_LOAD_CACHE_MAX_SIZE = 100;

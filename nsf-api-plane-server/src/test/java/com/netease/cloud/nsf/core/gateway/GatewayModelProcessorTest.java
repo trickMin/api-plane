@@ -92,7 +92,7 @@ public class GatewayModelProcessorTest extends BaseTest {
         Endpoint endpoint1 = getEndpoint("a.default.svc.cluster.local", 9090);
         Endpoint endpoint2 = getEndpoint("b.default.svc.cluster.local", 9000);
 
-        when(istioHttpClient.getEndpointList()).thenReturn(Arrays.asList(endpoint1, endpoint2));
+        when(istioHttpClient.getEndpointList(null)).thenReturn(Arrays.asList(endpoint1, endpoint2));
 
         //base api test
         API api = getAPI("api-name", "service-zero", ImmutableList.of("gateway1", "gateway2"),

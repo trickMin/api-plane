@@ -2,13 +2,14 @@ package com.netease.cloud.nsf.cache;
 
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.OwnerReference;
+import io.fabric8.kubernetes.api.model.apps.StatefulSet;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.netease.cloud.nsf.util.K8sResourceEnum.Deployment;
-import static com.netease.cloud.nsf.util.K8sResourceEnum.StatefulSet;
+import static com.netease.cloud.nsf.core.k8s.K8sResourceEnum.*;
+
 
 /**
  * 对ResourceStore 进行了包装，在处理资源的crud操作时，会提取出资源的ownerReference信息，并建立索引，记录了指定
