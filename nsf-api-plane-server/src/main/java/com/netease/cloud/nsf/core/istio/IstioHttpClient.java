@@ -130,7 +130,7 @@ public class IstioHttpClient {
         if (Objects.isNull(filter)) {
             filter = e -> true;
         }
-        return getEndpointList().stream().filter(filter).distinct().map(Endpoint::getHostname).collect(Collectors.toList());
+        return getEndpointList().stream().filter(filter).map(Endpoint::getHostname).distinct().collect(Collectors.toList());
     }
 
     public List<Endpoint> getEndpointList(Predicate<Endpoint> filter) {
