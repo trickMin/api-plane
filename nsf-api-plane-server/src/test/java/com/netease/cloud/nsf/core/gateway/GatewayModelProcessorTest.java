@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
 public class GatewayModelProcessorTest extends BaseTest {
@@ -73,13 +74,14 @@ public class GatewayModelProcessorTest extends BaseTest {
         return api;
     }
 
-    private Service getService(String type, String backend, int weight, String code, String gateway) {
+    private Service getService(String type, String backend, int weight, String code, String gateway, String protocol) {
         Service s = new Service();
         s.setType(type);
         s.setBackendService(backend);
         s.setWeight(weight);
         s.setCode(code);
         s.setGateway(gateway);
+        s.setProtocol("https");
         return s;
     }
 
@@ -89,7 +91,7 @@ public class GatewayModelProcessorTest extends BaseTest {
         Endpoint endpoint1 = getEndpoint("a.default.svc.cluster.local", 9090);
         Endpoint endpoint2 = getEndpoint("b.default.svc.cluster.local", 9000);
 
-        when(istioHttpClient.getEndpointList(null)).thenReturn(Arrays.asList(endpoint1, endpoint2));
+        when(istioHttpClient.getEndpointList(any())).thenReturn(Arrays.asList(endpoint1, endpoint2));
 
         //base api test
         API api = getAPI("api-name", "service-zero", ImmutableList.of("gateway1", "gateway2"),
@@ -131,11 +133,11 @@ public class GatewayModelProcessorTest extends BaseTest {
                 Collections.EMPTY_LIST, Collections.EMPTY_LIST);
 
         Service s1 = getService(Const.PROXY_SERVICE_TYPE_DYNAMIC, "a.default.svc.cluster.local",
-                33, "DYNAMIC_1", null);
+                33, "DYNAMIC_1", null, "https");
         Service s2 = getService(Const.PROXY_SERVICE_TYPE_STATIC, "www.baidu.com",
-                33, "STATIC_1", null);
+                33, "STATIC_1", null, "https");
         Service s3 = getService(Const.PROXY_SERVICE_TYPE_STATIC, "10.10.10.10:1024,10.10.10.9:1024",
-                34, "STATIC_2", null);
+                34, "STATIC_2", null, "https");
         api1.setProxyServices(Arrays.asList(s1, s2, s3));
 
         List<IstioResource> resources1 = processor.translate(api1);
@@ -185,7 +187,7 @@ public class GatewayModelProcessorTest extends BaseTest {
     @Test
     public void testTranslateService() {
 
-        Service service = getService(Const.PROXY_SERVICE_TYPE_DYNAMIC, "a.svc.cluster", 100, "a", "gw1");
+        Service service = getService(Const.PROXY_SERVICE_TYPE_DYNAMIC, "a.svc.cluster", 100, "a", "gw1", "http");
 
         List<IstioResource> istioResources = processor.translate(service);
 
@@ -194,7 +196,7 @@ public class GatewayModelProcessorTest extends BaseTest {
         DestinationRuleSpec spec = ds.getSpec();
         Assert.assertTrue(spec.getHost().equals(service.getBackendService()));
 
-        Service service1 = getService(Const.PROXY_SERVICE_TYPE_STATIC, "10.10.10.10:1024,10.10.10.9:1025", 100, "b", "gw2");
+        Service service1 = getService(Const.PROXY_SERVICE_TYPE_STATIC, "10.10.10.10:1024,10.10.10.9:1025", 100, "b", "gw2", "https");
 
         List<IstioResource> istioResources1 = processor.translate(service1);
         Assert.assertTrue(istioResources1.size() == 2);

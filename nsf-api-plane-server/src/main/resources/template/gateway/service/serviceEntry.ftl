@@ -12,7 +12,7 @@ spec:
 </#if>
 </#list>
   exportTo:
-  - *
+  - "*"
   hosts:
   - ${t_service_entry_host}
   location: MESH_EXTERNAL
