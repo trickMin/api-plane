@@ -6,13 +6,12 @@ import com.netease.cloud.nsf.core.BaseTest;
 import com.netease.cloud.nsf.core.editor.EditorContext;
 import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.istio.IstioHttpClient;
+import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.k8s.K8sResourceGenerator;
 import com.netease.cloud.nsf.core.k8s.KubernetesClient;
 import com.netease.cloud.nsf.meta.*;
 import com.netease.cloud.nsf.meta.Endpoint;
 import com.netease.cloud.nsf.util.Const;
-import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
-import com.netease.cloud.nsf.util.Trans;
 import me.snowdrop.istio.api.IstioResource;
 import me.snowdrop.istio.api.networking.v1alpha3.*;
 import org.junit.Assert;
@@ -90,7 +89,7 @@ public class GatewayModelProcessorTest extends BaseTest {
         Endpoint endpoint1 = getEndpoint("a.default.svc.cluster.local", 9090);
         Endpoint endpoint2 = getEndpoint("b.default.svc.cluster.local", 9000);
 
-        when(istioHttpClient.getEndpointList()).thenReturn(Arrays.asList(endpoint1, endpoint2));
+        when(istioHttpClient.getEndpointList(null)).thenReturn(Arrays.asList(endpoint1, endpoint2));
 
         //base api test
         API api = getAPI("api-name", "service-zero", ImmutableList.of("gateway1", "gateway2"),
