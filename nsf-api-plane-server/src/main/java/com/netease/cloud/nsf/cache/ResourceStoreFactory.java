@@ -25,7 +25,7 @@ public class ResourceStoreFactory {
         return new ArrayList<>(resourceStoreMap.values());
     }
 
-    static List<String> listClusterId(){
+    public static List<String> listClusterId(){
         return new ArrayList<>(resourceStoreMap.keySet());
     }
 

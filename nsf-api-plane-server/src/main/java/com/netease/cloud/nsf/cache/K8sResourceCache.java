@@ -5,8 +5,8 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.netease.cloud.nsf.cache.meta.PodDto;
 import com.netease.cloud.nsf.cache.meta.WorkLoadDto;
+import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.util.Const;
-import com.netease.cloud.nsf.util.K8sResourceEnum;
 import com.netease.cloud.nsf.util.RestTemplateClient;
 import io.fabric8.kubernetes.api.model.EndpointAddress;
 import io.fabric8.kubernetes.api.model.Endpoints;
@@ -27,7 +27,8 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.netease.cloud.nsf.util.K8sResourceEnum.*;
+import static com.netease.cloud.nsf.core.k8s.K8sResourceEnum.*;
+
 
 /**
  * @author zhangzihao
@@ -41,7 +42,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     @Autowired
     private KubernetesClient kubernetesClient;
 
-    private Map<K8sResourceEnum, K8sResourceInformer> resourceInformerMap = new HashMap<>();
+    private Map<K8sResourceEnum, K8sResourceInformer> resourceInformerMap = new HashMap<com.netease.cloud.nsf.core.k8s.K8sResourceEnum, K8sResourceInformer>();
     private static final Logger log = LoggerFactory.getLogger(K8sResourceCache.class);
     private static final String UPDATE_RESOURCE_DURATION = "0 0/1 * * * ?";
     private static int WORK_LOAD_CACHE_MAX_SIZE = 100;
@@ -130,26 +131,22 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     }
 
     @Override
-    public List<WorkLoadDto<T>> getWorkLoadByServiceInfo(String projectId, String namespace, String serviceName) {
-        Map<String, OwnerReferenceSupportStore> resourceStoreMap = ResourceStoreFactory.getResourceStoreMap();
-        for (Map.Entry<String, OwnerReferenceSupportStore> keyValue : resourceStoreMap.entrySet()) {
-            String clusterId = keyValue.getKey();
-            OwnerReferenceSupportStore store = keyValue.getValue();
-            List<T> serviceList = store.listByKind(Service.name());
-            for (T service : serviceList) {
-                if (service.getMetadata().getLabels() == null || service.getMetadata().getLabels().isEmpty()) {
-                    continue;
-                }
-                if (service.getMetadata().getLabels().get(Const.LABEL_NSF_PROJECT_ID) != null &&
-                        service.getMetadata().getLabels().get(Const.LABEL_NSF_PROJECT_ID).equals(projectId) &&
-                        service.getMetadata().getName().equals(serviceName) &&
-                        service.getMetadata().getNamespace().equals(namespace)) {
-                    return getWorkLoadByIndex(clusterId,
-                            service.getMetadata().getNamespace(),
-                            service.getMetadata().getName()).stream()
-                            .map(obj -> new WorkLoadDto<>(obj, getServiceName(service), clusterId))
-                            .collect(Collectors.toList());
-                }
+    public List<WorkLoadDto<T>> getWorkLoadByServiceInfo(String projectId, String namespace, String serviceName, String clusterId) {
+        OwnerReferenceSupportStore store = ResourceStoreFactory.getResourceStore(clusterId);
+        List<T> serviceList = store.listByKind(Service.name());
+        for (T service : serviceList) {
+            if (service.getMetadata().getLabels() == null || service.getMetadata().getLabels().isEmpty()) {
+                continue;
+            }
+            if (service.getMetadata().getLabels().get(Const.LABEL_NSF_PROJECT_ID) != null &&
+                    service.getMetadata().getLabels().get(Const.LABEL_NSF_PROJECT_ID).equals(projectId) &&
+                    service.getMetadata().getName().equals(serviceName) &&
+                    service.getMetadata().getNamespace().equals(namespace)) {
+                return getWorkLoadByIndex(clusterId,
+                        service.getMetadata().getNamespace(),
+                        service.getMetadata().getName()).stream()
+                        .map(obj -> new WorkLoadDto<>(obj, getServiceName(service), clusterId))
+                        .collect(Collectors.toList());
             }
         }
         return new ArrayList<>();
@@ -159,6 +156,9 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     public List<PodDto<T>> getPodByWorkLoadInfo(String clusterId, String kind, String namespace, String name) {
         OwnerReferenceSupportStore store = ResourceStoreFactory.getResourceStore(clusterId);
         T obj = (T) store.get(kind, namespace, name);
+        if (obj == null) {
+            return new ArrayList<>();
+        }
         return (List<PodDto<T>>) store.listResourceByOwnerReference(Pod.name(), obj)
                 .stream()
                 .map(po -> new PodDto<T>((T) po, clusterId))
