@@ -6,12 +6,34 @@ import java.util.*;
 
 public class PodDto<T extends HasMetadata> extends K8sResourceDto {
 
+    private String hostIp;
+
+    private String podIp;
+
     private List<ContainerInfo> containerInfoList = new ArrayList<>();
+
+    public String getHostIp() {
+        return hostIp;
+    }
+
+    public void setHostIp(String hostIp) {
+        this.hostIp = hostIp;
+    }
+
+    public String getPodIp() {
+        return podIp;
+    }
+
+    public void setPodIp(String podIp) {
+        this.podIp = podIp;
+    }
 
     public PodDto(T obj, String clusterId) {
         super(obj, clusterId);
         if (obj instanceof Pod) {
             Pod pod = (Pod) obj;
+            this.hostIp = pod.getStatus().getHostIP();
+            this.podIp = pod.getStatus().getPodIP();
             Map<String, ContainerInfo> containerInfoMap = new HashMap<>();
             // 更新容器资源信息
             pod.getSpec().getContainers().forEach(c -> {

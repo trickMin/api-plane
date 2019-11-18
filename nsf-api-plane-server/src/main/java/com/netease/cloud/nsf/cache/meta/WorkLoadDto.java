@@ -12,7 +12,6 @@ import java.util.Map;
 public class WorkLoadDto<T extends HasMetadata> extends K8sResourceDto {
 
 
-
     protected String serviceName;
 
     protected String serviceDomain;
@@ -21,26 +20,25 @@ public class WorkLoadDto<T extends HasMetadata> extends K8sResourceDto {
 
 
     public WorkLoadDto(T obj, String serviceName, String clusterId) {
-        super(obj,clusterId);
+        super(obj, clusterId);
         this.serviceDomain = serviceName;
         this.serviceName = serviceName;
         this.clusterId = clusterId;
         if (obj instanceof Deployment) {
-            Deployment deployment = (Deployment)obj;
+            Deployment deployment = (Deployment) obj;
             DeploymentStatus status = deployment.getStatus();
-            statusInfo.put("desired",deployment.getSpec().getReplicas().toString());
-            statusInfo.put("current",status.getReplicas().toString());
-            statusInfo.put("up-to-date",status.getUpdatedReplicas().toString());
-            statusInfo.put("available",status.getAvailableReplicas().toString());
-        }else if (obj instanceof StatefulSet){
-            StatefulSet statefulSet = (StatefulSet)obj;
+            statusInfo.put("desired", deployment.getSpec().getReplicas().toString());
+            statusInfo.put("current", status.getReplicas().toString());
+            statusInfo.put("up-to-date", status.getUpdatedReplicas().toString());
+            statusInfo.put("available", status.getAvailableReplicas().toString());
+        } else if (obj instanceof StatefulSet) {
+            StatefulSet statefulSet = (StatefulSet) obj;
             StatefulSetStatus status = statefulSet.getStatus();
-            statusInfo.put("desired",statefulSet.getSpec().getReplicas().toString());
-            statusInfo.put("current",status.getReplicas().toString());
-            statusInfo.put("up-to-date",status.getUpdatedReplicas().toString());
+            statusInfo.put("desired", statefulSet.getSpec().getReplicas().toString());
+            statusInfo.put("current", status.getReplicas().toString());
+            statusInfo.put("up-to-date", status.getUpdatedReplicas().toString());
         }
     }
-
 
 
     public String getName() {
