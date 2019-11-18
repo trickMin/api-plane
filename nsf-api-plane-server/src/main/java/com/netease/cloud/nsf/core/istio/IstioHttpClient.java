@@ -78,6 +78,7 @@ public class IstioHttpClient {
     }
 
 
+    //todo: pilot多副本高可用的问题
     private String getIstioUrl() {
         if (!StringUtils.isEmpty(istioHttpUrl)) return istioHttpUrl;
         List<Pod> istioPods = client.getObjectList(K8sResourceEnum.Pod.name(), NAMESPACE, ImmutableMap.of("app", NAME));
