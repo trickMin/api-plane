@@ -38,6 +38,7 @@ public abstract class APIDataHandler implements DataHandler<API> {
                 .put(API_IDLE_TIMEOUT, api.getIdleTimeout())
                 .put(GATEWAY_HOSTS, api.getHosts())
                 .put(VIRTUAL_SERVICE_HOSTS, hosts)
+                .put(API_PRIORITY, api.getPriority())
                 ;
 
         return doHandle(tp, api);

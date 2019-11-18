@@ -6,12 +6,15 @@ import com.netease.cloud.nsf.core.k8s.KubernetesClient;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import me.snowdrop.istio.api.IstioResource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Map;
 
 /**
+ * 使用k8s作为存储
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/7/25
  **/
 @Component
@@ -20,6 +23,9 @@ public class K8sConfigStore implements ConfigStore {
     @Autowired
     KubernetesClient client;
 
+    @Value("${resourceNamespace:default}")
+    private String resourceNamespace;
+
     @Override
     public void create(IstioResource istioResource) {
         update(istioResource);
@@ -27,6 +33,7 @@ public class K8sConfigStore implements ConfigStore {
 
     @Override
     public void delete(IstioResource istioResource) {
+        supply(istioResource);
         IstioResource r = istioResource;
         ObjectMeta meta = r.getMetadata();
         client.delete(r.getKind(), meta.getNamespace(), meta.getName());
@@ -34,11 +41,14 @@ public class K8sConfigStore implements ConfigStore {
 
     @Override
     public void update(IstioResource istioResource) {
+        supply(istioResource);
         client.createOrUpdate(istioResource, ResourceType.OBJECT);
     }
 
+
     @Override
     public IstioResource get(IstioResource istioResource) {
+        supply(istioResource);
         IstioResource r = istioResource;
         ObjectMeta meta = r.getMetadata();
         return get(r.getKind(), meta.getNamespace(), meta.getName());
@@ -62,5 +72,11 @@ public class K8sConfigStore implements ConfigStore {
     @Override
     public boolean exist(IstioResource t) {
         return get(t) != null;
+    }
+
+    private void supply(IstioResource istioResource) {
+        if (StringUtils.isEmpty(istioResource.getMetadata().getNamespace())) {
+            istioResource.getMetadata().setNamespace(resourceNamespace);
+        }
     }
 }

@@ -69,6 +69,8 @@ public class PortalAPIDTO {
     @Valid
     private List<PairMatchDTO> headers;
 
+    @JsonProperty(value = "Order")
+    private Integer priority;
     /**
      * 请求的query params
      */
@@ -154,5 +156,13 @@ public class PortalAPIDTO {
 
     public void setQueryParams(List<PairMatchDTO> queryParams) {
         this.queryParams = queryParams;
+    }
+
+    public Integer getPriority() {
+        return priority;
+    }
+
+    public void setPriority(Integer priority) {
+        this.priority = priority;
     }
 }
