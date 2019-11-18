@@ -20,12 +20,23 @@ public class ServiceMeshServiceImpl implements ServiceMeshService {
 
     @Override
     public void updateIstioResource(String json) {
+
+        json = optimize(json);
         configStore.update(json2Resource(json));
     }
 
     @Override
     public void deleteIstioResource(String json) {
+
+        json = optimize(json);
         configStore.delete(json2Resource(json));
+    }
+
+    private String optimize(String json) {
+        if (json.startsWith("\"") && json.startsWith("\"")) {
+            json = json.substring(1, json.length() - 1);
+        }
+        return json;
     }
 
     private IstioResource json2Resource(String json) {

@@ -8,7 +8,7 @@ spec:
   - address: ${e.address}
 <#if e.port ??>
     ports:
-    ${t_service_entry_protocol_name}: ${e.port?c}
+      ${t_service_entry_protocol_name}: ${e.port?c}
 </#if>
 </#list>
   exportTo:
