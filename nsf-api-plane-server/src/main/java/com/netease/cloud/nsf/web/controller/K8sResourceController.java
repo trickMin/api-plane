@@ -5,6 +5,7 @@ import com.netease.cloud.nsf.cache.ResourceStoreFactory;
 import com.netease.cloud.nsf.util.errorcode.ApiPlaneErrorCode;
 import com.netease.cloud.nsf.util.errorcode.ErrorCode;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -30,9 +31,14 @@ public class K8sResourceController extends BaseController {
     public String getWorkLoadByServiceInfo(@RequestParam(name = "ServiceName") String serviceName,
                                            @RequestParam(name = "Namespace") String namespace,
                                            @RequestParam(name = "ProjectId") String projectId,
-                                           @RequestParam(name = "ClusterId") String clusterId) {
+                                           @RequestParam(name = "ClusterId", required = false) String clusterId) {
 
-        List workLoadByServiceInfo = resourceCache.getWorkLoadByServiceInfo(projectId, namespace, serviceName, clusterId);
+        List workLoadByServiceInfo;
+        if (!StringUtils.isEmpty(clusterId)) {
+            workLoadByServiceInfo = resourceCache.getWorkLoadByServiceInfo(projectId, namespace, serviceName, clusterId);
+        } else {
+            workLoadByServiceInfo = resourceCache.getWorkLoadByServiceInfoAllClusterId(projectId, namespace, serviceName);
+        }
         Map<String, Object> result = new HashMap<>();
         result.put("Result", workLoadByServiceInfo);
         ErrorCode code = ApiPlaneErrorCode.Success;
@@ -41,9 +47,9 @@ public class K8sResourceController extends BaseController {
 
     @RequestMapping(params = {"Action=GetPodByWorkLoad"}, method = RequestMethod.GET)
     public String getPodByWorkLoad(@RequestParam(name = "Name") String name,
-                                           @RequestParam(name = "Namespace") String namespace,
-                                           @RequestParam(name = "ClusterId") String clusterId,
-                                           @RequestParam(name = "Kind") String kind) {
+                                   @RequestParam(name = "Namespace") String namespace,
+                                   @RequestParam(name = "ClusterId") String clusterId,
+                                   @RequestParam(name = "Kind") String kind) {
 
         List podList = resourceCache.getPodByWorkLoadInfo(clusterId, kind, namespace, name);
         Map<String, Object> result = new HashMap<>();
@@ -53,9 +59,13 @@ public class K8sResourceController extends BaseController {
     }
 
     @RequestMapping(params = {"Action=GetAllWorkLoad"}, method = RequestMethod.GET)
-    public String getAllWorkLoad() {
-
-        List podList = resourceCache.getAllWorkLoad();
+    public String getAllWorkLoad(@RequestParam(name = "ClusterId", required = false) String clusterId) {
+        List podList;
+        if (StringUtils.isEmpty(clusterId)) {
+            podList = resourceCache.getAllWorkLoad();
+        } else {
+            podList = resourceCache.getAllWorkLoadByClusterId(clusterId);
+        }
         Map<String, Object> result = new HashMap<>();
         result.put("Result", podList);
         ErrorCode code = ApiPlaneErrorCode.Success;
@@ -71,9 +81,6 @@ public class K8sResourceController extends BaseController {
         ErrorCode code = ApiPlaneErrorCode.Success;
         return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), result);
     }
-
-
-
 
 
 }

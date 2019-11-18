@@ -58,7 +58,7 @@ public class IstioSupportConfiguration {
         return new KubernetesClient(config, httpClient, editorContext);
     }
 
-    @Bean
+    @Bean("originalKubernetesClient")
     public io.fabric8.kubernetes.client.KubernetesClient originalKubernetesClient(Config config, OkHttpClient httpClient) {
         return new DefaultKubernetesClient(httpClient, config);
     }

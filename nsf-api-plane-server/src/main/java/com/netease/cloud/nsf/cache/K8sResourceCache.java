@@ -16,6 +16,7 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -40,6 +41,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     private RestTemplateClient restTemplateClient;
 
     @Autowired
+    @Qualifier("originalKubernetesClient")
     private KubernetesClient kubernetesClient;
 
     private Map<K8sResourceEnum, K8sResourceInformer> resourceInformerMap = new HashMap<com.netease.cloud.nsf.core.k8s.K8sResourceEnum, K8sResourceInformer>();
@@ -168,19 +170,35 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     @Override
     public List<WorkLoadDto<T>> getAllWorkLoad() {
         List<WorkLoadDto<T>> workLoadList = new ArrayList<>();
-        Map<String, OwnerReferenceSupportStore> resourceStoreMap = ResourceStoreFactory.getResourceStoreMap();
-        for (Map.Entry<String, OwnerReferenceSupportStore> keyValue : resourceStoreMap.entrySet()) {
-            String clusterId = keyValue.getKey();
-            OwnerReferenceSupportStore store = keyValue.getValue();
-            List<T> serviceList = store.listByKind(Service.name());
-            serviceList.forEach(service -> workLoadList.addAll(getWorkLoadByIndex(clusterId,
-                    service.getMetadata().getNamespace(),
-                    service.getMetadata().getName()).stream()
-                    .map(obj -> new WorkLoadDto<>(obj, getServiceName(service), clusterId))
-                    .collect(Collectors.toList())
-            ));
+        List<String> clusterIdList = ResourceStoreFactory.listClusterId();
+        for (String clusterId : clusterIdList) {
+            workLoadList.addAll(getAllWorkLoadByClusterId(clusterId));
         }
         return workLoadList;
+    }
+
+    @Override
+    public List getAllWorkLoadByClusterId(String clusterId) {
+        List<WorkLoadDto<T>> workLoadList = new ArrayList<>();
+        OwnerReferenceSupportStore store = ResourceStoreFactory.getResourceStore(clusterId);
+        List<T> serviceList = store.listByKind(Service.name());
+        serviceList.forEach(service -> workLoadList.addAll(getWorkLoadByIndex(clusterId,
+                service.getMetadata().getNamespace(),
+                service.getMetadata().getName()).stream()
+                .map(obj -> new WorkLoadDto<>(obj, getServiceName(service), clusterId))
+                .collect(Collectors.toList())
+        ));
+        return workLoadList;
+    }
+
+    @Override
+    public List getWorkLoadByServiceInfoAllClusterId(String projectId, String namespace, String serviceName) {
+        List<WorkLoadDto<T>> workLoadDtoList = new ArrayList<>();
+        List<String> clusterIdList = ResourceStoreFactory.listClusterId();
+        for (String clusterId : clusterIdList) {
+            workLoadDtoList.addAll(getWorkLoadByServiceInfo(projectId,namespace,serviceName,clusterId));
+        }
+        return workLoadDtoList;
     }
 
     private List<T> getWorkLoadByIndex(String clusterId, String namespace, String name) {
