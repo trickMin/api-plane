@@ -126,14 +126,23 @@ public class IstioHttpClient {
     }
 
     public List<String> getServiceList(Predicate<Endpoint> filter) {
+        if (Objects.isNull(filter)) {
+            filter = e -> true;
+        }
         return getEndpointList().stream().filter(filter).distinct().map(Endpoint::getHostname).collect(Collectors.toList());
     }
 
     public List<Endpoint> getEndpointList(Predicate<Endpoint> filter) {
+        if (Objects.isNull(filter)) {
+            filter = e -> true;
+        }
         return getEndpointList().stream().filter(filter).distinct().collect(Collectors.toList());
     }
 
     public List<Gateway> getGatewayList(Predicate<Gateway> filter) {
+        if (Objects.isNull(filter)) {
+            filter = e -> true;
+        }
         List<Gateway> gateways = getEndpointList().stream().map(endpoint -> {
             Gateway gateway = new Gateway();
             gateway.setAddress(endpoint.getAddress());
