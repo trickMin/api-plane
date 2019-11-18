@@ -6,7 +6,7 @@ import com.netease.cloud.nsf.core.gateway.service.ConfigManager;
 import com.netease.cloud.nsf.meta.API;
 import com.netease.cloud.nsf.meta.PluginOrder;
 import com.netease.cloud.nsf.meta.Service;
-import com.netease.cloud.nsf.util.K8sResourceEnum;
+import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import me.snowdrop.istio.api.IstioResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

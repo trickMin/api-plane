@@ -10,6 +10,8 @@ import com.netease.cloud.nsf.meta.dto.PortalAPIDTO;
 import com.netease.cloud.nsf.meta.dto.PortalServiceDTO;
 import com.netease.cloud.nsf.meta.dto.YxAPIDTO;
 import com.netease.cloud.nsf.service.GatewayService;
+import com.netease.cloud.nsf.util.CommonUtil;
+import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.util.Trans;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -74,8 +76,8 @@ public class GatewayServiceImpl implements GatewayService {
     }
 
     @Override
-    public List<Endpoint> getServiceList() {
-        return resourceManager.getEndpointList();
+    public List<String> getServiceList() {
+        return resourceManager.getServiceList();
     }
 
     @Override

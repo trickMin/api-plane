@@ -30,7 +30,7 @@ public interface GatewayService {
 
     void deletePluginOrder(PluginOrderDTO pluginOrderDTO);
 
-    List<Endpoint> getServiceList();
+    List<String> getServiceList();
 
     List<Gateway> getGatewayList();
 

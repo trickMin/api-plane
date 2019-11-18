@@ -10,6 +10,7 @@ import com.netease.cloud.nsf.core.template.TemplateUtils;
 import com.netease.cloud.nsf.meta.Plugin;
 import com.netease.cloud.nsf.meta.ServiceInfo;
 import com.netease.cloud.nsf.service.PluginService;
+import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import freemarker.template.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,12 +19,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-import javax.annotation.processing.Processor;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.netease.cloud.nsf.util.PathExpressionEnum.PLUGIN_GET_KIND;
+import static com.netease.cloud.nsf.core.editor.PathExpressionEnum.PLUGIN_GET_KIND;
 
 /**
  * @auther wupenghuai@corp.netmask.com
@@ -49,6 +49,7 @@ public class PluginServiceImpl implements PluginService {
     @Override
     public Plugin getPlugin(String name) {
         Plugin p = getPlugins().get(name);
+        if (Objects.isNull(p)) throw new ApiPlaneException(String.format("plugin processor [%s] does not exit.", name));
         logger.info("get plugin {} :{}", name, p);
         return p;
     }
@@ -65,7 +66,13 @@ public class PluginServiceImpl implements PluginService {
             String ftl = rg.getValue(String.format("$.item[%s].resource", i));
             String processor = rg.getValue(String.format("$.item[%s].processor", i));
             String description = rg.getValue(String.format("$.item[%s].description", i));
-            ret.put(name, createPlugin(name, ftl, processor, description));
+            String author = rg.getValue(String.format("$.item[%s].author", i));
+            String createTime = rg.getValue(String.format("$.item[%s].createTime", i));
+            String updateTime = rg.getValue(String.format("$.item[%s].updateTime", i));
+            String pluginScope = rg.getValue(String.format("$.item[%s].pluginScope", i));
+            String pluginPriority = rg.getValue(String.format("$.item[%s].pluginPriority", i));
+            String instructionForUse = rg.getValue(String.format("$.item[%s].instructionForUse", i));
+            ret.put(name, createPlugin(name, ftl, processor, description, author, createTime, updateTime, pluginScope, pluginPriority, instructionForUse));
         }
         return ret;
     }
@@ -75,16 +82,6 @@ public class PluginServiceImpl implements PluginService {
         String pluginConfig = TemplateUtils.getTemplate(PLUGIN_CONFIG, configuration).toString();
         logger.info("get plugin config: \n{}", pluginConfig);
         return pluginConfig;
-    }
-
-
-    @Override
-    public FragmentHolder processSchema(String plugin, ServiceInfo serviceInfo) {
-        ResourceGenerator gen = ResourceGenerator.newInstance(plugin, ResourceType.JSON, editorContext);
-        String kind = gen.getValue(PLUGIN_GET_KIND.translate());
-        Plugin p = getPlugin(kind);
-        logger.info("process plugin :[{}], json :[{}], serviceInfo :[{}]", p, plugin, serviceInfo);
-        return getProcessor(p.getProcessor()).process(plugin, serviceInfo);
     }
 
     @Override
@@ -131,7 +128,18 @@ public class PluginServiceImpl implements PluginService {
         return processors.stream().filter(item -> item.getName().equalsIgnoreCase(name)).findAny().get();
     }
 
-    private Plugin createPlugin(String name, String ftl, String processor, String description) {
+    private Plugin createPlugin(
+            String name,
+            String ftl,
+            String processor,
+            String description,
+            String author,
+            String createTime,
+            String updateTime,
+            String pluginScope,
+            String pluginPriority,
+            String instructionForUse
+    ) {
         logger.info("create plugin name:{}, ftl:{}, processor:{}, description:{}", name, ftl, processor, description);
         String schema = TemplateUtils.getTemplate(ftl, configuration).toString();
 
@@ -140,6 +148,12 @@ public class PluginServiceImpl implements PluginService {
         plugin.setDescription(description);
         plugin.setSchema(schema);
         plugin.setProcessor(processor);
+        plugin.setAuthor(author);
+        plugin.setCreateTime(createTime);
+        plugin.setUpdateTime(updateTime);
+        plugin.setPluginScope(pluginScope);
+        plugin.setPluginPriority(pluginPriority);
+        plugin.setInstructionForUse(instructionForUse);
         return plugin;
     }
 }

@@ -27,23 +27,22 @@ public class GatewayPluginController extends BaseController {
     @Autowired
     private PluginService pluginService;
 
-    @RequestMapping(params = "Action=GetTemplate", method = RequestMethod.GET)
+    @RequestMapping(params = "Action=GetPluginDetail", method = RequestMethod.GET)
     public String getTemplate(@RequestParam("Name") String name) {
 
         Plugin plugin = pluginService.getPlugin(name);
         ErrorCode code = ApiPlaneErrorCode.Success;
 
         Map<String, Object> result = new HashMap<>();
-        result.put("Name", plugin.getName());
         result.put("Schema", ResourceGenerator.newInstance(plugin.getSchema()).object(Object.class));
-        result.put("Description", plugin.getDescription());
+        result.put("Plugin", plugin);
         return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), result);
     }
 
-    @RequestMapping(params = "Action=GetPlugins", method = RequestMethod.GET)
+    @RequestMapping(params = "Action=GetPluginList", method = RequestMethod.GET)
     public String getPlugins() {
         Map<String, Plugin> plugins = pluginService.getPlugins();
         ErrorCode code = ApiPlaneErrorCode.Success;
-        return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), ImmutableMap.of("Names", plugins.keySet()));
+        return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), ImmutableMap.of("Plugins", plugins.values()));
     }
 }
