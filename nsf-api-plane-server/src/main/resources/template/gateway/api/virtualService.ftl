@@ -26,7 +26,7 @@ spec:
       userPlugin:
 <#list t_api_api_plugins?keys as userId>
 <#list t_api_api_plugins[userId] as p>
-      - user: ${userId}
+      -
 <@indent count=8>${p}</@indent>
 </#list>
 </#list>

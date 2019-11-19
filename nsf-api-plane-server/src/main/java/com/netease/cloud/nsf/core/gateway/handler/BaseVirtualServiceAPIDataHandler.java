@@ -89,7 +89,7 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
     }
 
     String buildVirtualServiceName(String serviceName, String apiName, String gw) {
-        return String.format("%s-%s", serviceName, gw);
+        return String.format("%s-%s-%s", serviceName, apiName, gw);
     }
 
     String productHosts(API api) {
