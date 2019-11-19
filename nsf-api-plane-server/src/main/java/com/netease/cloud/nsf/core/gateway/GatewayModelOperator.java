@@ -80,12 +80,10 @@ public class GatewayModelOperator {
      * 将api转换为istio对应的规则
      *
      * @param api
-     * @param namespace
      * @return
      */
-    public List<IstioResource> translate(API api, String namespace) {
+    public List<IstioResource> translate(API api) {
 
-        api.setNamespace(namespace);
         List<Endpoint> endpoints = resourceManager.getEndpointList();
         if (CollectionUtils.isEmpty(endpoints)) throw new ApiPlaneException(ExceptionConst.ENDPOINT_LIST_EMPTY);
 
@@ -123,10 +121,9 @@ public class GatewayModelOperator {
         return resources;
     }
 
-    public List<IstioResource> translate(Service service, String namespace) {
+    public List<IstioResource> translate(Service service) {
 
         List<IstioResource> resources = new ArrayList<>();
-        service.setNamespace(namespace);
         List<String> destinations = defaultModelProcessor.process(serviceDestinationRule, service, new PortalDestinationRuleServiceDataHandler());
         if (Const.PROXY_SERVICE_TYPE_STATIC.equals(service.getType())) {
             destinations.addAll(defaultModelProcessor.process(serviceServiceEntry, service, new PortalServiceEntryServiceDataHandler()));
@@ -137,10 +134,9 @@ public class GatewayModelOperator {
         return resources;
     }
 
-    public List<IstioResource> translate(PluginOrder po, String namespace) {
+    public List<IstioResource> translate(PluginOrder po) {
 
         List<IstioResource> resources = new ArrayList<>();
-        po.setNamespace(namespace);
         List<String> pluginManagers = defaultModelProcessor.process(pluginManager, po, new PluginOrderDataHandler());
         pluginManagers.stream()
                 .forEach(ds -> resources.add(str2IstioResource(ds)));

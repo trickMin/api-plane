@@ -22,11 +22,11 @@ public class PluginManagerOperator implements IstioResourceOperator<PluginManage
     public PluginManager merge(PluginManager old, PluginManager fresh) {
 
         PluginManager latest = new PluginManagerBuilder(old).build();
+
         List<Plugin> oldPlugins = old.getSpec().getPlugin();
         List<Plugin> latestPlugins = fresh.getSpec().getPlugin();
         latest.getSpec().setPlugin(mergeList(oldPlugins, latestPlugins, new PluginEquals()));
         latest.getSpec().setWorkloadLabels(fresh.getSpec().getWorkloadLabels());
-
         return latest;
     }
 
@@ -37,7 +37,6 @@ public class PluginManagerOperator implements IstioResourceOperator<PluginManage
         }
     }
 
-
     @Override
     public boolean adapt(String name) {
         return K8sResourceEnum.PluginManager.name().equals(name);
@@ -47,7 +46,7 @@ public class PluginManagerOperator implements IstioResourceOperator<PluginManage
     public boolean isUseless(PluginManager pm) {
         return pm.getSpec() == null ||
                 StringUtils.isEmpty(pm.getApiVersion()) ||
-                CollectionUtils.isEmpty(pm.getSpec().getPlugin());
+                 CollectionUtils.isEmpty(pm.getSpec().getPlugin());
     }
 
     @Override

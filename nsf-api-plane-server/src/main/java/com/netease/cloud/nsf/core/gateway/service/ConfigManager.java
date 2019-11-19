@@ -3,10 +3,9 @@ package com.netease.cloud.nsf.core.gateway.service;
 import com.netease.cloud.nsf.meta.API;
 import com.netease.cloud.nsf.meta.PluginOrder;
 import com.netease.cloud.nsf.meta.Service;
-import com.netease.cloud.nsf.meta.dto.PluginOrderDTO;
 
 /**
- *  API配置客户端
+ *  API配置客户端，用于发送配置
  */
 public interface ConfigManager {
 
@@ -14,28 +13,34 @@ public interface ConfigManager {
      * 更新API
      * @param api
      */
-    void updateConfig(API api, String namespace);
+    void updateConfig(API api);
 
     /**
      * 更新服务
      * @param service
-     * @param namespace
      */
-    void updateConfig(Service service, String namespace);
+    void updateConfig(Service service);
 
     /**
      * 删除API
      */
-    void deleteConfig(API api, String namespace);
+    void deleteConfig(API api);
 
     /**
      * 删除服务
      * @param service
-     * @param namespace
      */
-    void deleteConfig(Service service, String namespace);
+    void deleteConfig(Service service);
 
-    void updateConfig(PluginOrder pluginOrder, String namespace);
+    /**
+     * 更新插件优先级
+     * @param pluginOrder
+     */
+    void updateConfig(PluginOrder pluginOrder);
 
-    void deleteConfig(PluginOrder pluginOrder, String namespace);
+    /**
+     * 删除插件优先级
+     * @param pluginOrder
+     */
+    void deleteConfig(PluginOrder pluginOrder);
 }

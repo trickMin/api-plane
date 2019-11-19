@@ -27,7 +27,7 @@ public interface TemplateConst {
     String API_IDLE_TIMEOUT = "t_api_idle_timeout";
     String API_RETRIES = "t_api_retries";
     String API_PRESERVE_HOST = "t_api_preserve_host";
-
+    String API_PRIORITY = "t_api_priority";
 
 
     /** VirtualService **/
@@ -89,7 +89,9 @@ public interface TemplateConst {
     /** ServiceEntry **/
     String SERVICE_ENTRY_NAME = "t_service_entry_name";
     String SERVICE_ENTRY_HOST = "t_service_entry_host";
-
+    String SERVICE_ENTRY_PROTOCOL = "t_service_entry_protocol";
+    String SERVICE_ENTRY_PROTOCOL_NAME = "t_service_entry_protocol_name";
+    String SERVICE_ENTRY_PROTOCOL_PORT = "t_service_entry_protocol_port";
 
     /** Gateway **/
     String GATEWAY_NAME = "t_gateway_name";
@@ -101,7 +103,6 @@ public interface TemplateConst {
 
     /** PluginManager **/
     String PLUGIN_MANAGER_NAME = "t_plugin_manager_name";
-    String PLUGIN_MANAGER_NAMESPACE = "t_plugin_manager_namespace";
     String PLUGIN_MANAGER_WORKLOAD_LABELS = "t_plugin_manager_workload_labels";
     String PLUGIN_MANAGER_PLUGINS = "t_plugin_manager_plugins";
 

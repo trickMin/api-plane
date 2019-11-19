@@ -40,6 +40,7 @@ public class Trans {
 
         api.setHeaders(pairsDTO2Pairs(portalAPI.getHeaders()));
         api.setQueryParams(pairsDTO2Pairs(portalAPI.getQueryParams()));
+        api.setPriority(portalAPI.getPriority());
         return api;
     }
 
@@ -51,6 +52,7 @@ public class Trans {
         s.setWeight(portalService.getWeight());
         s.setBackendService(portalService.getBackendService());
         s.setGateway(portalService.getGateway());
+        s.setProtocol(portalService.getProtocol());
         return s;
     }
 

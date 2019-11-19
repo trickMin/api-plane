@@ -33,11 +33,15 @@ public abstract class APIDataHandler implements DataHandler<API> {
                 .put(API_METHODS, methods)
                 .put(API_RETRIES, api.getRetries())
                 .put(API_PRESERVE_HOST, api.getPreserveHost())
+                .put(API_HEADERS, api.getHeaders())
+                .put(API_QUERY_PARAMS, api.getQueryParams())
                 .put(API_CONNECT_TIMEOUT, api.getConnectTimeout())
                 .put(API_IDLE_TIMEOUT, api.getIdleTimeout())
                 .put(GATEWAY_HOSTS, api.getHosts())
                 .put(VIRTUAL_SERVICE_MATCH_PRIORITY, priority)
-                .put(VIRTUAL_SERVICE_HOSTS, hosts);
+                .put(VIRTUAL_SERVICE_HOSTS, hosts)
+                .put(API_PRIORITY, api.getPriority())
+                ;
 
         return doHandle(tp, api);
     }

@@ -29,6 +29,11 @@ public class Service extends CommonModel {
      */
     private String gateway;
 
+    /**
+     * 协议
+     */
+    private String protocol;
+
     public String getCode() {
         return code;
     }
@@ -67,5 +72,13 @@ public class Service extends CommonModel {
 
     public void setGateway(String gateway) {
         this.gateway = gateway;
+    }
+
+    public String getProtocol() {
+        return protocol;
+    }
+
+    public void setProtocol(String protocol) {
+        this.protocol = protocol;
     }
 }

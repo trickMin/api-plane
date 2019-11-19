@@ -27,4 +27,5 @@ public class PluginOrder extends CommonModel {
     public void setPlugins(List<String> plugins) {
         this.plugins = plugins;
     }
+
 }

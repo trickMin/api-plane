@@ -2,7 +2,6 @@ apiVersion: networking.istio.io/v1alpha3
 kind: PluginManager
 metadata:
   name: ${t_plugin_manager_name}
-  namespace: ${t_plugin_manager_namespace}
 spec:
 <#if t_plugin_manager_workload_labels??>
   workloadLabels:
@@ -10,7 +9,7 @@ spec:
     ${k}: ${v}
 </#list>
 </#if>
-  plugins:
+  plugin:
 <#list t_plugin_manager_plugins as p>
   - ${p}
 </#list>

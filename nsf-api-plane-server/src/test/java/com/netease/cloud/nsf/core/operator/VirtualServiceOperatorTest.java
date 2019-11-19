@@ -37,7 +37,7 @@ public class VirtualServiceOperatorTest {
                         getHTTPRoute("b",null),
                         getHTTPRoute("c", null),
                         getHTTPRoute("c", null))
-                ,getPlugins(Arrays.asList("a", "c"), 3)));
+                , getPlugins(Arrays.asList("a", "c"), 3)));
 
         VirtualService merge = operator.merge(old, fresh);
         assertTrue(merge.getSpec().getHttp().size() == 4);

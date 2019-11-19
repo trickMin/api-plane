@@ -78,6 +78,7 @@ public class IstioHttpClient {
     }
 
 
+    //todo: pilot多副本高可用的问题
     private String getIstioUrl() {
         if (!StringUtils.isEmpty(istioHttpUrl)) return istioHttpUrl;
         List<Pod> istioPods = client.getObjectList(K8sResourceEnum.Pod.name(), NAMESPACE, ImmutableMap.of("app", NAME));
@@ -126,14 +127,23 @@ public class IstioHttpClient {
     }
 
     public List<String> getServiceList(Predicate<Endpoint> filter) {
-        return getEndpointList().stream().filter(filter).distinct().map(Endpoint::getHostname).collect(Collectors.toList());
+        if (Objects.isNull(filter)) {
+            filter = e -> true;
+        }
+        return getEndpointList().stream().filter(filter).map(Endpoint::getHostname).distinct().collect(Collectors.toList());
     }
 
     public List<Endpoint> getEndpointList(Predicate<Endpoint> filter) {
+        if (Objects.isNull(filter)) {
+            filter = e -> true;
+        }
         return getEndpointList().stream().filter(filter).distinct().collect(Collectors.toList());
     }
 
     public List<Gateway> getGatewayList(Predicate<Gateway> filter) {
+        if (Objects.isNull(filter)) {
+            filter = e -> true;
+        }
         List<Gateway> gateways = getEndpointList().stream().map(endpoint -> {
             Gateway gateway = new Gateway();
             gateway.setAddress(endpoint.getAddress());

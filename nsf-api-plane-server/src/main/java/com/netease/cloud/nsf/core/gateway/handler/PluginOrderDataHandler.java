@@ -26,7 +26,7 @@ public class PluginOrderDataHandler implements DataHandler<PluginOrder> {
 
         TemplateParams pmParams = TemplateParams.instance()
                 .put(PLUGIN_MANAGER_NAME, name)
-                .put(PLUGIN_MANAGER_NAMESPACE, po.getNamespace())
+                .put(NAMESPACE, po.getNamespace())
                 .put(PLUGIN_MANAGER_WORKLOAD_LABELS, po.getGatewayLabels())
                 .put(PLUGIN_MANAGER_PLUGINS, po.getPlugins());
         return Arrays.asList(pmParams);
