@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -142,8 +143,10 @@ public class DefaultK8sHttpClient implements K8sHttpClient {
         if (!status.getAdditionalProperties().containsKey(CLIENT_STATUS_FLAG)) {
             sb.append(" Received status: ").append(status).append(".");
         }
-
-        return new ApiPlaneException(sb.toString());
+        logger.warn(sb.toString());
+        return new ApiPlaneException(
+                StringUtils.isEmpty(status.getMessage()) ? sb.toString() : status.getMessage(),
+                status.getCode());
     }
 
     public String getMasterUrl() {
