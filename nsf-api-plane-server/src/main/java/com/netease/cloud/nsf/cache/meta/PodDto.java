@@ -22,11 +22,11 @@ public class PodDto<T extends HasMetadata> extends K8sResourceDto {
 
     private String status;
 
-    private String totalLimitCpu ;
+    private String totalLimitCpu;
 
     private float totalLimitCpuValue;
 
-    private String totalLimitMemory ;
+    private String totalLimitMemory;
 
     private float totalLimitMemoryValue;
 
@@ -75,8 +75,8 @@ public class PodDto<T extends HasMetadata> extends K8sResourceDto {
                         .setRequestResource(c.getResources().getRequests())
                         .setLimitResource(c.getResources().getLimits());
 
-                 this.totalLimitCpuValue += getLimitCpuValue(c.getResources().getLimits());
-                 this.totalLimitMemoryValue += getLimitMeValue(c.getResources().getLimits());
+                this.totalLimitCpuValue += getLimitCpuValue(c.getResources().getLimits());
+                this.totalLimitMemoryValue += getLimitMeValue(c.getResources().getLimits());
             });
             // 更新容器状态信息
             pod.getStatus().getContainerStatuses().forEach(cs -> {
@@ -85,8 +85,8 @@ public class PodDto<T extends HasMetadata> extends K8sResourceDto {
                 totalRestartCount += cs.getRestartCount();
             });
 
-            this.totalLimitCpu = String.format(LIMIT_CPU_FORMAT,this.totalLimitCpuValue);
-            this.totalLimitMemory = String.format(LIMIT_MEMORY_FORMAT,this.totalLimitMemoryValue);
+            this.totalLimitCpu = String.format(LIMIT_CPU_FORMAT, this.totalLimitCpuValue);
+            this.totalLimitMemory = String.format(LIMIT_MEMORY_FORMAT, this.totalLimitMemoryValue);
             containerInfoList.addAll(containerInfoMap.values());
 
         }
@@ -148,6 +148,9 @@ public class PodDto<T extends HasMetadata> extends K8sResourceDto {
     }
 
     private float getLimitCpuValue(Map<String, Quantity> resourceMap) {
+        if (resourceMap == null || resourceMap.isEmpty()) {
+            return 0;
+        }
         if (resourceMap.get("cpu") != null) {
             String amount = resourceMap.get("cpu").getAmount();
             int limitValueIndex = getResourceValueIndex(amount);
@@ -166,6 +169,9 @@ public class PodDto<T extends HasMetadata> extends K8sResourceDto {
     }
 
     private float getLimitMeValue(Map<String, Quantity> resourceMap) {
+        if (resourceMap == null || resourceMap.isEmpty()) {
+            return 0;
+        }
         if (resourceMap.get("memory") != null) {
             String amount = resourceMap.get("memory").getAmount();
             int limitValueIndex = getResourceValueIndex(amount);
