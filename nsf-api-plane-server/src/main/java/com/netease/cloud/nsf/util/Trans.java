@@ -17,12 +17,20 @@ public class Trans {
     public static API yxAPI2API(YxAPIDTO yxApi) {
         API api = new API();
 
+        api.setGateways(yxApi.getGateways().stream()
+                            .map(g -> g.toLowerCase())
+                            .collect(Collectors.toList()));
         ApiOption option = yxApi.getOption();
-        // FIXME
-        BeanUtils.copyProperties(yxApi, api);
         api.setUriMatch(UriMatch.get(yxApi.getUriMatch()));
         api.setRetries(option.getRetries());
         api.setPreserveHost(option.getPreserveHost());
+        api.setHosts(yxApi.getHosts());
+        api.setMethods(yxApi.getMethods());
+        api.setName(yxApi.getName());
+        api.setPlugins(yxApi.getPlugins());
+        api.setProxyUris(yxApi.getProxyUris());
+        api.setRequestUris(yxApi.getRequestUris());
+        api.setService(yxApi.getService());
 
         return api;
     }
@@ -35,7 +43,7 @@ public class Trans {
         api.setProxyServices(portalAPI.getProxyServices().stream()
                                 .map(ps -> portalService2Service(ps))
                                 .collect(Collectors.toList()));
-        api.setGateways(Arrays.asList(portalAPI.getGateway()));
+        api.setGateways(Arrays.asList(portalAPI.getGateway().toLowerCase()));
         api.setName(portalAPI.getCode());
 
         api.setHeaders(pairsDTO2Pairs(portalAPI.getHeaders()));
@@ -51,7 +59,7 @@ public class Trans {
         s.setType(portalService.getType());
         s.setWeight(portalService.getWeight());
         s.setBackendService(portalService.getBackendService());
-        s.setGateway(portalService.getGateway());
+        s.setGateway(portalService.getGateway().toLowerCase());
         s.setProtocol(portalService.getProtocol());
         return s;
     }
