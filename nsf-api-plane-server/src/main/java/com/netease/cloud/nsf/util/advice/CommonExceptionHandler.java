@@ -3,9 +3,10 @@ package com.netease.cloud.nsf.util.advice;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.jayway.jsonpath.InvalidJsonException;
-import com.netease.cloud.nsf.util.exception.ApiPlaneException;
+import com.jayway.jsonpath.JsonPathException;
 import com.netease.cloud.nsf.util.errorcode.ErrorCode;
 import com.netease.cloud.nsf.util.errorcode.ExceptionHandlerErrorCode;
+import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ResourceConflictException;
 import com.netease.cloud.nsf.web.holder.LogTraceUUIDHolder;
 import org.slf4j.Logger;
@@ -39,14 +40,29 @@ public class CommonExceptionHandler extends ResponseEntityExceptionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(CommonExceptionHandler.class);
 
+    private static final String EXCEPTION_PREFIX = "Exception:";
+
     /**
      * ------ 子类新增捕获 -------
      **/
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleException(Exception exception) {
-        return newResponse(ExceptionHandlerErrorCode.UnknownException, exception);
+        return newResponse(exception.getMessage(), "Internal Exception", 500, exception);
     }
+
+    @ExceptionHandler(JsonPathException.class)
+    public ResponseEntity<Object> handleJsonPathException(Exception exception) {
+
+        String msg = exception.getMessage();
+        int begin = 0;
+        int end = msg.length();
+        if (msg.contains(EXCEPTION_PREFIX)) begin = msg.indexOf(EXCEPTION_PREFIX) + EXCEPTION_PREFIX.length();
+        if (msg.contains("(")) end = msg.indexOf("(");
+
+        return newResponse(msg.substring(begin, end).trim(), "JSON Exception", 400, exception);
+    }
+
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Object> handleIllegalArgumentException(IllegalArgumentException ex) {
@@ -174,6 +190,11 @@ public class CommonExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> newResponse(ErrorCode errorCode, Exception exception) {
         return newResponse(errorCode.getMessage(), errorCode.getCode(), errorCode.getStatusCode(), exception);
     }
+
+    public ResponseEntity<Object> newResponse(ErrorCode errorCode, ApiPlaneException exception) {
+        return newResponse(errorCode.getMessage(), errorCode.getCode(), exception.getStatus(), exception);
+    }
+
 
     public ResponseEntity<Object> newResponse(String msg, String code, int statusCode, Exception exception) {
 
