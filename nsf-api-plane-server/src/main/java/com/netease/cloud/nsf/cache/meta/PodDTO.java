@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 /**
  * @author zhangzihao
  */
-public class PodDto<T extends HasMetadata> extends K8sResourceDto {
+public class PodDTO<T extends HasMetadata> extends K8sResourceDTO {
 
     private static final String RESOURCE_VALUE_PATTERN = "[\\d]+(?=\\D*)";
     private static final String LIMIT_CPU_FORMAT = "%.1f Cores";
@@ -59,7 +59,7 @@ public class PodDto<T extends HasMetadata> extends K8sResourceDto {
         this.podIp = podIp;
     }
 
-    public PodDto(T obj, String clusterId) {
+    public PodDTO(T obj, String clusterId) {
         super(obj, clusterId);
         if (obj instanceof Pod) {
             Pod pod = (Pod) obj;

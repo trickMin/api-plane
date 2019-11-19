@@ -2,7 +2,7 @@ package com.netease.cloud.nsf.cache.meta;
 
 import io.fabric8.kubernetes.api.model.HasMetadata;
 
-public class K8sResourceDto<T extends HasMetadata> {
+public class K8sResourceDTO<T extends HasMetadata> {
 
     protected String name;
 
@@ -14,7 +14,7 @@ public class K8sResourceDto<T extends HasMetadata> {
 
     protected String createTime;
 
-    public K8sResourceDto(T obj, String clusterId){
+    public K8sResourceDTO(T obj, String clusterId){
         this.kind = obj.getKind();
         this.name = obj.getMetadata().getName();
         this.namespace = obj.getMetadata().getNamespace();
