@@ -10,10 +10,11 @@ import java.util.regex.Pattern;
 /**
  * @author zhangzihao
  */
-public class PodDto<T extends HasMetadata> extends K8sResourceDto {
+public class PodDTO<T extends HasMetadata> extends K8sResourceDTO {
 
     private static final String RESOURCE_VALUE_PATTERN = "[\\d]+(?=\\D*)";
-    private static final String RESOURCE_UNIT_PATTERN = "(?<=\\d)\\D*";
+    private static final String LIMIT_CPU_FORMAT = "%.1f Cores";
+    private static final String LIMIT_MEMORY_FORMAT = "%.0f MiB";
 
     private String hostIp;
 
@@ -23,7 +24,11 @@ public class PodDto<T extends HasMetadata> extends K8sResourceDto {
 
     private String totalLimitCpu;
 
+    private float totalLimitCpuValue;
+
     private String totalLimitMemory;
+
+    private float totalLimitMemoryValue;
 
     private int totalRestartCount;
 
@@ -54,7 +59,7 @@ public class PodDto<T extends HasMetadata> extends K8sResourceDto {
         this.podIp = podIp;
     }
 
-    public PodDto(T obj, String clusterId) {
+    public PodDTO(T obj, String clusterId) {
         super(obj, clusterId);
         if (obj instanceof Pod) {
             Pod pod = (Pod) obj;
@@ -63,11 +68,15 @@ public class PodDto<T extends HasMetadata> extends K8sResourceDto {
             this.status = pod.getStatus().getPhase();
             Map<String, ContainerInfo> containerInfoMap = new HashMap<>();
             // 更新容器资源信息
+
             pod.getSpec().getContainers().forEach(c -> {
                 Objects.requireNonNull(containerInfoMap.computeIfAbsent(c.getName(),
                         ContainerInfo::new))
                         .setRequestResource(c.getResources().getRequests())
                         .setLimitResource(c.getResources().getLimits());
+
+                this.totalLimitCpuValue += getLimitCpuValue(c.getResources().getLimits());
+                this.totalLimitMemoryValue += getLimitMeValue(c.getResources().getLimits());
             });
             // 更新容器状态信息
             pod.getStatus().getContainerStatuses().forEach(cs -> {
@@ -76,6 +85,8 @@ public class PodDto<T extends HasMetadata> extends K8sResourceDto {
                 totalRestartCount += cs.getRestartCount();
             });
 
+            this.totalLimitCpu = String.format(LIMIT_CPU_FORMAT, this.totalLimitCpuValue);
+            this.totalLimitMemory = String.format(LIMIT_MEMORY_FORMAT, this.totalLimitMemoryValue);
             containerInfoList.addAll(containerInfoMap.values());
 
         }
@@ -113,63 +124,82 @@ public class PodDto<T extends HasMetadata> extends K8sResourceDto {
             if (resourceMap == null || resourceMap.isEmpty()) {
                 return this;
             }
-            float totalLimitCpuValue = 0;
-            float totalLimitMemoryValue = 0;
+
             for (Map.Entry<String, Quantity> entry : resourceMap.entrySet()) {
                 resourceLimit.put(entry.getKey(), entry.getValue().getAmount());
-
-                float limitCpuValue = getResourceValue(resourceMap.get("cpu"));
-                String limitCpuUnit = getResourceUnit(resourceMap.get("cpu"));
-                if (limitCpuUnit.contains("m")) {
-                    limitCpuValue = limitCpuValue / 1000;
-                }
-                float limitMemoryValue = getResourceValue(resourceMap.get("memory"));
-                String limitMemoryUnit = getResourceUnit(resourceMap.get("memory"));
-                if (limitMemoryUnit.contains("G")) {
-                    limitMemoryValue = limitMemoryValue * 1024;
-                }
-                totalLimitCpuValue += limitCpuValue;
-                totalLimitMemoryValue += limitMemoryValue;
             }
-            PodDto.this.totalLimitCpu = (totalLimitCpuValue == 0) ? null : totalLimitCpuValue + " Cores";
-            PodDto.this.totalLimitMemory = (totalLimitMemoryValue == 0) ? null : totalLimitMemoryValue + " MiB";
             return this;
         }
     }
 
 
-    private int getResourceValue(Quantity quantity) {
-        if (quantity == null) {
+    private float getValueFromAmount(String amount, int index) {
+        if (index < 0) {
             return 0;
         }
-        String amount = quantity.getAmount();
-        if (StringUtils.isEmpty(amount)) {
+        return Float.parseFloat(amount.substring(0, index));
+    }
+
+    private String getUnitFromAmount(String amount, int index) {
+        if (index < 0) {
+            return "";
+        }
+        return amount.substring(index);
+    }
+
+    private float getLimitCpuValue(Map<String, Quantity> resourceMap) {
+        if (resourceMap == null || resourceMap.isEmpty()) {
             return 0;
+        }
+        if (resourceMap.get("cpu") != null) {
+            String amount = resourceMap.get("cpu").getAmount();
+            int limitValueIndex = getResourceValueIndex(amount);
+            if (limitValueIndex < 0) {
+                return 0;
+            }
+            String unit = getUnitFromAmount(amount, limitValueIndex);
+            float value = getValueFromAmount(amount, limitValueIndex);
+            if (unit.contains("m")) {
+                value = value / 1000;
+            }
+            return value;
+        } else {
+            return 0;
+        }
+    }
+
+    private float getLimitMeValue(Map<String, Quantity> resourceMap) {
+        if (resourceMap == null || resourceMap.isEmpty()) {
+            return 0;
+        }
+        if (resourceMap.get("memory") != null) {
+            String amount = resourceMap.get("memory").getAmount();
+            int limitValueIndex = getResourceValueIndex(amount);
+            if (limitValueIndex < 0) {
+                return 0;
+            }
+            String unit = getUnitFromAmount(amount, limitValueIndex);
+            float value = getValueFromAmount(amount, limitValueIndex);
+            if (unit.contains("G")) {
+                value = value * 1024;
+            }
+            return value;
+        } else {
+            return 0;
+        }
+    }
+
+
+    private int getResourceValueIndex(String amount) {
+        if (StringUtils.isEmpty(amount)) {
+            return -1;
         }
         Pattern p = Pattern.compile(RESOURCE_VALUE_PATTERN);
         Matcher matcher = p.matcher(amount);
         if (matcher.find()) {
-            String value = matcher.group();
-            return Integer.parseInt(value);
+            return matcher.end();
         }
-        return 0;
+        return -1;
     }
 
-    private String getResourceUnit(Quantity quantity) {
-        if (quantity == null) {
-            return "";
-        }
-        String amount = quantity.getAmount();
-        if (StringUtils.isEmpty(amount)) {
-            return "";
-        }
-        Pattern p = Pattern.compile(RESOURCE_UNIT_PATTERN);
-        Matcher matcher = p.matcher(amount);
-        if (matcher.find()) {
-            return matcher.group();
-        }
-        return "";
-
-
-    }
 }

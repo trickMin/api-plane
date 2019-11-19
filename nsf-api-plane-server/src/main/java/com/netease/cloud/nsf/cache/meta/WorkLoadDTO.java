@@ -9,7 +9,7 @@ import io.fabric8.kubernetes.api.model.apps.StatefulSetStatus;
 import java.util.HashMap;
 import java.util.Map;
 
-public class WorkLoadDto<T extends HasMetadata> extends K8sResourceDto {
+public class WorkLoadDTO<T extends HasMetadata> extends K8sResourceDTO {
 
 
     protected String serviceName;
@@ -19,7 +19,7 @@ public class WorkLoadDto<T extends HasMetadata> extends K8sResourceDto {
     private Map<String, String> statusInfo = new HashMap<>();
 
 
-    public WorkLoadDto(T obj, String serviceName, String clusterId) {
+    public WorkLoadDTO(T obj, String serviceName, String clusterId) {
         super(obj, clusterId);
         this.serviceDomain = serviceName;
         this.serviceName = serviceName;
