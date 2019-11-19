@@ -99,7 +99,7 @@ public class RouteProcessor extends AbstractSchemaProcessor implements SchemaPro
         for (int i = 0; i < length; i++) {
             String targetHost = rg.getValue(String.format("$.action.pass_proxy_target[%d].url", i));
             Integer weight = rg.getValue(String.format("$.action.pass_proxy_target[%d].weight", i));
-            Integer port = getPort(endpoints, targetHost);
+            Integer port = resourceManager.getServicePort(endpoints, targetHost);
             // 根据host查找host的port
             ret.addJsonElement("$.route",
                     String.format("{\"destination\":{\"host\":\"%s\",\"port\":{\"number\":%d},\"subset\":\"%s\"},\"weight\":%d}",
