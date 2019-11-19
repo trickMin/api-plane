@@ -17,6 +17,12 @@ import static com.netease.cloud.nsf.core.template.TemplateConst.*;
  **/
 public class PortalServiceEntryServiceDataHandler extends ServiceDataHandler {
 
+    private static final String HTTP = "HTTP";
+    private static final String HTTPS = "HTTPS";
+
+    private static int HTTP_DEFAULT_PORT = 80;
+    private static int HTTPS_DEFAULT_PORT = 443;
+
     @Override
     List<TemplateParams> doHandle(TemplateParams tp, Service service) {
 
@@ -42,7 +48,7 @@ public class PortalServiceEntryServiceDataHandler extends ServiceDataHandler {
             addrs.stream()
                     .forEach(addr -> {
                         Endpoint e = new Endpoint();
-                        if (CommonUtil.isValidIPPortAddr(addr)) {
+                        if (CommonUtil.isValidIPPortAddr(addr) || addr.contains(":")) {
                             String[] ipPort = addr.split(":");
                             e.setAddress(ipPort[0]);
                             e.setPort(Integer.valueOf(ipPort[1]));
@@ -51,6 +57,15 @@ public class PortalServiceEntryServiceDataHandler extends ServiceDataHandler {
                         }
                         endpoints.add(e);
                     });
+
+            boolean isHTTPS = service.getProtocol().equalsIgnoreCase(HTTPS);
+            String protocol = isHTTPS ? "TLS" : HTTP;
+            String protocolName = isHTTPS ? HTTPS.toLowerCase() : HTTP.toLowerCase();
+            int protocolPort = isHTTPS ? HTTPS_DEFAULT_PORT : HTTP_DEFAULT_PORT;
+
+            params.put(SERVICE_ENTRY_PROTOCOL, protocol);
+            params.put(SERVICE_ENTRY_PROTOCOL_NAME, protocolName);
+            params.put(SERVICE_ENTRY_PROTOCOL_PORT, protocolPort);
 
             params.put("endpoints", endpoints)
                     .put(SERVICE_ENTRY_NAME, service.getCode().toLowerCase())

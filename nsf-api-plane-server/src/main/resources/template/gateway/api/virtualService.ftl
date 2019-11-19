@@ -2,7 +2,6 @@ apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
   name: ${t_virtual_service_name}
-  namespace: ${t_namespace}
   labels:
     api_service: ${t_api_service}
 spec:
@@ -27,4 +26,7 @@ spec:
 <#list t_api_api_plugins as p>
 <@indent count=6>${p}</@indent>
 </#list>
+</#if>
+<#if t_api_priority??>
+  priority: ${t_api_priority}
 </#if>

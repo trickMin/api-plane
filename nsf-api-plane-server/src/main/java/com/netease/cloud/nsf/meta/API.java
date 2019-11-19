@@ -100,6 +100,11 @@ public class API extends CommonModel {
      */
     private Integer port = 80;
 
+    /**
+     * 优先级
+     */
+    private Integer priority;
+
     public List<String> getGateways() {
         return gateways;
     }
@@ -282,5 +287,13 @@ public class API extends CommonModel {
 
     public void setQueryParams(List<PairMatch> queryParams) {
         this.queryParams = queryParams;
+    }
+
+    public Integer getPriority() {
+        return priority;
+    }
+
+    public void setPriority(Integer priority) {
+        this.priority = priority;
     }
 }
