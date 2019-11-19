@@ -40,7 +40,7 @@ public class DefaultResourceManager implements ResourceManager {
                         // 不在 istio-system, kube-system, gateway-system内
                         !inIstioSystem(endpoint.getHostname()) &&
                         !inKubeSystem(endpoint.getHostname()) &&
-                        !inGatewaySysten(endpoint.getHostname()) &&
+                        !inGatewaySystem(endpoint.getHostname()) &&
                         // 是http服务
                         isHttp(endpoint.getProtocol())
         );
@@ -64,7 +64,7 @@ public class DefaultResourceManager implements ResourceManager {
                         // 不在 istio-system, kube-system, gateway-system内
                         !inIstioSystem(endpoint.getHostname()) &&
                         !inKubeSystem(endpoint.getHostname()) &&
-                        !inGatewaySysten(endpoint.getHostname()) &&
+                        !inGatewaySystem(endpoint.getHostname()) &&
                         // 是http服务
                         isHttp(endpoint.getProtocol()) &&
                         // 不是ServiceEntry服务
@@ -99,7 +99,7 @@ public class DefaultResourceManager implements ResourceManager {
         return Pattern.compile("(.*)\\.kube-system\\.(.*)\\.(.*)\\.(.*)").matcher(hostName).find();
     }
 
-    private boolean inGatewaySysten(String hostName) {
+    private boolean inGatewaySystem(String hostName) {
         return Pattern.compile("(.*)\\.gateway-system\\.(.*)\\.(.*)\\.(.*)").matcher(hostName).find();
     }
 
