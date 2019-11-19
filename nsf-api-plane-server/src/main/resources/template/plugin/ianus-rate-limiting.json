@@ -1,6 +1,10 @@
 {
   "self_check": "function",
   "fields": {
+    "x_user_id": {
+      "type": "string",
+      "help": "租户id"
+    },
     "limit_by_list": {
       "alias": "限制标识列表",
       "type": "array",

@@ -9,6 +9,7 @@ import com.netease.cloud.nsf.core.plugin.FragmentWrapper;
 import com.netease.cloud.nsf.meta.ServiceInfo;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -32,6 +33,8 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
     public FragmentHolder process(String plugin, ServiceInfo serviceInfo) {
         FragmentHolder holder = new FragmentHolder();
         ResourceGenerator total = ResourceGenerator.newInstance(plugin, ResourceType.JSON, editorContext);
+        String xUserId = getXUserId(total);
+
         List<Object> limits = total.getValue("$.limit_by_list");
         AtomicInteger headerNo = new AtomicInteger(0);
 
@@ -44,7 +47,7 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
             Integer no = headerNo.getAndIncrement();
             getUnits(rg).forEach((unit, duration) -> {
                 String headerDescriptor = getHeaderDescriptor(serviceInfo, no, getMatchHeader(rg), unit);
-                rateLimitGen.addJsonElement("$.rateLimits", createRateLimits(rg, serviceInfo, headerDescriptor));
+                rateLimitGen.addJsonElement("$.rateLimits", createRateLimits(rg, serviceInfo, headerDescriptor, xUserId));
                 shareConfigGen.addJsonElement("$[0].descriptors", createShareConfig(serviceInfo, headerDescriptor, unit, duration));
             });
 
@@ -54,6 +57,7 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
                         .withFragmentType(FragmentTypeEnum.SHARECONFIG)
                         .withResourceType(K8sResourceEnum.SharedConfig)
                         .withContent(shareConfigGen.yamlString())
+                        .withXUserId(xUserId)
                         .build()
         );
         holder.setVirtualServiceFragment(
@@ -61,6 +65,7 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
                         .withFragmentType(FragmentTypeEnum.VS_HOST)
                         .withResourceType(K8sResourceEnum.VirtualService)
                         .withContent(rateLimitGen.yamlString())
+                        .withXUserId(xUserId)
                         .build()
         );
         return holder;
@@ -110,15 +115,20 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
         return ImmutableList.of(holder);
     }
 
-    private String createRateLimits(ResourceGenerator rg, ServiceInfo serviceInfo, String headerDescriptor) {
+    private String createRateLimits(ResourceGenerator rg, ServiceInfo serviceInfo, String headerDescriptor, String xUserId) {
         ResourceGenerator vs = ResourceGenerator.newInstance("{\"stage\":0,\"actions\":[]}");
 
         String matchHeader = getMatchHeader(rg);
 
+        vs.addJsonElement("$.actions",
+                String.format("{\"headerValueMatch\":{\"headers\":[],\"descriptorValue\":\"%s\"}}", headerDescriptor));
+        // 添加租户信息
+        if (StringUtils.isNotBlank(xUserId)) {
+            vs.addJsonElement("$.actions[0].headerValueMatch.headers",
+                    String.format("{\"name\":\"x_user_id\",\"regexMatch\":\"%s\"}", xUserId));
+        }
         //todo: if !rg.contain($.pre_condition)
         if (rg.contain("$.pre_condition")) {
-            vs.addJsonElement("$.actions",
-                    String.format("{\"headerValueMatch\":{\"headers\":[],\"descriptorValue\":\"%s\"}}", headerDescriptor));
 
             int length = rg.getValue("$.pre_condition.length()");
             for (int i = 0; i < length; i++) {

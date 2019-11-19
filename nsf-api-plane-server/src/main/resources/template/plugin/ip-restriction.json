@@ -1,5 +1,9 @@
 {
   "fields": {
+    "x_user_id": {
+      "type": "string",
+      "help": "租户id"
+    },
     "kind": {
       "type": "string",
       "help": "插件类型"
