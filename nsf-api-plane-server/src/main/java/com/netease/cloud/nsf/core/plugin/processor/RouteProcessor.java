@@ -19,6 +19,7 @@ import org.springframework.util.StringUtils;
 import java.util.List;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -49,6 +50,9 @@ public class RouteProcessor extends AbstractSchemaProcessor implements SchemaPro
 
         ResourceGenerator total = ResourceGenerator.newInstance(plugin, ResourceType.JSON, editorContext);
         String xUserId = getXUserId(total);
+        // 如果路由插件自身配置了priority，则使用配置的priority，如果没有配置，则使用占位符传递的priority
+        Integer priority = getPriority(total);
+        if (Objects.nonNull(priority)) serviceInfo.setPriority(String.valueOf(priority));
 
         // 将路由plugin细分，例如rewrite部分,redirect部分
         List<Object> plugins = total.getValue("$.rule");
