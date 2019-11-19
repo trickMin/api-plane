@@ -48,6 +48,8 @@ public class RouteProcessor extends AbstractSchemaProcessor implements SchemaPro
         MultiValueMap<String, String> pluginMap = new LinkedMultiValueMap<>();
 
         ResourceGenerator total = ResourceGenerator.newInstance(plugin, ResourceType.JSON, editorContext);
+        String xUserId = getXUserId(total);
+
         // 将路由plugin细分，例如rewrite部分,redirect部分
         List<Object> plugins = total.getValue("$.rule");
         plugins.forEach(innerPlugin -> {
@@ -55,19 +57,19 @@ public class RouteProcessor extends AbstractSchemaProcessor implements SchemaPro
             String innerType = rg.getValue("$.name");
             switch (innerType) {
                 case "rewrite": {
-                    pluginMap.add(innerType, createRewrite(rg, serviceInfo));
+                    pluginMap.add(innerType, createRewrite(rg, serviceInfo, xUserId));
                     break;
                 }
                 case "redirect": {
-                    pluginMap.add(innerType, createRedirect(rg, serviceInfo));
+                    pluginMap.add(innerType, createRedirect(rg, serviceInfo, xUserId));
                     break;
                 }
                 case "return": {
-                    pluginMap.add(innerType, createReturn(rg, serviceInfo));
+                    pluginMap.add(innerType, createReturn(rg, serviceInfo, xUserId));
                     break;
                 }
                 case "pass_proxy": {
-                    pluginMap.add(innerType, createPassProxy(rg, serviceInfo));
+                    pluginMap.add(innerType, createPassProxy(rg, serviceInfo, xUserId));
                     break;
                 }
                 default:
@@ -83,16 +85,18 @@ public class RouteProcessor extends AbstractSchemaProcessor implements SchemaPro
                 .withContent(result.yamlString())
                 .withResourceType(K8sResourceEnum.VirtualService)
                 .withFragmentType(FragmentTypeEnum.VS_MATCH)
+                .withXUserId(getXUserId(total))
                 .build();
         holder.setVirtualServiceFragment(wrapper);
         return holder;
     }
 
-    private String createPassProxy(ResourceGenerator rg, ServiceInfo info) {
+    private String createPassProxy(ResourceGenerator rg, ServiceInfo info, String xUserId) {
         List<Endpoint> endpoints = resourceManager.getEndpointList();
 
         ResourceGenerator ret = ResourceGenerator.newInstance("{}", ResourceType.JSON, editorContext);
-        ret.createOrUpdateJson("$", "match", createMatch(rg, info));
+        ret.createOrUpdateJson("$", "match", createMatch(rg, info, xUserId));
+        ret.createOrUpdateJson("$", "priority", info.getPriority());
         ret.createOrUpdateJson("$", "route", "[]");
 
         int length = rg.getValue("$.action.pass_proxy_target.length()");
@@ -108,9 +112,10 @@ public class RouteProcessor extends AbstractSchemaProcessor implements SchemaPro
         return ret.jsonString();
     }
 
-    private String createReturn(ResourceGenerator rg, ServiceInfo info) {
+    private String createReturn(ResourceGenerator rg, ServiceInfo info, String xUserId) {
         ResourceGenerator ret = ResourceGenerator.newInstance("{}", ResourceType.JSON, editorContext);
-        ret.createOrUpdateJson("$", "match", createMatch(rg, info));
+        ret.createOrUpdateJson("$", "match", createMatch(rg, info, xUserId));
+        ret.createOrUpdateJson("$", "priority", info.getPriority());
         ret.createOrUpdateJson("$", "return",
                 String.format("{\"body\":{\"inlineString\":\"%s\"},\"code\":%s}", rg.getValue("$.action.return_target.body"), rg.getValue("$.action.return_target.code")));
         if (rg.contain("$.action.header")) {
@@ -124,9 +129,10 @@ public class RouteProcessor extends AbstractSchemaProcessor implements SchemaPro
         return ret.jsonString();
     }
 
-    private String createRedirect(ResourceGenerator rg, ServiceInfo info) {
+    private String createRedirect(ResourceGenerator rg, ServiceInfo info, String xUserId) {
         ResourceGenerator ret = ResourceGenerator.newInstance("{}", ResourceType.JSON, editorContext);
-        ret.createOrUpdateJson("$", "match", createMatch(rg, info));
+        ret.createOrUpdateJson("$", "match", createMatch(rg, info, xUserId));
+        ret.createOrUpdateJson("$", "priority", info.getPriority());
         String target = rg.getValue("$.action.target", String.class);
         try {
             URI uri = new URI(target);
@@ -148,9 +154,10 @@ public class RouteProcessor extends AbstractSchemaProcessor implements SchemaPro
         return ret.jsonString();
     }
 
-    private String createRewrite(ResourceGenerator rg, ServiceInfo info) {
+    private String createRewrite(ResourceGenerator rg, ServiceInfo info, String xUserId) {
         ResourceGenerator ret = ResourceGenerator.newInstance("{}", ResourceType.JSON, editorContext);
-        ret.createOrUpdateJson("$", "match", createMatch(rg, info));
+        ret.createOrUpdateJson("$", "match", createMatch(rg, info, xUserId));
+        ret.createOrUpdateJson("$", "priority", info.getPriority());
         ret.createOrUpdateJson("$", "transformation", "{\"requestTransformations\":[{\"transformationTemplate\":{\"extractors\":{},\"headers\":{}}}]}");
         // $.action.target : 转换结果，格式如/$2/$1
         Matcher matcher = Pattern.compile("\\$\\d").matcher(rg.getValue("$.action.target"));

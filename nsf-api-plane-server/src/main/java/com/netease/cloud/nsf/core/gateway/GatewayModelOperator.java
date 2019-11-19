@@ -188,6 +188,7 @@ public class GatewayModelOperator {
         service.setMethod(wrap(API_METHODS));
         service.setSubset(wrap(VIRTUAL_SERVICE_SUBSET_NAME));
         service.setHosts(wrap(VIRTUAL_SERVICE_HOSTS));
+        service.setPriority(wrap(VIRTUAL_SERVICE_MATCH_PRIORITY));
         service.setApi(api);
 
         return pluginService.processSchema(plugins, service);

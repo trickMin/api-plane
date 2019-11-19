@@ -59,6 +59,9 @@ public class ServiceInfo {
     @JsonProperty(VIRTUAL_SERVICE_HOSTS)
     private String hosts;
 
+    @JsonProperty(VIRTUAL_SERVICE_MATCH_PRIORITY)
+    private String priority;
+
     public API getApi() {
         return api;
     }
@@ -131,6 +134,15 @@ public class ServiceInfo {
         this.hosts = hosts;
     }
 
+    public String getPriority() {
+        return priority;
+    }
+
+    @JsonProperty(VIRTUAL_SERVICE_MATCH_PRIORITY)
+    public void setPriority(String priority) {
+        this.priority = priority;
+    }
+
     @Override
     public String toString() {
         return "ServiceInfo{" +
@@ -142,6 +154,7 @@ public class ServiceInfo {
                 ", route='" + route + '\'' +
                 ", match='" + match + '\'' +
                 ", hosts='" + hosts + '\'' +
+                ", priority='" + priority + '\'' +
                 '}';
     }
 }
