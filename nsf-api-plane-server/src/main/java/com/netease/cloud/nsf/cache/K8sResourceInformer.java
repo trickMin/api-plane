@@ -85,7 +85,7 @@ public class K8sResourceInformer<T extends HasMetadata> implements Informer {
         }
 
         public Builder addMixedOperation(MixedOperation mp) {
-            this.mixedOperation = mp;
+            this.mixedOperation = (MixedOperation) mp.inAnyNamespace();
             return this;
         }
 
