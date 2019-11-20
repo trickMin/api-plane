@@ -42,13 +42,18 @@ public class OwnerReferenceSupportStore<T extends HasMetadata> implements Store<
                 addResourceToReference(n, obj);
             });
         }
-
     }
 
     @Override
     public void update(String kind, String namespace, String name, T obj) {
         resourceStore.update(kind, namespace, name, obj);
-        // TODO: 2019-11-05 是否更新ownerReference信息
+        List<String> ownerReferenceNames = getOwnerName(obj);
+        synchronized (OwnerReferenceSupportStore.class) {
+            ownerReferenceNames.forEach(n -> {
+                addResourceToReference(n, obj);
+            });
+        }
+
     }
 
     @Override
