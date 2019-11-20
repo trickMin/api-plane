@@ -39,16 +39,21 @@ public class OwnerReferenceSupportStore<T extends HasMetadata> implements Store<
         // 添加新的ownerReference索引
         synchronized (OwnerReferenceSupportStore.class) {
             ownerReferenceNames.forEach(n -> {
-                Objects.requireNonNull(ownerReference.computeIfAbsent(n,(k)->new ArrayList<>())).add(obj);
+                addResourceToReference(n, obj);
             });
         }
-
     }
 
     @Override
     public void update(String kind, String namespace, String name, T obj) {
         resourceStore.update(kind, namespace, name, obj);
-        // TODO: 2019-11-05 是否更新ownerReference信息
+        List<String> ownerReferenceNames = getOwnerName(obj);
+        synchronized (OwnerReferenceSupportStore.class) {
+            ownerReferenceNames.forEach(n -> {
+                addResourceToReference(n, obj);
+            });
+        }
+
     }
 
     @Override
@@ -57,9 +62,7 @@ public class OwnerReferenceSupportStore<T extends HasMetadata> implements Store<
         List<String> ownerReferenceNames = getOwnerName(oldValue);
         // 删除旧的ownerReference索引
         synchronized (OwnerReferenceSupportStore.class) {
-            ownerReferenceNames.forEach(n -> Objects.requireNonNull(ownerReference
-                    .computeIfAbsent(n, (k)->new ArrayList<>()))
-                    .remove(oldValue));
+            ownerReferenceNames.forEach(n -> removeResourceFromReference(n, oldValue));
         }
         return oldValue;
     }
@@ -94,7 +97,7 @@ public class OwnerReferenceSupportStore<T extends HasMetadata> implements Store<
             Map<String, List<T>> tmpOwnerReference = new HashMap<>(ownerReference);
             oldResource.forEach(t -> getOwnerName(t)
                     .forEach(name -> Objects.requireNonNull(tmpOwnerReference
-                            .computeIfAbsent(name, (k)->new ArrayList<>()))
+                            .computeIfAbsent(name, (k) -> new ArrayList<>()))
                             .remove(t)));
             // 添加新的OwnerReference信息
             if (resourceMap != null && !resourceMap.isEmpty()) {
@@ -104,7 +107,7 @@ public class OwnerReferenceSupportStore<T extends HasMetadata> implements Store<
                         .collect(Collectors.toList());
                 newResource.forEach(t -> getOwnerName(t).forEach(name -> Objects
                         .requireNonNull(tmpOwnerReference
-                                .computeIfAbsent(name,(k)->new ArrayList<>()))
+                                .computeIfAbsent(name, (k) -> new ArrayList<>()))
                         .add(t)));
             }
             // 过滤掉那些value值为空key
@@ -181,7 +184,7 @@ public class OwnerReferenceSupportStore<T extends HasMetadata> implements Store<
 
     public List<T> getFilterByLabel(List<T> resourceList, Map<String, String> keyValues) {
         return resourceList.stream()
-                .filter(i ->labelsMatch(keyValues,i.getMetadata().getLabels()))
+                .filter(i -> labelsMatch(keyValues, i.getMetadata().getLabels()))
                 .collect(Collectors.toList());
     }
 
@@ -221,5 +224,36 @@ public class OwnerReferenceSupportStore<T extends HasMetadata> implements Store<
         return true;
     }
 
+
+    private void removeResourceFromReference(String key, T obj) {
+        List<T> referenceList = ownerReference.get(key);
+        if (referenceList == null) {
+            return;
+        }
+        referenceList = referenceList.stream()
+                .filter(o -> !o.getKind().equals(obj.getKind()) ||
+                        !o.getMetadata().getNamespace().equals(obj.getMetadata().getNamespace()) ||
+                        !o.getMetadata().getName().equals(obj.getMetadata().getName()))
+                .collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(referenceList)) {
+            ownerReference.remove(key);
+        } else {
+            ownerReference.put(key, referenceList);
+        }
+    }
+
+    private void addResourceToReference(String key, T obj) {
+        List<T> referenceList = ownerReference.get(key);
+        if (referenceList == null) {
+            referenceList = new ArrayList<>();
+        }
+        referenceList = referenceList.stream()
+                .filter(o -> !o.getKind().equals(obj.getKind()) ||
+                        !o.getMetadata().getNamespace().equals(obj.getMetadata().getNamespace()) ||
+                        !o.getMetadata().getName().equals(obj.getMetadata().getName()))
+                .collect(Collectors.toList());
+        referenceList.add(obj);
+        ownerReference.put(key, referenceList);
+    }
 
 }
