@@ -208,6 +208,9 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     private List<T> doGetWorkLoadList(String clusterId, String namespace, String serviceName) {
         OwnerReferenceSupportStore store = ResourceStoreFactory.getResourceStore(clusterId);
         Endpoints endpointsByService = (Endpoints) store.get(Endpoint.name(), namespace, serviceName);
+        if (endpointsByService == null){
+            return new ArrayList<>();
+        }
         //从endpoints信息中解析出关联的pod列表
         List<ObjectReference> podReferences = endpointsByService.getSubsets()
                 .stream()
