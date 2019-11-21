@@ -1,6 +1,8 @@
 package com.netease.cloud.nsf.cache.meta;
 
-import io.fabric8.kubernetes.api.model.*;
+import io.fabric8.kubernetes.api.model.HasMetadata;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.Quantity;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
