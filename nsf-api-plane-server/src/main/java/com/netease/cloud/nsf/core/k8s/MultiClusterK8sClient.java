@@ -52,6 +52,10 @@ public class MultiClusterK8sClient {
 				.build();
 	}
 
+	public Map<String, ClientSet> getAllClients() {
+		return clients;
+	}
+
 	public KubernetesClient k8sClient(String clusterName) {
 		return clients.getOrDefault(clusterName, ClientSet.fakeClient).k8sClient;
 	}
@@ -63,12 +67,12 @@ public class MultiClusterK8sClient {
 	/**
 	 * Created by 张武(zhangwu@corp.netease.com) at 2019/11/13
 	 */
-	private static class ClientSet {
-		private final KubernetesClient k8sClient;
-		private final io.fabric8.kubernetes.client.KubernetesClient originalK8sClient;
+	public static class ClientSet {
+		public final KubernetesClient k8sClient;
+		public final io.fabric8.kubernetes.client.KubernetesClient originalK8sClient;
 
 		private static final ClientSet fakeClient = new ClientSet(null, null);
-		public ClientSet(KubernetesClient k8sClient, io.fabric8.kubernetes.client.KubernetesClient originalK8sClient) {
+		private ClientSet(KubernetesClient k8sClient, io.fabric8.kubernetes.client.KubernetesClient originalK8sClient) {
 			this.k8sClient = k8sClient;
 			this.originalK8sClient = originalK8sClient;
 		}
