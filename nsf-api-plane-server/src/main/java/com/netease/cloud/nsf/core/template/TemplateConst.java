@@ -15,7 +15,9 @@ public interface TemplateConst {
 
     /** ---------- 模板占位符名 begin ---------- **/
 
-    /** 公用 **/
+    /**
+     * 公用
+     **/
 
     String NAMESPACE = "t_namespace";
     String API_GATEWAY = "t_api_gateway";
@@ -30,7 +32,9 @@ public interface TemplateConst {
     String API_PRIORITY = "t_api_priority";
 
 
-    /** VirtualService **/
+    /**
+     * VirtualService
+     **/
 
     String VIRTUAL_SERVICE_NAME = "t_virtual_service_name";
     String VIRTUAL_SERVICE_SUBSET_NAME = "t_virtual_service_subset_name";
@@ -42,6 +46,7 @@ public interface TemplateConst {
     String VIRTUAL_SERVICE_API_YAML = "t_virtual_service_api_yaml";
     String VIRTUAL_SERVICE_HOSTS = "t_virtual_service_hosts";
     String VIRTUAL_SERVICE_MATCH_PRIORITY = "t_virtual_service_match_priority";
+    String VIRTUAL_SERVICE_PLUGIN_MATCH_PRIORITY = "t_virtual_service_plugin_match_priority";
 
     /**
      * MATCH级別插件
@@ -78,7 +83,9 @@ public interface TemplateConst {
     String API_QUERY_PARAMS = "t_api_query_params";
 
 
-    /** DestinationRule **/
+    /**
+     * DestinationRule
+     **/
 
     String DESTINATION_RULE_NAME = "t_destination_rule_name";
     String DESTINATION_RULE_HOST = "t_destination_rule_host";
@@ -86,22 +93,30 @@ public interface TemplateConst {
     String API_GATEWAYS = "t_api_gateways";
 
 
-    /** ServiceEntry **/
+    /**
+     * ServiceEntry
+     **/
     String SERVICE_ENTRY_NAME = "t_service_entry_name";
     String SERVICE_ENTRY_HOST = "t_service_entry_host";
     String SERVICE_ENTRY_PROTOCOL = "t_service_entry_protocol";
     String SERVICE_ENTRY_PROTOCOL_NAME = "t_service_entry_protocol_name";
     String SERVICE_ENTRY_PROTOCOL_PORT = "t_service_entry_protocol_port";
 
-    /** Gateway **/
+    /**
+     * Gateway
+     **/
     String GATEWAY_NAME = "t_gateway_name";
     String GATEWAY_HOSTS = "t_gateway_hosts";
 
 
-    /** SharedConfig **/
+    /**
+     * SharedConfig
+     **/
     String SHARED_CONFIG_DESCRIPTOR = "t_shared_config_descriptor";
 
-    /** PluginManager **/
+    /**
+     * PluginManager
+     **/
     String PLUGIN_MANAGER_NAME = "t_plugin_manager_name";
     String PLUGIN_MANAGER_WORKLOAD_LABELS = "t_plugin_manager_workload_labels";
     String PLUGIN_MANAGER_PLUGINS = "t_plugin_manager_plugins";

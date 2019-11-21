@@ -10,7 +10,10 @@ import com.netease.cloud.nsf.meta.Gateway;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
+import io.fabric8.kubernetes.api.model.Namespace;
 import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.ServicePort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,13 +81,20 @@ public class IstioHttpClient {
     }
 
 
-    //todo: pilot多副本高可用的问题
     private String getIstioUrl() {
         if (!StringUtils.isEmpty(istioHttpUrl)) return istioHttpUrl;
-        List<Pod> istioPods = client.getObjectList(K8sResourceEnum.Pod.name(), NAMESPACE, ImmutableMap.of("app", NAME));
-        if (CollectionUtils.isEmpty(istioPods)) throw new ApiPlaneException(ExceptionConst.ISTIO_POD_NON_EXIST);
-        Pod istioPod = istioPods.get(0);
-        String ip = istioPod.getStatus().getPodIP();
+        List<Service> pilotServices = client.getObjectList(K8sResourceEnum.Service.name(), NAMESPACE, ImmutableMap.of("app", NAME));
+        if (CollectionUtils.isEmpty(pilotServices)) throw new ApiPlaneException(ExceptionConst.PILOT_SERVICE_NON_EXIST);
+        Service service = pilotServices.get(0);
+        String ip = service.getSpec().getClusterIP();
+        List<ServicePort> ports = service.getSpec().getPorts();
+        //get port by name equal  http-legacy-discovery
+        for (ServicePort port : ports) {
+            if ("http-legacy-discovery".equalsIgnoreCase(port.getName())) {
+                return String.format("http://%s:%s", ip, port.getPort());
+            }
+        }
+        //if http-legacy-discovery not found
         //FIXME 暂时写死
         String port = "8080";
         return String.format("http://%s:%s", ip, port);

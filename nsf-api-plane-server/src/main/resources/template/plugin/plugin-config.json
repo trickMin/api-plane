@@ -71,6 +71,90 @@
       "pluginScope": "",
       "pluginPriority": "",
       "instructionForUse": ""
+    },
+    {
+      "name": "cors",
+      "resource": "plugin/cors.json",
+      "description": "",
+      "processor": "DefaultProcessor",
+      "author": "",
+      "createTime": "",
+      "updateTime": "",
+      "pluginScope": "",
+      "pluginPriority": "",
+      "instructionForUse": ""
+    },
+    {
+      "name": "jsonp",
+      "resource": "plugin/jsonp.json",
+      "description": "",
+      "processor": "JsonpProcessor",
+      "author": "",
+      "createTime": "",
+      "updateTime": "",
+      "pluginScope": "",
+      "pluginPriority": "",
+      "instructionForUse": ""
+    },
+    {
+      "name": "rewrite",
+      "resource": "plugin/rewrite.json",
+      "description": "",
+      "processor": "RewriteProcessor",
+      "author": "",
+      "createTime": "",
+      "updateTime": "",
+      "pluginScope": "",
+      "pluginPriority": "",
+      "instructionForUse": ""
+    },
+    {
+      "name": "cache",
+      "resource": "plugin/cache.json",
+      "description": "",
+      "processor": "DefaultProcessor",
+      "author": "",
+      "createTime": "",
+      "updateTime": "",
+      "pluginScope": "",
+      "pluginPriority": "",
+      "instructionForUse": ""
+    },
+    {
+      "name": "cache",
+      "resource": "plugin/cache.json",
+      "description": "",
+      "processor": "DefaultProcessor",
+      "author": "",
+      "createTime": "",
+      "updateTime": "",
+      "pluginScope": "",
+      "pluginPriority": "",
+      "instructionForUse": ""
+    },
+    {
+      "name": "request-transformer",
+      "resource": "plugin/request-transformer-cm.json",
+      "description": "",
+      "processor": "DefaultProcessor",
+      "author": "",
+      "createTime": "",
+      "updateTime": "",
+      "pluginScope": "",
+      "pluginPriority": "",
+      "instructionForUse": ""
+    },
+    {
+      "name": "default",
+      "resource": "",
+      "description": "默认插件，直接透传不做处理，理论上所有插件都能通过这个插件实现",
+      "processor": "DefaultProcessor",
+      "author": "",
+      "createTime": "",
+      "updateTime": "",
+      "pluginScope": "",
+      "pluginPriority": "",
+      "instructionForUse": ""
     }
   ]
 }

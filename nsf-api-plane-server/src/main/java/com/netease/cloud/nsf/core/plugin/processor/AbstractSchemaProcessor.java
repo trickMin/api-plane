@@ -3,14 +3,10 @@ package com.netease.cloud.nsf.core.plugin.processor;
 import com.netease.cloud.nsf.core.editor.EditorContext;
 import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
-import com.netease.cloud.nsf.meta.Endpoint;
 import com.netease.cloud.nsf.meta.ServiceInfo;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.CollectionUtils;
-
-import java.util.List;
 
 /**
  * @auther wupenghuai@corp.netease.com
@@ -83,15 +79,17 @@ public abstract class AbstractSchemaProcessor implements SchemaProcessor<Service
             case "!=":
                 return String.format("((?!%s).)*", escapeExprSpecialWord(value));
             case "regex":
+            case "≈":
                 return escapeBackSlash(value);
             case "startsWith":
                 return String.format("%s.*", escapeExprSpecialWord(value));
             case "endsWith":
                 return String.format(".*%s", escapeExprSpecialWord(value));
             case "nonRegex":
+            case "!≈":
                 return String.format("((?!%s).)*", escapeBackSlash(value));
             default:
-                throw new ApiPlaneException("Unsupported op.");
+                throw new ApiPlaneException("Unsupported op :[" + op + "]");
         }
     }
 
@@ -129,5 +127,9 @@ public abstract class AbstractSchemaProcessor implements SchemaProcessor<Service
 
     protected String getXUserId(ResourceGenerator rg) {
         return rg.getValue("$.x_user_id");
+    }
+
+    protected Integer getPriority(ResourceGenerator rg) {
+        return rg.getValue("$.priority", Integer.class);
     }
 }
