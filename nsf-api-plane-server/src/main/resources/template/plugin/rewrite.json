@@ -1,5 +1,9 @@
 {
   "fields": {
+    "kind": {
+      "type": "string",
+      "help": "插件类型"
+    },
     "action": {
       "type": "table",
       "alias": "动作",
@@ -10,13 +14,6 @@
             "type": "string",
             "alias": "正则。仅rewrite有用",
             "required": false
-          },
-          "redirect_type": {
-            "type": "number",
-            "enum": [
-              301,
-              302
-            ]
           },
           "target": {
             "type": "string",
