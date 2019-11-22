@@ -13,10 +13,7 @@ import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.netease.cloud.nsf.core.template.TemplateConst.*;
@@ -59,7 +56,7 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
         String matchYaml = produceMatch(baseParams);
         String httpApiYaml = produceHttpApi(baseParams);
         String hosts = productHosts(api);
-        int priority = PriorityUtil.calculate(api);
+        int pluginPriority = calculatePluginPriority(api, baseParams.get(VIRTUAL_SERVICE_MATCH_PRIORITY));
         TemplateParams vsParams = TemplateParams.instance()
                 .setParent(baseParams)
                 .put(VIRTUAL_SERVICE_MATCH_YAML, matchYaml)
@@ -68,7 +65,7 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
                 .put(API_MATCH_PLUGINS, matchPlugins)
                 .put(API_API_PLUGINS, apiPlugins)
                 .put(API_HOST_PLUGINS, hostPlugins)
-                .put(VIRTUAL_SERVICE_MATCH_PRIORITY, priority);
+                .put(VIRTUAL_SERVICE_PLUGIN_MATCH_PRIORITY, pluginPriority);
 
         List<TemplateParams> collect = api.getGateways().stream()
                 .map(gw -> {
@@ -154,6 +151,7 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
 
     /**
      * 分配插件
+     *
      * @param fragments
      * @param matchPlugins
      * @param apiPlugins
@@ -176,5 +174,13 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
                         default:
                     }
                 });
+    }
+
+    int calculatePluginPriority(API api, Object parentPriority) {
+        if (Objects.nonNull(parentPriority) && parentPriority instanceof Integer) {
+            return (Integer) parentPriority + 1;
+        } else {
+            return PriorityUtil.calculate(api);
+        }
     }
 }

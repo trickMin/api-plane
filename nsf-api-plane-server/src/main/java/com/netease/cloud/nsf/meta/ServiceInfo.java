@@ -59,7 +59,7 @@ public class ServiceInfo {
     @JsonProperty(VIRTUAL_SERVICE_HOSTS)
     private String hosts;
 
-    @JsonProperty(VIRTUAL_SERVICE_MATCH_PRIORITY)
+    @JsonProperty(VIRTUAL_SERVICE_PLUGIN_MATCH_PRIORITY)
     private String priority;
 
     public API getApi() {
@@ -138,7 +138,7 @@ public class ServiceInfo {
         return priority;
     }
 
-    @JsonProperty(VIRTUAL_SERVICE_MATCH_PRIORITY)
+    @JsonProperty(VIRTUAL_SERVICE_PLUGIN_MATCH_PRIORITY)
     public void setPriority(String priority) {
         this.priority = priority;
     }

@@ -125,7 +125,11 @@ public class PluginServiceImpl implements PluginService {
 
     private SchemaProcessor getProcessor(String name) {
         logger.info("get processor:{}", name);
-        return processors.stream().filter(item -> item.getName().equalsIgnoreCase(name)).findAny().get();
+        Optional<SchemaProcessor> processor = processors.stream().filter(item -> item.getName().equalsIgnoreCase(name)).findAny();
+        if (!processor.isPresent()) {
+            throw new ApiPlaneException("can not resolve the schema processor of name:" + name);
+        }
+        return processor.get();
     }
 
     private Plugin createPlugin(

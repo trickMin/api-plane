@@ -22,7 +22,7 @@ public class TransTest {
     @Test
     public void testYxAPI2API() {
 
-        List<String> gateways = ImmutableList.of("gw1", "gw2");
+        List<String> gateways = ImmutableList.of("GW1", "gw2");
         List<String> hosts = ImmutableList.of("h1", "h2");
         List<String> methods = ImmutableList.of("GET", "POST");
         String name = "api";
@@ -39,13 +39,13 @@ public class TransTest {
         Assert.assertEquals(api.getService(), dto.getService());
         Assert.assertEquals(api.getName(), dto.getName());
         Assert.assertEquals(api.getPlugins(), dto.getPlugins());
-        Assert.assertEquals(api.getGateways(), dto.getGateways());
         Assert.assertEquals(api.getHosts(), dto.getHosts());
-        Assert.assertEquals(api.getGateways(), dto.getGateways());
         Assert.assertEquals(api.getProxyUris(), dto.getProxyUris());
         Assert.assertEquals(api.getUriMatch().name().toLowerCase(), dto.getUriMatch());
         Assert.assertEquals(api.getMethods(), dto.getMethods());
         Assert.assertEquals(api.getRequestUris(), dto.getRequestUris());
+
+        Assert.assertNotEquals(api.getGateways(), dto.getGateways());
     }
 
     @Test

@@ -1,0 +1,22 @@
+{
+  "fields": {
+    "kind": {
+      "type": "string",
+      "help": "插件类型"
+    },
+    "cache": {
+      "anywayDisable": {
+        "type": "bool",
+        "required": false
+      },
+      "requestDisable": {
+        "type": "map",
+        "required": false
+      },
+      "responseDisable": {
+        "type": "map",
+        "required": false
+      }
+    }
+  }
+}

@@ -192,7 +192,8 @@ public class CommonExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     public ResponseEntity<Object> newResponse(ErrorCode errorCode, ApiPlaneException exception) {
-        return newResponse(errorCode.getMessage(), errorCode.getCode(), exception.getStatus(), exception);
+        int status = exception.getStatus() != null ? exception.getStatus() : errorCode.getStatusCode();
+        return newResponse(errorCode.getMessage(), errorCode.getCode(), status, exception);
     }
 
 
