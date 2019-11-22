@@ -97,9 +97,11 @@ public class GatewayModelOperator {
 
         BaseVirtualServiceAPIDataHandler vsHandler;
         if (CollectionUtils.isEmpty(api.getProxyServices())) {
-            vsHandler = new BaseVirtualServiceAPIDataHandler(
+            //yx
+            vsHandler = new YxVirtualServiceAPIDataHandler(
                     defaultModelProcessor, pluginService, rawResourceContainer.getVirtualServices(), endpoints);
         } else {
+            //gportal
             vsHandler = new PortalVirtualServiceAPIDataHandler(
                     defaultModelProcessor, pluginService, rawResourceContainer.getVirtualServices(), endpoints);
         }
