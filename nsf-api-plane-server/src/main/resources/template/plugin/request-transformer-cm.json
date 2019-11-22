@@ -1,0 +1,27 @@
+{
+  "fields": {
+    "kind": {
+      "type": "string",
+      "help": "插件类型"
+    },
+    "transformation": {
+      "type": "array",
+      "item_schema": {
+        "fields": {
+          "conditions": {
+            "type": "array",
+            "item_schema": {
+              "fields": {
+                "headers": {
+                  "fields": {
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "transformationTemplate": {}
+  }
+}

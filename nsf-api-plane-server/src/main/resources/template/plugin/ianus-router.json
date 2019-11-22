@@ -1,5 +1,9 @@
 {
   "fields": {
+    "x_user_id": {
+      "type": "string",
+      "help": "租户id"
+    },
     "rule": {
       "type": "array",
       "alias": "规则列表",

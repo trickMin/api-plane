@@ -9,27 +9,30 @@ import com.netease.cloud.nsf.meta.ServiceInfo;
 import org.springframework.stereotype.Component;
 
 /**
+ * 直接透传的Processor
+ *
  * @auther wupenghuai@corp.netease.com
- * @date 2019/11/11
+ * @date 2019/11/19
  **/
 @Component
-public class CorsProcessor extends AbstractSchemaProcessor implements SchemaProcessor<ServiceInfo> {
+public class DefaultProcessor extends AbstractSchemaProcessor implements SchemaProcessor<ServiceInfo> {
 
     @Override
     public String getName() {
-        return "CorsProcessor";
+        return "DefaultProcessor";
     }
 
     @Override
     public FragmentHolder process(String plugin, ServiceInfo serviceInfo) {
-        ResourceGenerator rg = ResourceGenerator.newInstance(plugin);
-        FragmentHolder fragmentHolder = new FragmentHolder();
+        ResourceGenerator source = ResourceGenerator.newInstance(plugin);
+        if(source.contain("$.kind"))source.removeElement("$.kind");
+        FragmentHolder holder = new FragmentHolder();
         FragmentWrapper wrapper = new FragmentWrapper.Builder()
-                .withFragmentType(FragmentTypeEnum.VS_API)
+                .withContent(source.yamlString())
                 .withResourceType(K8sResourceEnum.VirtualService)
-                .withContent(rg.yamlString())
+                .withFragmentType(FragmentTypeEnum.VS_API)
                 .build();
-        fragmentHolder.setVirtualServiceFragment(wrapper);
-        return fragmentHolder;
+        holder.setVirtualServiceFragment(wrapper);
+        return holder;
     }
 }

@@ -11,5 +11,6 @@ spec:
 </#if>
   plugin:
 <#list t_plugin_manager_plugins as p>
-  - ${p}
+  -
+<@indent count=4>${p}</@indent>
 </#list>
