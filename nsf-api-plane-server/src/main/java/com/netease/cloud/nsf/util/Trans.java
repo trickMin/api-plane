@@ -4,7 +4,6 @@ import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.meta.*;
 import com.netease.cloud.nsf.meta.dto.*;
-import me.snowdrop.istio.api.networking.v1alpha3.Int64Range;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -84,14 +83,6 @@ public class Trans {
             s.setUnhealthyThreshold(healthCheck.getUnhealthyThreshold());
         }
         return s;
-    }
-
-    private static List<Int64Range> int2Range(List<Integer> expectedStatuses) {
-        if (CollectionUtils.isEmpty(expectedStatuses)) return Collections.emptyList();
-
-        return expectedStatuses.stream()
-                    .map(s -> new Int64Range(s, s))
-                    .collect(Collectors.toList());
     }
 
     public static PluginOrder pluginOrderDTO2PluginOrder(PluginOrderDTO pluginOrderDTO) {

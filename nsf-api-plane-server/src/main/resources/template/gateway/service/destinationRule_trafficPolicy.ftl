@@ -28,3 +28,10 @@ trafficPolicy:
 <#if t_destination_rule_unhealthy_threshold?has_content>
     unhealthyThreshold: ${t_destination_rule_unhealthy_threshold}
 </#if>
+<#if t_destination_rule_expected_statuses?has_content>
+    expectedStatuses:
+    <#list t_destination_rule_expected_statuses as s>
+    - start: ${s}
+      end: ${s}
+    </#list>
+</#if>
