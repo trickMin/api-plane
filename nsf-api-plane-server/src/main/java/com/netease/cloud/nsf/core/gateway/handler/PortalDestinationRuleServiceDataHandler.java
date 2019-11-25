@@ -21,6 +21,17 @@ public class PortalDestinationRuleServiceDataHandler extends ServiceDataHandler 
                 .put(DESTINATION_RULE_HOST, service.getBackendService())
                 .put(NAMESPACE, service.getNamespace())
                 .put(API_SERVICE, service.getCode())
+                .put(DESTINATION_RULE_CONSECUTIVE_ERRORS, service.getConsecutiveErrors())
+                .put(DESTINATION_RULE_BASE_EJECTION_TIME, service.getBaseEjectionTime())
+                .put(DESTINATION_RULE_MAX_EJECTION_PERCENT, service.getMaxEjectionPercent())
+                .put(DESTINATION_RULE_PATH, service.getPath())
+                .put(DESTINATION_RULE_TIMEOUT, service.getTimeout())
+                .put(DESTINATION_RULE_EXPECTED_STATUSES, service.getExpectedStatuses())
+                .put(DESTINATION_RULE_HEALTHY_INTERVAL, service.getHealthyInterval())
+                .put(DESTINATION_RULE_HEALTHY_THRESHOLD, service.getHealthyThreshold())
+                .put(DESTINATION_RULE_UNHEALTHY_INTERVAL, service.getUnhealthyInterval())
+                .put(DESTINATION_RULE_UNHEALTHY_THRESHOLD, service.getUnhealthyThreshold())
+                .put(DESTINATION_RULE_ALT_STAT_NAME, service.getServiceTag())
                 .put(API_GATEWAY, service.getGateway());
 
         // host由服务类型决定，

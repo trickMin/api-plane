@@ -71,9 +71,7 @@ public class GatewayModelOperator {
     private static final String apiSharedConfig = "gateway/api/sharedConfig";
 
     private static final String serviceDestinationRule = "gateway/service/destinationRule";
-
     private static final String pluginManager = "gateway/pluginManager";
-
     private static final String serviceServiceEntry = "gateway/service/serviceEntry";
 
     /**
