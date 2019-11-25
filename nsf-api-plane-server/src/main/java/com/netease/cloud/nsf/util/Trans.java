@@ -2,6 +2,7 @@ package com.netease.cloud.nsf.util;
 
 import com.netease.cloud.nsf.meta.*;
 import com.netease.cloud.nsf.meta.dto.*;
+import me.snowdrop.istio.api.networking.v1alpha3.Int64Range;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -66,7 +67,29 @@ public class Trans {
             s.setGateway(portalService.getGateway().toLowerCase());
         }
         s.setProtocol(portalService.getProtocol());
+        s.setConsecutiveErrors(portalService.getConsecutiveErrors());
+        s.setBaseEjectionTime(portalService.getBaseEjectionTime());
+        s.setMaxEjectionPercent(portalService.getMaxEjectionPercent());
+        s.setServiceTag(portalService.getServiceTag());
+        if (portalService.getHealthCheck() != null) {
+            HealthCheckDTO healthCheck = portalService.getHealthCheck();
+            s.setPath(healthCheck.getPath());
+            s.setTimeout(healthCheck.getTimeout());
+            s.setExpectedStatuses(healthCheck.getExpectedStatuses());
+            s.setHealthyInterval(healthCheck.getHealthyInterval());
+            s.setHealthyThreshold(healthCheck.getHealthyThreshold());
+            s.setUnhealthyInterval(healthCheck.getUnhealthyInterval());
+            s.setUnhealthyThreshold(healthCheck.getUnhealthyThreshold());
+        }
         return s;
+    }
+
+    private static List<Int64Range> int2Range(List<Integer> expectedStatuses) {
+        if (CollectionUtils.isEmpty(expectedStatuses)) return Collections.emptyList();
+
+        return expectedStatuses.stream()
+                    .map(s -> new Int64Range(s, s))
+                    .collect(Collectors.toList());
     }
 
     public static PluginOrder pluginOrderDTO2PluginOrder(PluginOrderDTO pluginOrderDTO) {
