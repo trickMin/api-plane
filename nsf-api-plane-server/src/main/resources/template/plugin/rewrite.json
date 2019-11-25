@@ -1,0 +1,27 @@
+{
+  "fields": {
+    "kind": {
+      "type": "string",
+      "help": "插件类型"
+    },
+    "action": {
+      "type": "table",
+      "alias": "动作",
+      "required": true,
+      "item_schema": {
+        "fields": {
+          "rewrite_regex": {
+            "type": "string",
+            "alias": "正则。仅rewrite有用",
+            "required": false
+          },
+          "target": {
+            "type": "string",
+            "alias": "目标路径。仅rewrite、redirect有用",
+            "required": false
+          }
+        }
+      }
+    }
+  }
+}

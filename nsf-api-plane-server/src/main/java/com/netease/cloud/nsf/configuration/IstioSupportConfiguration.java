@@ -4,6 +4,7 @@ import com.netease.cloud.nsf.core.editor.EditorContext;
 import com.netease.cloud.nsf.core.k8s.KubernetesClient;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.ConfigBuilder;
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.utils.HttpClientUtils;
 import okhttp3.OkHttpClient;
 import org.apache.commons.lang3.StringUtils;
@@ -56,5 +57,11 @@ public class IstioSupportConfiguration {
     public KubernetesClient kubernetesClient(Config config, OkHttpClient httpClient, EditorContext editorContext) {
         return new KubernetesClient(config, httpClient, editorContext);
     }
+
+    @Bean("originalKubernetesClient")
+    public io.fabric8.kubernetes.client.KubernetesClient originalKubernetesClient(Config config, OkHttpClient httpClient) {
+        return new DefaultKubernetesClient(httpClient, config);
+    }
+
 }
 

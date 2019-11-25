@@ -1,5 +1,7 @@
 package com.netease.cloud.nsf.util;
 
+import com.netease.cloud.nsf.core.editor.ResourceGenerator;
+import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.meta.*;
 import com.netease.cloud.nsf.meta.dto.*;
 import me.snowdrop.istio.api.networking.v1alpha3.Int64Range;
@@ -45,8 +47,8 @@ public class Trans {
         BeanUtils.copyProperties(portalAPI, api);
         api.setUriMatch(UriMatch.get(portalAPI.getUriMatch()));
         api.setProxyServices(portalAPI.getProxyServices().stream()
-                                .map(ps -> portalService2Service(ps))
-                                .collect(Collectors.toList()));
+                .map(ps -> portalService2Service(ps))
+                .collect(Collectors.toList()));
         api.setGateways(Arrays.asList(portalAPI.getGateway().toLowerCase()));
         api.setName(portalAPI.getCode());
 
@@ -96,15 +98,21 @@ public class Trans {
 
         PluginOrder po = new PluginOrder();
         po.setGatewayLabels(pluginOrderDTO.getGatewayLabels());
-        po.setPlugins(pluginOrderDTO.getPlugins());
+        List<String> orderItems = new ArrayList<>();
+        for (PluginOrderItemDTO dto : pluginOrderDTO.getPlugins()) {
+            if (Objects.nonNull(dto)) {
+                orderItems.add(ResourceGenerator.newInstance(dto, ResourceType.OBJECT).yamlString());
+            }
+        }
+        po.setPlugins(orderItems);
         return po;
     }
 
     private static List<PairMatch> pairsDTO2Pairs(List<PairMatchDTO> pairMatchDTOS) {
         if (CollectionUtils.isEmpty(pairMatchDTOS)) return Collections.emptyList();
         return pairMatchDTOS.stream()
-                        .map(dto -> pairDTO2Pair(dto))
-                        .collect(Collectors.toList());
+                .map(dto -> pairDTO2Pair(dto))
+                .collect(Collectors.toList());
     }
 
     private static PairMatch pairDTO2Pair(PairMatchDTO pairMatchDTO) {

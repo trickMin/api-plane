@@ -35,6 +35,7 @@ public class IpRestrictionProcessor extends AbstractSchemaProcessor implements S
                 .withFragmentType(FragmentTypeEnum.VS_API)
                 .withResourceType(K8sResourceEnum.VirtualService)
                 .withContent(ret.yamlString())
+                .withXUserId(getXUserId(rg))
                 .build();
         fragmentHolder.setVirtualServiceFragment(wrapper);
         return fragmentHolder;

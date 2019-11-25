@@ -10,7 +10,10 @@ import com.netease.cloud.nsf.meta.Gateway;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
+import io.fabric8.kubernetes.api.model.Namespace;
 import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.ServicePort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,10 +83,18 @@ public class IstioHttpClient {
 
     private String getIstioUrl() {
         if (!StringUtils.isEmpty(istioHttpUrl)) return istioHttpUrl;
-        List<Pod> istioPods = client.getObjectList(K8sResourceEnum.Pod.name(), NAMESPACE, ImmutableMap.of("app", NAME));
-        if (CollectionUtils.isEmpty(istioPods)) throw new ApiPlaneException(ExceptionConst.ISTIO_POD_NON_EXIST);
-        Pod istioPod = istioPods.get(0);
-        String ip = istioPod.getStatus().getPodIP();
+        List<Service> pilotServices = client.getObjectList(K8sResourceEnum.Service.name(), NAMESPACE, ImmutableMap.of("app", NAME));
+        if (CollectionUtils.isEmpty(pilotServices)) throw new ApiPlaneException(ExceptionConst.PILOT_SERVICE_NON_EXIST);
+        Service service = pilotServices.get(0);
+        String ip = service.getSpec().getClusterIP();
+        List<ServicePort> ports = service.getSpec().getPorts();
+        //get port by name equal  http-legacy-discovery
+        for (ServicePort port : ports) {
+            if ("http-legacy-discovery".equalsIgnoreCase(port.getName())) {
+                return String.format("http://%s:%s", ip, port.getPort());
+            }
+        }
+        //if http-legacy-discovery not found
         //FIXME 暂时写死
         String port = "8080";
         return String.format("http://%s:%s", ip, port);
@@ -98,74 +109,18 @@ public class IstioHttpClient {
         }
     }
 
-    public List<String> getServiceList(Predicate<Endpoint> filter) {
-        List<String> svcs = new ArrayList<>();
-        String[] rawValues = getEndpoints().split("\\n");
-        for (String rawValue : rawValues) {
-            Pattern pattern = Pattern.compile("(.*):http (.*) (.*):(.*) (.*) (.*)");
-            Matcher matcher = pattern.matcher(rawValue);
-            if (matcher.find()) {
-                Endpoint endpoint = new Endpoint();
-                endpoint.setHostname(matcher.group(1));
-                endpoint.setAddress(matcher.group(3));
-                endpoint.setPort(Integer.valueOf(matcher.group(4)));
-                Map<String, String> labelMap = new HashMap<>();
-                String[] labels = matcher.group(5).split(",");
-                for (String label : labels) {
-                    Matcher kv = Pattern.compile("(.*)=(.*)").matcher(label);
-                    if (kv.find()) {
-                        labelMap.put(kv.group(1), kv.group(2));
-                    }
-                }
-                endpoint.setLabels(labelMap);
-                if (Objects.nonNull(filter) && !filter.test(endpoint)) {
-                    continue;
-                }
-                svcs.add(endpoint.getHostname());
-            }
-        }
-        return svcs.stream().distinct().collect(Collectors.toList());
-    }
-
-    public List<Endpoint> getEndpointList(Predicate<Endpoint> filter) {
+    private List<Endpoint> getEndpointList() {
         List<Endpoint> endpoints = new ArrayList<>();
-        String[] rawValues = getEndpoints().split("\\n");
-        for (String rawValue : rawValues) {
-            Pattern pattern = Pattern.compile("(.*):http (.*) (.*):(.*) (.*) (.*)");
-            Matcher matcher = pattern.matcher(rawValue);
-            if (matcher.find()) {
-                Endpoint endpoint = new Endpoint();
-                endpoint.setHostname(matcher.group(1));
-                endpoint.setAddress(matcher.group(3));
-                endpoint.setPort(Integer.valueOf(matcher.group(4)));
-                Map<String, String> labelMap = new HashMap<>();
-                String[] labels = matcher.group(5).split(",");
-                for (String label : labels) {
-                    Matcher kv = Pattern.compile("(.*)=(.*)").matcher(label);
-                    if (kv.find()) {
-                        labelMap.put(kv.group(1), kv.group(2));
-                    }
-                }
-                endpoint.setLabels(labelMap);
-                if (Objects.nonNull(filter) && !filter.test(endpoint)) {
-                    continue;
-                }
-                endpoints.add(endpoint);
-            }
-        }
-        return endpoints.stream().distinct().collect(Collectors.toList());
-    }
-
-    public List<Gateway> getGatewayList(Predicate<Gateway> filter) {
-        List<Gateway> gateways = new ArrayList<>();
         String[] rawValues = getEndpoints().split("\\n");
         for (String rawValue : rawValues) {
             Pattern pattern = Pattern.compile("(.*):(.*) (.*) (.*):(.*) (.*) (.*)");
             Matcher matcher = pattern.matcher(rawValue);
             if (matcher.find()) {
-                Gateway gateway = new Gateway();
-                gateway.setHostname(matcher.group(1));
-                gateway.setAddress(matcher.group(4));
+                Endpoint endpoint = new Endpoint();
+                endpoint.setHostname(matcher.group(1));
+                endpoint.setAddress(matcher.group(4));
+                endpoint.setProtocol(matcher.group(2));
+                endpoint.setPort(Integer.valueOf(matcher.group(5)));
                 Map<String, String> labelMap = new HashMap<>();
                 String[] labels = matcher.group(6).split(",");
                 for (String label : labels) {
@@ -174,13 +129,38 @@ public class IstioHttpClient {
                         labelMap.put(kv.group(1), kv.group(2));
                     }
                 }
-                gateway.setLabels(labelMap);
-                if (Objects.nonNull(filter) && !filter.test(gateway)) {
-                    continue;
-                }
-                gateways.add(gateway);
+                endpoint.setLabels(labelMap);
+                endpoints.add(endpoint);
             }
         }
+        return endpoints;
+    }
+
+    public List<String> getServiceList(Predicate<Endpoint> filter) {
+        if (Objects.isNull(filter)) {
+            filter = e -> true;
+        }
+        return getEndpointList().stream().filter(filter).map(Endpoint::getHostname).distinct().collect(Collectors.toList());
+    }
+
+    public List<Endpoint> getEndpointList(Predicate<Endpoint> filter) {
+        if (Objects.isNull(filter)) {
+            filter = e -> true;
+        }
+        return getEndpointList().stream().filter(filter).distinct().collect(Collectors.toList());
+    }
+
+    public List<Gateway> getGatewayList(Predicate<Gateway> filter) {
+        if (Objects.isNull(filter)) {
+            filter = e -> true;
+        }
+        List<Gateway> gateways = getEndpointList().stream().map(endpoint -> {
+            Gateway gateway = new Gateway();
+            gateway.setAddress(endpoint.getAddress());
+            gateway.setHostname(endpoint.getHostname());
+            gateway.setLabels(endpoint.getLabels());
+            return gateway;
+        }).filter(filter).distinct().collect(Collectors.toList());
         Map<String, Gateway> temp = new HashMap<>();
         gateways.forEach(gateway -> temp.putIfAbsent(gateway.getAddress(), gateway));
         return new ArrayList<>(temp.values());

@@ -4,10 +4,6 @@
       "type": "string",
       "help": "插件类型"
     },
-    "version": {
-      "type": "string",
-      "help": "插件版本"
-    },
     "type": {
       "type": "number",
       "help": "0黑名单，1白名单"

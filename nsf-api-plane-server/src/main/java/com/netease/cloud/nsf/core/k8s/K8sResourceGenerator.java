@@ -7,6 +7,7 @@ import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import static com.netease.cloud.nsf.core.editor.PathExpressionEnum.*;
@@ -69,6 +70,8 @@ public final class K8sResourceGenerator extends ResourceGenerator {
     public void setApiVersion(String apiVersion) {
         updateValue(GET_APIVERSION.translate(), apiVersion);
     }
+
+    public Map<String,String> getLabels(){return getValue(GET_LABEL.translate());}
 
     public void setResourceVersion(String resourceVersion) {
         updateValue(GET_RESOURCEVERSION.translate(), resourceVersion);

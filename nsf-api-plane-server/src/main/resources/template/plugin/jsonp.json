@@ -1,0 +1,12 @@
+{
+  "fields": {
+    "kind": {
+      "type": "string",
+      "help": "插件类型"
+    },
+    "callback": {
+      "type": "string",
+      "help": "callback方法"
+    }
+  }
+}

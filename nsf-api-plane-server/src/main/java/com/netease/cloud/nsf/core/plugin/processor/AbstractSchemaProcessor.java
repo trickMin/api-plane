@@ -3,14 +3,10 @@ package com.netease.cloud.nsf.core.plugin.processor;
 import com.netease.cloud.nsf.core.editor.EditorContext;
 import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
-import com.netease.cloud.nsf.meta.Endpoint;
 import com.netease.cloud.nsf.meta.ServiceInfo;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.CollectionUtils;
-
-import java.util.List;
 
 /**
  * @auther wupenghuai@corp.netease.com
@@ -29,12 +25,17 @@ public abstract class AbstractSchemaProcessor implements SchemaProcessor<Service
         return serviceInfo.getApi().getService();
     }
 
-    protected String createMatch(ResourceGenerator rg, ServiceInfo info) {
+    protected String createMatch(ResourceGenerator rg, ServiceInfo info, String xUserId) {
         ResourceGenerator match = ResourceGenerator.newInstance("[{}]", ResourceType.JSON, editorContext);
         // 添加默认的字段
         match.createOrUpdateJson("$[0]", "uri", String.format("{\"regex\":\"(?:%s.*)\"}", info.getUri()));
         match.createOrUpdateJson("$[0]", "method", String.format("{\"regex\":\"%s\"}", info.getMethod()));
         match.createOrUpdateJson("$[0]", "headers", String.format("{\":authority\":{\"regex\":\"%s\"}}", info.getHosts()));
+
+        // 增加租户信息
+        if (StringUtils.isNotBlank(xUserId)) {
+            match.createOrUpdateJson("$[0].headers", "x_user_id", String.format("{\"regex\":\"%s\"}", xUserId));
+        }
 
         if (rg.contain("$.matcher")) {
             int length = rg.getValue("$.matcher.length()");
@@ -49,39 +50,19 @@ public abstract class AbstractSchemaProcessor implements SchemaProcessor<Service
                         match.createOrUpdateJson("$[0]", "queryParams", String.format("{\"%s\":{\"regex\":\"%s\"}}", leftValue, getRegexByOp(op, rightValue)));
                         break;
                     case "Header":
-                        if (match.contain("$[0].headers")) {
-                            match.createOrUpdateJson("$[0].headers", leftValue, String.format("{\"regex\":\"%s\"}", getRegexByOp(op, rightValue)));
-                        } else {
-                            match.createOrUpdateJson("$[0]", "headers", String.format("{\"%s\":{\"regex\":\"%s\"}}", leftValue, getRegexByOp(op, rightValue)));
-                        }
+                        match.createOrUpdateJson("$[0].headers", leftValue, String.format("{\"regex\":\"%s\"}", getRegexByOp(op, rightValue)));
                         break;
                     case "Cookie":
-                        if (match.contain("$[0].headers")) {
-                            match.createOrUpdateJson("$[0].headers", "Cookie", String.format("{\"regex\":\".*(?:;|^)%s=%s(?:;|$).*\"}", leftValue, getRegexByOp(op, rightValue)));
-                        } else {
-                            match.createOrUpdateJson("$[0]", "headers", String.format("{\"Cookie\":{\"regex\":\".*(?:;|^)%s=%s(?:;|$).*\"}}", leftValue, getRegexByOp(op, rightValue)));
-                        }
+                        match.createOrUpdateJson("$[0].headers", "Cookie", String.format("{\"regex\":\".*(?:;|^)%s=%s(?:;|$).*\"}", leftValue, getRegexByOp(op, rightValue)));
                         break;
                     case "User-Agent":
-                        if (match.contain("$[0].headers")) {
-                            match.createOrUpdateJson("$[0].headers", "User-Agent", String.format("{\"regex\":\"%s\"}", getRegexByOp(op, rightValue)));
-                        } else {
-                            match.createOrUpdateJson("$[0]", "headers", String.format("{\"User-Agent\":{\"regex\":\"%s\"}}", getRegexByOp(op, rightValue)));
-                        }
+                        match.createOrUpdateJson("$[0].headers", "User-Agent", String.format("{\"regex\":\"%s\"}", getRegexByOp(op, rightValue)));
                         break;
                     case "URI":
-                        if (match.contain("$[0].headers")) {
-                            match.createOrUpdateJson("$[0].headers", ":path", String.format("{\"regex\":\"%s\"}", getRegexByOp(op, rightValue)));
-                        } else {
-                            match.createOrUpdateJson("$[0]", "headers", String.format("{\":path\":{\"regex\":\"%s\"}}", getRegexByOp(op, rightValue)));
-                        }
+                        match.createOrUpdateJson("$[0].headers", ":path", String.format("{\"regex\":\"%s\"}", getRegexByOp(op, rightValue)));
                         break;
                     case "Host":
-                        if (match.contain("$[0].headers")) {
-                            match.createOrUpdateJson("$[0].headers", ":authority", String.format("{\"regex\":\"%s\"}", getRegexByOp(op, rightValue)));
-                        } else {
-                            match.createOrUpdateJson("$[0]", "headers", String.format("{\":authority\":{\"regex\":\"%s\"}}", getRegexByOp(op, rightValue)));
-                        }
+                        match.createOrUpdateJson("$[0].headers", ":authority", String.format("{\"regex\":\"%s\"}", getRegexByOp(op, rightValue)));
                         break;
                     default:
                         throw new ApiPlaneException("Unsupported match : " + sourceType);
@@ -98,28 +79,18 @@ public abstract class AbstractSchemaProcessor implements SchemaProcessor<Service
             case "!=":
                 return String.format("((?!%s).)*", escapeExprSpecialWord(value));
             case "regex":
+            case "≈":
                 return escapeBackSlash(value);
             case "startsWith":
                 return String.format("%s.*", escapeExprSpecialWord(value));
             case "endsWith":
                 return String.format(".*%s", escapeExprSpecialWord(value));
             case "nonRegex":
+            case "!≈":
                 return String.format("((?!%s).)*", escapeBackSlash(value));
             default:
-                throw new ApiPlaneException("Unsupported op.");
+                throw new ApiPlaneException("Unsupported op :[" + op + "]");
         }
-    }
-
-    protected Integer getPort(List<Endpoint> endpoints, String targetHost) {
-        if (CollectionUtils.isEmpty(endpoints) || StringUtils.isBlank(targetHost)) {
-            throw new ApiPlaneException("Get port by targetHost fail. param cant be null.");
-        }
-        for (Endpoint endpoint : endpoints) {
-            if (targetHost.equals(endpoint.getHostname())) {
-                return endpoint.getPort();
-            }
-        }
-        throw new ApiPlaneException(String.format("Target endpoint %s does not exist", targetHost));
     }
 
     /**
@@ -152,5 +123,13 @@ public abstract class AbstractSchemaProcessor implements SchemaProcessor<Service
             keyword = keyword.replaceAll("\\\\", "\\\\\\\\");
         }
         return keyword;
+    }
+
+    protected String getXUserId(ResourceGenerator rg) {
+        return rg.getValue("$.x_user_id");
+    }
+
+    protected Integer getPriority(ResourceGenerator rg) {
+        return rg.getValue("$.priority", Integer.class);
     }
 }
