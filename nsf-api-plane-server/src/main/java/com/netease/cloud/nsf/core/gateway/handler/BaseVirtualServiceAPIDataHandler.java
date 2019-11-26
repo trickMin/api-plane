@@ -6,7 +6,6 @@ import com.netease.cloud.nsf.core.plugin.FragmentWrapper;
 import com.netease.cloud.nsf.core.template.TemplateParams;
 import com.netease.cloud.nsf.meta.API;
 import com.netease.cloud.nsf.meta.Endpoint;
-import com.netease.cloud.nsf.service.PluginService;
 import com.netease.cloud.nsf.util.CommonUtil;
 import com.netease.cloud.nsf.util.PriorityUtil;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
@@ -31,15 +30,15 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
     static final String defaultUserId = "qz-default-user";
 
     ModelProcessor subModelProcessor;
-    PluginService pluginService;
     List<FragmentWrapper> fragments;
     List<Endpoint> endpoints;
+    boolean simple;
 
-    public BaseVirtualServiceAPIDataHandler(ModelProcessor subModelProcessor, PluginService pluginService, List<FragmentWrapper> fragments, List<Endpoint> endpoints) {
+    public BaseVirtualServiceAPIDataHandler(ModelProcessor subModelProcessor, List<FragmentWrapper> fragments, List<Endpoint> endpoints, boolean simple) {
         this.subModelProcessor = subModelProcessor;
-        this.pluginService = pluginService;
         this.fragments = fragments;
         this.endpoints = endpoints;
+        this.simple = simple;
     }
 
     @Override
@@ -116,6 +115,8 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
     }
 
     String produceRoute(API api, List<Endpoint> endpoints, String subset) {
+
+        if (simple) return "";
         List<Map<String, Object>> destinations = new ArrayList<>();
         List<String> proxies = api.getProxyUris();
 

@@ -74,14 +74,15 @@ public class GatewayModelProcessorTest extends BaseTest {
         return api;
     }
 
-    private Service getService(String type, String backend, int weight, String code, String gateway, String protocol) {
+    private Service getService(String type, String backend, int weight, String code, String gateway, String protocol, String serviceTag) {
         Service s = new Service();
         s.setType(type);
         s.setBackendService(backend);
         s.setWeight(weight);
         s.setCode(code);
         s.setGateway(gateway);
-        s.setProtocol("https");
+        s.setProtocol(protocol);
+        s.setServiceTag(serviceTag);
         return s;
     }
 
@@ -133,11 +134,11 @@ public class GatewayModelProcessorTest extends BaseTest {
                 Collections.EMPTY_LIST, Collections.EMPTY_LIST);
 
         Service s1 = getService(Const.PROXY_SERVICE_TYPE_DYNAMIC, "a.default.svc.cluster.local",
-                33, "DYNAMIC_1", null, "https");
+                33, "DYNAMIC_1", null, "https", "asvc");
         Service s2 = getService(Const.PROXY_SERVICE_TYPE_STATIC, "www.baidu.com",
-                33, "STATIC_1", null, "https");
+                33, "STATIC_1", null, "https", "baidu");
         Service s3 = getService(Const.PROXY_SERVICE_TYPE_STATIC, "10.10.10.10:1024,10.10.10.9:1024",
-                34, "STATIC_2", null, "https");
+                34, "STATIC_2", null, "https","static1");
         api1.setProxyServices(Arrays.asList(s1, s2, s3));
 
         List<IstioResource> resources1 = processor.translate(api1);
@@ -187,7 +188,7 @@ public class GatewayModelProcessorTest extends BaseTest {
     @Test
     public void testTranslateService() {
 
-        Service service = getService(Const.PROXY_SERVICE_TYPE_DYNAMIC, "a.svc.cluster", 100, "a", "gw1", "http");
+        Service service = getService(Const.PROXY_SERVICE_TYPE_DYNAMIC, "a.svc.cluster", 100, "a", "gw1", "http", "asvc");
 
         List<IstioResource> istioResources = processor.translate(service);
 
@@ -196,7 +197,7 @@ public class GatewayModelProcessorTest extends BaseTest {
         DestinationRuleSpec spec = ds.getSpec();
         Assert.assertTrue(spec.getHost().equals(service.getBackendService()));
 
-        Service service1 = getService(Const.PROXY_SERVICE_TYPE_STATIC, "10.10.10.10:1024,10.10.10.9:1025", 100, "b", "gw2", "https");
+        Service service1 = getService(Const.PROXY_SERVICE_TYPE_STATIC, "10.10.10.10:1024,10.10.10.9:1025", 100, "b", "gw2", "https", "static-1");
 
         List<IstioResource> istioResources1 = processor.translate(service1);
         Assert.assertTrue(istioResources1.size() == 2);
@@ -204,6 +205,7 @@ public class GatewayModelProcessorTest extends BaseTest {
             if (ir.getKind().equals(K8sResourceEnum.DestinationRule.name())) {
                 DestinationRule ds1 = (DestinationRule) istioResources.get(0);
                 Assert.assertTrue(ds1.getSpec().getHost().equals(service.getBackendService()));
+                Assert.assertTrue(ds1.getSpec().getAltStatName().equals(service.getServiceTag()));
             } else if (ir.getKind().equals(K8sResourceEnum.ServiceEntry.name())) {
                 ServiceEntry se = (ServiceEntry) ir;
                 Assert.assertTrue(se.getSpec().getEndpoints().size() == 2);

@@ -74,16 +74,18 @@ public class GatewayModelOperator {
     private static final String pluginManager = "gateway/pluginManager";
     private static final String serviceServiceEntry = "gateway/service/serviceEntry";
 
+    public List<IstioResource> translate(API api) {
+        return translate(api, false);
+    }
     /**
      * 将api转换为istio对应的规则
-     *
      * @param api
+     * @param simple 是否为简单模式，部分字段不渲染，主要用于删除
      * @return
      */
-    public List<IstioResource> translate(API api) {
+    public List<IstioResource> translate(API api, boolean simple) {
 
         List<Endpoint> endpoints = resourceManager.getEndpointList();
-        if (CollectionUtils.isEmpty(endpoints)) throw new ApiPlaneException(ExceptionConst.ENDPOINT_LIST_EMPTY);
 
         List<IstioResource> resources = new ArrayList<>();
 
@@ -97,11 +99,11 @@ public class GatewayModelOperator {
         if (CollectionUtils.isEmpty(api.getProxyServices())) {
             //yx
             vsHandler = new YxVirtualServiceAPIDataHandler(
-                    defaultModelProcessor, pluginService, rawResourceContainer.getVirtualServices(), endpoints);
+                    defaultModelProcessor, rawResourceContainer.getVirtualServices(), endpoints, simple);
         } else {
             //gportal
             vsHandler = new PortalVirtualServiceAPIDataHandler(
-                    defaultModelProcessor, pluginService, rawResourceContainer.getVirtualServices(), endpoints);
+                    defaultModelProcessor, rawResourceContainer.getVirtualServices(), endpoints, simple);
         }
 
         List<String> rawVirtualServices = renderTwiceModelProcessor.process(apiVirtualService, api, vsHandler);
