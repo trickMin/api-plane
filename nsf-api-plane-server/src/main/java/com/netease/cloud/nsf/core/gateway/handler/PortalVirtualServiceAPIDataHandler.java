@@ -6,7 +6,6 @@ import com.netease.cloud.nsf.core.template.TemplateParams;
 import com.netease.cloud.nsf.meta.API;
 import com.netease.cloud.nsf.meta.Endpoint;
 import com.netease.cloud.nsf.meta.Service;
-import com.netease.cloud.nsf.service.PluginService;
 import com.netease.cloud.nsf.util.Const;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
@@ -23,13 +22,14 @@ import static com.netease.cloud.nsf.core.template.TemplateConst.VIRTUAL_SERVICE_
  **/
 public class PortalVirtualServiceAPIDataHandler extends BaseVirtualServiceAPIDataHandler {
 
-    public PortalVirtualServiceAPIDataHandler(ModelProcessor subModelProcessor, PluginService pluginService, List<FragmentWrapper> fragments, List<Endpoint> endpoints) {
-        super(subModelProcessor, pluginService, fragments, endpoints);
+    public PortalVirtualServiceAPIDataHandler(ModelProcessor subModelProcessor, List<FragmentWrapper> fragments, List<Endpoint> endpoints, boolean simple) {
+        super(subModelProcessor, fragments, endpoints, simple);
     }
 
     @Override
     String produceRoute(API api, List<Endpoint> endpoints, String subset) {
 
+        if (simple) return "";
         List<Map<String, Object>> destinations = new ArrayList<>();
 
         //only one gateway

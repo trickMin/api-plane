@@ -20,7 +20,7 @@ public class Trans {
     public static API yxAPI2API(YxAPIDTO yxApi) {
         API api = new API();
 
-        if (!CollectionUtils.isEmpty(api.getGateways())) {
+        if (!CollectionUtils.isEmpty(yxApi.getGateways())) {
             api.setGateways(yxApi.getGateways().stream()
                         .map(g -> g.toLowerCase())
                         .collect(Collectors.toList()));
