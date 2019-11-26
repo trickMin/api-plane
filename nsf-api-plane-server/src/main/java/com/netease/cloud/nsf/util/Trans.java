@@ -6,6 +6,7 @@ import com.netease.cloud.nsf.meta.*;
 import com.netease.cloud.nsf.meta.dto.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -19,9 +20,11 @@ public class Trans {
     public static API yxAPI2API(YxAPIDTO yxApi) {
         API api = new API();
 
-        api.setGateways(yxApi.getGateways().stream()
-                .map(g -> g.toLowerCase())
-                .collect(Collectors.toList()));
+        if (!CollectionUtils.isEmpty(yxApi.getGateways())) {
+            api.setGateways(yxApi.getGateways().stream()
+                        .map(g -> g.toLowerCase())
+                        .collect(Collectors.toList()));
+        }
         ApiOption option = yxApi.getOption();
         api.setUriMatch(UriMatch.get(yxApi.getUriMatch()));
         api.setRetries(option.getRetries());
@@ -61,8 +64,24 @@ public class Trans {
         s.setType(portalService.getType());
         s.setWeight(portalService.getWeight());
         s.setBackendService(portalService.getBackendService());
-        s.setGateway(portalService.getGateway().toLowerCase());
+        if (!StringUtils.isEmpty(portalService.getGateway())) {
+            s.setGateway(portalService.getGateway().toLowerCase());
+        }
         s.setProtocol(portalService.getProtocol());
+        s.setConsecutiveErrors(portalService.getConsecutiveErrors());
+        s.setBaseEjectionTime(portalService.getBaseEjectionTime());
+        s.setMaxEjectionPercent(portalService.getMaxEjectionPercent());
+        s.setServiceTag(portalService.getServiceTag());
+        if (portalService.getHealthCheck() != null) {
+            HealthCheckDTO healthCheck = portalService.getHealthCheck();
+            s.setPath(healthCheck.getPath());
+            s.setTimeout(healthCheck.getTimeout());
+            s.setExpectedStatuses(healthCheck.getExpectedStatuses());
+            s.setHealthyInterval(healthCheck.getHealthyInterval());
+            s.setHealthyThreshold(healthCheck.getHealthyThreshold());
+            s.setUnhealthyInterval(healthCheck.getUnhealthyInterval());
+            s.setUnhealthyThreshold(healthCheck.getUnhealthyThreshold());
+        }
         return s;
     }
 
