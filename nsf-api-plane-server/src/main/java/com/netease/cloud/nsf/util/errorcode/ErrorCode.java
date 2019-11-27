@@ -24,6 +24,9 @@ public class ErrorCode {
     private String enMessage;
     private int statusCode;
 
+    public ErrorCode() {
+    }
+
     public String getCode() {
         return code;
     }

@@ -5,10 +5,12 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.netease.cloud.nsf.cache.meta.PodDTO;
 import com.netease.cloud.nsf.cache.meta.WorkLoadDTO;
+import com.netease.cloud.nsf.configuration.ApiPlaneConfig;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.k8s.MultiClusterK8sClient;
 import com.netease.cloud.nsf.util.Const;
 import com.netease.cloud.nsf.util.RestTemplateClient;
+import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import io.fabric8.kubernetes.api.model.EndpointAddress;
 import io.fabric8.kubernetes.api.model.Endpoints;
 import io.fabric8.kubernetes.api.model.HasMetadata;
@@ -17,6 +19,7 @@ import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -40,6 +43,9 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
 
     @Autowired
     private RestTemplateClient restTemplateClient;
+
+    @Autowired
+    ApiPlaneConfig config;
 
 //    @Autowired
 //    @Qualifier("originalKubernetesClient")
@@ -326,17 +332,10 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         return result;
     }
 
-
-
-
-
-
-
-
-
     public class VersionUpdateListener implements ResourceUpdatedListener {
-        private static final String CREATE_VERSION_URL = "api/metadata?Version=2018-11-1&Action=CreateVersionForService" +
-                "ServiceName={serviceName}&ProjectId={projectId}&ServiceVersion={serviceVersion}";
+
+        private static final String CREATE_VERSION_URL = "/api/metadata?Version=2018-11-1&Action=CreateVersionForService";
+                //"&ServiceName={serviceName}&ProjectCode={projectId}&ServiceVersion={serviceVersion}&EnvName={envName}";
 
         @Override
         public void notify(ResourceUpdateEvent e) {
@@ -360,21 +359,34 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                 log.info("no service to update version");
                 return;
             }
-            String serviceName = serviceToUpdate.getMetadata().getNamespace() + "."
-                    + serviceToUpdate.getMetadata().getName();
+            String serviceName = serviceToUpdate.getMetadata().getName() + "."
+                    + serviceToUpdate.getMetadata().getNamespace();
 
             String projectId = serviceToUpdate.getMetadata().getLabels().get(Const.LABEL_NSF_PROJECT_ID);
             String version = obj.getMetadata().getLabels().get(Const.LABEL_NSF_VERSION);
-            updateVersion(serviceName, projectId, version);
+            String envName = obj.getMetadata().getLabels().get(Const.LABEL_NSF_ENV);
+            updateVersion(serviceName, projectId, version, envName);
 
         }
 
-        private void updateVersion(String serviceName, String projectId, String version) {
-            Map<String, Object> requestParam = new HashMap<>(4);
+        private void updateVersion(String serviceName, String projectId, String version, String envName) {
+            Map<String, String> requestParam = new HashMap<>(4);
             requestParam.put("serviceName", serviceName);
-            requestParam.put("projectId", projectId);
+            requestParam.put("projectCode", projectId);
             requestParam.put("serviceVersion", version);
-            K8sResourceCache.this.restTemplateClient.getForValue(CREATE_VERSION_URL, requestParam, Const.POST_METHOD, String.class);
+            requestParam.put("envName",envName);
+            String url = restTemplateClient.buildRequestUrlWithParameter(K8sResourceCache.this.config.getNsfMetaUrl()
+                    +CREATE_VERSION_URL,
+                    requestParam);
+            try {
+                K8sResourceCache.this.restTemplateClient.getForValue(url
+                        , requestParam
+                        , Const.GET_METHOD
+                        , String.class);
+            } catch (ApiPlaneException e) {
+                log.warn("create version error {}",e.getMessage());
+                return;
+            }
             log.info("create version [{}] for service [{}] in projectId [{}]", version, serviceName, projectId);
         }
 

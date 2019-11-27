@@ -41,6 +41,18 @@ public interface ResourceCache {
     List getAllWorkLoadByClusterId(String clusterId);
 
 
-
     List getWorkLoadByServiceInfoAllClusterId(String projectId, String namespace, String serviceName);
+
+    /**
+     *
+     * @param clusterId
+     * @param kind 资源类型
+     * @param namespace 名称空间
+     * @param name 资源名称
+     * @return 资源列表
+     */
+    Object getResource(String clusterId, String kind, String namespace, String name);
+
+
+
 }
