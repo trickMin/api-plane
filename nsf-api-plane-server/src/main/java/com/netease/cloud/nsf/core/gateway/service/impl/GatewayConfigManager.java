@@ -3,10 +3,10 @@ package com.netease.cloud.nsf.core.gateway.service.impl;
 import com.google.common.collect.ImmutableMap;
 import com.netease.cloud.nsf.core.gateway.GatewayModelOperator;
 import com.netease.cloud.nsf.core.gateway.service.ConfigManager;
+import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.meta.API;
 import com.netease.cloud.nsf.meta.PluginOrder;
 import com.netease.cloud.nsf.meta.Service;
-import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import me.snowdrop.istio.api.IstioResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,7 +61,7 @@ public class GatewayConfigManager implements ConfigManager {
 
     @Override
     public void deleteConfig(API api) {
-        List<IstioResource> resources = modelProcessor.translate(api);
+        List<IstioResource> resources = modelProcessor.translate(api, true);
 
         ImmutableMap<String, String> toBeDeletedMap = ImmutableMap
                 .of(K8sResourceEnum.VirtualService.name(), api.getName(),

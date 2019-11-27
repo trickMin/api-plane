@@ -16,7 +16,7 @@ public class PluginOrderDTO {
 
     @NotEmpty(message = "plugins")
     @JsonProperty(value = "Plugins")
-    private List<String> plugins;
+    private List<PluginOrderItemDTO> plugins;
 
     public Map<String, String> getGatewayLabels() {
         return gatewayLabels;
@@ -26,11 +26,11 @@ public class PluginOrderDTO {
         this.gatewayLabels = gatewayLabels;
     }
 
-    public List<String> getPlugins() {
+    public List<PluginOrderItemDTO> getPlugins() {
         return plugins;
     }
 
-    public void setPlugins(List<String> plugins) {
+    public void setPlugins(List<PluginOrderItemDTO> plugins) {
         this.plugins = plugins;
     }
 }
