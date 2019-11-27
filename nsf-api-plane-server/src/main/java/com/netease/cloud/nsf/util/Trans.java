@@ -46,7 +46,7 @@ public class Trans {
         BeanUtils.copyProperties(portalAPI, api);
         api.setUriMatch(UriMatch.get(portalAPI.getUriMatch()));
         api.setProxyServices(portalAPI.getProxyServices().stream()
-                .map(ps -> portalService2Service(ps))
+                .map(ps -> portalRouteService2Service(ps))
                 .collect(Collectors.toList()));
         api.setGateways(Arrays.asList(portalAPI.getGateway().toLowerCase()));
         api.setName(portalAPI.getCode());
@@ -55,6 +55,15 @@ public class Trans {
         api.setQueryParams(pairsDTO2Pairs(portalAPI.getQueryParams()));
         api.setPriority(portalAPI.getPriority());
         return api;
+    }
+
+    public static Service portalRouteService2Service(PortalRouteServiceDTO portalRouteService) {
+        Service s = new Service();
+        s.setCode(portalRouteService.getCode().toLowerCase());
+        s.setType(portalRouteService.getType());
+        s.setWeight(portalRouteService.getWeight());
+        s.setBackendService(portalRouteService.getBackendService());
+        return s;
     }
 
     public static Service portalService2Service(PortalServiceDTO portalService) {

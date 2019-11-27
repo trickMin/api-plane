@@ -54,7 +54,7 @@ public class PortalAPIDTO {
     @Valid
     @JsonProperty(value = "ProxyServices")
     @NotNull(message = "proxyServices")
-    private List<PortalServiceDTO> proxyServices;
+    private List<PortalRouteServiceDTO> proxyServices;
 
     /**
      * 插件
@@ -126,11 +126,11 @@ public class PortalAPIDTO {
         this.methods = methods;
     }
 
-    public List<PortalServiceDTO> getProxyServices() {
+    public List<PortalRouteServiceDTO> getProxyServices() {
         return proxyServices;
     }
 
-    public void setProxyServices(List<PortalServiceDTO> proxyServices) {
+    public void setProxyServices(List<PortalRouteServiceDTO> proxyServices) {
         this.proxyServices = proxyServices;
     }
 
