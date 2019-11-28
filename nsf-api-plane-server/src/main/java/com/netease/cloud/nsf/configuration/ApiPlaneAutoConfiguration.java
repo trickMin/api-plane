@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import com.google.common.collect.ImmutableList;
+import com.netease.cloud.nsf.util.freemarker.AutoRemoveDirective;
 import com.netease.cloud.nsf.util.freemarker.SupplyDirective;
 import com.netease.cloud.nsf.util.freemarker.IgnoreDirective;
 import com.netease.cloud.nsf.util.freemarker.IndentationDirective;
@@ -74,6 +75,8 @@ public class ApiPlaneAutoConfiguration {
         freemarkerConfig.setSharedVariable("indent", new IndentationDirective());
         freemarkerConfig.setSharedVariable("ignore", new IgnoreDirective());
         freemarkerConfig.setSharedVariable("supply", new SupplyDirective());
+        freemarkerConfig.setSharedVariable("autoremove", new AutoRemoveDirective());
+
     }
 
 }
