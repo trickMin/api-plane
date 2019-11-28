@@ -208,13 +208,16 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         List<WorkLoadDTO<T>> workLoadDtoList = new ArrayList<>();
         List<String> clusterIdList = ResourceStoreFactory.listClusterId();
         for (String clusterId : clusterIdList) {
-            workLoadDtoList.addAll(getWorkLoadByServiceInfo(projectId,namespace,serviceName,clusterId));
+            workLoadDtoList.addAll(getWorkLoadByServiceInfo(projectId, namespace, serviceName, clusterId));
         }
         return workLoadDtoList;
     }
 
     @Override
     public T getResource(String clusterId, String kind, String namespace, String name) {
+        if (!ResourceStoreFactory.listClusterId().contains(clusterId)){
+            throw new ApiPlaneException("ClusterId not found");
+        }
         return (T) ResourceStoreFactory.getResourceStore(clusterId).get(kind, namespace, name);
     }
 
@@ -225,7 +228,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     private List<T> doGetWorkLoadList(String clusterId, String namespace, String serviceName) {
         OwnerReferenceSupportStore store = ResourceStoreFactory.getResourceStore(clusterId);
         Endpoints endpointsByService = (Endpoints) store.get(Endpoint.name(), namespace, serviceName);
-        if (endpointsByService == null){
+        if (endpointsByService == null) {
             return new ArrayList<>();
         }
         //从endpoints信息中解析出关联的pod列表
@@ -257,11 +260,11 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     }
 
 
-    private List<MixedOperation> getDeployMixedOperationList(Map<String, MultiClusterK8sClient.ClientSet> cm){
+    private List<MixedOperation> getDeployMixedOperationList(Map<String, MultiClusterK8sClient.ClientSet> cm) {
         List<MixedOperation> result = new ArrayList<>();
-        cm.forEach((name,client)->{
+        cm.forEach((name, client) -> {
             if (!StringUtils.isEmpty(name)) {
-                result.add(new ClusterMixedOperation(name, (MixedOperation)client.originalK8sClient
+                result.add(new ClusterMixedOperation(name, (MixedOperation) client.originalK8sClient
                         .apps()
                         .deployments()
                         .inAnyNamespace()));
@@ -270,11 +273,11 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         return result;
     }
 
-    private List<MixedOperation> getStatefulSetMixedOperationList(Map<String, MultiClusterK8sClient.ClientSet> cm){
+    private List<MixedOperation> getStatefulSetMixedOperationList(Map<String, MultiClusterK8sClient.ClientSet> cm) {
         List<MixedOperation> result = new ArrayList<>();
-        cm.forEach((name,client)->{
+        cm.forEach((name, client) -> {
             if (!StringUtils.isEmpty(name)) {
-                result.add(new ClusterMixedOperation(name, (MixedOperation)client.originalK8sClient
+                result.add(new ClusterMixedOperation(name, (MixedOperation) client.originalK8sClient
                         .apps()
                         .statefulSets()
                         .inAnyNamespace()));
@@ -283,11 +286,11 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         return result;
     }
 
-    private List<MixedOperation> getPodMixedOperationList(Map<String, MultiClusterK8sClient.ClientSet> cm){
+    private List<MixedOperation> getPodMixedOperationList(Map<String, MultiClusterK8sClient.ClientSet> cm) {
         List<MixedOperation> result = new ArrayList<>();
-        cm.forEach((name,client)->{
+        cm.forEach((name, client) -> {
             if (!StringUtils.isEmpty(name)) {
-                result.add(new ClusterMixedOperation(name, (MixedOperation)client.originalK8sClient
+                result.add(new ClusterMixedOperation(name, (MixedOperation) client.originalK8sClient
                         .pods()
                         .inAnyNamespace()));
             }
@@ -295,11 +298,11 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         return result;
     }
 
-    private List<MixedOperation> getServiceMixedOperationList(Map<String, MultiClusterK8sClient.ClientSet> cm){
+    private List<MixedOperation> getServiceMixedOperationList(Map<String, MultiClusterK8sClient.ClientSet> cm) {
         List<MixedOperation> result = new ArrayList<>();
-        cm.forEach((name,client)->{
+        cm.forEach((name, client) -> {
             if (!StringUtils.isEmpty(name)) {
-                result.add(new ClusterMixedOperation(name, (MixedOperation)client.originalK8sClient
+                result.add(new ClusterMixedOperation(name, (MixedOperation) client.originalK8sClient
                         .services()
                         .inAnyNamespace()));
             }
@@ -307,11 +310,11 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         return result;
     }
 
-    private List<MixedOperation> getEndPointMixedOperationList(Map<String, MultiClusterK8sClient.ClientSet> cm){
+    private List<MixedOperation> getEndPointMixedOperationList(Map<String, MultiClusterK8sClient.ClientSet> cm) {
         List<MixedOperation> result = new ArrayList<>();
-        cm.forEach((name,client)->{
+        cm.forEach((name, client) -> {
             if (!StringUtils.isEmpty(name)) {
-                result.add(new ClusterMixedOperation(name, (MixedOperation)client.originalK8sClient
+                result.add(new ClusterMixedOperation(name, (MixedOperation) client.originalK8sClient
                         .endpoints()
                         .inAnyNamespace()));
             }
@@ -319,11 +322,11 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         return result;
     }
 
-    private List<MixedOperation> getReplicasSetMixedOperationList(Map<String, MultiClusterK8sClient.ClientSet> cm){
+    private List<MixedOperation> getReplicasSetMixedOperationList(Map<String, MultiClusterK8sClient.ClientSet> cm) {
         List<MixedOperation> result = new ArrayList<>();
-        cm.forEach((name,client)->{
+        cm.forEach((name, client) -> {
             if (!StringUtils.isEmpty(name)) {
-                result.add(new ClusterMixedOperation(name, (MixedOperation)client.originalK8sClient
+                result.add(new ClusterMixedOperation(name, (MixedOperation) client.originalK8sClient
                         .apps()
                         .replicaSets()
                         .inAnyNamespace()));
@@ -335,7 +338,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     public class VersionUpdateListener implements ResourceUpdatedListener {
 
         private static final String CREATE_VERSION_URL = "/api/metadata?Version=2018-11-1&Action=CreateVersionForService";
-                //"&ServiceName={serviceName}&ProjectCode={projectId}&ServiceVersion={serviceVersion}&EnvName={envName}";
+        //"&ServiceName={serviceName}&ProjectCode={projectId}&ServiceVersion={serviceVersion}&EnvName={envName}";
 
         @Override
         public void notify(ResourceUpdateEvent e) {
@@ -374,9 +377,9 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
             requestParam.put("serviceName", serviceName);
             requestParam.put("projectCode", projectId);
             requestParam.put("serviceVersion", version);
-            requestParam.put("envName",envName);
+            requestParam.put("envName", envName);
             String url = restTemplateClient.buildRequestUrlWithParameter(K8sResourceCache.this.config.getNsfMetaUrl()
-                    +CREATE_VERSION_URL,
+                            + CREATE_VERSION_URL,
                     requestParam);
             try {
                 K8sResourceCache.this.restTemplateClient.getForValue(url
@@ -384,7 +387,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                         , Const.GET_METHOD
                         , String.class);
             } catch (ApiPlaneException e) {
-                log.warn("create version error {}",e.getMessage());
+                log.warn("create version error {}", e.getMessage());
                 return;
             }
             log.info("create version [{}] for service [{}] in projectId [{}]", version, serviceName, projectId);
