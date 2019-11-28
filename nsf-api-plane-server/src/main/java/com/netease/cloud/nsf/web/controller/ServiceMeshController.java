@@ -1,12 +1,10 @@
 package com.netease.cloud.nsf.web.controller;
 
 import com.netease.cloud.nsf.service.ServiceMeshService;
+import com.netease.cloud.nsf.util.errorcode.ErrorCode;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * servicemesh产品化相关接口
@@ -29,6 +27,17 @@ public class ServiceMeshController extends BaseController {
     public String deleteConfig(@RequestBody String resource) {
         istioService.deleteIstioResource(StringEscapeUtils.unescapeJava(resource));
         return apiReturn(SUCCESS, "Success", null, null);
+    }
+
+    @RequestMapping(params = {"Action=InjectSidecar"}, method = RequestMethod.GET)
+    public String injectSidecar(@RequestParam(name = "Name") String name,
+                                @RequestParam(name = "Namespace") String namespace,
+                                @RequestParam(name = "ServiceVersion") String version,
+                                @RequestParam(name = "Kind") String kind,
+                                @RequestParam(name = "ClusterId") String clusterId) {
+
+        ErrorCode code = istioService.sidecarInject(clusterId, kind, namespace, name, version);
+        return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), null);
     }
 
 }

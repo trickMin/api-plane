@@ -1,8 +1,10 @@
 package com.netease.cloud.nsf;
 
+import com.netease.cloud.nsf.configuration.YamlPropertyLoaderFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.PropertySource;
 
@@ -11,7 +13,8 @@ import org.springframework.context.annotation.PropertySource;
  **/
 
 @SpringBootApplication
-@PropertySource("classpath:k8s.properties")
+@PropertySource(value = "classpath:k8s.yaml", factory = YamlPropertyLoaderFactory.class)
+@EnableConfigurationProperties
 public class ApiPlaneApplication extends SpringBootServletInitializer {
 
     public static void main(String[] args) {

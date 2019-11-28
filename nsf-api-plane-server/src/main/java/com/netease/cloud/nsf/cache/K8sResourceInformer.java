@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 /**
  * @author zhangzihao
@@ -36,14 +37,12 @@ public class K8sResourceInformer<T extends HasMetadata> implements Informer {
     private EventHandler<HasMetadata> handler;
     private List<ResourceFilter> includeFilter;
     private List<ResourceFilter> excludeFilter;
-    private MixedOperation mixedOperation;
-    private K8sHttpClient httpClient;
+    private List<MixedOperation> mixedOperationList;
 
 
     private ArrayBlockingQueue<ResourceUpdateEvent> eventQueue = new ArrayBlockingQueue<>(EVENT_QUEUE_SIZE, false);
 
-    private ExecutorService eventProcessor = Executors.newFixedThreadPool(2);
-    private String DEFAULT_CLUSTER = "default_cluster";
+    private ExecutorService eventProcessor = Executors.newCachedThreadPool();
 
 
     public static class Builder {
@@ -51,7 +50,7 @@ public class K8sResourceInformer<T extends HasMetadata> implements Informer {
         private K8sResourceEnum resourceKind;
         private List<ResourceFilter> includeFilter = new LinkedList<>();
         private List<ResourceFilter> excludeFilter = new LinkedList<>();
-        private MixedOperation mixedOperation;
+        private List<MixedOperation> mixedOperation;
         private K8sHttpClient httpClient;
 
         public Builder addUpdateListener(ResourceUpdatedListener listener) {
@@ -84,8 +83,8 @@ public class K8sResourceInformer<T extends HasMetadata> implements Informer {
             return this;
         }
 
-        public Builder addMixedOperation(MixedOperation mp) {
-            this.mixedOperation = (MixedOperation) mp.inAnyNamespace();
+        public Builder addMixedOperation(List<MixedOperation> mpList) {
+            this.mixedOperation = mpList;
             return this;
         }
 
@@ -100,8 +99,7 @@ public class K8sResourceInformer<T extends HasMetadata> implements Informer {
             informer.handler = this.handler;
             informer.includeFilter = this.includeFilter;
             informer.excludeFilter = this.excludeFilter;
-            informer.mixedOperation = this.mixedOperation;
-            informer.httpClient = this.httpClient;
+            informer.mixedOperationList = this.mixedOperation;
             return informer;
         }
 
@@ -135,21 +133,21 @@ public class K8sResourceInformer<T extends HasMetadata> implements Informer {
                 log.error("Get resource update event from queue error", e);
             }
         });
-        eventProcessor.execute(() -> {
-            mixedOperation.watch(new Watcher<T>() {
-                @Override
-                public void eventReceived(Action action, T t) {
-                    addEvent(t,action.name(),DEFAULT_CLUSTER);
-                }
+        for (MixedOperation mixedOperation : mixedOperationList) {
+            eventProcessor.execute(() -> {
+                mixedOperation.watch(new Watcher<T>() {
+                    @Override
+                    public void eventReceived(Action action, T t) {
+                        addEvent(t, action.name(), ((ClusterMixedOperation)mixedOperation).getClusterId());
+                    }
+                    @Override
+                    public void onClose(KubernetesClientException e) {
 
-                @Override
-                public void onClose(KubernetesClientException e) {
-
-                }
+                    }
+                });
             });
 
-        });
-
+        }
     }
 
 
