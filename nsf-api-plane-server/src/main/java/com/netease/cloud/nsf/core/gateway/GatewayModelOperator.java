@@ -76,6 +76,8 @@ public class GatewayModelOperator {
 
     private static final String serviceServiceEntry = "gateway/service/serviceEntry";
 
+    private static final String versionManager = "sidecarVersionManagement";
+
     /**
      * 将api转换为istio对应的规则
      *
@@ -140,6 +142,14 @@ public class GatewayModelOperator {
         List<String> pluginManagers = defaultModelProcessor.process(pluginManager, po, new PluginOrderDataHandler());
         pluginManagers.stream()
                 .forEach(ds -> resources.add(str2IstioResource(ds)));
+        return resources;
+    }
+
+    public List<IstioResource> translate(SidecarVersionManagement svm) {
+
+        List<IstioResource> resources = new ArrayList<>();
+        List<String> versionManagers = defaultModelProcessor.process(versionManager, svm, new VersionManagersDataHandler());
+        resources.add(str2IstioResource(versionManagers.get(0)));
         return resources;
     }
 

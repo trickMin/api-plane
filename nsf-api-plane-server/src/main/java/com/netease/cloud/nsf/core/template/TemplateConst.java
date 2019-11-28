@@ -121,6 +121,11 @@ public interface TemplateConst {
     String PLUGIN_MANAGER_WORKLOAD_LABELS = "t_plugin_manager_workload_labels";
     String PLUGIN_MANAGER_PLUGINS = "t_plugin_manager_plugins";
 
+    /**
+     * VersionManager
+     **/
+    String VERSION_MANAGER_WORKLOADS = "t_version_manager_workloads";
+
     /** ---------- 模板占位符名 end ---------- **/
 
 }

@@ -3,11 +3,14 @@ package com.netease.cloud.nsf.core.gateway.service.impl;
 import com.google.common.collect.ImmutableMap;
 import com.netease.cloud.nsf.core.gateway.GatewayModelOperator;
 import com.netease.cloud.nsf.core.gateway.service.ConfigManager;
-import com.netease.cloud.nsf.meta.API;
-import com.netease.cloud.nsf.meta.PluginOrder;
-import com.netease.cloud.nsf.meta.Service;
+import com.netease.cloud.nsf.core.istio.operator.IstioResourceOperator;
+import com.netease.cloud.nsf.core.istio.operator.VersionManagerOperator;
+import com.netease.cloud.nsf.meta.*;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
+import com.netease.cloud.nsf.util.exception.ApiPlaneException;
+import com.netease.cloud.nsf.util.exception.ExceptionConst;
 import me.snowdrop.istio.api.IstioResource;
+import me.snowdrop.istio.api.networking.v1alpha3.VersionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,11 +30,16 @@ public class GatewayConfigManager implements ConfigManager {
 
     private static final Logger logger = LoggerFactory.getLogger(GatewayConfigManager.class);
 
+    private static final String VM_RESOURCE_NAME = "version-manager";
+
     @Autowired
     private GatewayModelOperator modelProcessor;
 
     @Autowired
     private K8sConfigStore configStore;
+
+    @Autowired
+    private List<IstioResourceOperator> operators;
 
     @Override
     public void updateConfig(API api) {
@@ -91,6 +99,19 @@ public class GatewayConfigManager implements ConfigManager {
         delete(resources, clearResource());
     }
 
+    @Override
+    public void updateConfig(SidecarVersionManagement svm) {
+        List<IstioResource> resources = modelProcessor.translate(svm);
+        update(resources);
+    }
+
+    @Override
+    public List<PodStatus> querySVMConfig(PodVersion podVersion) {
+        IstioResource versionmanager = configStore.get( K8sResourceEnum.VersionManager.name(), podVersion.getNamespace(), VM_RESOURCE_NAME);
+        VersionManagerOperator ir = (VersionManagerOperator)resolve(versionmanager);
+        return ir.getPodVersion(podVersion, (VersionManager)versionmanager);
+    }
+
     private void delete(List<IstioResource> resources, Function<IstioResource, IstioResource> fun) {
         if (CollectionUtils.isEmpty(resources)) return;
         List<IstioResource> existResources = new ArrayList<>();
@@ -120,5 +141,14 @@ public class GatewayConfigManager implements ConfigManager {
             resource.setApiVersion(null);
             return resource;
         };
+    }
+
+    private IstioResourceOperator resolve(IstioResource i) {
+        for (IstioResourceOperator op : operators) {
+            if (op.adapt(i.getKind())) {
+                return op;
+            }
+        }
+        throw new ApiPlaneException(ExceptionConst.UNSUPPORTED_RESOURCE_TYPE + ":" + i.getKind());
     }
 }

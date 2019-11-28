@@ -1,7 +1,9 @@
 package com.netease.cloud.nsf.service;
 
-import com.netease.cloud.nsf.meta.Endpoint;
 import com.netease.cloud.nsf.meta.Gateway;
+import com.netease.cloud.nsf.meta.PodVersion;
+import com.netease.cloud.nsf.meta.PodStatus;
+import com.netease.cloud.nsf.meta.SidecarVersionManagement;
 import com.netease.cloud.nsf.meta.dto.PluginOrderDTO;
 import com.netease.cloud.nsf.meta.dto.PortalAPIDTO;
 import com.netease.cloud.nsf.meta.dto.PortalServiceDTO;
@@ -34,4 +36,7 @@ public interface GatewayService {
 
     List<Gateway> getGatewayList();
 
+    void updateSVM(SidecarVersionManagement svm);
+
+    List<PodStatus> queryByPodNameList(PodVersion podVersion);
 }
