@@ -1,6 +1,7 @@
 package com.netease.cloud.nsf.util.advice;
 
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.jayway.jsonpath.InvalidJsonException;
 import com.jayway.jsonpath.JsonPathException;
@@ -50,6 +51,13 @@ public class CommonExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> handleException(Exception exception) {
         return newResponse(exception.getMessage(), "Internal Exception", 500, exception);
     }
+
+
+    @ExceptionHandler(value = JsonParseException.class)
+    public ResponseEntity<Object> JSONExceptionExceptionHandler(JsonParseException ex) {
+        return newResponse(ExceptionHandlerErrorCode.InvalidBodyFormat, ex);
+    }
+
 
     @ExceptionHandler(JsonPathException.class)
     public ResponseEntity<Object> handleJsonPathException(Exception exception) {

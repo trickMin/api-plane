@@ -100,6 +100,8 @@ public interface TemplateConst {
     String DESTINATION_RULE_UNHEALTHY_INTERVAL = "t_destination_rule_unhealthy_interval";
     String DESTINATION_RULE_UNHEALTHY_THRESHOLD = "t_destination_rule_unhealthy_threshold";
     String DESTINATION_RULE_ALT_STAT_NAME = "t_destination_rule_alt_stat_name";
+    String DESTINATION_RULE_LOAD_BALANCER = "t_destination_rule_load_balancer";
+
 
     String API_GATEWAYS = "t_api_gateways";
 

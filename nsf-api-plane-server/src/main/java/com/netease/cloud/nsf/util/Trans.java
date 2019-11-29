@@ -91,6 +91,7 @@ public class Trans {
             s.setUnhealthyInterval(healthCheck.getUnhealthyInterval());
             s.setUnhealthyThreshold(healthCheck.getUnhealthyThreshold());
         }
+        s.setLoadBalancer(portalService.getLoadBalancer());
         return s;
     }
 
