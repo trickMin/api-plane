@@ -112,6 +112,9 @@ public class GatewayConfigManager implements ConfigManager {
     @Override
     public List<PodStatus> querySVMConfig(PodVersion podVersion) {
         IstioResource versionmanager = configStore.get( K8sResourceEnum.VersionManager.name(), podVersion.getNamespace(), VM_RESOURCE_NAME);
+        if(versionmanager == null) {
+            return null;
+        }
         VersionManagerOperator ir = (VersionManagerOperator)resolve(versionmanager);
         return ir.getPodVersion(podVersion, (VersionManager)versionmanager);
     }
