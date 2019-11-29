@@ -44,6 +44,8 @@ public class IndentationDirective implements TemplateDirectiveModel {
         body.render(writer);
         final String string = writer.toString();
 
+        if (StringUtils.isEmpty(string)) return;
+
         final String lineFeed = string.contains("\n") ? "\n" : "";
         final String[] tokens = string.split(lineFeed);
 

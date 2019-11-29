@@ -1,7 +1,7 @@
 package com.netease.cloud.nsf.service;
 
-import com.netease.cloud.nsf.meta.Endpoint;
 import com.netease.cloud.nsf.meta.Gateway;
+import com.netease.cloud.nsf.meta.ServiceHealth;
 import com.netease.cloud.nsf.meta.dto.PluginOrderDTO;
 import com.netease.cloud.nsf.meta.dto.PortalAPIDTO;
 import com.netease.cloud.nsf.meta.dto.PortalServiceDTO;
@@ -33,5 +33,7 @@ public interface GatewayService {
     List<String> getServiceList();
 
     List<Gateway> getGatewayList();
+
+    List<ServiceHealth> getServiceHealthList();
 
 }

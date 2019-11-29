@@ -2,16 +2,14 @@ package com.netease.cloud.nsf.service.impl;
 
 import com.netease.cloud.nsf.core.gateway.service.ConfigManager;
 import com.netease.cloud.nsf.core.gateway.service.ResourceManager;
-import com.netease.cloud.nsf.meta.Endpoint;
 import com.netease.cloud.nsf.meta.Gateway;
 import com.netease.cloud.nsf.meta.PluginOrder;
+import com.netease.cloud.nsf.meta.ServiceHealth;
 import com.netease.cloud.nsf.meta.dto.PluginOrderDTO;
 import com.netease.cloud.nsf.meta.dto.PortalAPIDTO;
 import com.netease.cloud.nsf.meta.dto.PortalServiceDTO;
 import com.netease.cloud.nsf.meta.dto.YxAPIDTO;
 import com.netease.cloud.nsf.service.GatewayService;
-import com.netease.cloud.nsf.util.CommonUtil;
-import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.util.Trans;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -84,5 +82,11 @@ public class GatewayServiceImpl implements GatewayService {
     public List<Gateway> getGatewayList() {
         return resourceManager.getGatewayList();
     }
+
+    @Override
+    public List<ServiceHealth> getServiceHealthList() {
+        return resourceManager.getServiceHealthList();
+    }
+
 
 }
