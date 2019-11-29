@@ -38,6 +38,9 @@ public class YxVersionManagerController extends BaseController {
     public String queryByPodNameList(@RequestBody @Valid PodVersion podVersion) {
 
         List<PodStatus> list =  gatewayService.queryByPodNameList(podVersion);
+        if (list == null) {
+            return apiReturn(ApiPlaneErrorCode.resourceNotFound);
+        }
         Map<String, Object> result = new HashMap<>();
         result.put("Result", list);
         return apiReturn(SUCCESS, "Success", null, result);
