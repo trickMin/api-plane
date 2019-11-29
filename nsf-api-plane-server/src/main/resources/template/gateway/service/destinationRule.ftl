@@ -5,6 +5,6 @@ metadata:
 spec:
   host: ${t_destination_rule_host}
   altStatName: ${t_destination_rule_alt_stat_name}
-<@autoremove><@indent count=2><#include "destinationRule_trafficPolicy.ftl"/></@indent></@autoremove>
+<@indent count=2><@autoremove><#include "destinationRule_trafficPolicy.ftl"/></@autoremove></@indent>
   subsets:
   - name: ${t_api_service}-${t_api_gateway}

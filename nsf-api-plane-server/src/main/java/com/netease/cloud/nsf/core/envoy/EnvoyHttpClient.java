@@ -35,7 +35,7 @@ public class EnvoyHttpClient {
     @Value(value = "${gatewayNamespace:gateway-system}")
     private String gatewayNamespace;
 
-    @Value(value = "${gatewayNamespace:gateway-proxy}")
+    @Value(value = "${gatewayName:gateway-proxy}")
     private String gatewayName;
 
     private static final String GET_CLUSTER_HEALTH_JSON = "/clusters?format=json";
