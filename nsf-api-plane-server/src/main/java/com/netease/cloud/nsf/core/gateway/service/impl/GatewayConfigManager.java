@@ -9,6 +9,10 @@ import com.netease.cloud.nsf.meta.*;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
+import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
+import com.netease.cloud.nsf.meta.API;
+import com.netease.cloud.nsf.meta.PluginOrder;
+import com.netease.cloud.nsf.meta.Service;
 import me.snowdrop.istio.api.IstioResource;
 import me.snowdrop.istio.api.networking.v1alpha3.VersionManager;
 import org.slf4j.Logger;
@@ -69,7 +73,7 @@ public class GatewayConfigManager implements ConfigManager {
 
     @Override
     public void deleteConfig(API api) {
-        List<IstioResource> resources = modelProcessor.translate(api);
+        List<IstioResource> resources = modelProcessor.translate(api, true);
 
         ImmutableMap<String, String> toBeDeletedMap = ImmutableMap
                 .of(K8sResourceEnum.VirtualService.name(), api.getName(),

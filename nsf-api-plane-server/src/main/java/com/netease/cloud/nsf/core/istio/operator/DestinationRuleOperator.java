@@ -30,6 +30,9 @@ public class DestinationRuleOperator implements IstioResourceOperator<Destinatio
         DestinationRule latest = new DestinationRuleBuilder(old).build();
         DestinationRuleSpec latestSpec = latest.getSpec();
 
+        latestSpec.setAltStatName(freshSpec.getAltStatName());
+        latestSpec.setHost(freshSpec.getHost());
+        latestSpec.setTrafficPolicy(freshSpec.getTrafficPolicy());
         latestSpec.setSubsets(mergeList(oldSpec.getSubsets(), freshSpec.getSubsets(), new SubsetEquals()));
         return latest;
     }

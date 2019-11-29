@@ -89,8 +89,20 @@ public interface TemplateConst {
 
     String DESTINATION_RULE_NAME = "t_destination_rule_name";
     String DESTINATION_RULE_HOST = "t_destination_rule_host";
+    String DESTINATION_RULE_CONSECUTIVE_ERRORS = "t_destination_rule_consecutive_errors";
+    String DESTINATION_RULE_BASE_EJECTION_TIME = "t_destination_rule_base_ejection_time";
+    String DESTINATION_RULE_MAX_EJECTION_PERCENT = "t_destination_rule_max_ejection_percent";
+    String DESTINATION_RULE_PATH = "t_destination_rule_path";
+    String DESTINATION_RULE_TIMEOUT = "t_destination_rule_timeout";
+    String DESTINATION_RULE_EXPECTED_STATUSES = "t_destination_rule_expected_statuses";
+    String DESTINATION_RULE_HEALTHY_INTERVAL = "t_destination_rule_healthy_interval";
+    String DESTINATION_RULE_HEALTHY_THRESHOLD = "t_destination_rule_healthy_threshold";
+    String DESTINATION_RULE_UNHEALTHY_INTERVAL = "t_destination_rule_unhealthy_interval";
+    String DESTINATION_RULE_UNHEALTHY_THRESHOLD = "t_destination_rule_unhealthy_threshold";
+    String DESTINATION_RULE_ALT_STAT_NAME = "t_destination_rule_alt_stat_name";
 
     String API_GATEWAYS = "t_api_gateways";
+
 
 
     /**

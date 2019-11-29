@@ -1,9 +1,12 @@
 package com.netease.cloud.nsf.util;
 
+import com.netease.cloud.nsf.core.editor.ResourceGenerator;
+import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.meta.*;
 import com.netease.cloud.nsf.meta.dto.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -17,9 +20,11 @@ public class Trans {
     public static API yxAPI2API(YxAPIDTO yxApi) {
         API api = new API();
 
-        api.setGateways(yxApi.getGateways().stream()
-                            .map(g -> g.toLowerCase())
-                            .collect(Collectors.toList()));
+        if (!CollectionUtils.isEmpty(yxApi.getGateways())) {
+            api.setGateways(yxApi.getGateways().stream()
+                        .map(g -> g.toLowerCase())
+                        .collect(Collectors.toList()));
+        }
         ApiOption option = yxApi.getOption();
         api.setUriMatch(UriMatch.get(yxApi.getUriMatch()));
         api.setRetries(option.getRetries());
@@ -41,8 +46,8 @@ public class Trans {
         BeanUtils.copyProperties(portalAPI, api);
         api.setUriMatch(UriMatch.get(portalAPI.getUriMatch()));
         api.setProxyServices(portalAPI.getProxyServices().stream()
-                                .map(ps -> portalService2Service(ps))
-                                .collect(Collectors.toList()));
+                .map(ps -> portalRouteService2Service(ps))
+                .collect(Collectors.toList()));
         api.setGateways(Arrays.asList(portalAPI.getGateway().toLowerCase()));
         api.setName(portalAPI.getCode());
 
@@ -52,6 +57,15 @@ public class Trans {
         return api;
     }
 
+    public static Service portalRouteService2Service(PortalRouteServiceDTO portalRouteService) {
+        Service s = new Service();
+        s.setCode(portalRouteService.getCode().toLowerCase());
+        s.setType(portalRouteService.getType());
+        s.setWeight(portalRouteService.getWeight());
+        s.setBackendService(portalRouteService.getBackendService());
+        return s;
+    }
+
     public static Service portalService2Service(PortalServiceDTO portalService) {
 
         Service s = new Service();
@@ -59,8 +73,24 @@ public class Trans {
         s.setType(portalService.getType());
         s.setWeight(portalService.getWeight());
         s.setBackendService(portalService.getBackendService());
-        s.setGateway(portalService.getGateway().toLowerCase());
+        if (!StringUtils.isEmpty(portalService.getGateway())) {
+            s.setGateway(portalService.getGateway().toLowerCase());
+        }
         s.setProtocol(portalService.getProtocol());
+        s.setConsecutiveErrors(portalService.getConsecutiveErrors());
+        s.setBaseEjectionTime(portalService.getBaseEjectionTime());
+        s.setMaxEjectionPercent(portalService.getMaxEjectionPercent());
+        s.setServiceTag(portalService.getServiceTag());
+        if (portalService.getHealthCheck() != null) {
+            HealthCheckDTO healthCheck = portalService.getHealthCheck();
+            s.setPath(healthCheck.getPath());
+            s.setTimeout(healthCheck.getTimeout());
+            s.setExpectedStatuses(healthCheck.getExpectedStatuses());
+            s.setHealthyInterval(healthCheck.getHealthyInterval());
+            s.setHealthyThreshold(healthCheck.getHealthyThreshold());
+            s.setUnhealthyInterval(healthCheck.getUnhealthyInterval());
+            s.setUnhealthyThreshold(healthCheck.getUnhealthyThreshold());
+        }
         return s;
     }
 
@@ -68,15 +98,21 @@ public class Trans {
 
         PluginOrder po = new PluginOrder();
         po.setGatewayLabels(pluginOrderDTO.getGatewayLabels());
-        po.setPlugins(pluginOrderDTO.getPlugins());
+        List<String> orderItems = new ArrayList<>();
+        for (PluginOrderItemDTO dto : pluginOrderDTO.getPlugins()) {
+            if (Objects.nonNull(dto)) {
+                orderItems.add(ResourceGenerator.newInstance(dto, ResourceType.OBJECT).yamlString());
+            }
+        }
+        po.setPlugins(orderItems);
         return po;
     }
 
     private static List<PairMatch> pairsDTO2Pairs(List<PairMatchDTO> pairMatchDTOS) {
         if (CollectionUtils.isEmpty(pairMatchDTOS)) return Collections.emptyList();
         return pairMatchDTOS.stream()
-                        .map(dto -> pairDTO2Pair(dto))
-                        .collect(Collectors.toList());
+                .map(dto -> pairDTO2Pair(dto))
+                .collect(Collectors.toList());
     }
 
     private static PairMatch pairDTO2Pair(PairMatchDTO pairMatchDTO) {

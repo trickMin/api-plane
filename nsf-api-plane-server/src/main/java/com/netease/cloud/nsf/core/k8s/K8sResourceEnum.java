@@ -36,6 +36,7 @@ public enum K8sResourceEnum {
     StatefulSet(StatefulSet.class, StatefulSetList.class, "/apis/apps/v1/namespaces/%s/statefulsets/"),
     ReplicaSet(ReplicaSet.class, ReplicaSetList.class, "/apis/extensions/v1beta1/namespaces/%s/replicasets/"),
     VersionManager(VersionManager.class, VersionManagerList.class, "/apis/networking.istio.io/v1alpha3/namespaces/%s/versionmanagers"),
+    NameSpace(Namespace.class, NamespaceList.class, "/api/v1/namespaces/%s"),
     ;
 
     private Class<? extends HasMetadata> mappingType;

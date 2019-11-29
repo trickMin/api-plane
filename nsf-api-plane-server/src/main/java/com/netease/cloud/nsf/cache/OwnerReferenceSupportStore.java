@@ -2,13 +2,13 @@ package com.netease.cloud.nsf.cache;
 
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.OwnerReference;
-import io.fabric8.kubernetes.api.model.apps.StatefulSet;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.netease.cloud.nsf.core.k8s.K8sResourceEnum.*;
+import static com.netease.cloud.nsf.core.k8s.K8sResourceEnum.Deployment;
+import static com.netease.cloud.nsf.core.k8s.K8sResourceEnum.StatefulSet;
 
 
 /**

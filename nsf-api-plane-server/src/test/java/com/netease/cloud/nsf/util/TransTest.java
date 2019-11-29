@@ -6,10 +6,7 @@ import com.netease.cloud.nsf.meta.API;
 import com.netease.cloud.nsf.meta.ApiOption;
 import com.netease.cloud.nsf.meta.PairMatch;
 import com.netease.cloud.nsf.meta.Service;
-import com.netease.cloud.nsf.meta.dto.PairMatchDTO;
-import com.netease.cloud.nsf.meta.dto.PortalAPIDTO;
-import com.netease.cloud.nsf.meta.dto.PortalServiceDTO;
-import com.netease.cloud.nsf.meta.dto.YxAPIDTO;
+import com.netease.cloud.nsf.meta.dto.*;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -56,7 +53,7 @@ public class TransTest {
         List<String> methods = ImmutableList.of("GET", "POST");
         String code = "api";
         List<String> plugins = ImmutableList.of("p1", "p2");
-        List<PortalServiceDTO> services = ImmutableList.of(getPortalServiceDTO("/a", "code1", gateway, "dynamic", 100));
+        List<PortalRouteServiceDTO> services = ImmutableList.of(getPortalRouteServiceDTO("/a", "code1", "dynamic", 100));
         List<String> requestUris = ImmutableList.of("/a", "/b");
         String uriMatch = "prefix";
         List<PairMatchDTO> headers = ImmutableList.of(getPairMatch("k1", "v1", "exact"), getPairMatch("k2", "v2", "regex"));
@@ -100,17 +97,16 @@ public class TransTest {
 
     }
 
-    private boolean equalService(List<Service> services, List<PortalServiceDTO> serviceDTOS) {
+    private boolean equalService(List<Service> services, List<PortalRouteServiceDTO> serviceDTOS) {
 
         if (services.size() != serviceDTOS.size()) return false;
 
         for (int i = 0; i < services.size(); i++) {
             Service service = services.get(i);
-            PortalServiceDTO serviceDTO = serviceDTOS.get(i);
+            PortalRouteServiceDTO serviceDTO = serviceDTOS.get(i);
             if (!service.getType().equals(serviceDTO.getType()) ||
                     !service.getBackendService().equals(serviceDTO.getBackendService()) ||
                     !service.getCode().equals(serviceDTO.getCode()) ||
-                    !service.getGateway().equals(serviceDTO.getGateway()) ||
                     !service.getWeight().equals(serviceDTO.getWeight())) {
                 return false;
             }
@@ -136,7 +132,7 @@ public class TransTest {
     }
 
     private PortalAPIDTO getPortalAPIDTO(String gateway, List<String> hosts, List<String> methods, String code,
-                                         List<String> plugins, List<PortalServiceDTO> services, List<String> requestUris,
+                                         List<String> plugins, List<PortalRouteServiceDTO> services, List<String> requestUris,
                                          String uriMatch, List<PairMatchDTO> headers, List<PairMatchDTO> queryParams) {
 
         PortalAPIDTO dto = new PortalAPIDTO();
@@ -176,6 +172,15 @@ public class TransTest {
         dto.setBackendService(service);
         dto.setCode(code);
         dto.setGateway(gateway);
+        dto.setType(type);
+        dto.setWeight(weight);
+        return dto;
+    }
+
+    private PortalRouteServiceDTO getPortalRouteServiceDTO(String service, String code, String type, int weight) {
+        PortalRouteServiceDTO dto = new PortalRouteServiceDTO();
+        dto.setBackendService(service);
+        dto.setCode(code);
         dto.setType(type);
         dto.setWeight(weight);
         return dto;
