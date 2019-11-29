@@ -47,9 +47,8 @@ public class AutoRemoveDirective implements TemplateDirectiveModel {
         for (String token : tokens) {
             // has value
             if (!token.trim().endsWith(":") && !token.trim().equals("")) hasValue = true;
-            sb.append(token + lineFeed);
         }
 
-        if (hasValue) env.getOut().write(sb.toString());
+        if (hasValue) env.getOut().write(string);
     }
 }
