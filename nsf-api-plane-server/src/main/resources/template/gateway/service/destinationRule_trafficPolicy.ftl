@@ -36,6 +36,6 @@ trafficPolicy:
     expectedStatuses:
     <#list t_destination_rule_expected_statuses as s>
     - start: ${s}
-      end: ${s}
+      end: ${s+1}
     </#list>
 </#if>
