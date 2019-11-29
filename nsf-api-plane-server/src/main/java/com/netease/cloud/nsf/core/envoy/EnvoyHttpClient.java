@@ -43,12 +43,12 @@ public class EnvoyHttpClient {
     private static final String SUBSET_PATTERN = ".+\\|\\d+\\|\\d+\\|.*";
 
     private String getEnvoyUrl() {
-
+        //envoy service暂时未暴露管理端口，直接拿pod ip
         List<Pod> envoyPods = client.getObjectList(K8sResourceEnum.Pod.name(), gatewayNamespace, ImmutableMap.of("app", gatewayName));
         if (CollectionUtils.isEmpty(envoyPods)) throw new ApiPlaneException(ExceptionConst.ENVOY_POD_NON_EXIST);
         Optional<String> healthPod = envoyPods.stream()
                 .filter(e -> e.getStatus().getPhase().equals("Running"))
-                .map(e -> e.getStatus().getPodIP())
+                .map(e -> "http://" + e.getStatus().getPodIP())
                 .findFirst();
         if (!healthPod.isPresent()) throw new ApiPlaneException(ExceptionConst.ENVOY_POD_NON_EXIST);
         //fixed port
