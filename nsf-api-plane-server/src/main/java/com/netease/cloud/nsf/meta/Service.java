@@ -90,6 +90,11 @@ public class Service extends CommonModel {
      */
     private String serviceTag;
 
+    /**
+     * 负载均衡
+     */
+    private String loadBalancer;
+
     public String getCode() {
         return code;
     }
@@ -224,5 +229,13 @@ public class Service extends CommonModel {
 
     public void setServiceTag(String serviceTag) {
         this.serviceTag = serviceTag;
+    }
+
+    public String getLoadBalancer() {
+        return loadBalancer;
+    }
+
+    public void setLoadBalancer(String loadBalancer) {
+        this.loadBalancer = loadBalancer;
     }
 }

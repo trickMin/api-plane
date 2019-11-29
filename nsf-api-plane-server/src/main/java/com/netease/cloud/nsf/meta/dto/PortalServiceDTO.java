@@ -83,6 +83,10 @@ public class PortalServiceDTO {
     @JsonProperty(value = "ServiceTag")
     private String serviceTag;
 
+    @JsonProperty(value = "LoadBalancer")
+    @Pattern(regexp = "(ROUND_ROBIN|LEAST_CONN|RANDOM)", message = "load balancer")
+    private String loadBalancer;
+
     public String getCode() {
         return code;
     }
@@ -169,5 +173,13 @@ public class PortalServiceDTO {
 
     public void setServiceTag(String serviceTag) {
         this.serviceTag = serviceTag;
+    }
+
+    public String getLoadBalancer() {
+        return loadBalancer;
+    }
+
+    public void setLoadBalancer(String loadBalancer) {
+        this.loadBalancer = loadBalancer;
     }
 }
