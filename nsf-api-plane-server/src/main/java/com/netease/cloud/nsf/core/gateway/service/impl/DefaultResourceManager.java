@@ -1,9 +1,11 @@
 package com.netease.cloud.nsf.core.gateway.service.impl;
 
+import com.netease.cloud.nsf.core.envoy.EnvoyHttpClient;
 import com.netease.cloud.nsf.core.istio.IstioHttpClient;
 import com.netease.cloud.nsf.core.gateway.service.ResourceManager;
 import com.netease.cloud.nsf.meta.Endpoint;
 import com.netease.cloud.nsf.meta.Gateway;
+import com.netease.cloud.nsf.meta.ServiceHealth;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -28,6 +30,9 @@ public class DefaultResourceManager implements ResourceManager {
 
     @Autowired
     private IstioHttpClient istioHttpClient;
+
+    @Autowired
+    private EnvoyHttpClient envoyHttpClient;
 
     @Override
     public List<Endpoint> getEndpointList() {
@@ -90,6 +95,18 @@ public class DefaultResourceManager implements ResourceManager {
         }
         return ports.get(0);
     }
+
+    @Override
+    public List<ServiceHealth> getServiceHealthList() {
+        List<ServiceHealth> serviceHealth = envoyHttpClient.getServiceHealth(name -> {
+            if (!name.contains("|")) return name;
+            String cuttedName = name.substring(name.lastIndexOf("|") + 1);
+            return isServiceEntry(cuttedName) ? cuttedName.substring(cuttedName.lastIndexOf(".") + 1) : cuttedName;
+        });
+
+        return serviceHealth;
+    }
+
 
     private boolean inIstioSystem(String hostName) {
         return Pattern.compile("(.*)\\.istio-system\\.(.*)\\.(.*)\\.(.*)").matcher(hostName).find();
