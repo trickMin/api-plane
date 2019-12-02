@@ -20,6 +20,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -61,7 +62,7 @@ public class EnvoyHttpClient {
         return healthPod.get() + ":" + port;
     }
 
-    public List<ServiceHealth> getServiceHealth(Function<String, String> nameHandler) {
+    public List<ServiceHealth> getServiceHealth(Function<String, String> nameHandler, Predicate filter) {
 
         Map<String, List<EndpointHealth>> healthMap = new HashMap<>();
         String resp = restTemplate.getForObject(getEnvoyUrl() + GET_CLUSTER_HEALTH_JSON, String.class);
@@ -69,6 +70,7 @@ public class EnvoyHttpClient {
 
         List endpoints = rg.getValue("$.cluster_statuses[?(@.host_statuses)]");
         Function<String, String> nameFunction = nameHandler == null ? n -> n : nameHandler;
+        Predicate serviceFilter = filter == null ? n -> true : filter;
         if (CollectionUtils.isEmpty(endpoints)) return Collections.emptyList();
         endpoints.stream()
                 .forEach(e -> {
@@ -79,6 +81,7 @@ public class EnvoyHttpClient {
                     if (isSubset(serviceName)) return;
                     //不同端口的服务算一个服务，以后缀为服务名
                     String handledName = nameFunction.apply(serviceName);
+                    if (!serviceFilter.test(handledName)) return;
                     List<String> addrs = gen.getValue("$..socket_address.address");
                     List<Integer> ports = gen.getValue("$..socket_address.port_value");
 

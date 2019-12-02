@@ -19,7 +19,7 @@ spec:
 <@indent count=2><@supply>${p}</@supply></@indent>
 </#list>
 <@indent count=2><@supply></@supply></@indent>
-
+<@indent count=4><@autoremove><#include "virtualServiceMeta.ftl"/></@autoremove></@indent>
 <#if t_api_api_plugins?has_content>
   plugins:
     ${t_api_name}:
@@ -34,4 +34,4 @@ spec:
 <#if t_api_priority??>
   priority: ${t_api_priority}
 </#if>
-<@indent count=4><@autoremove><#include "virtualServiceMeta.ftl"/></@autoremove></@indent>
+

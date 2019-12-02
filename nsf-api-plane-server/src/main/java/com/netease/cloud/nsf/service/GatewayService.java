@@ -34,6 +34,6 @@ public interface GatewayService {
 
     List<Gateway> getGatewayList();
 
-    List<ServiceHealth> getServiceHealthList();
+    List<ServiceHealth> getServiceHealthList(String host);
 
 }

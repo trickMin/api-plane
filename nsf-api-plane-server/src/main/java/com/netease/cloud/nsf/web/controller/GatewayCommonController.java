@@ -1,7 +1,6 @@
 package com.netease.cloud.nsf.web.controller;
 
 import com.netease.cloud.nsf.meta.Gateway;
-import com.netease.cloud.nsf.meta.ServiceHealth;
 import com.netease.cloud.nsf.meta.dto.PluginOrderDTO;
 import com.netease.cloud.nsf.service.GatewayService;
 import com.netease.cloud.nsf.util.errorcode.ApiPlaneErrorCode;
@@ -61,14 +60,4 @@ public class GatewayCommonController extends BaseController {
         return apiReturn(ApiPlaneErrorCode.Success);
     }
 
-    @RequestMapping(params = "Action=GetServiceHealthList", method = RequestMethod.GET)
-    public String getServiceHealthList() {
-
-        Map<String, Object> result = new HashMap<>();
-        List<ServiceHealth> gatewayList = gatewayService.getServiceHealthList();
-
-        result.put(RESULT_LIST, gatewayList);
-        ErrorCode code = ApiPlaneErrorCode.Success;
-        return apiReturn(code.getStatusCode(), code.getCode(), null, result);
-    }
 }
