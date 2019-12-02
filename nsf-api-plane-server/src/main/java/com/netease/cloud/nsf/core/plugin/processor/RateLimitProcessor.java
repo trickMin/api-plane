@@ -36,7 +36,6 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
         String xUserId = getXUserId(total);
 
         List<Object> limits = total.getValue("$.limit_by_list");
-        AtomicInteger headerNo = new AtomicInteger(0);
 
         ResourceGenerator rateLimitGen = ResourceGenerator.newInstance("{\"rateLimits\":[]}");
         ResourceGenerator shareConfigGen = ResourceGenerator.newInstance("[{\"domain\":\"qingzhou\",\"descriptors\":[]}]");
@@ -44,13 +43,11 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
         limits.forEach(limit -> {
             ResourceGenerator rg = ResourceGenerator.newInstance(limit, ResourceType.OBJECT, editorContext);
             // 频控计算的不同维度，例如second, minute, hour, day(month, year暂时不支持)
-            Integer no = headerNo.getAndIncrement();
             getUnits(rg).forEach((unit, duration) -> {
-                String headerDescriptor = getHeaderDescriptor(serviceInfo, no, getMatchHeader(rg), unit);
+                String headerDescriptor = getHeaderDescriptor(serviceInfo, xUserId);
                 rateLimitGen.addJsonElement("$.rateLimits", createRateLimits(rg, serviceInfo, headerDescriptor, xUserId));
                 shareConfigGen.addJsonElement("$[0].descriptors", createShareConfig(serviceInfo, headerDescriptor, unit, duration));
             });
-
         });
         holder.setSharedConfigFragment(
                 new FragmentWrapper.Builder()
@@ -155,11 +152,11 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
                 vs.addJsonElement("$.actions[0].headerValueMatch.headers",
                         String.format("{\"name\":\"%s\",\"regexMatch\":\"%s\"}", matchHeader, regex));
             }
-            vs.addJsonElement("$.actions[0].headerValueMatch.headers",
-                    String.format("{\"name\":\":path\",\"regexMatch\":\"%s\"}", serviceInfo.getUri()));
-            vs.addJsonElement("$.actions[0].headerValueMatch.headers",
-                    String.format("{\"name\":\":authority\",\"regexMatch\":\"%s\"}", String.join("|", serviceInfo.getApi().getHosts())));
         }
+        vs.addJsonElement("$.actions[0].headerValueMatch.headers",
+                String.format("{\"name\":\":path\",\"regexMatch\":\"%s\"}", serviceInfo.getUri()));
+        vs.addJsonElement("$.actions[0].headerValueMatch.headers",
+                String.format("{\"name\":\":authority\",\"regexMatch\":\"%s\"}", String.join("|", serviceInfo.getApi().getHosts())));
         return vs.jsonString();
     }
 
@@ -174,6 +171,7 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
     }
 
     private String getMatchHeader(ResourceGenerator rg) {
+        if (!rg.contain("$.identifier_extractor")) return "";
         String extractor = rg.getValue("$.identifier_extractor");
 
         String matchHeader;
@@ -204,7 +202,10 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
         return ret;
     }
 
-    private String getHeaderDescriptor(ServiceInfo serviceInfo, Integer no, String headerName, String unit) {
-        return String.format("Service[%s]-Api[%s]-Header[%s][%s][%d]", getServiceName(serviceInfo), getApiName(serviceInfo), headerName, unit, no);
+    private String getHeaderDescriptor(ServiceInfo serviceInfo, String user) {
+        if (StringUtils.isBlank(user)) {
+            user = "none";
+        }
+        return String.format("Service[%s]-User[%s]-Api[%s]-Id[%s]", getServiceName(serviceInfo), user, getApiName(serviceInfo), UUID.randomUUID().toString());
     }
 }
