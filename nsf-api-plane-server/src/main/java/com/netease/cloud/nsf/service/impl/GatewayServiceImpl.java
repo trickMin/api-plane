@@ -84,8 +84,8 @@ public class GatewayServiceImpl implements GatewayService {
     }
 
     @Override
-    public List<ServiceHealth> getServiceHealthList() {
-        return resourceManager.getServiceHealthList();
+    public List<ServiceHealth> getServiceHealthList(String host) {
+        return resourceManager.getServiceHealthList(host);
     }
 
 

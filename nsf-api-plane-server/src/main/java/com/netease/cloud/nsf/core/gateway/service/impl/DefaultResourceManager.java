@@ -97,11 +97,11 @@ public class DefaultResourceManager implements ResourceManager {
     }
 
     @Override
-    public List<ServiceHealth> getServiceHealthList() {
+    public List<ServiceHealth> getServiceHealthList(String host) {
         List<ServiceHealth> serviceHealth = envoyHttpClient.getServiceHealth(name -> {
             if (!name.contains("|")) return name;
             return name.substring(name.lastIndexOf("|") + 1);
-        });
+        }, s -> s.equals(host));
 
         return serviceHealth;
     }
