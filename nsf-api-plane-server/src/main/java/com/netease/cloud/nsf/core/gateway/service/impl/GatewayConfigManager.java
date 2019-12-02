@@ -7,6 +7,7 @@ import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.meta.API;
 import com.netease.cloud.nsf.meta.PluginOrder;
 import com.netease.cloud.nsf.meta.Service;
+import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import me.snowdrop.istio.api.IstioResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,8 +66,8 @@ public class GatewayConfigManager implements ConfigManager {
 
         ImmutableMap<String, String> toBeDeletedMap = ImmutableMap
                 .of(K8sResourceEnum.VirtualService.name(), api.getName(),
-                    K8sResourceEnum.DestinationRule.name(), String.format("%s-%s", api.getService(), api.getName(),
-                    K8sResourceEnum.SharedConfig.name(), String.format("%s-%s", api.getService(), api.getName())));
+                        K8sResourceEnum.DestinationRule.name(), String.format("%s-%s", api.getService(), api.getName(),
+                                K8sResourceEnum.SharedConfig.name(), String.format("%s-%s", api.getService(), api.getName())));
 
         delete(resources, resource -> modelProcessor.subtract(resource, toBeDeletedMap));
     }
@@ -76,6 +77,13 @@ public class GatewayConfigManager implements ConfigManager {
         if (StringUtils.isEmpty(service.getGateway())) return;
         List<IstioResource> resources = modelProcessor.translate(service);
         delete(resources, clearResource());
+    }
+
+    @Override
+    public IstioResource getConfig(PluginOrder pluginOrder) {
+        List<IstioResource> resources = modelProcessor.translate(pluginOrder);
+        if (CollectionUtils.isEmpty(resources) || resources.size() != 1) throw new ApiPlaneException();
+        return configStore.get(resources.get(0));
     }
 
 

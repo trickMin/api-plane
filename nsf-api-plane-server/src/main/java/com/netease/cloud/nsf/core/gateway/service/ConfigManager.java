@@ -3,6 +3,7 @@ package com.netease.cloud.nsf.core.gateway.service;
 import com.netease.cloud.nsf.meta.API;
 import com.netease.cloud.nsf.meta.PluginOrder;
 import com.netease.cloud.nsf.meta.Service;
+import me.snowdrop.istio.api.IstioResource;
 
 /**
  *  API配置客户端，用于发送配置
@@ -31,6 +32,13 @@ public interface ConfigManager {
      * @param service
      */
     void deleteConfig(Service service);
+
+    /**
+     * 获取插件优先级
+     * @param pluginOrder
+     * @return
+     */
+    IstioResource getConfig(PluginOrder pluginOrder);
 
     /**
      * 更新插件优先级
