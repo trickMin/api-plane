@@ -4,10 +4,7 @@ import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.meta.PodStatus;
 import com.netease.cloud.nsf.meta.PodVersion;
 import com.netease.cloud.nsf.util.function.Equals;
-import me.snowdrop.istio.api.networking.v1alpha3.PodVersionStatus;
-import me.snowdrop.istio.api.networking.v1alpha3.SidecarVersionSpec;
-import me.snowdrop.istio.api.networking.v1alpha3.VersionManager;
-import me.snowdrop.istio.api.networking.v1alpha3.VersionManagerBuilder;
+import me.snowdrop.istio.api.networking.v1alpha3.*;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -23,6 +20,7 @@ public class VersionManagerOperator implements IstioResourceOperator<VersionMana
         List<SidecarVersionSpec> oldSpecList  = old.getSpec().getSidecarVersionSpec();
         List<SidecarVersionSpec> latestSpecList  = fresh.getSpec().getSidecarVersionSpec();
         versionManager.getSpec().setSidecarVersionSpec(mergeList(oldSpecList, latestSpecList, new SidecarVersionSpecEquals()));
+        versionManager.getSpec().setStatus(old.getSpec().getStatus());
 
         return versionManager;
     }
@@ -56,7 +54,15 @@ public class VersionManagerOperator implements IstioResourceOperator<VersionMana
     public List<PodStatus> getPodVersion(PodVersion podVersion, VersionManager versionmanager) {
 
         List<PodStatus> resultList = new ArrayList<>();
-        List<PodVersionStatus> versionList  = versionmanager.getSpec().getStatus().getPodVersionStatus();
+        Status state = versionmanager.getSpec().getStatus();
+        if (state == null || CollectionUtils.isEmpty(state.getPodVersionStatus())) {
+            return resultList;
+        }
+
+        List<PodVersionStatus> versionList  = state.getPodVersionStatus();
+        if (CollectionUtils.isEmpty(versionList)) {
+            return resultList;
+        }
         List<String> podList = podVersion.getPodNames();
 
         for (String need : podList) {
