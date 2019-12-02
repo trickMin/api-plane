@@ -13,16 +13,16 @@ spec:
 <#list t_version_manager_workloads! as w>
   - expectedVersion: ${w.expectedVersion}
     podsHash: none
-    <#if w.workLoadType == "deployment">
+    <#if w.workLoadType == "Deployment">
     viaDeployment:
     </#if>
-    <#if w.workLoadType == "statefulset">
+    <#if w.workLoadType == "Statefulset">
     viaStatefulSet:
     </#if>
-    <#if w.workLoadType == "service">
+    <#if w.workLoadType == "Service">
     viaService:
     </#if>
-    <#if w.workLoadType == "labelselector">
+    <#if w.workLoadType == "Labelselector">
     viaLabelSelector:
     </#if>
       name: ${w.workLoadName}

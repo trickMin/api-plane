@@ -7,7 +7,7 @@ import javax.validation.constraints.Pattern;
 
 public class SVMSpec {
 
-    @Pattern(regexp = "(deployment|statefulset|service|labelselector)", message = "type")
+    @Pattern(regexp = "(Deployment|Statefulset|Service|Labelselector)", message = "type")
     @JsonProperty(value = "WorkLoadType")
     private String workLoadType;
 

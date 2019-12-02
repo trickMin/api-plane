@@ -185,7 +185,7 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
         versionManagement.setClusterIP(clusterId);
         versionManagement.setNamespace(namespace);
         SVMSpec svmSpec = new SVMSpec();
-        svmSpec.setWorkLoadType(kind.toLowerCase());
+        svmSpec.setWorkLoadType(kind);
         svmSpec.setWorkLoadName(name);
         svmSpec.setExpectedVersion(DEFAULT_SIDECAR_VERSION);
         versionManagement.setWorkLoads(Arrays.asList(svmSpec));
