@@ -1,18 +1,24 @@
 package com.netease.cloud.nsf.meta.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import me.snowdrop.istio.api.Struct;
+
+import javax.validation.constraints.NotNull;
 
 /**
  * @auther wupenghuai@corp.netease.com
  * @date 2019/11/21
  **/
 public class PluginOrderItemDTO {
-    @JsonProperty("enable")
-    private boolean enable;
-    @JsonProperty("name")
+
+    @JsonProperty("Enable")
+    @NotNull(message = "enable")
+    private Boolean enable;
+
+    @JsonProperty("Name")
+    @NotNull(message = "name")
     private String name;
-    @JsonProperty("settings")
+
+    @JsonProperty("Settings")
     private Object settings;
 
     public boolean getEnable() {

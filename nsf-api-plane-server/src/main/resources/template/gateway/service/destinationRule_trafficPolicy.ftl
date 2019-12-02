@@ -1,4 +1,8 @@
 trafficPolicy:
+  loadBalancer:
+<#if t_destination_rule_load_balancer?has_content>
+    simple: ${t_destination_rule_load_balancer}
+</#if>
   outlierDetection:
 <#if t_destination_rule_consecutive_errors?has_content>
     consecutiveErrors: ${t_destination_rule_consecutive_errors}
@@ -32,7 +36,6 @@ trafficPolicy:
     expectedStatuses:
     <#list t_destination_rule_expected_statuses as s>
     - start: ${s}
-      end: ${s}
+      end: ${s+1}
     </#list>
 </#if>
-

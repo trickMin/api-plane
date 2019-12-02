@@ -32,6 +32,7 @@ public class PortalDestinationRuleServiceDataHandler extends ServiceDataHandler 
                 .put(DESTINATION_RULE_UNHEALTHY_INTERVAL, service.getUnhealthyInterval())
                 .put(DESTINATION_RULE_UNHEALTHY_THRESHOLD, service.getUnhealthyThreshold())
                 .put(DESTINATION_RULE_ALT_STAT_NAME, service.getServiceTag())
+                .put(DESTINATION_RULE_LOAD_BALANCER, service.getLoadBalancer())
                 .put(API_GATEWAY, service.getGateway());
 
         // host由服务类型决定，

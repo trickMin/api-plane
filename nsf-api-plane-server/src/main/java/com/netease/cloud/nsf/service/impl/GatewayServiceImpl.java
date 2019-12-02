@@ -3,6 +3,9 @@ package com.netease.cloud.nsf.service.impl;
 import com.netease.cloud.nsf.core.gateway.service.ConfigManager;
 import com.netease.cloud.nsf.core.gateway.service.ResourceManager;
 import com.netease.cloud.nsf.meta.*;
+import com.netease.cloud.nsf.meta.Gateway;
+import com.netease.cloud.nsf.meta.PluginOrder;
+import com.netease.cloud.nsf.meta.ServiceHealth;
 import com.netease.cloud.nsf.meta.dto.PluginOrderDTO;
 import com.netease.cloud.nsf.meta.dto.PortalAPIDTO;
 import com.netease.cloud.nsf.meta.dto.PortalServiceDTO;
@@ -90,5 +93,11 @@ public class GatewayServiceImpl implements GatewayService {
     public List<PodStatus> queryByPodNameList(PodVersion podVersion) {
         return configManager.querySVMConfig(podVersion);
     }
+
+    @Override
+    public List<ServiceHealth> getServiceHealthList() {
+        return resourceManager.getServiceHealthList();
+    }
+
 
 }
