@@ -44,6 +44,7 @@ public class K8sResourceController extends BaseController {
         } else {
             workLoadByServiceInfo = resourceCache.getWorkLoadByServiceInfoAllClusterId(projectId, namespace, serviceName);
         }
+        workLoadByServiceInfo = resourceCache.getWorkLoadListWithSidecarVersion(workLoadByServiceInfo);
         checkResult(workLoadByServiceInfo);
         Map<String, Object> result = new HashMap<>();
         result.put("Result", workLoadByServiceInfo);
@@ -62,6 +63,7 @@ public class K8sResourceController extends BaseController {
         }
         List podList = resourceCache.getPodByWorkLoadInfo(clusterId, kind, namespace, name);
         checkResult(podList);
+        podList = resourceCache.getPodListWithSidecarVersion(podList);
         Map<String, Object> result = new HashMap<>();
         result.put("Result", podList);
         ErrorCode code = ApiPlaneErrorCode.Success;
@@ -79,6 +81,7 @@ public class K8sResourceController extends BaseController {
             }
             workLoadList = resourceCache.getAllWorkLoadByClusterId(clusterId);
         }
+        workLoadList = resourceCache.getWorkLoadListWithSidecarVersion(workLoadList);
         checkResult(workLoadList);
         Map<String, Object> result = new HashMap<>();
         result.put("Result", workLoadList);
@@ -101,6 +104,8 @@ public class K8sResourceController extends BaseController {
             throw new ApiPlaneException("No resources found", 404);
         }
     }
+
+
 
 
 }
