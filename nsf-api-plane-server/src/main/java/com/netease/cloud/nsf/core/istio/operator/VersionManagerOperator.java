@@ -21,7 +21,7 @@ public class VersionManagerOperator implements IstioResourceOperator<VersionMana
         List<SidecarVersionSpec> latestSpecList  = fresh.getSpec().getSidecarVersionSpec();
         versionManager.getSpec().setSidecarVersionSpec(mergeList(oldSpecList, latestSpecList, new SidecarVersionSpecEquals()));
         versionManager.getSpec().setStatus(old.getSpec().getStatus());
-
+        versionManager.getMetadata().setResourceVersion(old.getMetadata().getResourceVersion());
         return versionManager;
     }
 
