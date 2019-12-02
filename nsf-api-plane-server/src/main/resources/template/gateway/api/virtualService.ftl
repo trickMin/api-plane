@@ -34,3 +34,4 @@ spec:
 <#if t_api_priority??>
   priority: ${t_api_priority}
 </#if>
+<@indent count=4><@autoremove><#include "virtualServiceMeta.ftl"/></@autoremove></@indent>

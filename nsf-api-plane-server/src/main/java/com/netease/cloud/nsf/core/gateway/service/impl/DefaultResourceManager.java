@@ -100,8 +100,7 @@ public class DefaultResourceManager implements ResourceManager {
     public List<ServiceHealth> getServiceHealthList() {
         List<ServiceHealth> serviceHealth = envoyHttpClient.getServiceHealth(name -> {
             if (!name.contains("|")) return name;
-            String cuttedName = name.substring(name.lastIndexOf("|") + 1);
-            return isServiceEntry(cuttedName) ? cuttedName.substring(cuttedName.lastIndexOf(".") + 1) : cuttedName;
+            return name.substring(name.lastIndexOf("|") + 1);
         });
 
         return serviceHealth;
