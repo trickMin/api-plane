@@ -10,6 +10,8 @@ import com.netease.cloud.nsf.meta.ServiceHealth;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
 import io.fabric8.kubernetes.api.model.Pod;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -19,12 +21,15 @@ import org.springframework.web.client.RestTemplate;
 import java.util.*;
 import java.util.function.Function;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/11/28
  **/
 @Component
 public class EnvoyHttpClient {
+
+    private static final Logger logger = LoggerFactory.getLogger(EnvoyHttpClient.class);
 
     @Autowired
     private RestTemplate restTemplate;
@@ -40,7 +45,7 @@ public class EnvoyHttpClient {
 
     private static final String GET_CLUSTER_HEALTH_JSON = "/clusters?format=json";
 
-    private static final String SUBSET_PATTERN = ".+\\|\\d+\\|\\d+\\|.*";
+    private static final String SUBSET_PATTERN = ".+\\|\\d+\\|.+\\|.*";
 
     private String getEnvoyUrl() {
         //envoy service暂时未暴露管理端口，直接拿pod ip
@@ -68,7 +73,7 @@ public class EnvoyHttpClient {
         endpoints.stream()
                 .forEach(e -> {
                     ResourceGenerator gen = ResourceGenerator.newInstance(e, ResourceType.OBJECT);
-                    EndpointHealth eh = new EndpointHealth();
+
                     String serviceName = gen.getValue("$.name");
                     //忽略subset
                     if (isSubset(serviceName)) return;
@@ -76,22 +81,45 @@ public class EnvoyHttpClient {
                     String handledName = nameFunction.apply(serviceName);
                     List<String> addrs = gen.getValue("$..socket_address.address");
                     List<Integer> ports = gen.getValue("$..socket_address.port_value");
-                    List<String> status = gen.getValue("$..health_status.eds_health_status");
-                    if (CollectionUtils.isEmpty(addrs) || CollectionUtils.isEmpty(ports) || CollectionUtils.isEmpty(status)) return;
-                    eh.setAddress(addrs.get(0) + ":" + ports.get(0));
-                    eh.setPort(ports.get(0));
-                    eh.setStatus(status.get(0));
-                    healthMap.computeIfAbsent(handledName, v -> new ArrayList()).add(eh);
+
+                    if (CollectionUtils.isEmpty(addrs) || CollectionUtils.isEmpty(ports)) return;
+                    if (addrs.size() != ports.size()) {
+                        logger.warn("address size can not match port size");
+                        return;
+                    }
+                    for (int i = 0; i < addrs.size(); i++) {
+                        EndpointHealth eh = new EndpointHealth();
+                        eh.setAddress(addrs.get(i) + ":" + ports.get(i));
+                        eh.setPort(ports.get(0));
+                        eh.setStatus(healthStatus(gen));
+                        healthMap.computeIfAbsent(handledName, v -> new ArrayList()).add(eh);
+                    }
                 });
 
         List<ServiceHealth> shs = new ArrayList<>();
         healthMap.forEach((name, ehs) -> {
             ServiceHealth sh = new ServiceHealth();
             sh.setName(name);
-            sh.setEps(ehs);
+            sh.setEps(ehs.stream().distinct().collect(Collectors.toList()));
             shs.add(sh);
         });
         return shs;
+    }
+
+    private String healthStatus(ResourceGenerator gen) {
+        List<String> failedActive = gen.getValue("$..health_status[*].failed_active_health_check");
+        List<String> failedOutlier = gen.getValue("$..health_status[*].failed_outlier_check");
+
+        boolean active = false;
+        boolean outlier = false;
+        if (!CollectionUtils.isEmpty(failedActive)) {
+            active = failedActive.get(0).equalsIgnoreCase("true");
+        }
+        if (!CollectionUtils.isEmpty(failedOutlier)) {
+            outlier = failedActive.get(0).equalsIgnoreCase("true");
+        }
+
+        return !(active|outlier) ? "HEALTHY" : "UNHEALTHY";
     }
 
     private boolean isSubset(String name) {
