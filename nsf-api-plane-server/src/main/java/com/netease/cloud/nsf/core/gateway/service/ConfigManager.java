@@ -1,8 +1,8 @@
 package com.netease.cloud.nsf.core.gateway.service;
 
-import com.netease.cloud.nsf.meta.API;
-import com.netease.cloud.nsf.meta.PluginOrder;
-import com.netease.cloud.nsf.meta.Service;
+import com.netease.cloud.nsf.meta.*;
+
+import java.util.List;
 
 /**
  *  API配置客户端，用于发送配置
@@ -43,4 +43,16 @@ public interface ConfigManager {
      * @param pluginOrder
      */
     void deleteConfig(PluginOrder pluginOrder);
+
+    /**
+     * 更新sidecar版本
+     * @param svm
+     */
+    void updateConfig(SidecarVersionManagement svm);
+
+    /**
+     * 查询pod的sidecar版本
+     * @param podVersion
+     */
+    List<PodStatus> querySVMConfig(PodVersion podVersion);
 }

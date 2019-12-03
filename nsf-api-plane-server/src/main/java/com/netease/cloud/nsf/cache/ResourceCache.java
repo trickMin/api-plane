@@ -54,5 +54,7 @@ public interface ResourceCache {
     Object getResource(String clusterId, String kind, String namespace, String name);
 
 
+    List getWorkLoadListWithSidecarVersion(List workLoadDTOList);
 
+    List getPodListWithSidecarVersion(List podDTOList);
 }

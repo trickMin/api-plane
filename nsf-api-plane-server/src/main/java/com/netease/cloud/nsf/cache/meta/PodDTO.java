@@ -34,8 +34,18 @@ public class PodDTO<T extends HasMetadata> extends K8sResourceDTO {
 
     private int totalRestartCount;
 
+    private String sidecarStatus;
+
 
     private List<ContainerInfo> containerInfoList = new ArrayList<>();
+
+    public String getSidecarStatus() {
+        return sidecarStatus;
+    }
+
+    public void setSidecarStatus(String sidecarStatus) {
+        this.sidecarStatus = sidecarStatus;
+    }
 
     public String getStatus() {
         return status;

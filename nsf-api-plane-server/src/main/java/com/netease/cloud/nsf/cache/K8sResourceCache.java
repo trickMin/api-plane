@@ -8,6 +8,9 @@ import com.netease.cloud.nsf.cache.meta.WorkLoadDTO;
 import com.netease.cloud.nsf.configuration.ApiPlaneConfig;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.k8s.MultiClusterK8sClient;
+import com.netease.cloud.nsf.meta.PodStatus;
+import com.netease.cloud.nsf.meta.PodVersion;
+import com.netease.cloud.nsf.service.GatewayService;
 import com.netease.cloud.nsf.util.Const;
 import com.netease.cloud.nsf.util.RestTemplateClient;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
@@ -19,7 +22,6 @@ import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -46,6 +48,9 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
 
     @Autowired
     ApiPlaneConfig config;
+
+    @Autowired
+    GatewayService gatewayService;
 
 //    @Autowired
 //    @Qualifier("originalKubernetesClient")
@@ -219,6 +224,59 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
             throw new ApiPlaneException("ClusterId not found");
         }
         return (T) ResourceStoreFactory.getResourceStore(clusterId).get(kind, namespace, name);
+    }
+
+    @Override
+    public List<WorkLoadDTO<T>> getWorkLoadListWithSidecarVersion(List workLoadDTOList){
+        if (CollectionUtils.isEmpty(workLoadDTOList)){
+            return new ArrayList<>();
+        }
+        workLoadDTOList.forEach(workLoadDTO -> addSidecarVersionOnWorkLoad((WorkLoadDTO<T>) workLoadDTO));
+        return workLoadDTOList;
+    }
+
+    @Override
+    public List<PodDTO<T>> getPodListWithSidecarVersion(List podDTOList){
+        if (CollectionUtils.isEmpty(podDTOList)){
+            return new ArrayList<>();
+        }
+        podDTOList.forEach(podDTO -> addSidecarVersionOnPod((PodDTO<T>) podDTO));
+        return podDTOList;
+    }
+
+    private PodDTO<T> addSidecarVersionOnPod(PodDTO<T> podDTO){
+        PodVersion queryVersion = new PodVersion();
+        queryVersion.setClusterIP(podDTO.getClusterId());
+        queryVersion.setNamespace(podDTO.getNamespace());
+        queryVersion.setPodNames(Arrays.asList(podDTO.getName()));
+        List<PodStatus> podStatuses = gatewayService.queryByPodNameList(queryVersion);
+        if (CollectionUtils.isEmpty(podStatuses)){
+            return podDTO;
+        }
+        PodStatus status = podStatuses.get(0);
+        podDTO.setSidecarStatus(status.getCurrentVersion());
+        return podDTO;
+    }
+
+    private WorkLoadDTO<T> addSidecarVersionOnWorkLoad(WorkLoadDTO<T> workLoadDTO){
+        List<PodDTO<T>> podByWorkLoadInfo = getPodByWorkLoadInfo(workLoadDTO.getClusterId(), workLoadDTO.getKind(), workLoadDTO.getNamespace(),
+                workLoadDTO.getName());
+        PodVersion queryVersion = new PodVersion();
+        queryVersion.setClusterIP(workLoadDTO.getClusterId());
+        queryVersion.setNamespace(workLoadDTO.getNamespace());
+        queryVersion.setPodNames(podByWorkLoadInfo
+                .stream()
+                .map(pod->pod.getName())
+                .collect(Collectors.toList()));
+        List<PodStatus> podStatuses = gatewayService.queryByPodNameList(queryVersion);
+        if (CollectionUtils.isEmpty(podStatuses)){
+            return workLoadDTO;
+        }
+        Set<String> versionSet = podStatuses.stream().
+                map(podStatus -> podStatus.getCurrentVersion())
+                .collect(Collectors.toSet());
+        workLoadDTO.setSidecarVersion(new ArrayList<>(versionSet));
+        return workLoadDTO;
     }
 
     private List<T> getWorkLoadByIndex(String clusterId, String namespace, String name) {

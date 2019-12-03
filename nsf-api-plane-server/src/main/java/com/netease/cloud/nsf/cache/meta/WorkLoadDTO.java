@@ -7,6 +7,7 @@ import io.fabric8.kubernetes.api.model.apps.StatefulSet;
 import io.fabric8.kubernetes.api.model.apps.StatefulSetStatus;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class WorkLoadDTO<T extends HasMetadata> extends K8sResourceDTO {
@@ -15,6 +16,8 @@ public class WorkLoadDTO<T extends HasMetadata> extends K8sResourceDTO {
     protected String serviceName;
 
     protected String serviceDomain;
+
+    protected List<String> sidecarVersion;
 
     private Map<String, String> statusInfo = new HashMap<>();
 
@@ -40,6 +43,13 @@ public class WorkLoadDTO<T extends HasMetadata> extends K8sResourceDTO {
         }
     }
 
+    public List<String> getSidecarVersion() {
+        return sidecarVersion;
+    }
+
+    public void setSidecarVersion(List<String> sidecarVersion) {
+        this.sidecarVersion = sidecarVersion;
+    }
 
     public String getName() {
         return name;

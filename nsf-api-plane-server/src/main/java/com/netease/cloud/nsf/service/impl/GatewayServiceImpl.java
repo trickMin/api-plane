@@ -2,6 +2,7 @@ package com.netease.cloud.nsf.service.impl;
 
 import com.netease.cloud.nsf.core.gateway.service.ConfigManager;
 import com.netease.cloud.nsf.core.gateway.service.ResourceManager;
+import com.netease.cloud.nsf.meta.*;
 import com.netease.cloud.nsf.meta.Gateway;
 import com.netease.cloud.nsf.meta.PluginOrder;
 import com.netease.cloud.nsf.meta.ServiceHealth;
@@ -81,6 +82,16 @@ public class GatewayServiceImpl implements GatewayService {
     @Override
     public List<Gateway> getGatewayList() {
         return resourceManager.getGatewayList();
+    }
+
+    @Override
+    public void updateSVM(SidecarVersionManagement svm) {
+        configManager.updateConfig(svm);
+    }
+
+    @Override
+    public List<PodStatus> queryByPodNameList(PodVersion podVersion) {
+        return configManager.querySVMConfig(podVersion);
     }
 
     @Override
