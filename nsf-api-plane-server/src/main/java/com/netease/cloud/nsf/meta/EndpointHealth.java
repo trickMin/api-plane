@@ -16,7 +16,6 @@ public class EndpointHealth {
     @JsonProperty("Status")
     private String status;
 
-    @JsonProperty("Port")
     @JsonIgnore
     private Integer port;
 
