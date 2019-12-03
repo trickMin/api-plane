@@ -41,6 +41,8 @@ public abstract class APIDataHandler implements DataHandler<API> {
                 .put(VIRTUAL_SERVICE_MATCH_PRIORITY, priority)
                 .put(VIRTUAL_SERVICE_HOSTS, hosts)
                 .put(API_PRIORITY, api.getPriority())
+                .put(VIRTUAL_SERVICE_SERVICE_TAG, api.getServiceTag())
+                .put(VIRTUAL_SERVICE_API_ID, api.getApiId())
                 ;
 
         return doHandle(tp, api);

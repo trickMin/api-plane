@@ -54,11 +54,8 @@ public class IndentationDirective implements TemplateDirectiveModel {
             if (i == 0) {
                 indent = StringUtils.repeat(' ', count);
             }
-            if (i == tokens.length - 1) {
-                environment.getOut().write(indent + tokens[i]);
-            }else{
-                environment.getOut().write(indent + tokens[i] + lineFeed);
-            }
+
+            environment.getOut().write(indent + tokens[i] + lineFeed);
         }
         writer.close();
     }

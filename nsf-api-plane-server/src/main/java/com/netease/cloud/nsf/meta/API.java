@@ -105,6 +105,16 @@ public class API extends CommonModel {
      */
     private Integer priority;
 
+    /**
+     * 服务标志
+     */
+    private String serviceTag;
+
+    /**
+     * api id
+     */
+    private Long apiId;
+
     public List<String> getGateways() {
         return gateways;
     }
@@ -295,5 +305,21 @@ public class API extends CommonModel {
 
     public void setPriority(Integer priority) {
         this.priority = priority;
+    }
+
+    public String getServiceTag() {
+        return serviceTag;
+    }
+
+    public void setServiceTag(String serviceTag) {
+        this.serviceTag = serviceTag;
+    }
+
+    public Long getApiId() {
+        return apiId;
+    }
+
+    public void setApiId(Long apiId) {
+        this.apiId = apiId;
     }
 }

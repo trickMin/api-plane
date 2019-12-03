@@ -54,6 +54,8 @@ public class Trans {
         api.setHeaders(pairsDTO2Pairs(portalAPI.getHeaders()));
         api.setQueryParams(pairsDTO2Pairs(portalAPI.getQueryParams()));
         api.setPriority(portalAPI.getPriority());
+        api.setServiceTag(portalAPI.getServiceTag());
+        api.setApiId(portalAPI.getRouteId());
         return api;
     }
 
