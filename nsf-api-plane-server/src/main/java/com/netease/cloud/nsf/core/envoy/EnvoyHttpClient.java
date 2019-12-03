@@ -42,7 +42,7 @@ public class EnvoyHttpClient {
     @Value(value = "${gatewayNamespace:gateway-system}")
     private String gatewayNamespace;
 
-    @Value(value = "${gatewayServiceName:gateway-proxy}")
+    @Value(value = "${gatewayName:gateway-proxy}")
     private String gatewayName;
 
     @Value(value = "${envoyUrl:#{null}}")
