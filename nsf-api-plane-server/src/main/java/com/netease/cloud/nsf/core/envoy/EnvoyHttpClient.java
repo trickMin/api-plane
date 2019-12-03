@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
@@ -41,14 +42,18 @@ public class EnvoyHttpClient {
     @Value(value = "${gatewayNamespace:gateway-system}")
     private String gatewayNamespace;
 
-    @Value(value = "${gatewayName:gateway-proxy}")
+    @Value(value = "${gatewayServiceName:gateway-proxy}")
     private String gatewayName;
+
+    @Value(value = "${envoyUrl:#{null}}")
+    private String envoyUrl;
 
     private static final String GET_CLUSTER_HEALTH_JSON = "/clusters?format=json";
 
     private static final String SUBSET_PATTERN = ".+\\|\\d+\\|.+\\|.*";
 
     private String getEnvoyUrl() {
+        if (!StringUtils.isEmpty(envoyUrl)) return envoyUrl;
         //envoy service暂时未暴露管理端口，直接拿pod ip
         List<Pod> envoyPods = client.getObjectList(K8sResourceEnum.Pod.name(), gatewayNamespace, ImmutableMap.of("app", gatewayName));
         if (CollectionUtils.isEmpty(envoyPods)) throw new ApiPlaneException(ExceptionConst.ENVOY_POD_NON_EXIST);
@@ -93,8 +98,7 @@ public class EnvoyHttpClient {
                     for (int i = 0; i < addrs.size(); i++) {
                         EndpointHealth eh = new EndpointHealth();
                         eh.setAddress(addrs.get(i) + ":" + ports.get(i));
-                        eh.setPort(ports.get(0));
-                        eh.setStatus(healthStatus(gen));
+                        eh.setStatus(healthStatus(gen, i));
                         healthMap.computeIfAbsent(handledName, v -> new ArrayList()).add(eh);
                     }
                 });
@@ -109,18 +113,12 @@ public class EnvoyHttpClient {
         return shs;
     }
 
-    private String healthStatus(ResourceGenerator gen) {
-        List<String> failedActive = gen.getValue("$..health_status[*].failed_active_health_check");
-        List<String> failedOutlier = gen.getValue("$..health_status[*].failed_outlier_check");
+    private String healthStatus(ResourceGenerator gen, int index) {
+        Boolean failedActive = gen.getValue(String.format("$.host_statuses[%d].health_status.failed_active_health_check", index));
+        Boolean failedOutlier = gen.getValue(String.format("$.host_statuses[%d].health_status.failed_outlier_check", index));
 
-        boolean active = false;
-        boolean outlier = false;
-        if (!CollectionUtils.isEmpty(failedActive)) {
-            active = failedActive.get(0).equalsIgnoreCase("true");
-        }
-        if (!CollectionUtils.isEmpty(failedOutlier)) {
-            outlier = failedActive.get(0).equalsIgnoreCase("true");
-        }
+        boolean active = failedActive == null ? false : true;
+        boolean outlier = failedOutlier == null ? false : true;
 
         return !(active|outlier) ? "HEALTHY" : "UNHEALTHY";
     }
