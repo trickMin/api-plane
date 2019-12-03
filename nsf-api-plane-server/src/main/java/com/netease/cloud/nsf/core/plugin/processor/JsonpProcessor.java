@@ -27,7 +27,7 @@ public class JsonpProcessor extends AbstractSchemaProcessor implements SchemaPro
     public FragmentHolder process(String plugin, ServiceInfo serviceInfo) {
         ResourceGenerator source = ResourceGenerator.newInstance(plugin);
         String callback = source.getValue("callback");
-        ResourceGenerator builder = ResourceGenerator.newInstance(String.format("{\"transformation\":{\"responseTransformations\":[{\"transformationTemplate\":{\"extractors\":{\"all-body\":{\"header\":\":body\",\"regex\":\"([\\\\s\\\\S]*)\",\"subgroup\":1}},\"body\":{\"text\":\"%s({{all-body}})\"},\"parseBodyBehavior\":1},\"conditions\":[{\"context\":{\"request_method\":\"GET\"},\"headers\":{\"name\":\"Content-Type\",\"regex\":\".*application/json.*\"}}]}]}}", callback));
+        ResourceGenerator builder = ResourceGenerator.newInstance(String.format("{\"transformation\":{\"responseTransformations\":[{\"transformationTemplate\":{\"extractors\":{\"all-body\":{\"header\":\":body\",\"regex\":\"([\\\\s\\\\S]*)\",\"subgroup\":1}},\"body\":{\"text\":\"%s({{all-body}})\"},\"parseBodyBehavior\":1},\"conditions\":[{\"context\":{\"request_method\":\"GET\"},\"headers\":{\"Content-Type\":{\"regex\":\".*application/json\"}}}]}]}}", callback));
 
         FragmentHolder fragmentHolder = new FragmentHolder();
         FragmentWrapper wrapper = new FragmentWrapper.Builder()
