@@ -50,7 +50,7 @@ public class PortalGatewayController extends BaseController {
         return apiReturn(ApiPlaneErrorCode.Success);
     }
 
-    @RequestMapping(params = "Action=GetServiceHealthList", method = RequestMethod.GET)
+    @RequestMapping(value = "/portal", params = "Action=GetServiceHealthList", method = RequestMethod.GET)
     public String getServiceHealthList(@RequestParam(name = "Host", required = false) String host,
                                        @RequestParam(name = "Code") String serviceCode) {
 
