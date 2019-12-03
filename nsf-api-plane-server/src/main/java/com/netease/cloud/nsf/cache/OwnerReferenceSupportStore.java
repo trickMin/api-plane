@@ -134,6 +134,9 @@ public class OwnerReferenceSupportStore<T extends HasMetadata> implements Store<
      * @return 负载资源列表
      */
     public List<T> listLoadByPod(T obj) {
+        if (obj.getMetadata() == null){
+            return new ArrayList<>();
+        }
         List<OwnerReference> ownerReferences = obj.getMetadata().getOwnerReferences();
         if (CollectionUtils.isEmpty(ownerReferences)) {
             return new ArrayList<>();
