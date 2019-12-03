@@ -33,11 +33,11 @@ public abstract class AbstractSchemaProcessor implements SchemaProcessor<Service
     }
 
     protected String getApiName(ServiceInfo serviceInfo) {
-        return serviceInfo.getApi().getName();
+        return serviceInfo.getApiName();
     }
 
     protected String getServiceName(ServiceInfo serviceInfo) {
-        return serviceInfo.getApi().getService();
+        return serviceInfo.getServiceName();
     }
 
     protected String createMatch(ResourceGenerator rg, ServiceInfo info, String xUserId) {

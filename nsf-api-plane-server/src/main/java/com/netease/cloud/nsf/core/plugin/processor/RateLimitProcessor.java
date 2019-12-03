@@ -156,7 +156,9 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
         vs.addJsonElement("$.actions[0].headerValueMatch.headers",
                 String.format("{\"name\":\":path\",\"regexMatch\":\"%s\"}", serviceInfo.getUri()));
         vs.addJsonElement("$.actions[0].headerValueMatch.headers",
-                String.format("{\"name\":\":authority\",\"regexMatch\":\"%s\"}", String.join("|", serviceInfo.getApi().getHosts())));
+                String.format("{\"name\":\":authority\",\"regexMatch\":\"%s\"}", serviceInfo.getHosts()));
+        vs.addJsonElement("$.actions[0].headerValueMatch.headers",
+                String.format("{\"name\":\":method\",\"regexMatch\":\"%s\"}", serviceInfo.getMethod()));
         return vs.jsonString();
     }
 
