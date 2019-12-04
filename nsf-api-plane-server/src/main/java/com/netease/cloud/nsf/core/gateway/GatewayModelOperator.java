@@ -111,7 +111,7 @@ public class GatewayModelOperator {
         List<String> rawVirtualServices = renderTwiceModelProcessor.process(apiVirtualService, api, vsHandler);
         List<String> rawGateways = defaultModelProcessor.process(apiGateway, api, new BaseGatewayAPIDataHandler());
         List<String> rawDestinationRules = defaultModelProcessor.process(apiDestinationRule, api, new BaseDestinationRuleAPIDataHandler(extraDestination));
-        List<String> rawSharedConfigs = defaultModelProcessor.process(apiSharedConfig, api, new BaseSharedConfigAPIDataHandler(rawResourceContainer.getSharedConfigs()));
+        List<String> rawSharedConfigs = renderTwiceModelProcessor.process(apiSharedConfig, api, new BaseSharedConfigAPIDataHandler(rawResourceContainer.getSharedConfigs()));
 
         List<String> rawResources = new ArrayList<>();
         rawResources.addAll(rawGateways);
@@ -201,7 +201,8 @@ public class GatewayModelOperator {
         service.setSubset(wrap(VIRTUAL_SERVICE_SUBSET_NAME));
         service.setHosts(wrap(VIRTUAL_SERVICE_HOSTS));
         service.setPriority(wrap(VIRTUAL_SERVICE_PLUGIN_MATCH_PRIORITY));
-        service.setApi(api);
+        service.setApiName(wrap(API_NAME));
+        service.setServiceName(wrap(API_SERVICE));
 
         return pluginService.processSchema(plugins, service);
     }

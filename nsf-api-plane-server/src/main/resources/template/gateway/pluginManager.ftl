@@ -9,8 +9,10 @@ spec:
     ${k}: ${v}
 </#list>
 </#if>
+<#if t_plugin_manager_plugins??>
   plugin:
 <#list t_plugin_manager_plugins as p>
   -
 <@indent count=4>${p}</@indent>
 </#list>
+</#if>
