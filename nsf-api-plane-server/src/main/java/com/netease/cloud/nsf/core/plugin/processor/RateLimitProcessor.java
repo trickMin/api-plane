@@ -59,7 +59,7 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
         );
         holder.setVirtualServiceFragment(
                 new FragmentWrapper.Builder()
-                        .withFragmentType(FragmentTypeEnum.VS_HOST)
+                        .withFragmentType(FragmentTypeEnum.VS_API)
                         .withResourceType(K8sResourceEnum.VirtualService)
                         .withContent(rateLimitGen.yamlString())
                         .withXUserId(xUserId)
@@ -84,14 +84,14 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
-        ResourceGenerator rateLimitGen = ResourceGenerator.newInstance("{\"rateLimits\":[]}");
+        ResourceGenerator rateLimitGen = ResourceGenerator.newInstance("{\"ratelimit\":{\"rateLimits\":[]}}");
         ResourceGenerator shareConfigGen = ResourceGenerator.newInstance("[{\"domain\":\"qingzhou\",\"descriptors\":[]}]");
         List<Object> ratelimits = new ArrayList<>();
         List<Object> descriptors = new ArrayList<>();
         virtualServices.forEach(wrapper -> ratelimits.addAll(ResourceGenerator.newInstance(wrapper.getContent(), ResourceType.YAML).getValue("$.rateLimits[*]")));
         sharedConfigs.forEach(wrapper -> descriptors.addAll(ResourceGenerator.newInstance(wrapper.getContent(), ResourceType.YAML).getValue("$[0].descriptors[*]")));
 
-        ratelimits.forEach(rateLimit -> rateLimitGen.addElement("$.rateLimits", rateLimit));
+        ratelimits.forEach(rateLimit -> rateLimitGen.addElement("$.ratelimit.rateLimits", rateLimit));
         descriptors.forEach(descriptor -> shareConfigGen.addElement("$[0].descriptors", descriptor));
 
         FragmentHolder holder = new FragmentHolder();
@@ -104,7 +104,7 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
         );
         holder.setVirtualServiceFragment(
                 new FragmentWrapper.Builder()
-                        .withFragmentType(FragmentTypeEnum.VS_HOST)
+                        .withFragmentType(FragmentTypeEnum.VS_API)
                         .withResourceType(K8sResourceEnum.VirtualService)
                         .withContent(rateLimitGen.yamlString())
                         .build()
