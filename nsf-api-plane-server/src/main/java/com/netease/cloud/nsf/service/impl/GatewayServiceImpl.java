@@ -5,6 +5,7 @@ import com.netease.cloud.nsf.core.gateway.service.ResourceManager;
 import com.netease.cloud.nsf.meta.*;
 import com.netease.cloud.nsf.meta.Gateway;
 import com.netease.cloud.nsf.meta.PluginOrder;
+import com.netease.cloud.nsf.meta.dto.*;
 import com.netease.cloud.nsf.meta.ServiceHealth;
 import com.netease.cloud.nsf.meta.dto.PluginOrderDTO;
 import com.netease.cloud.nsf.meta.dto.PortalAPIDTO;
@@ -12,10 +13,18 @@ import com.netease.cloud.nsf.meta.dto.PortalServiceDTO;
 import com.netease.cloud.nsf.meta.dto.YxAPIDTO;
 import com.netease.cloud.nsf.service.GatewayService;
 import com.netease.cloud.nsf.util.Trans;
+import com.netease.cloud.nsf.util.exception.ApiPlaneException;
+import me.snowdrop.istio.api.IstioResource;
+import me.snowdrop.istio.api.networking.v1alpha3.Plugin;
+import me.snowdrop.istio.api.networking.v1alpha3.PluginManager;
+import me.snowdrop.istio.api.networking.v1alpha3.VersionManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/7/25
@@ -60,6 +69,26 @@ public class GatewayServiceImpl implements GatewayService {
     @Override
     public void deleteService(PortalServiceDTO service) {
         configManager.deleteConfig(Trans.portalService2Service(service));
+    }
+
+    @Override
+    public PluginOrderDTO getPluginOrder() {
+        PluginOrderDTO dto = new PluginOrderDTO();
+        IstioResource config = configManager.getConfig(new PluginOrder());
+        if (Objects.isNull(config)) throw new ApiPlaneException("plugin manager config can not found.");
+        PluginManager pm = (PluginManager) config;
+        dto.setGatewayLabels(pm.getSpec().getWorkloadLabels());
+        List<Plugin> plugins = pm.getSpec().getPlugin();
+        dto.setPlugins(new ArrayList<>());
+        if (CollectionUtils.isEmpty(plugins)) return dto;
+        plugins.forEach(p -> {
+            PluginOrderItemDTO itemDTO = new PluginOrderItemDTO();
+            itemDTO.setEnable(p.getEnable());
+            itemDTO.setName(p.getName());
+            itemDTO.setSettings(p.getSettings());
+            dto.getPlugins().add(itemDTO);
+        });
+        return dto;
     }
 
     @Override

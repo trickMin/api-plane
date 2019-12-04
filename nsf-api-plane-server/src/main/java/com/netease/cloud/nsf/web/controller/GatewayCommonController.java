@@ -46,6 +46,16 @@ public class GatewayCommonController extends BaseController {
         return apiReturn(code.getStatusCode(), code.getCode(), null, result);
     }
 
+    @RequestMapping(params = "Action=GetPluginOrder", method = RequestMethod.GET)
+    public String getPluginOrder() {
+        Map<String, Object> result = new HashMap<>();
+        List<Gateway> gatewayList = gatewayService.getGatewayList();
+
+        result.put(RESULT, gatewayService.getPluginOrder());
+        ErrorCode code = ApiPlaneErrorCode.Success;
+        return apiReturn(code.getStatusCode(), code.getCode(), null, result);
+    }
+
     @RequestMapping(params = "Action=PublishPluginOrder", method = RequestMethod.POST)
     public String publishPluginOrder(@RequestBody @Valid PluginOrderDTO pluginOrderDTO) {
 
