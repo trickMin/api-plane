@@ -69,6 +69,9 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
 
     @Override
     public ErrorCode sidecarInject(String clusterId, String kind, String namespace, String name, String version) {
+        if (!K8sResourceEnum.StatefulSet.name().equals(kind) && !K8sResourceEnum.Deployment.name().equals(kind)) {
+            return ApiPlaneErrorCode.MissingParamsError("resource kind");
+        }
         T resourceToInject = (T) k8sResource.getResource(clusterId, kind, namespace, name);
         if (resourceToInject == null) {
             return ApiPlaneErrorCode.workLoadNotFound;
@@ -93,7 +96,7 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
                 logger.error("sidecar inject error", e);
             }
         }
-        createSidecarVersionCRD(clusterId,namespace,kind,name);
+        createSidecarVersionCRD(clusterId, namespace, kind, name);
         return ApiPlaneErrorCode.Success;
     }
 
