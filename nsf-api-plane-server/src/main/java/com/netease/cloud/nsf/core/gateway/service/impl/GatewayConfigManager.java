@@ -3,17 +3,13 @@ package com.netease.cloud.nsf.core.gateway.service.impl;
 import com.google.common.collect.ImmutableMap;
 import com.netease.cloud.nsf.core.gateway.GatewayModelOperator;
 import com.netease.cloud.nsf.core.gateway.service.ConfigManager;
+import com.netease.cloud.nsf.core.gateway.service.ConfigStore;
 import com.netease.cloud.nsf.core.istio.operator.IstioResourceOperator;
 import com.netease.cloud.nsf.core.istio.operator.VersionManagerOperator;
-import com.netease.cloud.nsf.meta.*;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
+import com.netease.cloud.nsf.meta.*;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
-import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
-import com.netease.cloud.nsf.meta.API;
-import com.netease.cloud.nsf.meta.PluginOrder;
-import com.netease.cloud.nsf.meta.Service;
-import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import me.snowdrop.istio.api.IstioResource;
 import me.snowdrop.istio.api.networking.v1alpha3.VersionManager;
 import org.slf4j.Logger;
@@ -44,6 +40,9 @@ public class GatewayConfigManager implements ConfigManager {
     private K8sConfigStore configStore;
 
     @Autowired
+    private MultiK8sConfigStore multiK8sConfigStore;
+
+    @Autowired
     private List<IstioResourceOperator> operators;
 
     @Override
@@ -59,6 +58,15 @@ public class GatewayConfigManager implements ConfigManager {
     }
 
     private void update(List<IstioResource> resources) {
+        update(resources, null);
+    }
+
+    private boolean isDefault(String clusterId) {
+        if (StringUtils.isEmpty(clusterId) || clusterId.equals("default")) return true;
+        return false;
+    }
+
+    private void update(ConfigStore configStore, List<IstioResource> resources) {
         if (CollectionUtils.isEmpty(resources)) return;
 
         for (IstioResource latest : resources) {
@@ -70,6 +78,10 @@ public class GatewayConfigManager implements ConfigManager {
             }
             configStore.update(latest);
         }
+    }
+
+    private void update(List<IstioResource> resources, String clusterId) {
+        update(isDefault(clusterId) ? configStore : multiK8sConfigStore, resources);
     }
 
     @Override
@@ -114,12 +126,16 @@ public class GatewayConfigManager implements ConfigManager {
     @Override
     public void updateConfig(SidecarVersionManagement svm) {
         List<IstioResource> resources = modelProcessor.translate(svm);
-        update(resources);
+        //TODO
+        String clusterId = null;
+        update(resources, clusterId);
     }
 
     @Override
     public List<PodStatus> querySVMConfig(PodVersion podVersion) {
-        IstioResource versionmanager = configStore.get( K8sResourceEnum.VersionManager.name(), podVersion.getNamespace(), VM_RESOURCE_NAME);
+        //TODO
+        String clusterId = null;
+        IstioResource versionmanager = multiK8sConfigStore.get(K8sResourceEnum.VersionManager.name(), podVersion.getNamespace(), VM_RESOURCE_NAME, clusterId);
         if(versionmanager == null) {
             return null;
         }
@@ -141,7 +157,6 @@ public class GatewayConfigManager implements ConfigManager {
                 .filter(i -> i != null)
                 .forEach(r -> handle(r));
     }
-
 
     private void handle(IstioResource i) {
         if (modelProcessor.isUseless(i)) {
