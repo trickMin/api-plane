@@ -18,6 +18,8 @@ import io.fabric8.kubernetes.api.model.EndpointAddress;
 import io.fabric8.kubernetes.api.model.Endpoints;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.ObjectReference;
+import io.fabric8.kubernetes.api.model.apps.DaemonSetList;
+import io.fabric8.kubernetes.api.model.apps.DeploymentList;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,6 +90,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                 .addResourceKind(Deployment)
                 .addUpdateListener(versionUpdateListener)
                 .addMixedOperation(getDeployMixedOperationList(allClients))
+                .addResourceList(getDeployList(allClients))
                 .build();
         resourceInformerMap.putIfAbsent(Deployment, deployInformer);
 
@@ -97,6 +100,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                 .addResourceKind(StatefulSet)
                 .addMixedOperation(getStatefulSetMixedOperationList(allClients))
                 .addUpdateListener(versionUpdateListener)
+                .addResourceList(getStsList(allClients))
                 .build();
         resourceInformerMap.putIfAbsent(StatefulSet, statefulSetInformer);
 
@@ -106,6 +110,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                 .Builder()
                 .addResourceKind(Pod)
                 .addMixedOperation(getPodMixedOperationList(allClients))
+                .addResourceList(getPodList(allClients))
                 .build();
         resourceInformerMap.putIfAbsent(Pod, podInformer);
 
@@ -114,6 +119,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                 .Builder()
                 .addResourceKind(ReplicaSet)
                 .addMixedOperation(getReplicasSetMixedOperationList(allClients))
+                .addResourceList(getReplicaSet(allClients))
                 .build();
         resourceInformerMap.putIfAbsent(ReplicaSet, replicaSetInformer);
 
@@ -123,6 +129,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                 .Builder()
                 .addResourceKind(Service)
                 .addMixedOperation(getServiceMixedOperationList(allClients))
+                .addResourceList(getServiceList(allClients))
                 .build();
         resourceInformerMap.putIfAbsent(Service, serviceInformer);
 
@@ -132,10 +139,86 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                 .Builder()
                 .addResourceKind(Endpoint)
                 .addMixedOperation(getEndPointMixedOperationList(allClients))
+                .addResourceList(getEndPointList(allClients))
                 .build();
         resourceInformerMap.put(Endpoint, endpointInformer);
 
 
+    }
+
+    private List<ClusterResourceList> getEndPointList(Map<String, MultiClusterK8sClient.ClientSet> allClients) {
+        List<ClusterResourceList> result = new ArrayList<>();
+        allClients.forEach((name, client) -> {
+            if (!StringUtils.isEmpty(name)) {
+                result.add(new ClusterResourceList(client.originalK8sClient
+                        .endpoints()
+                        .list(), name));
+            }
+        });
+        return result;
+    }
+
+    private List<ClusterResourceList> getServiceList(Map<String, MultiClusterK8sClient.ClientSet> allClients) {
+        List<ClusterResourceList> result = new ArrayList<>();
+        allClients.forEach((name, client) -> {
+            if (!StringUtils.isEmpty(name)) {
+                result.add(new ClusterResourceList(client.originalK8sClient
+                        .services()
+                        .list(), name));
+            }
+        });
+        return result;
+    }
+
+    private List<ClusterResourceList> getReplicaSet(Map<String, MultiClusterK8sClient.ClientSet> allClients) {
+        List<ClusterResourceList> result = new ArrayList<>();
+        allClients.forEach((name, client) -> {
+            if (!StringUtils.isEmpty(name)) {
+                result.add(new ClusterResourceList(client.originalK8sClient
+                        .apps()
+                        .replicaSets()
+                        .list(), name));
+            }
+        });
+        return result;
+    }
+
+    private List<ClusterResourceList> getPodList(Map<String, MultiClusterK8sClient.ClientSet> allClients) {
+        List<ClusterResourceList> result = new ArrayList<>();
+        allClients.forEach((name, client) -> {
+            if (!StringUtils.isEmpty(name)) {
+                result.add(new ClusterResourceList(client.originalK8sClient
+                        .pods()
+                        .list(), name));
+            }
+        });
+        return result;
+    }
+
+    private List<ClusterResourceList> getDeployList(Map<String, MultiClusterK8sClient.ClientSet> allClients) {
+        List<ClusterResourceList> result = new ArrayList<>();
+        allClients.forEach((name, client) -> {
+            if (!StringUtils.isEmpty(name)) {
+                result.add(new ClusterResourceList(client.originalK8sClient
+                        .apps()
+                        .deployments()
+                        .list(), name));
+            }
+        });
+        return result;
+    }
+
+    private List<ClusterResourceList> getStsList(Map<String, MultiClusterK8sClient.ClientSet> allClients) {
+        List<ClusterResourceList> result = new ArrayList<>();
+        allClients.forEach((name, client) -> {
+            if (!StringUtils.isEmpty(name)) {
+                result.add(new ClusterResourceList(client.originalK8sClient
+                        .apps()
+                        .statefulSets()
+                        .list(), name));
+            }
+        });
+        return result;
     }
 
 
@@ -220,15 +303,15 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
 
     @Override
     public T getResource(String clusterId, String kind, String namespace, String name) {
-        if (!ResourceStoreFactory.listClusterId().contains(clusterId)){
+        if (!ResourceStoreFactory.listClusterId().contains(clusterId)) {
             throw new ApiPlaneException("ClusterId not found");
         }
         return (T) ResourceStoreFactory.getResourceStore(clusterId).get(kind, namespace, name);
     }
 
     @Override
-    public List<WorkLoadDTO<T>> getWorkLoadListWithSidecarVersion(List workLoadDTOList){
-        if (CollectionUtils.isEmpty(workLoadDTOList)){
+    public List<WorkLoadDTO<T>> getWorkLoadListWithSidecarVersion(List workLoadDTOList) {
+        if (CollectionUtils.isEmpty(workLoadDTOList)) {
             return new ArrayList<>();
         }
         workLoadDTOList.forEach(workLoadDTO -> addSidecarVersionOnWorkLoad((WorkLoadDTO<T>) workLoadDTO));
@@ -236,21 +319,21 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     }
 
     @Override
-    public List<PodDTO<T>> getPodListWithSidecarVersion(List podDTOList){
-        if (CollectionUtils.isEmpty(podDTOList)){
+    public List<PodDTO<T>> getPodListWithSidecarVersion(List podDTOList) {
+        if (CollectionUtils.isEmpty(podDTOList)) {
             return new ArrayList<>();
         }
         podDTOList.forEach(podDTO -> addSidecarVersionOnPod((PodDTO<T>) podDTO));
         return podDTOList;
     }
 
-    private PodDTO<T> addSidecarVersionOnPod(PodDTO<T> podDTO){
+    private PodDTO<T> addSidecarVersionOnPod(PodDTO<T> podDTO) {
         PodVersion queryVersion = new PodVersion();
         queryVersion.setClusterIP(podDTO.getClusterId());
         queryVersion.setNamespace(podDTO.getNamespace());
         queryVersion.setPodNames(Arrays.asList(podDTO.getName()));
         List<PodStatus> podStatuses = gatewayService.queryByPodNameList(queryVersion);
-        if (CollectionUtils.isEmpty(podStatuses)){
+        if (CollectionUtils.isEmpty(podStatuses)) {
             return podDTO;
         }
         PodStatus status = podStatuses.get(0);
@@ -258,7 +341,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         return podDTO;
     }
 
-    private WorkLoadDTO<T> addSidecarVersionOnWorkLoad(WorkLoadDTO<T> workLoadDTO){
+    private WorkLoadDTO<T> addSidecarVersionOnWorkLoad(WorkLoadDTO<T> workLoadDTO) {
         List<PodDTO<T>> podByWorkLoadInfo = getPodByWorkLoadInfo(workLoadDTO.getClusterId(), workLoadDTO.getKind(), workLoadDTO.getNamespace(),
                 workLoadDTO.getName());
         PodVersion queryVersion = new PodVersion();
@@ -266,10 +349,10 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         queryVersion.setNamespace(workLoadDTO.getNamespace());
         queryVersion.setPodNames(podByWorkLoadInfo
                 .stream()
-                .map(pod->pod.getName())
+                .map(pod -> pod.getName())
                 .collect(Collectors.toList()));
         List<PodStatus> podStatuses = gatewayService.queryByPodNameList(queryVersion);
-        if (CollectionUtils.isEmpty(podStatuses)){
+        if (CollectionUtils.isEmpty(podStatuses)) {
             return workLoadDTO;
         }
         Set<String> versionSet = podStatuses.stream().
