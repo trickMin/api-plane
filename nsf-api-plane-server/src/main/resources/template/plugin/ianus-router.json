@@ -1,136 +1,112 @@
 {
-  "fields": {
-    "x_user_id": {
-      "type": "string",
-      "help": "租户id"
-    },
-    "rule": {
-      "type": "array",
-      "alias": "规则列表",
-      "required": false,
-      "item_schema": {
-        "fields": {
-          "name": {
-            "type": "string"
-          },
-          "matcher": {
-            "type": "array",
-            "alias": "条件列表",
-            "required": false,
-            "item_schema": {
-              "fields": {
-                "source_type": {
-                  "type": "string",
-                  "alias": "类型",
-                  "enum": [
-                    "Header",
-                    "URI",
-                    "Host",
-                    "User-Agent",
-                    "Args",
-                    "Cookie"
-                  ]
-                },
-                "left_value": {
-                  "type": "string",
-                  "alias": "只有Header、Cookie和Args有此参数，代表name"
-                },
-                "op": {
-                  "type": "string",
-                  "enum": [
-                    "=",
-                    "!=",
-                    "startsWith",
-                    "endsWith",
-                    "regex",
-                    "nonRegex"
-                  ]
-                },
-                "right_value": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "action": {
-            "type": "table",
-            "alias": "动作",
-            "required": true,
-            "item_schema": {
-              "fields": {
-                "action_type": {
-                  "type": "string",
-                  "enum": [
-                    "rewrite",
-                    "pass_proxy",
-                    "redirect",
-                    "return"
-                  ],
-                  "required": true
-                },
-                "rewrite_regex": {
-                  "type": "string",
-                  "alias": "正则。仅rewrite有用",
-                  "required": false
-                },
-                "redirect_type": {
-                  "type": "number",
-                  "enum": [
-                    301,
-                    302
-                  ]
-                },
-                "target": {
-                  "type": "string",
-                  "alias": "目标路径。仅rewrite、redirect有用",
-                  "required": false
-                },
-                "pass_proxy_target": {
-                  "type": "array",
-                  "alias": "仅pass_proxy有用",
-                  "item_schema": {
-                    "fields": {
-                      "url": {
-                        "type": "string"
-                      },
-                      "weight": {
-                        "type": "number",
-                        "alias": "权重"
-                      }
-                    }
-                  }
-                },
-                "return_target": {
-                  "type": "table",
-                  "alias": "仅类型为return时有用",
-                  "item_schema": {
-                    "fields": {
-                      "code": {
-                        "type": "number",
-                        "alias": "状态码"
-                      },
-                      "header": {
-                        "type": "array",
-                        "item_schema": {
-                          "name": {
-                            "type": "string"
-                          },
-                          "value": {
-                            "type": "string"
-                          }
-                        }
-                      },
-                      "body": {
-                        "type": "string"
-                      }
-                    }
-                  }
-                }
-              }
-            }
+  "inject": {
+    "regex": "/(.*)",
+    "variable": "/$1"
+  },
+  "formatter": {
+    "kind": "ianus-router",
+    "version": "1.0",
+    "rewrite_regex_user": "&rewrite_regex_user",
+    "target_user": "&target_user",
+    "rule": [
+      {
+        "name": "&action_type",
+        "action": {
+          "action_type": "&action_type",
+          "rewrite_regex": "&rewrite_regex_user+&regex",
+          "target": "&target_user+&variable",
+          "header": "&return_target.header",
+          "return_target?": {
+            "code": "&return_target.code",
+            "body": "&return_target.body"
           }
         }
       }
+    ]
+  },
+  "layouts":[
+    {
+      "key": "action_type",
+      "alias": "动作类型",
+      "type": "select",
+      "options": [
+        {
+          "text": "url path重写",
+          "value": "rewrite"
+        },
+        {
+          "text": "请求中断",
+          "value": "return"
+        }
+      ],
+      "rules": [
+        "Required"
+      ]
+    },
+    {
+      "key": "rewrite_regex_user",
+      "alias": "重写前的path前缀",
+      "help": "需要以/开头",
+      "visible": {
+        "this.action_type": "rewrite"
+      },
+      "type": "input",
+      "default": null,
+      "rules": [
+        "Required"
+      ]
+    },
+    {
+      "key": "target_user",
+      "type": "input",
+      "alias": "重写后的path前缀",
+      "help": "需要以/开头，如果想要将某个前缀重写掉，则此值不填写",
+      "visible": {
+        "this.action_type": "rewrite"
+      },
+      "default": null
+    },
+    {
+      "key": "return_target",
+      "alias": "中断响应",
+      "visible": {
+        "this.action_type": "return"
+      },
+      "layouts": [
+        {
+          "key": "code",
+          "alias": "响应状态码",
+          "type": "input",
+          "rules": [
+            "Required",
+            "Number",
+            "MinNumber(200)",
+            "MaxNumber(599)"
+          ]
+        },
+        {
+          "key": "header",
+          "alias": "响应头",
+          "type": "array",
+          "layouts": [
+            {
+              "key": "key",
+              "alias": "请求头名称",
+              "type": "input"
+            },
+            {
+              "key": "value",
+              "alias": "请求头value",
+              "type": "input"
+            }
+          ]
+        },
+        {
+          "key": "body",
+          "alias": "响应内容",
+          "type": "input"
+        }
+      ]
     }
-  }
+  ]
 }

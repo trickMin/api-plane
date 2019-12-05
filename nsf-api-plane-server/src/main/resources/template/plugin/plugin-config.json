@@ -93,8 +93,8 @@
       "createTime": "1572537600000",
       "updateTime": "1572537600000",
       "pluginScope": "routeRule",
-      "pluginPriority": "",
-      "instructionForUse": "2500"
+      "pluginPriority": "2500",
+      "instructionForUse": "请求转换插件"
     }
   ]
 }
