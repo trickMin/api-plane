@@ -18,6 +18,7 @@ import io.fabric8.kubernetes.api.model.EndpointAddress;
 import io.fabric8.kubernetes.api.model.Endpoints;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.ObjectReference;
+import io.fabric8.kubernetes.api.model.apps.DaemonSet;
 import io.fabric8.kubernetes.api.model.apps.DaemonSetList;
 import io.fabric8.kubernetes.api.model.apps.DeploymentList;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
@@ -143,7 +144,29 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                 .build();
         resourceInformerMap.put(Endpoint, endpointInformer);
 
+        K8sResourceInformer daemonSetInformer = new K8sResourceInformer
+                .Builder()
+                .addResourceKind(DaemonSet)
+                .addMixedOperation(getDaemonSetMixedOperationList(allClients))
+                .addResourceList(getDaemonSetList(allClients))
+                .build();
+        resourceInformerMap.put(DaemonSet, daemonSetInformer);
 
+
+    }
+
+    private List<ClusterResourceList> getDaemonSetList(Map<String, MultiClusterK8sClient.ClientSet> allClients) {
+        List<ClusterResourceList> result = new ArrayList<>();
+        allClients.forEach((name, client) -> {
+            if (!StringUtils.isEmpty(name)) {
+                result.add(new ClusterResourceList(client.originalK8sClient
+                        .apps()
+                        .daemonSets()
+                        .inAnyNamespace()
+                        .list(), name));
+            }
+        });
+        return result;
     }
 
     private List<ClusterResourceList> getEndPointList(Map<String, MultiClusterK8sClient.ClientSet> allClients) {
@@ -463,6 +486,19 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
             if (!StringUtils.isEmpty(name)) {
                 result.add(new ClusterMixedOperation(name, (MixedOperation) client.originalK8sClient
                         .endpoints()
+                        .inAnyNamespace()));
+            }
+        });
+        return result;
+    }
+
+    private List<MixedOperation> getDaemonSetMixedOperationList(Map<String, MultiClusterK8sClient.ClientSet> cm) {
+        List<MixedOperation> result = new ArrayList<>();
+        cm.forEach((name, client) -> {
+            if (!StringUtils.isEmpty(name)) {
+                result.add(new ClusterMixedOperation(name, (MixedOperation) client.originalK8sClient
+                        .apps()
+                        .daemonSets()
                         .inAnyNamespace()));
             }
         });

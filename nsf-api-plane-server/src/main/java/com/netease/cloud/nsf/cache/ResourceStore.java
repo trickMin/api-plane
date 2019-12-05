@@ -24,11 +24,13 @@ public class ResourceStore<T extends HasMetadata> implements Store<T> {
     public T get(String kind, String namespace, String name) {
         Map<String, Map<String, T>> resourceByKind = resourceStore.get(kind);
         if (resourceByKind == null || resourceByKind.isEmpty()) {
-            throw new ApiPlaneException("the server doesn't have a resource type " + kind, 404);
+            return null;
+            //throw new ApiPlaneException("the server doesn't have a resource type " + kind, 404);
         }
         Map<String, T> resourceByKindAndNamespace = resourceByKind.get(namespace);
         if (resourceByKindAndNamespace == null || resourceByKindAndNamespace.isEmpty()) {
-            throw new ApiPlaneException("No resources found", 404);
+           // throw new ApiPlaneException("No resources found", 404);
+            return null;
         }
         return resourceByKindAndNamespace.get(name);
     }

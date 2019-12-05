@@ -32,6 +32,7 @@ public enum K8sResourceEnum {
     PluginManager(PluginManager.class, PluginManagerList.class, "/apis/networking.istio.io/v1alpha3/namespaces/%s/pluginmanagers"),
     Deployment(Deployment.class, DeploymentList.class, "/apis/extensions/v1beta1/namespaces/%s/deployments"),
     Endpoint(Endpoints.class, EndpointsList.class, "/api/v1/namespaces/%s/endpoints/"),
+    DaemonSet(DaemonSet.class, DaemonSetList.class, "/api/v1/namespaces/%s/endpoints/"),
     Service(Service.class, ServiceList.class, "/api/v1/namespaces/%s/services/"),
     StatefulSet(StatefulSet.class, StatefulSetList.class, "/apis/apps/v1/namespaces/%s/statefulsets/"),
     ReplicaSet(ReplicaSet.class, ReplicaSetList.class, "/apis/extensions/v1beta1/namespaces/%s/replicasets/"),
