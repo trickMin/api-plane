@@ -10,6 +10,7 @@ import com.netease.cloud.nsf.meta.Endpoint;
 import com.netease.cloud.nsf.meta.ServiceInfo;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
@@ -121,13 +122,13 @@ public class RouteProcessor extends AbstractSchemaProcessor implements SchemaPro
         ret.createOrUpdateJson("$", "match", createMatch(rg, info, xUserId));
         ret.createOrUpdateJson("$", "priority", info.getPriority());
         ret.createOrUpdateJson("$", "return",
-                String.format("{\"body\":{\"inlineString\":\"%s\"},\"code\":%s}", rg.getValue("$.action.return_target.body"), rg.getValue("$.action.return_target.code")));
+                String.format("{\"body\":{\"inlineString\":\"%s\"},\"code\":%s}", StringEscapeUtils.escapeJava(rg.getValue("$.action.return_target.body")), rg.getValue("$.action.return_target.code")));
         if (rg.contain("$.action.header")) {
-            ret.createOrUpdateJson("$", "appendHeaders", "{}");
+            ret.createOrUpdateJson("$", "appendRequestHeaders", "{}");
             List<Object> headers = rg.getValue("$.action.header[*]");
             for (Object header : headers) {
                 ResourceGenerator h = ResourceGenerator.newInstance(header, ResourceType.OBJECT);
-                ret.createOrUpdateValue("$.appendHeaders", h.getValue("$.name"), h.getValue("$.value"));
+                ret.createOrUpdateValue("$.appendRequestHeaders", h.getValue("$.name"), h.getValue("$.value"));
             }
         }
         return ret.jsonString();
