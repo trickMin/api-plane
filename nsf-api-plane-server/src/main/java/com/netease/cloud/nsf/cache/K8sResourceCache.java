@@ -63,7 +63,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
 
     private Map<K8sResourceEnum, K8sResourceInformer> resourceInformerMap = new HashMap<com.netease.cloud.nsf.core.k8s.K8sResourceEnum, K8sResourceInformer>();
     private static final Logger log = LoggerFactory.getLogger(K8sResourceCache.class);
-    private static final String UPDATE_RESOURCE_DURATION = "0 0/1 * * * ?";
+    private static final String UPDATE_RESOURCE_DURATION = "0 0/1 * * * ? *";
     private static int WORK_LOAD_CACHE_MAX_SIZE = 100;
     private static int WORK_LOAD_CACHE_REFRESH_DURATION = 5;
     private LoadingCache<WorkLoadIndex, List<T>> workLoadByServiceCache = CacheBuilder.newBuilder()
