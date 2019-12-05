@@ -15,7 +15,6 @@
           "action_type": "&action_type",
           "rewrite_regex": "&rewrite_regex_user+&regex",
           "target": "&target_user+&variable",
-          "header": "&return_target.header",
           "return_target?": {
             "code": "&return_target.code",
             "body": "&return_target.body"
@@ -82,23 +81,6 @@
             "Number",
             "MinNumber(200)",
             "MaxNumber(599)"
-          ]
-        },
-        {
-          "key": "header",
-          "alias": "响应头",
-          "type": "array",
-          "layouts": [
-            {
-              "key": "key",
-              "alias": "请求头名称",
-              "type": "input"
-            },
-            {
-              "key": "value",
-              "alias": "请求头value",
-              "type": "input"
-            }
           ]
         },
         {
