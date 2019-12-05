@@ -152,6 +152,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
             if (!StringUtils.isEmpty(name)) {
                 result.add(new ClusterResourceList(client.originalK8sClient
                         .endpoints()
+                        .inAnyNamespace()
                         .list(), name));
             }
         });
@@ -164,6 +165,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
             if (!StringUtils.isEmpty(name)) {
                 result.add(new ClusterResourceList(client.originalK8sClient
                         .services()
+                        .inAnyNamespace()
                         .list(), name));
             }
         });
@@ -177,6 +179,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                 result.add(new ClusterResourceList(client.originalK8sClient
                         .apps()
                         .replicaSets()
+                        .inAnyNamespace()
                         .list(), name));
             }
         });
@@ -189,6 +192,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
             if (!StringUtils.isEmpty(name)) {
                 result.add(new ClusterResourceList(client.originalK8sClient
                         .pods()
+                        .inAnyNamespace()
                         .list(), name));
             }
         });
@@ -202,6 +206,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                 result.add(new ClusterResourceList(client.originalK8sClient
                         .apps()
                         .deployments()
+                        .inAnyNamespace()
                         .list(), name));
             }
         });
@@ -215,6 +220,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                 result.add(new ClusterResourceList(client.originalK8sClient
                         .apps()
                         .statefulSets()
+                        .inAnyNamespace()
                         .list(), name));
             }
         });
