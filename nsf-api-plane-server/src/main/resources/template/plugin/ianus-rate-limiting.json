@@ -43,24 +43,6 @@
           ]
         },
         {
-          "key": "year",
-          "alias": "每年请求数",
-          "type": "number",
-          "rules": [
-            "Number",
-            "MinNumber(0)"
-          ]
-        },
-        {
-          "key": "month",
-          "alias": "每月请求数",
-          "type": "number",
-          "rules": [
-            "Number",
-            "MinNumber(0)"
-          ]
-        },
-        {
           "key": "day",
           "alias": "每天请求数",
           "type": "number",
