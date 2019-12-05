@@ -182,6 +182,7 @@ public class GatewayModelOperator {
 
     private String adjustVs(String rawVs) {
         ResourceGenerator gen = ResourceGenerator.newInstance(rawVs, ResourceType.YAML);
+        gen.removeElement("$.spec.http[?].route", Criteria.where("return").exists(true));
         gen.removeElement("$.spec.http[?].route", Criteria.where("redirect").exists(true));
         gen.removeElement("$.spec.http[?].fault", Criteria.where("redirect").exists(true));
         return gen.yamlString();

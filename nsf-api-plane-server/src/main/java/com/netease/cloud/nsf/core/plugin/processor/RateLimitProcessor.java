@@ -115,8 +115,6 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
     private String createRateLimits(ResourceGenerator rg, ServiceInfo serviceInfo, String headerDescriptor, String xUserId) {
         ResourceGenerator vs = ResourceGenerator.newInstance("{\"stage\":0,\"actions\":[]}");
 
-        String matchHeader = getMatchHeader(rg);
-
         vs.addJsonElement("$.actions",
                 String.format("{\"headerValueMatch\":{\"headers\":[],\"descriptorValue\":\"%s\"}}", headerDescriptor));
         // 添加租户信息
@@ -124,9 +122,8 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
             vs.addJsonElement("$.actions[0].headerValueMatch.headers",
                     String.format("{\"name\":\"x_user_id\",\"regexMatch\":\"%s\"}", xUserId));
         }
-        //todo: if !rg.contain($.pre_condition)
         if (rg.contain("$.pre_condition")) {
-
+            String matchHeader = getMatchHeader(rg);
             int length = rg.getValue("$.pre_condition.length()");
             for (int i = 0; i < length; i++) {
                 String operator = rg.getValue(String.format("$.pre_condition[%d].operator", i));

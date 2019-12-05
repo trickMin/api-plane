@@ -10,15 +10,15 @@ import javax.validation.constraints.NotNull;
  **/
 public class PluginOrderItemDTO {
 
-    @JsonProperty("Enable")
+    @JsonProperty("enable")
     @NotNull(message = "enable")
     private Boolean enable;
 
-    @JsonProperty("Name")
+    @JsonProperty("name")
     @NotNull(message = "name")
     private String name;
 
-    @JsonProperty("Settings")
+    @JsonProperty("settings")
     private Object settings;
 
     public boolean getEnable() {

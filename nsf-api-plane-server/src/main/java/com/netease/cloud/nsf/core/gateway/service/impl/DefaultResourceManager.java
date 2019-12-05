@@ -36,7 +36,7 @@ public class DefaultResourceManager implements ResourceManager {
 
     @Override
     public List<Endpoint> getEndpointList() {
-        logger.info("DefaultResourceManager.getEndpointList, Condition:{}", "endpoint.getAddress() != null && endpoint.getHostname() != null && endpoint.getPort() != null && !inIstioSystem(endpoint.getHostname()) && !inKubeSystem(endpoint.getHostname()) &&= !inGatewaySysten(endpoint.getHostname()) && isHttp(endpoint.getProtocol()");
+        logger.info("DefaultResourceManager.getEndpointList, Condition:{}", "address != null && hostname != null && port != null && !inIstioSystem() && !inKubeSystem() && !inGatewaySystem()");
         return istioHttpClient.getEndpointList(endpoint ->
                 // address, hostname, port不为空
                 endpoint.getAddress() != null &&
@@ -45,15 +45,15 @@ public class DefaultResourceManager implements ResourceManager {
                         // 不在 istio-system, kube-system, gateway-system内
                         !inIstioSystem(endpoint.getHostname()) &&
                         !inKubeSystem(endpoint.getHostname()) &&
-                        !inGatewaySystem(endpoint.getHostname()) &&
-                        // 是http服务
-                        isHttp(endpoint.getProtocol())
+                        !inGatewaySystem(endpoint.getHostname())
+//                        // 是http服务
+//                        &&isHttp(endpoint.getProtocol())
         );
     }
 
     @Override
     public List<Gateway> getGatewayList() {
-        logger.info("DefaultResourceManager.getGatewayList, Condition:{}", "Objects.nonNull(gateway.getLabels()) && gateway.getLabels().containsKey(\"gw_cluster\")");
+        logger.info("DefaultResourceManager.getGatewayList, Condition:{}", "Objects.nonNull(Labels()) && gateway.getLabels().containsKey(\"gw_cluster\")");
         return istioHttpClient.getGatewayList(gateway ->
                 // 包含gw_cluster label
                 Objects.nonNull(gateway.getLabels()) &&
@@ -62,7 +62,7 @@ public class DefaultResourceManager implements ResourceManager {
 
     @Override
     public List<String> getServiceList() {
-        logger.info("DefaultResourceManager.getServiceList, Condition:{}", "endpoint.getHostname() != null && !inIstioSystem(endpoint.getHostname()) && !inKubeSystem(endpoint.getHostname()) && !inGatewaySysten(endpoint.getHostname()) && isHttp(endpoint.getProtocol()) && !isServiceEntry(endpoint.getHostname())");
+        logger.info("DefaultResourceManager.getServiceList, Condition:{}", "hostname != null && !inIstioSystem() && !inKubeSystem() && !inGatewaySystem() && !isServiceEntry()");
         return istioHttpClient.getServiceList(endpoint ->
                 // hostname不为空
                 endpoint.getHostname() != null &&
@@ -70,8 +70,8 @@ public class DefaultResourceManager implements ResourceManager {
                         !inIstioSystem(endpoint.getHostname()) &&
                         !inKubeSystem(endpoint.getHostname()) &&
                         !inGatewaySystem(endpoint.getHostname()) &&
-                        // 是http服务
-                        isHttp(endpoint.getProtocol()) &&
+//                        // 是http服务
+//                        isHttp(endpoint.getProtocol()) &&
                         // 不是ServiceEntry服务
                         !isServiceEntry(endpoint.getHostname())
         );
