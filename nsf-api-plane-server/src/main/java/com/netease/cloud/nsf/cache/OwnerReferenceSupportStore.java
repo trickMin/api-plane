@@ -102,7 +102,7 @@ public class OwnerReferenceSupportStore<T extends HasMetadata> implements Store<
         // 过滤掉那些value值为空key
         ownerReference = tmpOwnerReference.entrySet()
                 .stream()
-                .filter(entry -> CollectionUtils.isEmpty(entry.getValue()))
+                .filter(entry -> !CollectionUtils.isEmpty(entry.getValue()))
                 .collect(Collectors.toMap(Map.Entry::getKey,
                         Map.Entry::getValue));
         resourceStore.replaceByKind(resourceMap, kind);
