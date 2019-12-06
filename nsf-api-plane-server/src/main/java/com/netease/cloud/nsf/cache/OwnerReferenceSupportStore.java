@@ -88,7 +88,7 @@ public class OwnerReferenceSupportStore<T extends HasMetadata> implements Store<
         List<T> oldResource = listByKind(kind);
         Map<String, List<T>> tmpOwnerReference = new HashMap<>(ownerReference);
         oldResource.forEach(t -> getOwnerName(t)
-                .forEach(name -> removeResourceFromReference(name, t)));
+                .forEach(name -> removeResourceFromReference(tmpOwnerReference,name, t)));
         // 添加新的OwnerReference信息
         if (resourceMap != null && !resourceMap.isEmpty()) {
             List<T> newResource = resourceMap.entrySet()
@@ -97,7 +97,7 @@ public class OwnerReferenceSupportStore<T extends HasMetadata> implements Store<
                     .collect(Collectors.toList());
 
             newResource.forEach(t -> getOwnerName(t)
-                    .forEach(name -> addResourceToReference(name, t)));
+                    .forEach(name -> addResourceToReference(tmpOwnerReference,name, t)));
         }
         // 过滤掉那些value值为空key
         ownerReference = tmpOwnerReference.entrySet()
@@ -231,6 +231,37 @@ public class OwnerReferenceSupportStore<T extends HasMetadata> implements Store<
         } else {
             ownerReference.put(key, referenceList);
         }
+    }
+
+    private void removeResourceFromReference(Map<String,List<T>> orMap ,String key, T obj) {
+        List<T> referenceList = orMap.get(key);
+        if (referenceList == null) {
+            return;
+        }
+        referenceList = referenceList.stream()
+                .filter(o -> !o.getKind().equals(obj.getKind()) ||
+                        !o.getMetadata().getNamespace().equals(obj.getMetadata().getNamespace()) ||
+                        !o.getMetadata().getName().equals(obj.getMetadata().getName()))
+                .collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(referenceList)) {
+            orMap.remove(key);
+        } else {
+            orMap.put(key, referenceList);
+        }
+    }
+
+    private void addResourceToReference(Map<String,List<T>> orMap, String key, T obj) {
+        List<T> referenceList = orMap.get(key);
+        if (referenceList == null) {
+            referenceList = new ArrayList<>();
+        }
+        referenceList = referenceList.stream()
+                .filter(o -> !o.getKind().equals(obj.getKind()) ||
+                        !o.getMetadata().getNamespace().equals(obj.getMetadata().getNamespace()) ||
+                        !o.getMetadata().getName().equals(obj.getMetadata().getName()))
+                .collect(Collectors.toList());
+        referenceList.add(obj);
+        orMap.put(key, referenceList);
     }
 
     private void addResourceToReference(String key, T obj) {
