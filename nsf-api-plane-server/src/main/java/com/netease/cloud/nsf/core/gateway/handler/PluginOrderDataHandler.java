@@ -21,8 +21,7 @@ public class PluginOrderDataHandler implements DataHandler<PluginOrder> {
     @Override
     public List<TemplateParams> handle(PluginOrder po) {
 
-        String name = CollectionUtils.isEmpty(po.getGatewayLabels()) ?
-                DEFAULT_PLUGIN_MANAGER_NAME : joinLabelMap(po.getGatewayLabels());
+        String name = getDefaultPluginManagerName(po.getGatewayLabels());
 
         TemplateParams pmParams = TemplateParams.instance()
                 .put(PLUGIN_MANAGER_NAME, name)
@@ -32,9 +31,16 @@ public class PluginOrderDataHandler implements DataHandler<PluginOrder> {
         return Arrays.asList(pmParams);
     }
 
+    private String getDefaultPluginManagerName(Map<String, String> label) {
+        String name = CollectionUtils.isEmpty(label) ? DEFAULT_PLUGIN_MANAGER_NAME : joinLabelMap(label);
+        name = name.replaceAll("_", "-");
+        return name;
+    }
+
     /**
      * 将map中的key value用 "-" 连接
      * 比如 k1-v1-k2-v2
+     *
      * @param labelMap
      * @return
      */

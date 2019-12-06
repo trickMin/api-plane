@@ -3,7 +3,7 @@
     "kind": "cors",
     "corsPolicy": {
       "kind": "cors",
-      "allowOrigin": "&allowOrigin",
+      "allowOriginRegex": "&allowOrigin",
       "allowMethods": "&allowMethods?",
       "allowHeaders": "&allowHeaders?",
       "exposeHeaders": "&exposeHeaders?",

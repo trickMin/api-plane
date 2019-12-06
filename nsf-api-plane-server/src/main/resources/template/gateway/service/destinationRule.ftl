@@ -9,4 +9,5 @@ spec:
 
   subsets:
   - name: ${t_api_service}-${t_api_gateway}
+    altStatName: ${t_destination_rule_alt_stat_name}
 <@indent count=4><@autoremove><#include "destinationRule_trafficPolicy.ftl"/></@autoremove></@indent>

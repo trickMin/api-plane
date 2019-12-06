@@ -43,31 +43,10 @@
           ]
         },
         {
-          "key": "year",
-          "alias": "每年请求数",
-          "type": "number",
-          "rules": [
-            "Required",
-            "Number",
-            "MinNumber(0)"
-          ]
-        },
-        {
-          "key": "month",
-          "alias": "每月请求数",
-          "type": "number",
-          "rules": [
-            "Required",
-            "Number",
-            "MinNumber(0)"
-          ]
-        },
-        {
           "key": "day",
           "alias": "每天请求数",
           "type": "number",
           "rules": [
-            "Required",
             "Number",
             "MinNumber(0)"
           ]
@@ -77,7 +56,6 @@
           "alias": "每小时请求数",
           "type": "number",
           "rules": [
-            "Required",
             "Number",
             "MinNumber(0)"
           ]
@@ -87,7 +65,6 @@
           "alias": "每分钟请求数",
           "type": "number",
           "rules": [
-            "Required",
             "Number",
             "MinNumber(0)"
           ]
@@ -97,7 +74,6 @@
           "alias": "每秒请求数",
           "type": "number",
           "rules": [
-            "Required",
             "Number",
             "MinNumber(0)"
           ]

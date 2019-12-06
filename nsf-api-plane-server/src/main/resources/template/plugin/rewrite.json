@@ -1,27 +1,39 @@
 {
-  "fields": {
-    "kind": {
-      "type": "string",
-      "help": "插件类型"
-    },
+  "inject": {
+    "kind": "rewrite",
+    "regex": "/(.*)",
+    "variable": "/$1"
+  },
+  "formatter": {
+    "kind": "rewrite",
     "action": {
-      "type": "table",
-      "alias": "动作",
-      "required": true,
-      "item_schema": {
-        "fields": {
-          "rewrite_regex": {
-            "type": "string",
-            "alias": "正则。仅rewrite有用",
-            "required": false
-          },
-          "target": {
-            "type": "string",
-            "alias": "目标路径。仅rewrite、redirect有用",
-            "required": false
-          }
-        }
-      }
+      "rewrite_regex": "&rewrite_regex+&regex",
+      "target": "&target+&variable"
+    },
+    "rewrite_regex":"&rewrite_regex",
+    "target":"&target"
+  },
+  "layouts": [
+    {
+      "key": "rewrite_regex",
+      "alias": "重写前的path前缀",
+      "type": "input",
+      "help": "需要以/开头",
+      "rules": [
+        "Required",
+        "MaxLength(100)",
+        "^/"
+      ]
+    },
+    {
+      "key": "target",
+      "type": "input",
+      "alias": "重新后的path前缀",
+      "help": "需要以/开头，如果想要将某个前缀重写掉，则此值不填写",
+      "rules": [
+        "MaxLength(100)",
+        "^/"
+      ]
     }
-  }
+  ]
 }

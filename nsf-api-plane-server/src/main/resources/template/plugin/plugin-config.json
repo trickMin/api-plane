@@ -9,7 +9,7 @@
       "createTime": "1572537600000",
       "updateTime": "1572537600000",
       "pluginScope": "routeRule",
-      "pluginPriority": "0",
+      "pluginPriority": "500",
       "instructionForUse": "按百分比限流，例如允许50%通"
     },
     {
@@ -21,7 +21,7 @@
       "createTime": "1572537600000",
       "updateTime": "1572537600000",
       "pluginScope": "routeRule",
-      "pluginPriority": "10",
+      "pluginPriority": "1500",
       "instructionForUse": "按频率限流,例如限制5个请求/s"
     },
     {
@@ -33,7 +33,7 @@
       "createTime": "1572537600000",
       "updateTime": "1572537600000",
       "pluginScope": "routeRule",
-      "pluginPriority": "200",
+      "pluginPriority": "3500",
       "instructionForUse": "包含参数分流、重定向、直接返回、PassProxy功能"
     },
     {
@@ -45,7 +45,7 @@
       "createTime": "1572537600000",
       "updateTime": "1572537600000",
       "pluginScope": "routeRule",
-      "pluginPriority": "500",
+      "pluginPriority": "1000",
       "instructionForUse": "根据ip过滤请求"
     },
     {
@@ -57,7 +57,7 @@
       "createTime": "1572537600000",
       "updateTime": "1572537600000",
       "pluginScope": "routeRule",
-      "pluginPriority": "1000",
+      "pluginPriority": "2000",
       "instructionForUse": ""
     },
     {
@@ -69,7 +69,7 @@
       "createTime": "1572537600000",
       "updateTime": "1572537600000",
       "pluginScope": "routeRule",
-      "pluginPriority": "1500",
+      "pluginPriority": "2500",
       "instructionForUse": ""
     },
     {
@@ -81,7 +81,7 @@
       "createTime": "1572537600000",
       "updateTime": "1572537600000",
       "pluginScope": "routeRule",
-      "pluginPriority": "2000",
+      "pluginPriority": "2500",
       "instructionForUse": "前缀替换功能用这个插件实现"
     },
     {
@@ -93,8 +93,8 @@
       "createTime": "1572537600000",
       "updateTime": "1572537600000",
       "pluginScope": "routeRule",
-      "pluginPriority": "",
-      "instructionForUse": "2500"
+      "pluginPriority": "2500",
+      "instructionForUse": "请求转换插件"
     },
     {
       "name": "cache",
@@ -105,8 +105,8 @@
       "createTime": "1572537600000",
       "updateTime": "1572537600000",
       "pluginScope": "routeRule",
-      "pluginPriority": "",
-      "instructionForUse": "2500"
+      "pluginPriority": "3000",
+      "instructionForUse": "缓存插件"
     }
   ]
 }
