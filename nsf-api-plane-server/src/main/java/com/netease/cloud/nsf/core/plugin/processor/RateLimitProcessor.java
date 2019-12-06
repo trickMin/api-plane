@@ -36,7 +36,6 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
         String xUserId = getXUserId(total);
 
         List<Object> limits = total.getValue("$.limit_by_list");
-        AtomicInteger headerNo = new AtomicInteger(0);
 
         ResourceGenerator rateLimitGen = ResourceGenerator.newInstance("{\"rateLimits\":[]}");
         ResourceGenerator shareConfigGen = ResourceGenerator.newInstance("[{\"domain\":\"qingzhou\",\"descriptors\":[]}]");
@@ -44,13 +43,11 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
         limits.forEach(limit -> {
             ResourceGenerator rg = ResourceGenerator.newInstance(limit, ResourceType.OBJECT, editorContext);
             // 频控计算的不同维度，例如second, minute, hour, day(month, year暂时不支持)
-            Integer no = headerNo.getAndIncrement();
             getUnits(rg).forEach((unit, duration) -> {
-                String headerDescriptor = getHeaderDescriptor(serviceInfo, no, getMatchHeader(rg), unit);
+                String headerDescriptor = getHeaderDescriptor(serviceInfo, xUserId);
                 rateLimitGen.addJsonElement("$.rateLimits", createRateLimits(rg, serviceInfo, headerDescriptor, xUserId));
                 shareConfigGen.addJsonElement("$[0].descriptors", createShareConfig(serviceInfo, headerDescriptor, unit, duration));
             });
-
         });
         holder.setSharedConfigFragment(
                 new FragmentWrapper.Builder()
@@ -62,7 +59,7 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
         );
         holder.setVirtualServiceFragment(
                 new FragmentWrapper.Builder()
-                        .withFragmentType(FragmentTypeEnum.VS_HOST)
+                        .withFragmentType(FragmentTypeEnum.VS_API)
                         .withResourceType(K8sResourceEnum.VirtualService)
                         .withContent(rateLimitGen.yamlString())
                         .withXUserId(xUserId)
@@ -87,14 +84,14 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
-        ResourceGenerator rateLimitGen = ResourceGenerator.newInstance("{\"rateLimits\":[]}");
+        ResourceGenerator rateLimitGen = ResourceGenerator.newInstance("{\"ratelimit\":{\"rateLimits\":[]}}");
         ResourceGenerator shareConfigGen = ResourceGenerator.newInstance("[{\"domain\":\"qingzhou\",\"descriptors\":[]}]");
         List<Object> ratelimits = new ArrayList<>();
         List<Object> descriptors = new ArrayList<>();
         virtualServices.forEach(wrapper -> ratelimits.addAll(ResourceGenerator.newInstance(wrapper.getContent(), ResourceType.YAML).getValue("$.rateLimits[*]")));
         sharedConfigs.forEach(wrapper -> descriptors.addAll(ResourceGenerator.newInstance(wrapper.getContent(), ResourceType.YAML).getValue("$[0].descriptors[*]")));
 
-        ratelimits.forEach(rateLimit -> rateLimitGen.addElement("$.rateLimits", rateLimit));
+        ratelimits.forEach(rateLimit -> rateLimitGen.addElement("$.ratelimit.rateLimits", rateLimit));
         descriptors.forEach(descriptor -> shareConfigGen.addElement("$[0].descriptors", descriptor));
 
         FragmentHolder holder = new FragmentHolder();
@@ -107,7 +104,7 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
         );
         holder.setVirtualServiceFragment(
                 new FragmentWrapper.Builder()
-                        .withFragmentType(FragmentTypeEnum.VS_HOST)
+                        .withFragmentType(FragmentTypeEnum.VS_API)
                         .withResourceType(K8sResourceEnum.VirtualService)
                         .withContent(rateLimitGen.yamlString())
                         .build()
@@ -155,11 +152,13 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
                 vs.addJsonElement("$.actions[0].headerValueMatch.headers",
                         String.format("{\"name\":\"%s\",\"regexMatch\":\"%s\"}", matchHeader, regex));
             }
-            vs.addJsonElement("$.actions[0].headerValueMatch.headers",
-                    String.format("{\"name\":\":path\",\"regexMatch\":\"%s\"}", serviceInfo.getUri()));
-            vs.addJsonElement("$.actions[0].headerValueMatch.headers",
-                    String.format("{\"name\":\":authority\",\"regexMatch\":\"%s\"}", String.join("|", serviceInfo.getApi().getHosts())));
         }
+        vs.addJsonElement("$.actions[0].headerValueMatch.headers",
+                String.format("{\"name\":\":path\",\"regexMatch\":\"%s\"}", serviceInfo.getUri()));
+        vs.addJsonElement("$.actions[0].headerValueMatch.headers",
+                String.format("{\"name\":\":authority\",\"regexMatch\":\"%s\"}", serviceInfo.getHosts()));
+        vs.addJsonElement("$.actions[0].headerValueMatch.headers",
+                String.format("{\"name\":\":method\",\"regexMatch\":\"%s\"}", serviceInfo.getMethod()));
         return vs.jsonString();
     }
 
@@ -174,6 +173,7 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
     }
 
     private String getMatchHeader(ResourceGenerator rg) {
+        if (!rg.contain("$.identifier_extractor")) return "";
         String extractor = rg.getValue("$.identifier_extractor");
 
         String matchHeader;
@@ -204,7 +204,10 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
         return ret;
     }
 
-    private String getHeaderDescriptor(ServiceInfo serviceInfo, Integer no, String headerName, String unit) {
-        return String.format("Service[%s]-Api[%s]-Header[%s][%s][%d]", getServiceName(serviceInfo), getApiName(serviceInfo), headerName, unit, no);
+    private String getHeaderDescriptor(ServiceInfo serviceInfo, String user) {
+        if (StringUtils.isBlank(user)) {
+            user = "none";
+        }
+        return String.format("Service[%s]-User[%s]-Api[%s]-Id[%s]", getServiceName(serviceInfo), user, getApiName(serviceInfo), UUID.randomUUID().toString());
     }
 }
