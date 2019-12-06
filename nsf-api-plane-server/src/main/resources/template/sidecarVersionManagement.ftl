@@ -16,7 +16,7 @@ spec:
     <#if w.workLoadType == "Deployment">
     viaDeployment:
     </#if>
-    <#if w.workLoadType == "Statefulset">
+    <#if w.workLoadType == "StatefulSet">
     viaStatefulSet:
     </#if>
     <#if w.workLoadType == "Service">

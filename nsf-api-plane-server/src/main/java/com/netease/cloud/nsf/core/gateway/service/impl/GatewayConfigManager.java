@@ -126,15 +126,12 @@ public class GatewayConfigManager implements ConfigManager {
     @Override
     public void updateConfig(SidecarVersionManagement svm) {
         List<IstioResource> resources = modelProcessor.translate(svm);
-        //TODO
-        String clusterId = null;
-        update(resources, clusterId);
+        update(resources, svm.getClusterId());
     }
 
     @Override
     public List<PodStatus> querySVMConfig(PodVersion podVersion) {
-        //TODO
-        String clusterId = null;
+        String clusterId = podVersion.getClusterId();
         IstioResource versionmanager = multiK8sConfigStore.get(K8sResourceEnum.VersionManager.name(), podVersion.getNamespace(), VM_RESOURCE_NAME, clusterId);
         if(versionmanager == null) {
             return null;

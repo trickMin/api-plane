@@ -7,8 +7,9 @@ import java.util.List;
 
 public class PodVersion {
 
-    @JsonProperty(value = "ClusterIP")
-    private String clusterIP;
+    @NotEmpty(message = "clusterId")
+    @JsonProperty(value = "ClusterId")
+    private String clusterId;
 
     @NotEmpty(message = "namespace")
     @JsonProperty(value = "Namespace")
@@ -18,12 +19,12 @@ public class PodVersion {
     @JsonProperty(value = "PodNames")
     private List<String> podNames;
 
-    public String getClusterIP() {
-        return clusterIP;
+    public String getClusterId() {
+        return clusterId;
     }
 
-    public void setClusterIP(String clusterIP) {
-        this.clusterIP = clusterIP;
+    public void setClusterId(String clusterId) {
+        this.clusterId = clusterId;
     }
 
     public String getNamespace() {
