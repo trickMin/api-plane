@@ -12,9 +12,18 @@ public class ApiPlaneErrorCode {
     public static ErrorCode resourceNotFound = resourceNotFoundErrorCode();
     public static ErrorCode workLoadNotFound = workLoadNotFoundErrorCode();
     public static ErrorCode sidecarInjectPolicyError = sidecarInjectPolicyError();
+    public static ErrorCode workLoadNotInMesh = workLoadNotInMesh();
 
     public static ErrorCode InvalidFormat(String param) {
         return new ErrorCode(ErrorCodeEnum.InvalidFormat, param);
+    }
+
+    public static ErrorCode ParameterError(String param) {
+        return new ErrorCode(ErrorCodeEnum.ParameterError, param);
+    }
+
+    public static ErrorCode CanNotFound(String param) {
+        return new ErrorCode(ErrorCodeEnum.CanNotFound, param);
     }
 
     public static ErrorCode MissingParamsError(String paramName) {
@@ -43,6 +52,14 @@ public class ApiPlaneErrorCode {
         errorCode.setCode("404");
         errorCode.setMessage("工作负载不存在");
         errorCode.setEnMessage("The workload does not exist");
+        return errorCode;
+    }
+
+    private static ErrorCode workLoadNotInMesh() {
+        ErrorCode errorCode = new ErrorCode(ErrorCodeEnum.QueryParameterError, null);
+        errorCode.setCode("400");
+        errorCode.setMessage("该负载未加入网格");
+        errorCode.setEnMessage("The workload is not added to the mesh");
         return errorCode;
     }
 }

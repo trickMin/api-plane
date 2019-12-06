@@ -185,7 +185,7 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
 
     private void createSidecarVersionCRD(String clusterId, String namespace, String kind, String name) {
         SidecarVersionManagement versionManagement = new SidecarVersionManagement();
-        versionManagement.setClusterIP(clusterId);
+        versionManagement.setClusterId(clusterId);
         versionManagement.setNamespace(namespace);
         SVMSpec svmSpec = new SVMSpec();
         svmSpec.setWorkLoadType(kind);
