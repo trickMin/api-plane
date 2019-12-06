@@ -88,7 +88,7 @@ public class OwnerReferenceSupportStore<T extends HasMetadata> implements Store<
         List<T> oldResource = listByKind(kind);
         Map<String, List<T>> tmpOwnerReference = new HashMap<>(ownerReference);
         oldResource.forEach(t -> getOwnerName(t)
-                .forEach(name -> removeResourceFromReference(tmpOwnerReference,name, t)));
+                .forEach(name -> removeResourceFromReference(tmpOwnerReference, name, t)));
         // 添加新的OwnerReference信息
         if (resourceMap != null && !resourceMap.isEmpty()) {
             List<T> newResource = resourceMap.entrySet()
@@ -97,7 +97,7 @@ public class OwnerReferenceSupportStore<T extends HasMetadata> implements Store<
                     .collect(Collectors.toList());
 
             newResource.forEach(t -> getOwnerName(t)
-                    .forEach(name -> addResourceToReference(tmpOwnerReference,name, t)));
+                    .forEach(name -> addResourceToReference(tmpOwnerReference, name, t)));
         }
         // 过滤掉那些value值为空key
         ownerReference = tmpOwnerReference.entrySet()
@@ -217,10 +217,7 @@ public class OwnerReferenceSupportStore<T extends HasMetadata> implements Store<
 
 
     private void removeResourceFromReference(String key, T obj) {
-        List<T> referenceList = ownerReference.get(key);
-        if (referenceList == null) {
-            return;
-        }
+        List<T> referenceList = ownerReference.computeIfAbsent(key, k -> new ArrayList<>());
         referenceList = referenceList.stream()
                 .filter(o -> !o.getKind().equals(obj.getKind()) ||
                         !o.getMetadata().getNamespace().equals(obj.getMetadata().getNamespace()) ||
@@ -233,11 +230,8 @@ public class OwnerReferenceSupportStore<T extends HasMetadata> implements Store<
         }
     }
 
-    private void removeResourceFromReference(Map<String,List<T>> orMap ,String key, T obj) {
-        List<T> referenceList = orMap.get(key);
-        if (referenceList == null) {
-            return;
-        }
+    private void removeResourceFromReference(Map<String, List<T>> orMap, String key, T obj) {
+        List<T> referenceList = orMap.computeIfAbsent(key, k -> new ArrayList<>());
         referenceList = referenceList.stream()
                 .filter(o -> !o.getKind().equals(obj.getKind()) ||
                         !o.getMetadata().getNamespace().equals(obj.getMetadata().getNamespace()) ||
@@ -250,11 +244,8 @@ public class OwnerReferenceSupportStore<T extends HasMetadata> implements Store<
         }
     }
 
-    private void addResourceToReference(Map<String,List<T>> orMap, String key, T obj) {
-        List<T> referenceList = orMap.get(key);
-        if (referenceList == null) {
-            referenceList = new ArrayList<>();
-        }
+    private void addResourceToReference(Map<String, List<T>> orMap, String key, T obj) {
+        List<T> referenceList = orMap.computeIfAbsent(key, k -> new ArrayList<>());
         referenceList = referenceList.stream()
                 .filter(o -> !o.getKind().equals(obj.getKind()) ||
                         !o.getMetadata().getNamespace().equals(obj.getMetadata().getNamespace()) ||
@@ -265,10 +256,7 @@ public class OwnerReferenceSupportStore<T extends HasMetadata> implements Store<
     }
 
     private void addResourceToReference(String key, T obj) {
-        List<T> referenceList = ownerReference.get(key);
-        if (referenceList == null) {
-            referenceList = new ArrayList<>();
-        }
+        List<T> referenceList = ownerReference.computeIfAbsent(key, k -> new ArrayList<>());
         referenceList = referenceList.stream()
                 .filter(o -> !o.getKind().equals(obj.getKind()) ||
                         !o.getMetadata().getNamespace().equals(obj.getMetadata().getNamespace()) ||
