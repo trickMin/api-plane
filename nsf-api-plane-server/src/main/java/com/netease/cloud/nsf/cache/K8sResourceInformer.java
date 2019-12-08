@@ -1,6 +1,8 @@
 package com.netease.cloud.nsf.cache;
 
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
+import com.netease.cloud.nsf.core.k8s.KubernetesClient;
+import com.netease.cloud.nsf.core.k8s.MultiClusterK8sClient;
 import com.netease.cloud.nsf.core.k8s.http.K8sHttpClient;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.KubernetesList;
@@ -36,7 +38,7 @@ public class K8sResourceInformer<T extends HasMetadata> implements Informer {
     private List<ResourceFilter> includeFilter;
     private List<ResourceFilter> excludeFilter;
     private List<MixedOperation> mixedOperationList;
-    private List<ClusterResourceList> kubernetesLists;
+    private MultiClusterK8sClient multiClusterK8sClient;
 
 
     private ArrayBlockingQueue<ResourceUpdateEvent> eventQueue = new ArrayBlockingQueue<>(EVENT_QUEUE_SIZE, false);
@@ -50,8 +52,7 @@ public class K8sResourceInformer<T extends HasMetadata> implements Informer {
         private List<ResourceFilter> includeFilter = new LinkedList<>();
         private List<ResourceFilter> excludeFilter = new LinkedList<>();
         private List<MixedOperation> mixedOperation;
-        private K8sHttpClient httpClient;
-        private List<ClusterResourceList> clusterResourceLists;
+        private MultiClusterK8sClient multiClusterK8sClient;
 
         public Builder addUpdateListener(ResourceUpdatedListener listener) {
             this.handler.subscribeUpdatedListener(listener);
@@ -88,15 +89,11 @@ public class K8sResourceInformer<T extends HasMetadata> implements Informer {
             return this;
         }
 
-        public Builder addResourceList(List<ClusterResourceList> resourceLists){
-            this.clusterResourceLists = resourceLists;
+        public Builder addHttpK8sClient(MultiClusterK8sClient multiClusterK8sClient) {
+            this.multiClusterK8sClient = multiClusterK8sClient;
             return this;
         }
 
-        public Builder addHttpClient(K8sHttpClient httpClient) {
-            this.httpClient = httpClient;
-            return this;
-        }
 
         public K8sResourceInformer<HasMetadata> build() {
             K8sResourceInformer<HasMetadata> informer = new K8sResourceInformer<>();
@@ -105,7 +102,7 @@ public class K8sResourceInformer<T extends HasMetadata> implements Informer {
             informer.includeFilter = this.includeFilter;
             informer.excludeFilter = this.excludeFilter;
             informer.mixedOperationList = this.mixedOperation;
-            informer.kubernetesLists = this.clusterResourceLists;
+            informer.multiClusterK8sClient = this.multiClusterK8sClient;
             return informer;
         }
 
@@ -188,12 +185,20 @@ public class K8sResourceInformer<T extends HasMetadata> implements Informer {
     @Override
     public void replaceResource() {
         // TODO: 2019-11-04 从k8s获取informer所监听资源列表并更新本地
-        for (ClusterResourceList kubernetesList : kubernetesLists) {
-            String clusterId = kubernetesList.getCluster();
-            Map resourceMap = buildResourceMapByKind(kubernetesList.getItems());
-            getStoreByClusterId(clusterId).replaceByKind(resourceMap,resourceKind.name());
-            log.info("resourceList update clusterId[{}] kind[{}]",clusterId,resourceKind.name());
-        }
+        multiClusterK8sClient.getAllClients().forEach((cluster, clientSet) -> {
+                    KubernetesClient httpClient = clientSet.k8sClient;
+                    List<T> objectList = httpClient.getObjectList(resourceKind.name(), "");
+                    Map resourceMap = buildResourceMapByKind(objectList);
+                    getStoreByClusterId(cluster).replaceByKind(resourceMap, resourceKind.name());
+                    log.info("resourceList update clusterId[{}] kind[{}]", cluster, resourceKind.name());
+                }
+        );
+//        for (ClusterResourceList kubernetesList : kubernetesLists) {
+//            String clusterId = kubernetesList.getCluster();
+//            Map resourceMap = buildResourceMapByKind(kubernetesList.getItems());
+//            getStoreByClusterId(clusterId).replaceByKind(resourceMap, resourceKind.name());
+//            log.info("resourceList update clusterId[{}] kind[{}]", clusterId, resourceKind.name());
+//        }
     }
 
     public void addEvent(T obj, String type, String clusterId) {
@@ -254,12 +259,12 @@ public class K8sResourceInformer<T extends HasMetadata> implements Informer {
 
 
     private Map<String, Map<String, T>> buildResourceMapByKind(List<T> resourceList) {
-        Map<String,Map<String,T>> result = new HashMap<>();
-        for (T obj : resourceList){
+        Map<String, Map<String, T>> result = new HashMap<>();
+        for (T obj : resourceList) {
             String namespace = obj.getMetadata().getNamespace();
             String name = obj.getMetadata().getName();
             Map<String, T> objMap = result.computeIfAbsent(namespace, (k) -> new HashMap<>());
-            objMap.put(name,obj);
+            objMap.put(name, obj);
         }
         return result;
     }

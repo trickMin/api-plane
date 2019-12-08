@@ -18,9 +18,6 @@ import io.fabric8.kubernetes.api.model.EndpointAddress;
 import io.fabric8.kubernetes.api.model.Endpoints;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.ObjectReference;
-import io.fabric8.kubernetes.api.model.apps.DaemonSet;
-import io.fabric8.kubernetes.api.model.apps.DaemonSetList;
-import io.fabric8.kubernetes.api.model.apps.DeploymentList;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,7 +88,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                 .addResourceKind(Deployment)
                 .addUpdateListener(versionUpdateListener)
                 .addMixedOperation(getDeployMixedOperationList(allClients))
-                .addResourceList(getDeployList(allClients))
+                .addHttpK8sClient(multiClusterK8sClient)
                 .build();
         resourceInformerMap.putIfAbsent(Deployment, deployInformer);
 
@@ -101,7 +98,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                 .addResourceKind(StatefulSet)
                 .addMixedOperation(getStatefulSetMixedOperationList(allClients))
                 .addUpdateListener(versionUpdateListener)
-                .addResourceList(getStsList(allClients))
+                .addHttpK8sClient(multiClusterK8sClient)
                 .build();
         resourceInformerMap.putIfAbsent(StatefulSet, statefulSetInformer);
 
@@ -111,7 +108,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                 .Builder()
                 .addResourceKind(Pod)
                 .addMixedOperation(getPodMixedOperationList(allClients))
-                .addResourceList(getPodList(allClients))
+                .addHttpK8sClient(multiClusterK8sClient)
                 .build();
         resourceInformerMap.putIfAbsent(Pod, podInformer);
 
@@ -120,7 +117,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                 .Builder()
                 .addResourceKind(ReplicaSet)
                 .addMixedOperation(getReplicasSetMixedOperationList(allClients))
-                .addResourceList(getReplicaSet(allClients))
+                .addHttpK8sClient(multiClusterK8sClient)
                 .build();
         resourceInformerMap.putIfAbsent(ReplicaSet, replicaSetInformer);
 
@@ -130,7 +127,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                 .Builder()
                 .addResourceKind(Service)
                 .addMixedOperation(getServiceMixedOperationList(allClients))
-                .addResourceList(getServiceList(allClients))
+                .addHttpK8sClient(multiClusterK8sClient)
                 .build();
         resourceInformerMap.putIfAbsent(Service, serviceInformer);
 
@@ -140,7 +137,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                 .Builder()
                 .addResourceKind(Endpoint)
                 .addMixedOperation(getEndPointMixedOperationList(allClients))
-                .addResourceList(getEndPointList(allClients))
+                .addHttpK8sClient(multiClusterK8sClient)
                 .build();
         resourceInformerMap.put(Endpoint, endpointInformer);
 
@@ -148,107 +145,107 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                 .Builder()
                 .addResourceKind(DaemonSet)
                 .addMixedOperation(getDaemonSetMixedOperationList(allClients))
-                .addResourceList(getDaemonSetList(allClients))
+                .addHttpK8sClient(multiClusterK8sClient)
                 .build();
         resourceInformerMap.put(DaemonSet, daemonSetInformer);
 
 
     }
 
-    private List<ClusterResourceList> getDaemonSetList(Map<String, MultiClusterK8sClient.ClientSet> allClients) {
-        List<ClusterResourceList> result = new ArrayList<>();
-        allClients.forEach((name, client) -> {
-            if (!StringUtils.isEmpty(name)) {
-                result.add(new ClusterResourceList(client.originalK8sClient
-                        .apps()
-                        .daemonSets()
-                        .inAnyNamespace()
-                        .list(), name));
-            }
-        });
-        return result;
-    }
-
-    private List<ClusterResourceList> getEndPointList(Map<String, MultiClusterK8sClient.ClientSet> allClients) {
-        List<ClusterResourceList> result = new ArrayList<>();
-        allClients.forEach((name, client) -> {
-            if (!StringUtils.isEmpty(name)) {
-                result.add(new ClusterResourceList(client.originalK8sClient
-                        .endpoints()
-                        .inAnyNamespace()
-                        .list(), name));
-            }
-        });
-        return result;
-    }
-
-    private List<ClusterResourceList> getServiceList(Map<String, MultiClusterK8sClient.ClientSet> allClients) {
-        List<ClusterResourceList> result = new ArrayList<>();
-        allClients.forEach((name, client) -> {
-            if (!StringUtils.isEmpty(name)) {
-                result.add(new ClusterResourceList(client.originalK8sClient
-                        .services()
-                        .inAnyNamespace()
-                        .list(), name));
-            }
-        });
-        return result;
-    }
-
-    private List<ClusterResourceList> getReplicaSet(Map<String, MultiClusterK8sClient.ClientSet> allClients) {
-        List<ClusterResourceList> result = new ArrayList<>();
-        allClients.forEach((name, client) -> {
-            if (!StringUtils.isEmpty(name)) {
-                result.add(new ClusterResourceList(client.originalK8sClient
-                        .apps()
-                        .replicaSets()
-                        .inAnyNamespace()
-                        .list(), name));
-            }
-        });
-        return result;
-    }
-
-    private List<ClusterResourceList> getPodList(Map<String, MultiClusterK8sClient.ClientSet> allClients) {
-        List<ClusterResourceList> result = new ArrayList<>();
-        allClients.forEach((name, client) -> {
-            if (!StringUtils.isEmpty(name)) {
-                result.add(new ClusterResourceList(client.originalK8sClient
-                        .pods()
-                        .inAnyNamespace()
-                        .list(), name));
-            }
-        });
-        return result;
-    }
-
-    private List<ClusterResourceList> getDeployList(Map<String, MultiClusterK8sClient.ClientSet> allClients) {
-        List<ClusterResourceList> result = new ArrayList<>();
-        allClients.forEach((name, client) -> {
-            if (!StringUtils.isEmpty(name)) {
-                result.add(new ClusterResourceList(client.originalK8sClient
-                        .apps()
-                        .deployments()
-                        .inAnyNamespace()
-                        .list(), name));
-            }
-        });
-        return result;
-    }
-
-    private List<ClusterResourceList> getStsList(Map<String, MultiClusterK8sClient.ClientSet> allClients) {
-        List<ClusterResourceList> result = new ArrayList<>();
-        allClients.forEach((name, client) -> {
-            if (!StringUtils.isEmpty(name)) {
-                result.add(new ClusterResourceList(client.originalK8sClient
-                        .apps()
-                        .statefulSets()
-                        .inAnyNamespace()
-                        .list(), name));
-            }
-        });
-        return result;
-    }
+//    private List<ClusterResourceList> getDaemonSetList(Map<String, MultiClusterK8sClient.ClientSet> allClients) {
+//        List<ClusterResourceList> result = new ArrayList<>();
+//        allClients.forEach((name, client) -> {
+//            if (!StringUtils.isEmpty(name)) {
+//                result.add(new ClusterResourceList(client.originalK8sClient
+//                        .apps()
+//                        .daemonSets()
+//                        .inAnyNamespace()
+//                        .list(), name));
+//            }
+//        });
+//        return result;
+//    }
+//
+//    private List<ClusterResourceList> getEndPointList(Map<String, MultiClusterK8sClient.ClientSet> allClients) {
+//        List<ClusterResourceList> result = new ArrayList<>();
+//        allClients.forEach((name, client) -> {
+//            if (!StringUtils.isEmpty(name)) {
+//                result.add(new ClusterResourceList(client.originalK8sClient
+//                        .endpoints()
+//                        .inAnyNamespace()
+//                        .list(), name));
+//            }
+//        });
+//        return result;
+//    }
+//
+//    private List<ClusterResourceList> getServiceList(Map<String, MultiClusterK8sClient.ClientSet> allClients) {
+//        List<ClusterResourceList> result = new ArrayList<>();
+//        allClients.forEach((name, client) -> {
+//            if (!StringUtils.isEmpty(name)) {
+//                result.add(new ClusterResourceList(client.originalK8sClient
+//                        .services()
+//                        .inAnyNamespace()
+//                        .list(), name));
+//            }
+//        });
+//        return result;
+//    }
+//
+//    private List<ClusterResourceList> getReplicaSet(Map<String, MultiClusterK8sClient.ClientSet> allClients) {
+//        List<ClusterResourceList> result = new ArrayList<>();
+//        allClients.forEach((name, client) -> {
+//            if (!StringUtils.isEmpty(name)) {
+//                result.add(new ClusterResourceList(client.originalK8sClient
+//                        .apps()
+//                        .replicaSets()
+//                        .inAnyNamespace()
+//                        .list(), name));
+//            }
+//        });
+//        return result;
+//    }
+//
+//    private List<ClusterResourceList> getPodList(Map<String, MultiClusterK8sClient.ClientSet> allClients) {
+//        List<ClusterResourceList> result = new ArrayList<>();
+//        allClients.forEach((name, client) -> {
+//            if (!StringUtils.isEmpty(name)) {
+//                result.add(new ClusterResourceList(client.originalK8sClient
+//                        .pods()
+//                        .inAnyNamespace()
+//                        .list(), name));
+//            }
+//        });
+//        return result;
+//    }
+//
+//    private List<ClusterResourceList> getDeployList(Map<String, MultiClusterK8sClient.ClientSet> allClients) {
+//        List<ClusterResourceList> result = new ArrayList<>();
+//        allClients.forEach((name, client) -> {
+//            if (!StringUtils.isEmpty(name)) {
+//                result.add(new ClusterResourceList(client.originalK8sClient
+//                        .apps()
+//                        .deployments()
+//                        .inAnyNamespace()
+//                        .list(), name));
+//            }
+//        });
+//        return result;
+//    }
+//
+//    private List<ClusterResourceList> getStsList(Map<String, MultiClusterK8sClient.ClientSet> allClients) {
+//        List<ClusterResourceList> result = new ArrayList<>();
+//        allClients.forEach((name, client) -> {
+//            if (!StringUtils.isEmpty(name)) {
+//                result.add(new ClusterResourceList(client.originalK8sClient
+//                        .apps()
+//                        .statefulSets()
+//                        .inAnyNamespace()
+//                        .list(), name));
+//            }
+//        });
+//        return result;
+//    }
 
 
     @EventListener(ApplicationReadyEvent.class)
