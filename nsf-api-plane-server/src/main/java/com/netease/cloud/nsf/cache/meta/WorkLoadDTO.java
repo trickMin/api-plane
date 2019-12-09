@@ -30,16 +30,16 @@ public class WorkLoadDTO<T extends HasMetadata> extends K8sResourceDTO {
         if (obj instanceof Deployment) {
             Deployment deployment = (Deployment) obj;
             DeploymentStatus status = deployment.getStatus();
-            statusInfo.put("desired", deployment.getSpec().getReplicas().toString());
-            statusInfo.put("current", status.getReplicas().toString());
-            statusInfo.put("up-to-date", status.getUpdatedReplicas().toString());
-            statusInfo.put("available", status.getAvailableReplicas().toString());
+            statusInfo.put("desired", getValueOrDefault(deployment.getSpec().getReplicas()).toString());
+            statusInfo.put("current", getValueOrDefault(status.getReplicas()).toString());
+            statusInfo.put("up-to-date", getValueOrDefault(status.getUpdatedReplicas()).toString());
+            statusInfo.put("available", getValueOrDefault(status.getAvailableReplicas()).toString());
         } else if (obj instanceof StatefulSet) {
             StatefulSet statefulSet = (StatefulSet) obj;
             StatefulSetStatus status = statefulSet.getStatus();
-            statusInfo.put("desired", statefulSet.getSpec().getReplicas().toString());
-            statusInfo.put("current", status.getReplicas().toString());
-            statusInfo.put("up-to-date", status.getUpdatedReplicas().toString());
+            statusInfo.put("desired", getValueOrDefault(statefulSet.getSpec().getReplicas()).toString());
+            statusInfo.put("current", getValueOrDefault(status.getReplicas()).toString());
+            statusInfo.put("up-to-date", getValueOrDefault(status.getUpdatedReplicas()).toString());
         }
     }
 
@@ -84,4 +84,6 @@ public class WorkLoadDTO<T extends HasMetadata> extends K8sResourceDTO {
     public void setStatusInfo(Map<String, String> statusInfo) {
         this.statusInfo = statusInfo;
     }
+
+
 }
