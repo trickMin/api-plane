@@ -135,11 +135,11 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         // 初始化Endpoint informer
         K8sResourceInformer endpointInformer = new K8sResourceInformer
                 .Builder()
-                .addResourceKind(Endpoint)
+                .addResourceKind(Endpoints)
                 .addMixedOperation(getEndPointMixedOperationList(allClients))
                 .addHttpK8sClient(multiClusterK8sClient)
                 .build();
-        resourceInformerMap.put(Endpoint, endpointInformer);
+        resourceInformerMap.put(Endpoints, endpointInformer);
 
         K8sResourceInformer daemonSetInformer = new K8sResourceInformer
                 .Builder()
@@ -394,7 +394,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
 
     private List<T> doGetWorkLoadList(String clusterId, String namespace, String serviceName) {
         OwnerReferenceSupportStore store = ResourceStoreFactory.getResourceStore(clusterId);
-        Endpoints endpointsByService = (Endpoints) store.get(Endpoint.name(), namespace, serviceName);
+        Endpoints endpointsByService = (Endpoints) store.get(Endpoints.name(), namespace, serviceName);
         if (endpointsByService == null) {
             return new ArrayList<>();
         }
