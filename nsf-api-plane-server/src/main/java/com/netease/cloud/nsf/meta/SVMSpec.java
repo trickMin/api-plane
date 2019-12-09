@@ -2,13 +2,14 @@ package com.netease.cloud.nsf.meta;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
 
 public class SVMSpec {
 
-    @Pattern(regexp = "(Deployment|StatefulSet|Service|Labelselector)", message = "type")
+    @Pattern(regexp = "(Deployment|StatefulSet|Service|Labelselector)", message = "workLoadType")
     @JsonProperty(value = "WorkLoadType")
     @NotEmpty(message = "workLoadType")
     private String workLoadType;

@@ -355,7 +355,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
 
     private PodDTO<T> addSidecarVersionOnPod(PodDTO<T> podDTO) {
         PodVersion queryVersion = new PodVersion();
-        queryVersion.setClusterIP(podDTO.getClusterId());
+        queryVersion.setClusterId(podDTO.getClusterId());
         queryVersion.setNamespace(podDTO.getNamespace());
         queryVersion.setPodNames(Arrays.asList(podDTO.getName()));
         List<PodStatus> podStatuses = gatewayService.queryByPodNameList(queryVersion);
@@ -371,7 +371,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         List<PodDTO<T>> podByWorkLoadInfo = getPodByWorkLoadInfo(workLoadDTO.getClusterId(), workLoadDTO.getKind(), workLoadDTO.getNamespace(),
                 workLoadDTO.getName());
         PodVersion queryVersion = new PodVersion();
-        queryVersion.setClusterIP(workLoadDTO.getClusterId());
+        queryVersion.setClusterId(workLoadDTO.getClusterId());
         queryVersion.setNamespace(workLoadDTO.getNamespace());
         queryVersion.setPodNames(podByWorkLoadInfo
                 .stream()
