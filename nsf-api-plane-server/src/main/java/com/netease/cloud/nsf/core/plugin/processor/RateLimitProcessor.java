@@ -115,7 +115,7 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
         return vs.jsonString();
     }
 
-    private String createShareConfig(ServiceInfo serviceInfo, String headerDescriptor, String unit, Integer duration) {
+    private String createShareConfig(ServiceInfo serviceInfo, String headerDescriptor, String unit, Long duration) {
         ResourceGenerator shareConfig = ResourceGenerator.newInstance(String.format("{\"api\":\"%s\",\"key\":\"header_match\",\"value\":\"%s\",\"rateLimit\":{\"unit\":\"%s\",\"requestsPerUnit\":%d}}",
                 getApiName(serviceInfo),
                 headerDescriptor,
@@ -141,8 +141,8 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
         return matchHeader;
     }
 
-    private Map<String, Integer> getUnits(ResourceGenerator rg) {
-        Map<String, Integer> ret = new LinkedHashMap<>();
+    private Map<String, Long> getUnits(ResourceGenerator rg) {
+        Map<String, Long> ret = new LinkedHashMap<>();
         String[][] map = new String[][]{
                 {"$.second", "SECOND"},
                 {"$.minute", "MINUTE"},
@@ -151,7 +151,7 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
         };
         for (String[] obj : map) {
             if (rg.contain(obj[0])) {
-                ret.put(obj[1], rg.getValue(obj[0]));
+                ret.put(obj[1], rg.getValue(obj[0], Long.class));
             }
         }
         return ret;
