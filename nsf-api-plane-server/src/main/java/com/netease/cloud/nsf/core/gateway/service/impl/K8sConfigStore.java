@@ -7,6 +7,7 @@ import io.fabric8.kubernetes.api.model.ObjectMeta;
 import me.snowdrop.istio.api.IstioResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -18,6 +19,7 @@ import java.util.Map;
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/7/25
  **/
 @Component
+@Primary
 public class K8sConfigStore implements ConfigStore {
 
     @Autowired
@@ -74,7 +76,7 @@ public class K8sConfigStore implements ConfigStore {
         return get(t) != null;
     }
 
-    private void supply(IstioResource istioResource) {
+    void supply(IstioResource istioResource) {
         if (StringUtils.isEmpty(istioResource.getMetadata().getNamespace())) {
             istioResource.getMetadata().setNamespace(resourceNamespace);
         }

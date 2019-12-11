@@ -54,4 +54,11 @@ public class K8sResourceDTO<T extends HasMetadata> {
     public void setClusterId(String clusterId) {
         this.clusterId = clusterId;
     }
+
+    protected Object getValueOrDefault(Object value){
+        if (value == null){
+            return "";
+        }
+        return value;
+    }
 }
