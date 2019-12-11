@@ -1,22 +1,22 @@
 package com.netease.cloud.nsf.core.plugin.processor;
 
-import com.google.common.collect.ImmutableList;
 import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
+import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.plugin.FragmentHolder;
 import com.netease.cloud.nsf.core.plugin.FragmentTypeEnum;
 import com.netease.cloud.nsf.core.plugin.FragmentWrapper;
 import com.netease.cloud.nsf.meta.ServiceInfo;
-import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * @auther wupenghuai@corp.netease.com
@@ -37,7 +37,7 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
 
         List<Object> limits = total.getValue("$.limit_by_list");
 
-        ResourceGenerator rateLimitGen = ResourceGenerator.newInstance("{\"rateLimits\":[]}");
+        ResourceGenerator rateLimitGen = ResourceGenerator.newInstance("{\"ratelimit\":{\"rateLimits\":[]}}");
         ResourceGenerator shareConfigGen = ResourceGenerator.newInstance("[{\"domain\":\"qingzhou\",\"descriptors\":[]}]");
 
         limits.forEach(limit -> {
@@ -45,7 +45,7 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
             // 频控计算的不同维度，例如second, minute, hour, day(month, year暂时不支持)
             getUnits(rg).forEach((unit, duration) -> {
                 String headerDescriptor = getHeaderDescriptor(serviceInfo, xUserId);
-                rateLimitGen.addJsonElement("$.rateLimits", createRateLimits(rg, serviceInfo, headerDescriptor, xUserId));
+                rateLimitGen.addJsonElement("$.ratelimit.rateLimits", createRateLimits(rg, serviceInfo, headerDescriptor, xUserId));
                 shareConfigGen.addJsonElement("$[0].descriptors", createShareConfig(serviceInfo, headerDescriptor, unit, duration));
             });
         });
@@ -66,50 +66,6 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
                         .build()
         );
         return holder;
-    }
-
-    @Override
-    public List<FragmentHolder> process(List<String> plugins, ServiceInfo serviceInfo) {
-        List<FragmentHolder> holders = plugins.stream()
-                .map(plugin -> process(plugin, serviceInfo))
-                .collect(Collectors.toList());
-
-        List<FragmentWrapper> virtualServices = holders.stream()
-                .map(FragmentHolder::getVirtualServiceFragment)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-
-        List<FragmentWrapper> sharedConfigs = holders.stream()
-                .map(FragmentHolder::getSharedConfigFragment)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-
-        ResourceGenerator rateLimitGen = ResourceGenerator.newInstance("{\"ratelimit\":{\"rateLimits\":[]}}");
-        ResourceGenerator shareConfigGen = ResourceGenerator.newInstance("[{\"domain\":\"qingzhou\",\"descriptors\":[]}]");
-        List<Object> ratelimits = new ArrayList<>();
-        List<Object> descriptors = new ArrayList<>();
-        virtualServices.forEach(wrapper -> ratelimits.addAll(ResourceGenerator.newInstance(wrapper.getContent(), ResourceType.YAML).getValue("$.rateLimits[*]")));
-        sharedConfigs.forEach(wrapper -> descriptors.addAll(ResourceGenerator.newInstance(wrapper.getContent(), ResourceType.YAML).getValue("$[0].descriptors[*]")));
-
-        ratelimits.forEach(rateLimit -> rateLimitGen.addElement("$.ratelimit.rateLimits", rateLimit));
-        descriptors.forEach(descriptor -> shareConfigGen.addElement("$[0].descriptors", descriptor));
-
-        FragmentHolder holder = new FragmentHolder();
-        holder.setSharedConfigFragment(
-                new FragmentWrapper.Builder()
-                        .withFragmentType(FragmentTypeEnum.SHARECONFIG)
-                        .withResourceType(K8sResourceEnum.SharedConfig)
-                        .withContent(shareConfigGen.yamlString())
-                        .build()
-        );
-        holder.setVirtualServiceFragment(
-                new FragmentWrapper.Builder()
-                        .withFragmentType(FragmentTypeEnum.VS_API)
-                        .withResourceType(K8sResourceEnum.VirtualService)
-                        .withContent(rateLimitGen.yamlString())
-                        .build()
-        );
-        return ImmutableList.of(holder);
     }
 
     private String createRateLimits(ResourceGenerator rg, ServiceInfo serviceInfo, String headerDescriptor, String xUserId) {

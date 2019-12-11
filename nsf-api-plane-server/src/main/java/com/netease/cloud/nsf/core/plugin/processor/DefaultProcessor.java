@@ -31,6 +31,7 @@ public class DefaultProcessor extends AbstractSchemaProcessor implements SchemaP
                 .withContent(source.yamlString())
                 .withResourceType(K8sResourceEnum.VirtualService)
                 .withFragmentType(FragmentTypeEnum.VS_API)
+                .withXUserId(getXUserId(source))
                 .build();
         holder.setVirtualServiceFragment(wrapper);
         return holder;

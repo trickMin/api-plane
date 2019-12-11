@@ -33,6 +33,7 @@ public class JsonpProcessor extends AbstractSchemaProcessor implements SchemaPro
                 .withFragmentType(FragmentTypeEnum.VS_API)
                 .withResourceType(K8sResourceEnum.VirtualService)
                 .withContent(builder.yamlString())
+                .withXUserId(getXUserId(source))
                 .build();
         fragmentHolder.setVirtualServiceFragment(wrapper);
         return fragmentHolder;

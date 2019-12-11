@@ -48,6 +48,7 @@ public class RewriteProcessor extends AbstractSchemaProcessor implements SchemaP
                 .withContent(builder.yamlString())
                 .withResourceType(K8sResourceEnum.VirtualService)
                 .withFragmentType(FragmentTypeEnum.VS_API)
+                .withXUserId(getXUserId(source))
                 .build();
         holder.setVirtualServiceFragment(wrapper);
         return holder;
