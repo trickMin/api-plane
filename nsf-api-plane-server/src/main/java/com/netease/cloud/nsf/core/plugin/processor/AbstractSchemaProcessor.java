@@ -7,6 +7,10 @@ import com.netease.cloud.nsf.meta.ServiceInfo;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
+
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @auther wupenghuai@corp.netease.com
@@ -17,12 +21,23 @@ public abstract class AbstractSchemaProcessor implements SchemaProcessor<Service
     @Autowired
     protected EditorContext editorContext;
 
+    @Autowired
+    protected List<SchemaProcessor> processorList;
+
+    protected SchemaProcessor getProcessor(String name) {
+        if (CollectionUtils.isEmpty(processorList)) return null;
+        for (SchemaProcessor item : processorList) {
+            if (name.equalsIgnoreCase(item.getName())) return item;
+        }
+        return null;
+    }
+
     protected String getApiName(ServiceInfo serviceInfo) {
-        return serviceInfo.getApi().getName();
+        return serviceInfo.getApiName();
     }
 
     protected String getServiceName(ServiceInfo serviceInfo) {
-        return serviceInfo.getApi().getService();
+        return serviceInfo.getServiceName();
     }
 
     protected String createMatch(ResourceGenerator rg, ServiceInfo info, String xUserId) {
@@ -125,8 +140,13 @@ public abstract class AbstractSchemaProcessor implements SchemaProcessor<Service
         return keyword;
     }
 
-    protected String getXUserId(ResourceGenerator rg) {
-        return rg.getValue("$.x_user_id");
+    protected String getAndDeleteXUserId(ResourceGenerator rg) {
+        if (rg.contain("$.x_user_id")) {
+            String xUserId = rg.getValue("$.x_user_id");
+            rg.removeElement("$.x_user_id");
+            return xUserId;
+        }
+        return null;
     }
 
     protected Integer getPriority(ResourceGenerator rg) {

@@ -1,12 +1,15 @@
 {
-  "fields": {
-    "kind": {
-      "type": "string",
-      "help": "插件类型"
-    },
-    "callback": {
-      "type": "string",
-      "help": "callback方法"
+  "inject": {
+    "kind": "jsonp"
+  },
+  "layouts": [
+    {
+      "key": "callback",
+      "alias": "callback",
+      "type": "input",
+      "rules": [
+        "Required"
+      ]
     }
-  }
+  ]
 }

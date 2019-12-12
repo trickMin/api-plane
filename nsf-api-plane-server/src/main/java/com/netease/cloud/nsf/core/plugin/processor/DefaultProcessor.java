@@ -28,6 +28,7 @@ public class DefaultProcessor extends AbstractSchemaProcessor implements SchemaP
         if(source.contain("$.kind"))source.removeElement("$.kind");
         FragmentHolder holder = new FragmentHolder();
         FragmentWrapper wrapper = new FragmentWrapper.Builder()
+                .withXUserId(getAndDeleteXUserId(source))
                 .withContent(source.yamlString())
                 .withResourceType(K8sResourceEnum.VirtualService)
                 .withFragmentType(FragmentTypeEnum.VS_API)

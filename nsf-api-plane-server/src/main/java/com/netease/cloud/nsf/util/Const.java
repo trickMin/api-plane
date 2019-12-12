@@ -10,6 +10,11 @@ public interface Const {
     // 负载标签类型
     String LABEL_NSF_PROJECT_ID = "nsf-project";
     String LABEL_NSF_VERSION = "nsf-version";
+    String LABEL_NSF_ENV = "nsf-env";
+    String LABEL_NAMESPACE_INJECTION = "istio-injection";
+
+    // 负载注解
+    String ISTIO_INJECT_ANNOTATION = "sidecar.istio.io/inject";
 
 
     //http 方法
@@ -28,6 +33,13 @@ public interface Const {
     // 默认请求头
     String INTERFACE_CALL_TYPE_INNER = "inner";
     String ACCEPT_LANGUAGE_ZH = "zh";
+
+    String OPTION_TRUE = "true";
+    String OPTION_FALSE = "false";
+    String OPTION_ENABLED = "enabled";
+    String OPTION_DISABLED = "disabled";
+
+
 
 
     /**             TOPO              **/

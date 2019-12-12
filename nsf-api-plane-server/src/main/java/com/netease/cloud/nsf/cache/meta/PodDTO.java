@@ -1,6 +1,8 @@
 package com.netease.cloud.nsf.cache.meta;
 
-import io.fabric8.kubernetes.api.model.*;
+import io.fabric8.kubernetes.api.model.HasMetadata;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.Quantity;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
@@ -32,8 +34,18 @@ public class PodDTO<T extends HasMetadata> extends K8sResourceDTO {
 
     private int totalRestartCount;
 
+    private String sidecarStatus;
+
 
     private List<ContainerInfo> containerInfoList = new ArrayList<>();
+
+    public String getSidecarStatus() {
+        return sidecarStatus;
+    }
+
+    public void setSidecarStatus(String sidecarStatus) {
+        this.sidecarStatus = sidecarStatus;
+    }
 
     public String getStatus() {
         return status;

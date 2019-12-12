@@ -7,6 +7,7 @@ import io.fabric8.kubernetes.api.model.apps.StatefulSet;
 import io.fabric8.kubernetes.api.model.apps.StatefulSetStatus;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class WorkLoadDTO<T extends HasMetadata> extends K8sResourceDTO {
@@ -15,6 +16,8 @@ public class WorkLoadDTO<T extends HasMetadata> extends K8sResourceDTO {
     protected String serviceName;
 
     protected String serviceDomain;
+
+    protected List<String> sidecarVersion;
 
     private Map<String, String> statusInfo = new HashMap<>();
 
@@ -27,19 +30,26 @@ public class WorkLoadDTO<T extends HasMetadata> extends K8sResourceDTO {
         if (obj instanceof Deployment) {
             Deployment deployment = (Deployment) obj;
             DeploymentStatus status = deployment.getStatus();
-            statusInfo.put("desired", deployment.getSpec().getReplicas().toString());
-            statusInfo.put("current", status.getReplicas().toString());
-            statusInfo.put("up-to-date", status.getUpdatedReplicas().toString());
-            statusInfo.put("available", status.getAvailableReplicas().toString());
+            statusInfo.put("desired", getValueOrDefault(deployment.getSpec().getReplicas()).toString());
+            statusInfo.put("current", getValueOrDefault(status.getReplicas()).toString());
+            statusInfo.put("up-to-date", getValueOrDefault(status.getUpdatedReplicas()).toString());
+            statusInfo.put("available", getValueOrDefault(status.getAvailableReplicas()).toString());
         } else if (obj instanceof StatefulSet) {
             StatefulSet statefulSet = (StatefulSet) obj;
             StatefulSetStatus status = statefulSet.getStatus();
-            statusInfo.put("desired", statefulSet.getSpec().getReplicas().toString());
-            statusInfo.put("current", status.getReplicas().toString());
-            statusInfo.put("up-to-date", status.getUpdatedReplicas().toString());
+            statusInfo.put("desired", getValueOrDefault(statefulSet.getSpec().getReplicas()).toString());
+            statusInfo.put("current", getValueOrDefault(status.getReplicas()).toString());
+            statusInfo.put("up-to-date", getValueOrDefault(status.getUpdatedReplicas()).toString());
         }
     }
 
+    public List<String> getSidecarVersion() {
+        return sidecarVersion;
+    }
+
+    public void setSidecarVersion(List<String> sidecarVersion) {
+        this.sidecarVersion = sidecarVersion;
+    }
 
     public String getName() {
         return name;
@@ -74,4 +84,6 @@ public class WorkLoadDTO<T extends HasMetadata> extends K8sResourceDTO {
     public void setStatusInfo(Map<String, String> statusInfo) {
         this.statusInfo = statusInfo;
     }
+
+
 }

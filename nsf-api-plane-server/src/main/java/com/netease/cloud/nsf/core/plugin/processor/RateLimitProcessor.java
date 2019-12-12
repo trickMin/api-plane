@@ -1,22 +1,22 @@
 package com.netease.cloud.nsf.core.plugin.processor;
 
-import com.google.common.collect.ImmutableList;
 import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
+import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.plugin.FragmentHolder;
 import com.netease.cloud.nsf.core.plugin.FragmentTypeEnum;
 import com.netease.cloud.nsf.core.plugin.FragmentWrapper;
 import com.netease.cloud.nsf.meta.ServiceInfo;
-import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * @auther wupenghuai@corp.netease.com
@@ -31,94 +31,46 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
 
     @Override
     public FragmentHolder process(String plugin, ServiceInfo serviceInfo) {
+        //todo: XUser
         FragmentHolder holder = new FragmentHolder();
         ResourceGenerator total = ResourceGenerator.newInstance(plugin, ResourceType.JSON, editorContext);
-        String xUserId = getXUserId(total);
+        String xUserId = getAndDeleteXUserId(total);
 
         List<Object> limits = total.getValue("$.limit_by_list");
-        AtomicInteger headerNo = new AtomicInteger(0);
 
-        ResourceGenerator rateLimitGen = ResourceGenerator.newInstance("{\"rateLimits\":[]}");
+        ResourceGenerator rateLimitGen = ResourceGenerator.newInstance("{\"ratelimit\":{\"rateLimits\":[]}}");
         ResourceGenerator shareConfigGen = ResourceGenerator.newInstance("[{\"domain\":\"qingzhou\",\"descriptors\":[]}]");
 
         limits.forEach(limit -> {
             ResourceGenerator rg = ResourceGenerator.newInstance(limit, ResourceType.OBJECT, editorContext);
             // 频控计算的不同维度，例如second, minute, hour, day(month, year暂时不支持)
-            Integer no = headerNo.getAndIncrement();
             getUnits(rg).forEach((unit, duration) -> {
-                String headerDescriptor = getHeaderDescriptor(serviceInfo, no, getMatchHeader(rg), unit);
-                rateLimitGen.addJsonElement("$.rateLimits", createRateLimits(rg, serviceInfo, headerDescriptor, xUserId));
+                String headerDescriptor = getHeaderDescriptor(serviceInfo, xUserId);
+                rateLimitGen.addJsonElement("$.ratelimit.rateLimits", createRateLimits(rg, serviceInfo, headerDescriptor, null));
                 shareConfigGen.addJsonElement("$[0].descriptors", createShareConfig(serviceInfo, headerDescriptor, unit, duration));
             });
-
         });
         holder.setSharedConfigFragment(
                 new FragmentWrapper.Builder()
+                        .withXUserId(xUserId)
                         .withFragmentType(FragmentTypeEnum.SHARECONFIG)
                         .withResourceType(K8sResourceEnum.SharedConfig)
                         .withContent(shareConfigGen.yamlString())
-                        .withXUserId(xUserId)
                         .build()
         );
         holder.setVirtualServiceFragment(
                 new FragmentWrapper.Builder()
-                        .withFragmentType(FragmentTypeEnum.VS_HOST)
+                        .withXUserId(xUserId)
+                        .withFragmentType(FragmentTypeEnum.VS_API)
                         .withResourceType(K8sResourceEnum.VirtualService)
                         .withContent(rateLimitGen.yamlString())
-                        .withXUserId(xUserId)
                         .build()
         );
         return holder;
     }
 
-    @Override
-    public List<FragmentHolder> process(List<String> plugins, ServiceInfo serviceInfo) {
-        List<FragmentHolder> holders = plugins.stream()
-                .map(plugin -> process(plugin, serviceInfo))
-                .collect(Collectors.toList());
-
-        List<FragmentWrapper> virtualServices = holders.stream()
-                .map(FragmentHolder::getVirtualServiceFragment)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-
-        List<FragmentWrapper> sharedConfigs = holders.stream()
-                .map(FragmentHolder::getSharedConfigFragment)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-
-        ResourceGenerator rateLimitGen = ResourceGenerator.newInstance("{\"rateLimits\":[]}");
-        ResourceGenerator shareConfigGen = ResourceGenerator.newInstance("[{\"domain\":\"qingzhou\",\"descriptors\":[]}]");
-        List<Object> ratelimits = new ArrayList<>();
-        List<Object> descriptors = new ArrayList<>();
-        virtualServices.forEach(wrapper -> ratelimits.addAll(ResourceGenerator.newInstance(wrapper.getContent(), ResourceType.YAML).getValue("$.rateLimits[*]")));
-        sharedConfigs.forEach(wrapper -> descriptors.addAll(ResourceGenerator.newInstance(wrapper.getContent(), ResourceType.YAML).getValue("$[0].descriptors[*]")));
-
-        ratelimits.forEach(rateLimit -> rateLimitGen.addElement("$.rateLimits", rateLimit));
-        descriptors.forEach(descriptor -> shareConfigGen.addElement("$[0].descriptors", descriptor));
-
-        FragmentHolder holder = new FragmentHolder();
-        holder.setSharedConfigFragment(
-                new FragmentWrapper.Builder()
-                        .withFragmentType(FragmentTypeEnum.SHARECONFIG)
-                        .withResourceType(K8sResourceEnum.SharedConfig)
-                        .withContent(shareConfigGen.yamlString())
-                        .build()
-        );
-        holder.setVirtualServiceFragment(
-                new FragmentWrapper.Builder()
-                        .withFragmentType(FragmentTypeEnum.VS_HOST)
-                        .withResourceType(K8sResourceEnum.VirtualService)
-                        .withContent(rateLimitGen.yamlString())
-                        .build()
-        );
-        return ImmutableList.of(holder);
-    }
-
     private String createRateLimits(ResourceGenerator rg, ServiceInfo serviceInfo, String headerDescriptor, String xUserId) {
         ResourceGenerator vs = ResourceGenerator.newInstance("{\"stage\":0,\"actions\":[]}");
-
-        String matchHeader = getMatchHeader(rg);
 
         vs.addJsonElement("$.actions",
                 String.format("{\"headerValueMatch\":{\"headers\":[],\"descriptorValue\":\"%s\"}}", headerDescriptor));
@@ -127,9 +79,8 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
             vs.addJsonElement("$.actions[0].headerValueMatch.headers",
                     String.format("{\"name\":\"x_user_id\",\"regexMatch\":\"%s\"}", xUserId));
         }
-        //todo: if !rg.contain($.pre_condition)
         if (rg.contain("$.pre_condition")) {
-
+            String matchHeader = getMatchHeader(rg);
             int length = rg.getValue("$.pre_condition.length()");
             for (int i = 0; i < length; i++) {
                 String operator = rg.getValue(String.format("$.pre_condition[%d].operator", i));
@@ -155,15 +106,17 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
                 vs.addJsonElement("$.actions[0].headerValueMatch.headers",
                         String.format("{\"name\":\"%s\",\"regexMatch\":\"%s\"}", matchHeader, regex));
             }
-            vs.addJsonElement("$.actions[0].headerValueMatch.headers",
-                    String.format("{\"name\":\":path\",\"regexMatch\":\"%s\"}", serviceInfo.getUri()));
-            vs.addJsonElement("$.actions[0].headerValueMatch.headers",
-                    String.format("{\"name\":\":authority\",\"regexMatch\":\"%s\"}", String.join("|", serviceInfo.getApi().getHosts())));
         }
+        vs.addJsonElement("$.actions[0].headerValueMatch.headers",
+                String.format("{\"name\":\":path\",\"regexMatch\":\"%s\"}", serviceInfo.getUri()));
+        vs.addJsonElement("$.actions[0].headerValueMatch.headers",
+                String.format("{\"name\":\":authority\",\"regexMatch\":\"%s\"}", serviceInfo.getHosts()));
+        vs.addJsonElement("$.actions[0].headerValueMatch.headers",
+                String.format("{\"name\":\":method\",\"regexMatch\":\"%s\"}", serviceInfo.getMethod()));
         return vs.jsonString();
     }
 
-    private String createShareConfig(ServiceInfo serviceInfo, String headerDescriptor, String unit, Integer duration) {
+    private String createShareConfig(ServiceInfo serviceInfo, String headerDescriptor, String unit, Long duration) {
         ResourceGenerator shareConfig = ResourceGenerator.newInstance(String.format("{\"api\":\"%s\",\"key\":\"header_match\",\"value\":\"%s\",\"rateLimit\":{\"unit\":\"%s\",\"requestsPerUnit\":%d}}",
                 getApiName(serviceInfo),
                 headerDescriptor,
@@ -174,6 +127,7 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
     }
 
     private String getMatchHeader(ResourceGenerator rg) {
+        if (!rg.contain("$.identifier_extractor")) return "";
         String extractor = rg.getValue("$.identifier_extractor");
 
         String matchHeader;
@@ -188,8 +142,8 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
         return matchHeader;
     }
 
-    private Map<String, Integer> getUnits(ResourceGenerator rg) {
-        Map<String, Integer> ret = new LinkedHashMap<>();
+    private Map<String, Long> getUnits(ResourceGenerator rg) {
+        Map<String, Long> ret = new LinkedHashMap<>();
         String[][] map = new String[][]{
                 {"$.second", "SECOND"},
                 {"$.minute", "MINUTE"},
@@ -198,13 +152,16 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
         };
         for (String[] obj : map) {
             if (rg.contain(obj[0])) {
-                ret.put(obj[1], rg.getValue(obj[0]));
+                ret.put(obj[1], rg.getValue(obj[0], Long.class));
             }
         }
         return ret;
     }
 
-    private String getHeaderDescriptor(ServiceInfo serviceInfo, Integer no, String headerName, String unit) {
-        return String.format("Service[%s]-Api[%s]-Header[%s][%s][%d]", getServiceName(serviceInfo), getApiName(serviceInfo), headerName, unit, no);
+    private String getHeaderDescriptor(ServiceInfo serviceInfo, String user) {
+        if (StringUtils.isBlank(user)) {
+            user = "none";
+        }
+        return String.format("Service[%s]-User[%s]-Api[%s]-Id[%s]", getServiceName(serviceInfo), user, getApiName(serviceInfo), UUID.randomUUID().toString());
     }
 }

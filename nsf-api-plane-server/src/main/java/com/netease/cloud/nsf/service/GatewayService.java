@@ -1,6 +1,9 @@
 package com.netease.cloud.nsf.service;
 
 import com.netease.cloud.nsf.meta.Gateway;
+import com.netease.cloud.nsf.meta.PodVersion;
+import com.netease.cloud.nsf.meta.PodStatus;
+import com.netease.cloud.nsf.meta.SidecarVersionManagement;
 import com.netease.cloud.nsf.meta.ServiceHealth;
 import com.netease.cloud.nsf.meta.dto.PluginOrderDTO;
 import com.netease.cloud.nsf.meta.dto.PortalAPIDTO;
@@ -26,6 +29,8 @@ public interface GatewayService {
 
     void deleteService(PortalServiceDTO service);
 
+    PluginOrderDTO getPluginOrder();
+
     void updatePluginOrder(PluginOrderDTO pluginOrderDto);
 
     void deletePluginOrder(PluginOrderDTO pluginOrderDTO);
@@ -36,4 +41,7 @@ public interface GatewayService {
 
     List<ServiceHealth> getServiceHealthList(String host);
 
+    void updateSVM(SidecarVersionManagement svm);
+
+    List<PodStatus> queryByPodNameList(PodVersion podVersion);
 }

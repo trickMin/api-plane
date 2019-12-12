@@ -22,3 +22,4 @@ buid
 .idea/
 builds/
 *.jar
+**/k8s.yaml

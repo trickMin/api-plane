@@ -5,10 +5,11 @@ import com.netease.cloud.nsf.meta.Graph;
 import com.netease.cloud.nsf.service.ServiceMeshService;
 import com.netease.cloud.nsf.service.TopoService;
 import com.netease.cloud.nsf.util.errorcode.ApiPlaneErrorCode;
+import com.netease.cloud.nsf.util.errorcode.ErrorCode;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.util.StringUtils;
 
 import java.util.regex.Pattern;
 
@@ -38,6 +39,17 @@ public class ServiceMeshController extends BaseController {
     public String deleteConfig(@RequestBody String resource) {
         istioService.deleteIstioResource(StringEscapeUtils.unescapeJava(resource));
         return apiReturn(SUCCESS, "Success", null, null);
+    }
+
+    @RequestMapping(params = {"Action=InjectSidecar"}, method = RequestMethod.GET)
+    public String injectSidecar(@RequestParam(name = "Name") String name,
+                                @RequestParam(name = "Namespace") String namespace,
+                                @RequestParam(name = "ServiceVersion") String version,
+                                @RequestParam(name = "Kind") String kind,
+                                @RequestParam(name = "ClusterId") String clusterId) {
+
+        ErrorCode code = istioService.sidecarInject(clusterId, kind, namespace, name, version);
+        return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), null);
     }
 
     @RequestMapping(params = "Action=GetTopo", method = RequestMethod.GET)

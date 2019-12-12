@@ -4,7 +4,9 @@ import com.netease.cloud.nsf.cache.ResourceCache;
 import com.netease.cloud.nsf.cache.ResourceStoreFactory;
 import com.netease.cloud.nsf.util.errorcode.ApiPlaneErrorCode;
 import com.netease.cloud.nsf.util.errorcode.ErrorCode;
+import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -35,10 +37,15 @@ public class K8sResourceController extends BaseController {
 
         List workLoadByServiceInfo;
         if (!StringUtils.isEmpty(clusterId)) {
+            if (!ResourceStoreFactory.listClusterId().contains(clusterId)) {
+                throw new ApiPlaneException("ClusterId not found", 404);
+            }
             workLoadByServiceInfo = resourceCache.getWorkLoadByServiceInfo(projectId, namespace, serviceName, clusterId);
         } else {
             workLoadByServiceInfo = resourceCache.getWorkLoadByServiceInfoAllClusterId(projectId, namespace, serviceName);
         }
+        workLoadByServiceInfo = resourceCache.getWorkLoadListWithSidecarVersion(workLoadByServiceInfo);
+        checkResult(workLoadByServiceInfo);
         Map<String, Object> result = new HashMap<>();
         result.put("Result", workLoadByServiceInfo);
         ErrorCode code = ApiPlaneErrorCode.Success;
@@ -51,7 +58,12 @@ public class K8sResourceController extends BaseController {
                                    @RequestParam(name = "ClusterId") String clusterId,
                                    @RequestParam(name = "Kind") String kind) {
 
+        if (!StringUtils.isEmpty(clusterId) && !ResourceStoreFactory.listClusterId().contains(clusterId)) {
+            throw new ApiPlaneException("ClusterId not found", 404);
+        }
         List podList = resourceCache.getPodByWorkLoadInfo(clusterId, kind, namespace, name);
+        checkResult(podList);
+        podList = resourceCache.getPodListWithSidecarVersion(podList);
         Map<String, Object> result = new HashMap<>();
         result.put("Result", podList);
         ErrorCode code = ApiPlaneErrorCode.Success;
@@ -60,14 +72,19 @@ public class K8sResourceController extends BaseController {
 
     @RequestMapping(params = {"Action=GetAllWorkLoad"}, method = RequestMethod.GET)
     public String getAllWorkLoad(@RequestParam(name = "ClusterId", required = false) String clusterId) {
-        List podList;
+        List workLoadList;
         if (StringUtils.isEmpty(clusterId)) {
-            podList = resourceCache.getAllWorkLoad();
+            workLoadList = resourceCache.getAllWorkLoad();
         } else {
-            podList = resourceCache.getAllWorkLoadByClusterId(clusterId);
+            if (!ResourceStoreFactory.listClusterId().contains(clusterId)) {
+                throw new ApiPlaneException("ClusterId not found", 404);
+            }
+            workLoadList = resourceCache.getAllWorkLoadByClusterId(clusterId);
         }
+        workLoadList = resourceCache.getWorkLoadListWithSidecarVersion(workLoadList);
+        checkResult(workLoadList);
         Map<String, Object> result = new HashMap<>();
-        result.put("Result", podList);
+        result.put("Result", workLoadList);
         ErrorCode code = ApiPlaneErrorCode.Success;
         return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), result);
     }
@@ -81,6 +98,14 @@ public class K8sResourceController extends BaseController {
         ErrorCode code = ApiPlaneErrorCode.Success;
         return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), result);
     }
+
+    private void checkResult(List result){
+        if (CollectionUtils.isEmpty(result)){
+            throw new ApiPlaneException("No resources found", 404);
+        }
+    }
+
+
 
 
 }

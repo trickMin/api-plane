@@ -50,7 +50,6 @@ public class PluginServiceImpl implements PluginService {
     public Plugin getPlugin(String name) {
         Plugin p = getPlugins().get(name);
         if (Objects.isNull(p)) throw new ApiPlaneException(String.format("plugin processor [%s] does not exit.", name));
-        logger.info("get plugin {} :{}", name, p);
         return p;
     }
 
@@ -79,9 +78,7 @@ public class PluginServiceImpl implements PluginService {
 
     @Override
     public String getPluginConfig() {
-        String pluginConfig = TemplateUtils.getTemplate(PLUGIN_CONFIG, configuration).toString();
-        logger.info("get plugin config: \n{}", pluginConfig);
-        return pluginConfig;
+        return TemplateUtils.getTemplate(PLUGIN_CONFIG, configuration).toString();
     }
 
     @Override
@@ -90,17 +87,16 @@ public class PluginServiceImpl implements PluginService {
 
         // 1. classify plugins
         List<PluginInstance> totalPlugin = plugins.stream().map(PluginInstance::new).collect(Collectors.toList());
-        MultiValueMap<String, PluginInstance> pluginMap = new LinkedMultiValueMap<>();
-        totalPlugin.forEach(plugin -> pluginMap.add(plugin.getKind(), plugin));
+        MultiValueMap<SchemaProcessor, PluginInstance> pluginMap = new LinkedMultiValueMap<>();
+        totalPlugin.forEach(plugin -> pluginMap.add(getProcessor(getPlugin(plugin.getKind()).getProcessor()), plugin));
 
         // 2. process plugins
-        Set<String> kinds = pluginMap.keySet();
-        for (String kind : kinds) {
-            List<PluginInstance> classifiedPlugins = pluginMap.get(kind);
+        Set<SchemaProcessor> processors = pluginMap.keySet();
+        for (SchemaProcessor processor : processors) {
+            List<PluginInstance> classifiedPlugins = pluginMap.get(processor);
             List<String> pluginStrs = classifiedPlugins.stream().map(PluginInstance::jsonString).collect(Collectors.toList());
-            Plugin p = getPlugin(kind);
-            logger.info("process multi plugin :[{}], jsons :[{}], serviceInfo :[{}]", p, pluginStrs, serviceInfo);
-            ret.addAll(getProcessor(p.getProcessor()).process(pluginStrs, serviceInfo));
+            logger.info("process multi processor :[{}], jsons :[{}], serviceInfo :[{}]", processor.getName(), pluginStrs, serviceInfo);
+            ret.addAll(processor.process(pluginStrs, serviceInfo));
         }
 
         return ret;

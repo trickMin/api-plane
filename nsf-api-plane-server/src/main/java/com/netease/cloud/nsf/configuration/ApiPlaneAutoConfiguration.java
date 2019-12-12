@@ -19,6 +19,7 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.core.env.Environment;
 import org.springframework.http.client.BufferingClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.InterceptingClientHttpRequestFactory;
@@ -36,6 +37,9 @@ public class ApiPlaneAutoConfiguration {
 
     @Autowired
     private freemarker.template.Configuration freemarkerConfig;
+
+    @Autowired
+    private Environment environment;
 
     @Bean
     RestTemplate restTemplate(RestTemplateBuilder restTemplateBuilder) {
@@ -77,6 +81,13 @@ public class ApiPlaneAutoConfiguration {
         freemarkerConfig.setSharedVariable("supply", new SupplyDirective());
         freemarkerConfig.setSharedVariable("autoremove", new AutoRemoveDirective());
 
+    }
+
+    @Bean
+    ApiPlaneConfig apiPlaneConfig(){
+        ApiPlaneConfig apiPlaneConfig = new ApiPlaneConfig();
+        apiPlaneConfig.setNsfMetaUrl(environment.getProperty("nsfMetaUrl"));
+        return apiPlaneConfig;
     }
 
 }

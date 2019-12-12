@@ -1,40 +1,86 @@
 {
-  "fields": {
-    "kind": {
-      "type": "string",
-      "help": "插件类型"
-    },
+  "formatter": {
+    "kind": "cors",
     "corsPolicy": {
-      "allowOrigin": {
-        "type": "array",
-        "alias": "allow origin",
-        "required": false
-      },
-      "allowMethods": {
-        "type": "array",
-        "alias": "allow methods",
-        "required": false
-      },
-      "allowHeaders": {
-        "type": "array",
-        "alias": "allow headers",
-        "required": false
-      },
-      "exposeHeaders": {
-        "type": "array",
-        "alias": "expose headers",
-        "required": false
-      },
-      "maxAge": {
-        "type": "string",
-        "alias": "max age",
-        "required": false
-      },
-      "allowCredentials": {
-        "type": "boolean",
-        "alias": "allow credentials",
-        "default": true
-      }
+      "kind": "cors",
+      "allowOriginRegex": "&allowOrigin",
+      "allowMethods": "&allowMethods?",
+      "allowHeaders": "&allowHeaders?",
+      "exposeHeaders": "&exposeHeaders?",
+      "allowCredentials": "&allowCredentials",
+      "maxAge": "&maxAge?+ms"
+    },
+    "maxAge": "&maxAge?"
+  },
+  "layouts": [
+    {
+      "key": "allowOrigin",
+      "alias": "Access-Control-Allow-Origin",
+      "help": "指示请求的资源能共享给哪些域，可以是具体的域名或者*表示所有域",
+      "type": "multi_input",
+      "rules": [
+        "MaxLength(200)",
+        "Required"
+      ]
+    },
+    {
+      "key": "allowMethods",
+      "alias": "Access-Control-Allow-Methods",
+      "help": "指定对预请求的响应中，哪些HTTP方法允许访问请求的资源",
+      "type": "multi_select",
+      "default": [],
+      "rules": [
+        "Unique"
+      ],
+      "options": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE",
+        "HEAD",
+        "OPTIONS"
+      ]
+    },
+    {
+      "key": "allowHeaders",
+      "alias": "Access-Control-Allow-Headers",
+      "help": "用在对预请求的响应中，指示实际的请求中可以使用哪些HTTP头",
+      "type": "multi_input",
+      "rules": [
+        "Unique",
+        "MaxLength(200)"
+      ]
+    },
+    {
+      "key": "exposeHeaders",
+      "alias": "Access-Control-Expose-Headers",
+      "help": "指示哪些 HTTP 头的名称能在响应中列出",
+      "type": "multi_input",
+      "rules": [
+        "Unique",
+        "MaxLength(200)"
+      ]
+    },
+    {
+      "key": "allowCredentials",
+      "alias": "Access-Control-Allow-Credentials",
+      "help": "指示当请求的凭证标记为true时，是否响应该请求",
+      "type": "radio",
+      "options": [
+        "true",
+        "false"
+      ]
+    },
+    {
+      "key": "maxAge",
+      "alias": "Access-Control-Max-Age",
+      "help": "指示预请求的结果能被缓存多久，单位毫秒",
+      "type": "number",
+      "rules": [
+        "Number",
+        "MinNumber(0)"
+      ]
     }
-  }
+  ]
 }

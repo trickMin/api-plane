@@ -3,11 +3,15 @@ package com.netease.cloud.nsf.core.gateway.service.impl;
 import com.google.common.collect.ImmutableMap;
 import com.netease.cloud.nsf.core.gateway.GatewayModelOperator;
 import com.netease.cloud.nsf.core.gateway.service.ConfigManager;
+import com.netease.cloud.nsf.core.gateway.service.ConfigStore;
+import com.netease.cloud.nsf.core.istio.operator.IstioResourceOperator;
+import com.netease.cloud.nsf.core.istio.operator.VersionManagerOperator;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
-import com.netease.cloud.nsf.meta.API;
-import com.netease.cloud.nsf.meta.PluginOrder;
-import com.netease.cloud.nsf.meta.Service;
+import com.netease.cloud.nsf.meta.*;
+import com.netease.cloud.nsf.util.exception.ApiPlaneException;
+import com.netease.cloud.nsf.util.exception.ExceptionConst;
 import me.snowdrop.istio.api.IstioResource;
+import me.snowdrop.istio.api.networking.v1alpha3.VersionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,11 +31,19 @@ public class GatewayConfigManager implements ConfigManager {
 
     private static final Logger logger = LoggerFactory.getLogger(GatewayConfigManager.class);
 
+    private static final String VM_RESOURCE_NAME = "version-manager";
+
     @Autowired
     private GatewayModelOperator modelProcessor;
 
     @Autowired
     private K8sConfigStore configStore;
+
+    @Autowired
+    private MultiK8sConfigStore multiK8sConfigStore;
+
+    @Autowired
+    private List<IstioResourceOperator> operators;
 
     @Override
     public void updateConfig(API api) {
@@ -46,6 +58,15 @@ public class GatewayConfigManager implements ConfigManager {
     }
 
     private void update(List<IstioResource> resources) {
+        update(resources, null);
+    }
+
+    private boolean isDefault(String clusterId) {
+        if (StringUtils.isEmpty(clusterId) || clusterId.equals("default")) return true;
+        return false;
+    }
+
+    private void update(ConfigStore configStore, List<IstioResource> resources) {
         if (CollectionUtils.isEmpty(resources)) return;
 
         for (IstioResource latest : resources) {
@@ -59,14 +80,18 @@ public class GatewayConfigManager implements ConfigManager {
         }
     }
 
+    private void update(List<IstioResource> resources, String clusterId) {
+        update(isDefault(clusterId) ? configStore : multiK8sConfigStore, resources);
+    }
+
     @Override
     public void deleteConfig(API api) {
         List<IstioResource> resources = modelProcessor.translate(api, true);
 
         ImmutableMap<String, String> toBeDeletedMap = ImmutableMap
                 .of(K8sResourceEnum.VirtualService.name(), api.getName(),
-                    K8sResourceEnum.DestinationRule.name(), String.format("%s-%s", api.getService(), api.getName(),
-                    K8sResourceEnum.SharedConfig.name(), String.format("%s-%s", api.getService(), api.getName())));
+                        K8sResourceEnum.DestinationRule.name(), String.format("%s-%s", api.getService(), api.getName(),
+                                K8sResourceEnum.SharedConfig.name(), String.format("%s-%s", api.getService(), api.getName())));
 
         delete(resources, resource -> modelProcessor.subtract(resource, toBeDeletedMap));
     }
@@ -76,6 +101,13 @@ public class GatewayConfigManager implements ConfigManager {
         if (StringUtils.isEmpty(service.getGateway())) return;
         List<IstioResource> resources = modelProcessor.translate(service);
         delete(resources, clearResource());
+    }
+
+    @Override
+    public IstioResource getConfig(PluginOrder pluginOrder) {
+        List<IstioResource> resources = modelProcessor.translate(pluginOrder);
+        if (CollectionUtils.isEmpty(resources) || resources.size() != 1) throw new ApiPlaneException();
+        return configStore.get(resources.get(0));
     }
 
 
@@ -89,6 +121,23 @@ public class GatewayConfigManager implements ConfigManager {
     public void deleteConfig(PluginOrder pluginOrder) {
         List<IstioResource> resources = modelProcessor.translate(pluginOrder);
         delete(resources, clearResource());
+    }
+
+    @Override
+    public void updateConfig(SidecarVersionManagement svm) {
+        List<IstioResource> resources = modelProcessor.translate(svm);
+        update(resources, svm.getClusterId());
+    }
+
+    @Override
+    public List<PodStatus> querySVMConfig(PodVersion podVersion) {
+        String clusterId = podVersion.getClusterId();
+        IstioResource versionmanager = multiK8sConfigStore.get(K8sResourceEnum.VersionManager.name(), podVersion.getNamespace(), VM_RESOURCE_NAME, clusterId);
+        if(versionmanager == null) {
+            return null;
+        }
+        VersionManagerOperator ir = (VersionManagerOperator)resolve(versionmanager);
+        return ir.getPodVersion(podVersion, (VersionManager)versionmanager);
     }
 
     private void delete(List<IstioResource> resources, Function<IstioResource, IstioResource> fun) {
@@ -106,7 +155,6 @@ public class GatewayConfigManager implements ConfigManager {
                 .forEach(r -> handle(r));
     }
 
-
     private void handle(IstioResource i) {
         if (modelProcessor.isUseless(i)) {
             configStore.delete(i);
@@ -120,5 +168,14 @@ public class GatewayConfigManager implements ConfigManager {
             resource.setApiVersion(null);
             return resource;
         };
+    }
+
+    private IstioResourceOperator resolve(IstioResource i) {
+        for (IstioResourceOperator op : operators) {
+            if (op.adapt(i.getKind())) {
+                return op;
+            }
+        }
+        throw new ApiPlaneException(ExceptionConst.UNSUPPORTED_RESOURCE_TYPE + ":" + i.getKind());
     }
 }
