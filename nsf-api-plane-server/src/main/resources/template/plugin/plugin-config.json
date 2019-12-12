@@ -107,6 +107,18 @@
       "pluginScope": "routeRule",
       "pluginPriority": "3000",
       "instructionForUse": "缓存插件"
+    },
+    {
+      "name": "body-extractor",
+      "resource": "plugin/body-extractor.json",
+      "description": "",
+      "processor": "DefaultProcessor",
+      "author": "system",
+      "createTime": "1572537600000",
+      "updateTime": "1572537600000",
+      "pluginScope": "routeRule",
+      "pluginPriority": "3000",
+      "instructionForUse": "缓存插件"
     }
   ]
 }

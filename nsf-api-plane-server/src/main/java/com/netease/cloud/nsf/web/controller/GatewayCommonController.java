@@ -49,7 +49,6 @@ public class GatewayCommonController extends BaseController {
     @RequestMapping(params = "Action=GetPluginOrder", method = RequestMethod.GET)
     public String getPluginOrder() {
         Map<String, Object> result = new HashMap<>();
-        List<Gateway> gatewayList = gatewayService.getGatewayList();
 
         result.put(RESULT, gatewayService.getPluginOrder());
         ErrorCode code = ApiPlaneErrorCode.Success;

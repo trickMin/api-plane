@@ -21,11 +21,11 @@ public class PluginOrderItemDTO {
     @JsonProperty("settings")
     private Object settings;
 
-    public boolean getEnable() {
+    public Boolean getEnable() {
         return enable;
     }
 
-    public void setEnable(boolean enable) {
+    public void setEnable(Boolean enable) {
         this.enable = enable;
     }
 

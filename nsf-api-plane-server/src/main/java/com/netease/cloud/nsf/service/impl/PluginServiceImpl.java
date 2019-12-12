@@ -50,7 +50,6 @@ public class PluginServiceImpl implements PluginService {
     public Plugin getPlugin(String name) {
         Plugin p = getPlugins().get(name);
         if (Objects.isNull(p)) throw new ApiPlaneException(String.format("plugin processor [%s] does not exit.", name));
-        logger.info("get plugin {} :{}", name, p);
         return p;
     }
 
@@ -79,9 +78,7 @@ public class PluginServiceImpl implements PluginService {
 
     @Override
     public String getPluginConfig() {
-        String pluginConfig = TemplateUtils.getTemplate(PLUGIN_CONFIG, configuration).toString();
-        logger.info("get plugin config: \n{}", pluginConfig);
-        return pluginConfig;
+        return TemplateUtils.getTemplate(PLUGIN_CONFIG, configuration).toString();
     }
 
     @Override

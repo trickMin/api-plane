@@ -9,8 +9,13 @@ import com.netease.cloud.nsf.core.plugin.FragmentTypeEnum;
 import com.netease.cloud.nsf.core.plugin.FragmentWrapper;
 import com.netease.cloud.nsf.meta.ServiceInfo;
 import org.springframework.stereotype.Component;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -41,37 +46,52 @@ public class AggregateTransformProcessor extends AbstractSchemaProcessor impleme
 
     @Override
     public List<FragmentHolder> process(List<String> plugins, ServiceInfo serviceInfo) {
-        //todo: xUser
         List<FragmentHolder> holders = plugins.stream()
                 .map(plugin -> process(plugin, serviceInfo))
                 .collect(Collectors.toList());
-        ResourceGenerator builder = ResourceGenerator.newInstance("{\"transformation\":{\"requestTransformations\":[],\"responseTransformations\":[]}}");
-        for (FragmentHolder holder : holders) {
-            if (Objects.isNull(holder.getVirtualServiceFragment())) continue;
-            ResourceGenerator source = ResourceGenerator.newInstance(holder.getVirtualServiceFragment().getContent(), ResourceType.YAML);
-            if (source.contain("$.transformation.requestTransformations")) {
-                int requestTransLen = source.getValue("$.transformation.requestTransformations.length()");
-                for (int i = 0; i < requestTransLen; i++) {
-                    String path = String.format("$.transformation.requestTransformations[%s]", i);
-                    builder.addElement("$.transformation.requestTransformations", source.getValue(path));
+        MultiValueMap<String, FragmentWrapper> xUserMap = new LinkedMultiValueMap<>();
+        holders.forEach(holder -> {
+            FragmentWrapper wrapper = holder.getVirtualServiceFragment();
+            if (wrapper == null) return;
+            String xUserId = wrapper.getXUserId();
+            if (StringUtils.isEmpty(xUserId)) {
+                xUserMap.add("NoneUser", wrapper);
+            } else {
+                xUserMap.add(xUserId, wrapper);
+            }
+        });
+        List<FragmentHolder> ret = new ArrayList<>();
+        for (Map.Entry<String, List<FragmentWrapper>> userMap : xUserMap.entrySet()) {
+            ResourceGenerator builder = ResourceGenerator.newInstance("{\"transformation\":{\"requestTransformations\":[],\"responseTransformations\":[]}}");
+            for (FragmentWrapper wrapper : userMap.getValue()) {
+                ResourceGenerator source = ResourceGenerator.newInstance(wrapper.getContent(), ResourceType.YAML);
+                if (source.contain("$.transformation.requestTransformations")) {
+                    int requestTransLen = source.getValue("$.transformation.requestTransformations.length()");
+                    for (int i = 0; i < requestTransLen; i++) {
+                        String path = String.format("$.transformation.requestTransformations[%s]", i);
+                        builder.addElement("$.transformation.requestTransformations", source.getValue(path));
+                    }
+                }
+                if (source.contain("$.transformation.responseTransformations")) {
+                    int requestTransLen = source.getValue("$.transformation.responseTransformations.length()");
+                    for (int i = 0; i < requestTransLen; i++) {
+                        String path = String.format("$.transformation.responseTransformations[%s]", i);
+                        builder.addElement("$.transformation.responseTransformations", source.getValue(path));
+                    }
                 }
             }
-            if (source.contain("$.transformation.responseTransformations")) {
-                int requestTransLen = source.getValue("$.transformation.responseTransformations.length()");
-                for (int i = 0; i < requestTransLen; i++) {
-                    String path = String.format("$.transformation.responseTransformations[%s]", i);
-                    builder.addElement("$.transformation.responseTransformations", source.getValue(path));
-                }
-            }
-        }
 
-        FragmentHolder holder = new FragmentHolder();
-        FragmentWrapper wrapper = new FragmentWrapper.Builder()
-                .withContent(builder.yamlString())
-                .withResourceType(K8sResourceEnum.VirtualService)
-                .withFragmentType(FragmentTypeEnum.VS_API)
-                .build();
-        holder.setVirtualServiceFragment(wrapper);
-        return ImmutableList.of(holder);
+            String xUserId = "NoneUser".equals(userMap.getKey()) ? null : userMap.getKey();
+            FragmentHolder holder = new FragmentHolder();
+            FragmentWrapper wrapper = new FragmentWrapper.Builder()
+                    .withContent(builder.yamlString())
+                    .withResourceType(K8sResourceEnum.VirtualService)
+                    .withFragmentType(FragmentTypeEnum.VS_API)
+                    .withXUserId(xUserId)
+                    .build();
+            holder.setVirtualServiceFragment(wrapper);
+            ret.add(holder);
+        }
+        return ret;
     }
 }

@@ -27,9 +27,6 @@ import java.util.regex.Pattern;
 
 /**
  * 路由插件的转换processor
- * <p>
- * <p>
- * todo: 路由path 结合插件path
  *
  * @auther wupenghuai@corp.netease.com
  * @date 2019/8/7
@@ -47,10 +44,10 @@ public class RouteProcessor extends AbstractSchemaProcessor implements SchemaPro
 
     @Override
     public FragmentHolder process(String plugin, ServiceInfo serviceInfo) {
+        //todo: XUser
         MultiValueMap<String, String> pluginMap = new LinkedMultiValueMap<>();
 
         ResourceGenerator total = ResourceGenerator.newInstance(plugin, ResourceType.JSON, editorContext);
-        String xUserId = getXUserId(total);
         // 如果路由插件自身配置了priority，则使用配置的priority，如果没有配置，则使用占位符传递的priority
         Integer priority = getPriority(total);
         if (Objects.nonNull(priority)) serviceInfo.setPriority(String.valueOf(priority));
@@ -62,19 +59,19 @@ public class RouteProcessor extends AbstractSchemaProcessor implements SchemaPro
             String innerType = rg.getValue("$.name");
             switch (innerType) {
                 case "rewrite": {
-                    pluginMap.add(innerType, createRewrite(rg, serviceInfo, xUserId));
+                    pluginMap.add(innerType, createRewrite(rg, serviceInfo, null));
                     break;
                 }
                 case "redirect": {
-                    pluginMap.add(innerType, createRedirect(rg, serviceInfo, xUserId));
+                    pluginMap.add(innerType, createRedirect(rg, serviceInfo, null));
                     break;
                 }
                 case "return": {
-                    pluginMap.add(innerType, createReturn(rg, serviceInfo, xUserId));
+                    pluginMap.add(innerType, createReturn(rg, serviceInfo, null));
                     break;
                 }
                 case "pass_proxy": {
-                    pluginMap.add(innerType, createPassProxy(rg, serviceInfo, xUserId));
+                    pluginMap.add(innerType, createPassProxy(rg, serviceInfo, null));
                     break;
                 }
                 default:
@@ -90,7 +87,7 @@ public class RouteProcessor extends AbstractSchemaProcessor implements SchemaPro
                 .withContent(result.yamlString())
                 .withResourceType(K8sResourceEnum.VirtualService)
                 .withFragmentType(FragmentTypeEnum.VS_MATCH)
-                .withXUserId(getXUserId(total))
+                .withXUserId(getAndDeleteXUserId(total))
                 .build();
         holder.setVirtualServiceFragment(wrapper);
         return holder;
