@@ -32,10 +32,10 @@ public class IpRestrictionProcessor extends AbstractSchemaProcessor implements S
         }
         FragmentHolder fragmentHolder = new FragmentHolder();
         FragmentWrapper wrapper = new FragmentWrapper.Builder()
+                .withXUserId(getAndDeleteXUserId(rg))
                 .withFragmentType(FragmentTypeEnum.VS_API)
                 .withResourceType(K8sResourceEnum.VirtualService)
                 .withContent(ret.yamlString())
-                .withXUserId(getXUserId(rg))
                 .build();
         fragmentHolder.setVirtualServiceFragment(wrapper);
         return fragmentHolder;

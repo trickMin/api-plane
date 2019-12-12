@@ -31,9 +31,10 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
 
     @Override
     public FragmentHolder process(String plugin, ServiceInfo serviceInfo) {
+        //todo: XUser
         FragmentHolder holder = new FragmentHolder();
         ResourceGenerator total = ResourceGenerator.newInstance(plugin, ResourceType.JSON, editorContext);
-        String xUserId = getXUserId(total);
+        String xUserId = getAndDeleteXUserId(total);
 
         List<Object> limits = total.getValue("$.limit_by_list");
 
@@ -45,24 +46,24 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
             // 频控计算的不同维度，例如second, minute, hour, day(month, year暂时不支持)
             getUnits(rg).forEach((unit, duration) -> {
                 String headerDescriptor = getHeaderDescriptor(serviceInfo, xUserId);
-                rateLimitGen.addJsonElement("$.ratelimit.rateLimits", createRateLimits(rg, serviceInfo, headerDescriptor, xUserId));
+                rateLimitGen.addJsonElement("$.ratelimit.rateLimits", createRateLimits(rg, serviceInfo, headerDescriptor, null));
                 shareConfigGen.addJsonElement("$[0].descriptors", createShareConfig(serviceInfo, headerDescriptor, unit, duration));
             });
         });
         holder.setSharedConfigFragment(
                 new FragmentWrapper.Builder()
+                        .withXUserId(xUserId)
                         .withFragmentType(FragmentTypeEnum.SHARECONFIG)
                         .withResourceType(K8sResourceEnum.SharedConfig)
                         .withContent(shareConfigGen.yamlString())
-                        .withXUserId(xUserId)
                         .build()
         );
         holder.setVirtualServiceFragment(
                 new FragmentWrapper.Builder()
+                        .withXUserId(xUserId)
                         .withFragmentType(FragmentTypeEnum.VS_API)
                         .withResourceType(K8sResourceEnum.VirtualService)
                         .withContent(rateLimitGen.yamlString())
-                        .withXUserId(xUserId)
                         .build()
         );
         return holder;

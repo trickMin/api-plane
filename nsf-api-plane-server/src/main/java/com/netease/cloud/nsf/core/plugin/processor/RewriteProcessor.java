@@ -27,8 +27,6 @@ public class RewriteProcessor extends AbstractSchemaProcessor implements SchemaP
     public FragmentHolder process(String plugin, ServiceInfo serviceInfo) {
         ResourceGenerator builder = ResourceGenerator.newInstance("{}", ResourceType.JSON, editorContext);
         ResourceGenerator source = ResourceGenerator.newInstance(plugin);
-        builder.createOrUpdateJson("$", "transformation", "{\"requestTransformations\":[{\"transformationTemplate\":{\"extractors\":{},\"headers\":{}}}]}");
-        // $.action.target : 转换结果，格式如/$2/$1
         Matcher matcher = Pattern.compile("\\$\\d").matcher(source.getValue("$.action.target"));
         int regexCount = 0;
         while (matcher.find()) {
@@ -36,6 +34,9 @@ public class RewriteProcessor extends AbstractSchemaProcessor implements SchemaP
         }
         String original = source.getValue("$.action.rewrite_regex");
         String target = source.getValue("$.action.target", String.class).replaceAll("(\\$\\d)", "{{$1}}");
+        builder.createOrUpdateJson("$", "transformation",
+                String.format("{\"requestTransformations\":[{\"conditions\":[{\"headers\":{\":path\":{\"regex\":\"%s\"}}}],\"transformationTemplate\":{\"extractors\":{},\"headers\":{}}}]}", original));
+        // $.action.target : 转换结果，格式如/$2/$1
         for (int i = 1; i <= regexCount; i++) {
             String key = "$" + i;
             String value = String.format("{\"header\":\":path\",\"regex\":\"%s\",\"subgroup\":%s}", original, i);
@@ -45,10 +46,10 @@ public class RewriteProcessor extends AbstractSchemaProcessor implements SchemaP
 
         FragmentHolder holder = new FragmentHolder();
         FragmentWrapper wrapper = new FragmentWrapper.Builder()
+                .withXUserId(getAndDeleteXUserId(source))
                 .withContent(builder.yamlString())
                 .withResourceType(K8sResourceEnum.VirtualService)
                 .withFragmentType(FragmentTypeEnum.VS_API)
-                .withXUserId(getXUserId(source))
                 .build();
         holder.setVirtualServiceFragment(wrapper);
         return holder;

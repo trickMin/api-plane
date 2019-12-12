@@ -140,8 +140,13 @@ public abstract class AbstractSchemaProcessor implements SchemaProcessor<Service
         return keyword;
     }
 
-    protected String getXUserId(ResourceGenerator rg) {
-        return rg.getValue("$.x_user_id");
+    protected String getAndDeleteXUserId(ResourceGenerator rg) {
+        if (rg.contain("$.x_user_id")) {
+            String xUserId = rg.getValue("$.x_user_id");
+            rg.removeElement("$.x_user_id");
+            return xUserId;
+        }
+        return null;
     }
 
     protected Integer getPriority(ResourceGenerator rg) {
