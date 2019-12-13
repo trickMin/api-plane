@@ -39,5 +39,4 @@ public interface Const {
     String OPTION_ENABLED = "enabled";
     String OPTION_DISABLED = "disabled";
 
-
 }

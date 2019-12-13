@@ -2,6 +2,7 @@ package com.netease.cloud.nsf.web.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Charsets;
+import com.netease.cloud.nsf.util.errorcode.ApiPlaneErrorCode;
 import com.netease.cloud.nsf.util.errorcode.ErrorCode;
 import com.netease.cloud.nsf.web.holder.LogTraceUUIDHolder;
 import com.netease.cloud.nsf.web.holder.RequestContextHolder;
@@ -64,5 +65,9 @@ public class BaseController {
 
     public String apiReturn(ErrorCode code) {
         return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), null);
+    }
+
+    public String apiReturn(Map<String, Object> params) {
+        return apiReturn(ApiPlaneErrorCode.Success.getStatusCode(), ApiPlaneErrorCode.Success.getCode(), null, params);
     }
 }

@@ -40,6 +40,7 @@ public class DefaultK8sHttpClient implements K8sHttpClient {
     protected OkHttpClient httpClient;
     protected EditorContext editorContext;
 
+    private int response_body_limit = 3000;
 
     public DefaultK8sHttpClient(Config config, OkHttpClient httpClient, EditorContext editorContext) {
         this.config = config;
@@ -192,7 +193,9 @@ public class DefaultK8sHttpClient implements K8sHttpClient {
                 if (!resp.isSuccessful()) return null;
                 if (Objects.nonNull(resp.body())) {
                     String responseBody = resp.body().string();
-                    logger.info("Response body: \n{}", ResourceGenerator.prettyJson(responseBody));
+                    if (responseBody.length() <= response_body_limit) {
+                        logger.info("Response body: \n{}", ResourceGenerator.prettyJson(responseBody));
+                    }
                     return responseBody;
                 }
                 return null;
