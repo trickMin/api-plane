@@ -118,7 +118,19 @@
       "updateTime": "1572537600000",
       "pluginScope": "routeRule",
       "pluginPriority": "3000",
-      "instructionForUse": "缓存插件"
+      "instructionForUse": "body提取插件"
+    },
+    {
+      "name": "auth",
+      "resource": "plugin/auth.json",
+      "description": "",
+      "processor": "DefaultProcessor",
+      "author": "system",
+      "createTime": "1572537600000",
+      "updateTime": "1572537600000",
+      "pluginScope": "routeRule",
+      "pluginPriority": "3000",
+      "instructionForUse": "auth插件"
     }
   ]
 }
