@@ -105,7 +105,7 @@ public class GatewayModelOperator {
         } else {
             //gportal
             vsHandler = new PortalVirtualServiceAPIDataHandler(
-                    defaultModelProcessor, rawResourceContainer.getVirtualServices(), endpoints, simple);
+                    defaultModelProcessor, rawResourceContainer.getVirtualServices(), simple);
         }
 
         List<String> rawVirtualServices = renderTwiceModelProcessor.process(apiVirtualService, api, vsHandler);

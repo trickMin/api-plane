@@ -4,6 +4,7 @@ import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.meta.*;
 import com.netease.cloud.nsf.meta.dto.*;
+import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -65,6 +66,12 @@ public class Trans {
         s.setType(portalRouteService.getType());
         s.setWeight(portalRouteService.getWeight());
         s.setBackendService(portalRouteService.getBackendService());
+
+        Integer port = portalRouteService.getPort();
+        if (portalRouteService.getType().equals(Const.PROXY_SERVICE_TYPE_DYNAMIC) && port == null) {
+            throw new ApiPlaneException("dynamic service must have port " + s.getCode());
+        }
+        s.setPort(port);
         return s;
     }
 

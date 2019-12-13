@@ -10,10 +10,7 @@ import com.netease.cloud.nsf.util.Const;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.netease.cloud.nsf.core.template.TemplateConst.VIRTUAL_SERVICE_DESTINATIONS;
 
@@ -22,8 +19,8 @@ import static com.netease.cloud.nsf.core.template.TemplateConst.VIRTUAL_SERVICE_
  **/
 public class PortalVirtualServiceAPIDataHandler extends BaseVirtualServiceAPIDataHandler {
 
-    public PortalVirtualServiceAPIDataHandler(ModelProcessor subModelProcessor, List<FragmentWrapper> fragments, List<Endpoint> endpoints, boolean simple) {
-        super(subModelProcessor, fragments, endpoints, simple);
+    public PortalVirtualServiceAPIDataHandler(ModelProcessor subModelProcessor, List<FragmentWrapper> fragments, boolean simple) {
+        super(subModelProcessor, fragments, Collections.emptyList(), simple);
     }
 
     @Override
@@ -46,13 +43,8 @@ public class PortalVirtualServiceAPIDataHandler extends BaseVirtualServiceAPIDat
             String host = decorateHost(service.getCode());
 
             if (Const.PROXY_SERVICE_TYPE_DYNAMIC.equals(service.getType())) {
-                for (Endpoint e : endpoints) {
-                    if (e.getHostname().equals(service.getBackendService())) {
-                        port = e.getPort();
-                        host = service.getBackendService();
-                        break;
-                    }
-                }
+                host = service.getBackendService();
+                port = service.getPort();
             } else if (Const.PROXY_SERVICE_TYPE_STATIC.equals(service.getType())) {
                 port = 80;
             }
