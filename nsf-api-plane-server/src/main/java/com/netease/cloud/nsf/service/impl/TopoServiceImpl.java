@@ -36,6 +36,7 @@ public class TopoServiceImpl implements TopoService {
 
         Set<String> existNss = new HashSet<>();
 
+        //从多个集群中找到所有namespace
         multiClusterK8sClient.getAllClients().forEach((k, client) -> {
             NamespaceList list = client.originalK8sClient.namespaces().list();
             List<Namespace> items = list.getItems();
@@ -44,6 +45,7 @@ public class TopoServiceImpl implements TopoService {
             }
         });
 
+        //跟传入的namespace相比，去掉不存在的namespace
         List<String> safeNss = new ArrayList<>();
         String[] inputNss = namespaces.split(",");
         for (String inputNs : inputNss) {
@@ -52,6 +54,7 @@ public class TopoServiceImpl implements TopoService {
             }
         }
         if (safeNss.isEmpty()) return new Graph();
+        //传入安全的namespace,多集群下可能还是有问题，看具体拓扑的数据
         return kialiHttpClient.getGraph(String.join(",", safeNss), graphType, duration);
     }
 }
