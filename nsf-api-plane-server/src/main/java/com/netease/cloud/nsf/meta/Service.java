@@ -95,6 +95,11 @@ public class Service extends CommonModel {
      */
     private String loadBalancer;
 
+    /**
+     * 端口
+     */
+    private Integer port;
+
     public String getCode() {
         return code;
     }
@@ -237,5 +242,13 @@ public class Service extends CommonModel {
 
     public void setLoadBalancer(String loadBalancer) {
         this.loadBalancer = loadBalancer;
+    }
+
+    public Integer getPort() {
+        return port;
+    }
+
+    public void setPort(Integer port) {
+        this.port = port;
     }
 }

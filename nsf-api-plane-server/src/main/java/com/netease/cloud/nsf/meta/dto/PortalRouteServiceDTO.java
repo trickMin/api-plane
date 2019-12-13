@@ -38,6 +38,12 @@ public class PortalRouteServiceDTO {
     @JsonProperty(value = "Weight")
     private Integer weight;
 
+    /**
+     * 端口
+     */
+    @JsonProperty(value = "Port")
+    private Integer port;
+
     public String getCode() {
         return code;
     }
@@ -68,5 +74,13 @@ public class PortalRouteServiceDTO {
 
     public void setWeight(Integer weight) {
         this.weight = weight;
+    }
+
+    public Integer getPort() {
+        return port;
+    }
+
+    public void setPort(Integer port) {
+        this.port = port;
     }
 }
