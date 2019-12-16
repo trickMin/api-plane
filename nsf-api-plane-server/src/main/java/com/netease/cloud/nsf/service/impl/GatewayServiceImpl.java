@@ -18,6 +18,7 @@ import me.snowdrop.istio.api.IstioResource;
 import me.snowdrop.istio.api.networking.v1alpha3.Plugin;
 import me.snowdrop.istio.api.networking.v1alpha3.PluginManager;
 import me.snowdrop.istio.api.networking.v1alpha3.VersionManager;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -25,6 +26,8 @@ import org.springframework.util.CollectionUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/7/25
@@ -106,6 +109,23 @@ public class GatewayServiceImpl implements GatewayService {
     @Override
     public List<String> getServiceList() {
         return resourceManager.getServiceList();
+    }
+
+    @Override
+    public List<ServiceAndPortDTO> getServiceAndPortList(String name) {
+        String pattern = ".*";
+        if (!StringUtils.isEmpty(name)) {
+            pattern = name + pattern;
+        }
+        final String fPattern = pattern;
+        return resourceManager.getServiceAndPortList().stream()
+                .filter(sap -> Pattern.compile(fPattern).matcher(sap.getName()).find())
+                .map(sap -> {
+                    ServiceAndPortDTO dto = new ServiceAndPortDTO();
+                    dto.setName(sap.getName());
+                    dto.setPort(sap.getPort());
+                    return dto;
+                }).collect(Collectors.toList());
     }
 
     @Override

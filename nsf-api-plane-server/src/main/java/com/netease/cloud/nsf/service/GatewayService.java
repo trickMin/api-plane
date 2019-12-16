@@ -5,10 +5,7 @@ import com.netease.cloud.nsf.meta.PodVersion;
 import com.netease.cloud.nsf.meta.PodStatus;
 import com.netease.cloud.nsf.meta.SidecarVersionManagement;
 import com.netease.cloud.nsf.meta.ServiceHealth;
-import com.netease.cloud.nsf.meta.dto.PluginOrderDTO;
-import com.netease.cloud.nsf.meta.dto.PortalAPIDTO;
-import com.netease.cloud.nsf.meta.dto.PortalServiceDTO;
-import com.netease.cloud.nsf.meta.dto.YxAPIDTO;
+import com.netease.cloud.nsf.meta.dto.*;
 
 import java.util.List;
 
@@ -36,6 +33,8 @@ public interface GatewayService {
     void deletePluginOrder(PluginOrderDTO pluginOrderDTO);
 
     List<String> getServiceList();
+
+    List<ServiceAndPortDTO> getServiceAndPortList(String name);
 
     List<Gateway> getGatewayList();
 
