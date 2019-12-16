@@ -5,20 +5,26 @@ import com.netease.cloud.nsf.core.istio.IstioHttpClient;
 import com.netease.cloud.nsf.core.gateway.service.ResourceManager;
 import com.netease.cloud.nsf.meta.Endpoint;
 import com.netease.cloud.nsf.meta.Gateway;
+import com.netease.cloud.nsf.meta.ServiceAndPort;
 import com.netease.cloud.nsf.meta.ServiceHealth;
+import com.netease.cloud.nsf.meta.dto.ServiceAndPortDTO;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/9/17
@@ -34,26 +40,31 @@ public class DefaultResourceManager implements ResourceManager {
     @Autowired
     private EnvoyHttpClient envoyHttpClient;
 
+    @Value("${service.namespace.exclude}")
+    private String excludeNamespace;
+
+    private List<String> getExcludeNamespace() {
+        List<String> ret = new ArrayList<>();
+        if (StringUtils.isEmpty(excludeNamespace)) return ret;
+        ret.addAll(Arrays.asList(excludeNamespace.split(",")));
+        return ret;
+    }
+
     @Override
     public List<Endpoint> getEndpointList() {
-        logger.info("DefaultResourceManager.getEndpointList, Condition:{}", "address != null && hostname != null && port != null && !inIstioSystem() && !inKubeSystem() && !inGatewaySystem()");
-        return istioHttpClient.getEndpointList(endpoint ->
-                // address, hostname, port不为空
-                endpoint.getAddress() != null &&
+        Predicate<Endpoint> filter = endpoint ->
+                endpoint.getHostname() != null &&
                         endpoint.getHostname() != null &&
-                        endpoint.getPort() != null &&
-                        // 不在 istio-system, kube-system, gateway-system内
-                        !inIstioSystem(endpoint.getHostname()) &&
-                        !inKubeSystem(endpoint.getHostname()) &&
-                        !inGatewaySystem(endpoint.getHostname())
-//                        // 是http服务
-//                        &&isHttp(endpoint.getProtocol())
-        );
+                        endpoint.getPort() != null;
+        for (String ns : getExcludeNamespace()) {
+            filter = filter.and(endpoint -> !inNamespace(endpoint.getHostname(), ns));
+        }
+
+        return istioHttpClient.getEndpointList(filter);
     }
 
     @Override
     public List<Gateway> getGatewayList() {
-        logger.info("DefaultResourceManager.getGatewayList, Condition:{}", "Objects.nonNull(Labels()) && gateway.getLabels().containsKey(\"gw_cluster\")");
         return istioHttpClient.getGatewayList(gateway ->
                 // 包含gw_cluster label
                 Objects.nonNull(gateway.getLabels()) &&
@@ -62,19 +73,33 @@ public class DefaultResourceManager implements ResourceManager {
 
     @Override
     public List<String> getServiceList() {
-        logger.info("DefaultResourceManager.getServiceList, Condition:{}", "hostname != null && !inIstioSystem() && !inKubeSystem() && !inGatewaySystem() && !isServiceEntry()");
-        return istioHttpClient.getServiceList(endpoint ->
-                // hostname不为空
+        Predicate<Endpoint> filter = endpoint ->
                 endpoint.getHostname() != null &&
-                        // 不在 istio-system, kube-system, gateway-system内
-                        !inIstioSystem(endpoint.getHostname()) &&
-                        !inKubeSystem(endpoint.getHostname()) &&
-                        !inGatewaySystem(endpoint.getHostname()) &&
-//                        // 是http服务
-//                        isHttp(endpoint.getProtocol()) &&
-                        // 不是ServiceEntry服务
-                        !isServiceEntry(endpoint.getHostname())
+                        !isServiceEntry(endpoint.getHostname());
+        for (String ns : getExcludeNamespace()) {
+            filter = filter.and(endpoint -> !inNamespace(endpoint.getHostname(), ns));
+        }
+        return istioHttpClient.getServiceList(filter);
+    }
+
+
+    public List<ServiceAndPort> getServiceAndPortList() {
+        Map<String, Set<Integer>> servicePortMap = new LinkedHashMap<>();
+        getEndpointList().forEach(endpoint -> {
+                    if (!servicePortMap.containsKey(endpoint.getHostname())) {
+                        servicePortMap.put(endpoint.getHostname(), new LinkedHashSet<>());
+                    }
+                    servicePortMap.get(endpoint.getHostname()).add(endpoint.getPort());
+                }
         );
+        return servicePortMap.entrySet().stream()
+                .filter(entry -> !isServiceEntry(entry.getKey()))
+                .map(entry -> {
+                    ServiceAndPort sap = new ServiceAndPort();
+                    sap.setName(entry.getKey());
+                    sap.setPort(new ArrayList<>(entry.getValue()));
+                    return sap;
+                }).collect(Collectors.toList());
     }
 
     @Override
@@ -90,9 +115,8 @@ public class DefaultResourceManager implements ResourceManager {
         }
         if (ports.size() == 0) {
             throw new ApiPlaneException(String.format("Target endpoint %s does not exist", targetHost));
-        } else if (ports.size() > 1) {
-            logger.warn("There are multi port in service:[{}]. port:{}. use port:{}.", targetHost, ports, ports.get(0));
         }
+        //todo: ports.size() > 1
         return ports.get(0);
     }
 
@@ -108,15 +132,20 @@ public class DefaultResourceManager implements ResourceManager {
 
 
     private boolean inIstioSystem(String hostName) {
-        return Pattern.compile("(.*)\\.istio-system\\.(.*)\\.(.*)\\.(.*)").matcher(hostName).find();
+        return inNamespace(hostName, "istio-system");
     }
 
     private boolean inKubeSystem(String hostName) {
-        return Pattern.compile("(.*)\\.kube-system\\.(.*)\\.(.*)\\.(.*)").matcher(hostName).find();
+        return inNamespace(hostName, "kube-system");
     }
 
     private boolean inGatewaySystem(String hostName) {
-        return Pattern.compile("(.*)\\.gateway-system\\.(.*)\\.(.*)\\.(.*)").matcher(hostName).find();
+        return inNamespace(hostName, "gateway-system");
+    }
+
+    private boolean inNamespace(String hostName, String namespace) {
+        String pattern = String.format("(.*)\\.%s\\.(.*)\\.(.*)\\.(.*)", namespace);
+        return Pattern.compile(pattern).matcher(hostName).find();
     }
 
     private boolean isHttp(String protocol) {

@@ -1,15 +1,13 @@
 package com.netease.cloud.nsf.web.controller;
 
+import com.google.common.collect.ImmutableMap;
 import com.netease.cloud.nsf.meta.Gateway;
 import com.netease.cloud.nsf.meta.dto.PluginOrderDTO;
 import com.netease.cloud.nsf.service.GatewayService;
 import com.netease.cloud.nsf.util.errorcode.ApiPlaneErrorCode;
 import com.netease.cloud.nsf.util.errorcode.ErrorCode;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.HashMap;
@@ -33,6 +31,13 @@ public class GatewayCommonController extends BaseController {
         result.put(RESULT_LIST, gatewayService.getServiceList());
         ErrorCode code = ApiPlaneErrorCode.Success;
         return apiReturn(code.getStatusCode(), code.getCode(), null, result);
+    }
+
+    @RequestMapping(params = "Action=GetServiceAndPortList", method = RequestMethod.GET)
+    public String getServiceAndPortList(@RequestParam(name = "Name", required = false) String name) {
+        ErrorCode code = ApiPlaneErrorCode.Success;
+        return apiReturn(code.getStatusCode(), code.getCode(), null,
+                ImmutableMap.of("ServiceList", gatewayService.getServiceAndPortList(name)));
     }
 
     @RequestMapping(params = "Action=GetGatewayList", method = RequestMethod.GET)
