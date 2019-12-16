@@ -115,7 +115,7 @@ public class GatewayServiceImpl implements GatewayService {
     public List<ServiceAndPortDTO> getServiceAndPortList(String name) {
         String pattern = ".*";
         if (!StringUtils.isEmpty(name)) {
-            pattern = name + pattern;
+            pattern = "^" + name + pattern + "$";
         }
         final String fPattern = pattern;
         return resourceManager.getServiceAndPortList().stream()
