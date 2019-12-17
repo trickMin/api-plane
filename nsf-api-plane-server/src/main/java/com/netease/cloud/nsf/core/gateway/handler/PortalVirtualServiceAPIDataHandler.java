@@ -44,7 +44,7 @@ public class PortalVirtualServiceAPIDataHandler extends BaseVirtualServiceAPIDat
 
             if (Const.PROXY_SERVICE_TYPE_DYNAMIC.equals(service.getType())) {
                 host = service.getBackendService();
-                port = service.getPort();
+                port = service.getPort() == null ? 80 : service.getPort();
             } else if (Const.PROXY_SERVICE_TYPE_STATIC.equals(service.getType())) {
                 port = 80;
             }

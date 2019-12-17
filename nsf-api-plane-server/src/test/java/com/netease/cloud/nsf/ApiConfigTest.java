@@ -43,7 +43,7 @@ public class ApiConfigTest {
         ApiOption apiOption = new ApiOption();
 
 
-        YxAPIDTO apiModel = YxAPIDTO.YxAPIModelBuilder.anYxAPIModel()
+        YxAPIDTO apiModel = YxAPIDTO.YxAPIDTOBuilder.anYxAPIDTO()
                 .withGateways(gateways)
                 .withName("demo")
                 .withHosts(hosts)

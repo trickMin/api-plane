@@ -37,6 +37,8 @@ public class Trans {
         api.setProxyUris(yxApi.getProxyUris());
         api.setRequestUris(yxApi.getRequestUris());
         api.setService(yxApi.getService());
+        api.setHeaders(pairsDTO2Pairs(yxApi.getHeaders()));
+        api.setQueryParams(pairsDTO2Pairs(yxApi.getQueryParams()));
 
         return api;
     }

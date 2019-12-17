@@ -77,6 +77,20 @@ public class YxAPIDTO {
     @JsonProperty(value = "Option")
     private ApiOption option;
 
+    /**
+     * query string
+     */
+    @JsonProperty(value = "QueryParams")
+    @Valid
+    private List<PairMatchDTO> queryParams;
+
+    /**
+     * 请求头
+     */
+    @JsonProperty(value = "Headers")
+    @Valid
+    private List<PairMatchDTO> headers;
+
     public List<String> getGateways() {
         return gateways;
     }
@@ -157,8 +171,24 @@ public class YxAPIDTO {
         this.uriMatch = uriMatch;
     }
 
+    public List<PairMatchDTO> getQueryParams() {
+        return queryParams;
+    }
 
-    public static final class YxAPIModelBuilder {
+    public void setQueryParams(List<PairMatchDTO> queryParams) {
+        this.queryParams = queryParams;
+    }
+
+    public List<PairMatchDTO> getHeaders() {
+        return headers;
+    }
+
+    public void setHeaders(List<PairMatchDTO> headers) {
+        this.headers = headers;
+    }
+
+
+    public static final class YxAPIDTOBuilder {
         private List<String> gateways;
         private String name;
         private List<String> hosts;
@@ -169,77 +199,91 @@ public class YxAPIDTO {
         private String service;
         private List<String> plugins;
         private ApiOption option;
+        private List<PairMatchDTO> queryParams;
+        private List<PairMatchDTO> headers;
 
-        private YxAPIModelBuilder() {
+        private YxAPIDTOBuilder() {
         }
 
-        public static YxAPIModelBuilder anYxAPIModel() {
-            return new YxAPIModelBuilder();
+        public static YxAPIDTOBuilder anYxAPIDTO() {
+            return new YxAPIDTOBuilder();
         }
 
-        public YxAPIModelBuilder withGateways(List<String> gateways) {
+        public YxAPIDTOBuilder withGateways(List<String> gateways) {
             this.gateways = gateways;
             return this;
         }
 
-        public YxAPIModelBuilder withName(String name) {
+        public YxAPIDTOBuilder withName(String name) {
             this.name = name;
             return this;
         }
 
-        public YxAPIModelBuilder withHosts(List<String> hosts) {
+        public YxAPIDTOBuilder withHosts(List<String> hosts) {
             this.hosts = hosts;
             return this;
         }
 
-        public YxAPIModelBuilder withRequestUris(List<String> requestUris) {
+        public YxAPIDTOBuilder withRequestUris(List<String> requestUris) {
             this.requestUris = requestUris;
             return this;
         }
 
-        public YxAPIModelBuilder withUriMatch(String uriMatch) {
+        public YxAPIDTOBuilder withUriMatch(String uriMatch) {
             this.uriMatch = uriMatch;
             return this;
         }
 
-        public YxAPIModelBuilder withMethods(List<String> methods) {
+        public YxAPIDTOBuilder withMethods(List<String> methods) {
             this.methods = methods;
             return this;
         }
 
-        public YxAPIModelBuilder withProxyUris(List<String> proxyUris) {
+        public YxAPIDTOBuilder withProxyUris(List<String> proxyUris) {
             this.proxyUris = proxyUris;
             return this;
         }
 
-        public YxAPIModelBuilder withService(String service) {
+        public YxAPIDTOBuilder withService(String service) {
             this.service = service;
             return this;
         }
 
-        public YxAPIModelBuilder withPlugins(List<String> plugins) {
+        public YxAPIDTOBuilder withPlugins(List<String> plugins) {
             this.plugins = plugins;
             return this;
         }
 
-        public YxAPIModelBuilder withOption(ApiOption option) {
+        public YxAPIDTOBuilder withOption(ApiOption option) {
             this.option = option;
             return this;
         }
 
+        public YxAPIDTOBuilder withQueryParams(List<PairMatchDTO> queryParams) {
+            this.queryParams = queryParams;
+            return this;
+        }
+
+        public YxAPIDTOBuilder withHeaders(List<PairMatchDTO> headers) {
+            this.headers = headers;
+            return this;
+        }
+
         public YxAPIDTO build() {
-            YxAPIDTO yxAPIModel = new YxAPIDTO();
-            yxAPIModel.setGateways(gateways);
-            yxAPIModel.setName(name);
-            yxAPIModel.setHosts(hosts);
-            yxAPIModel.setRequestUris(requestUris);
-            yxAPIModel.setUriMatch(uriMatch);
-            yxAPIModel.setMethods(methods);
-            yxAPIModel.setProxyUris(proxyUris);
-            yxAPIModel.setService(service);
-            yxAPIModel.setPlugins(plugins);
-            yxAPIModel.setOption(option);
-            return yxAPIModel;
+            YxAPIDTO yxAPIDTO = new YxAPIDTO();
+            yxAPIDTO.setGateways(gateways);
+            yxAPIDTO.setName(name);
+            yxAPIDTO.setHosts(hosts);
+            yxAPIDTO.setRequestUris(requestUris);
+            yxAPIDTO.setUriMatch(uriMatch);
+            yxAPIDTO.setMethods(methods);
+            yxAPIDTO.setProxyUris(proxyUris);
+            yxAPIDTO.setService(service);
+            yxAPIDTO.setPlugins(plugins);
+            yxAPIDTO.setOption(option);
+            yxAPIDTO.setQueryParams(queryParams);
+            yxAPIDTO.setHeaders(headers);
+            return yxAPIDTO;
         }
     }
 }
