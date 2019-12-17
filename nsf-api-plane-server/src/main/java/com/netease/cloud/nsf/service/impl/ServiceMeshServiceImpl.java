@@ -1,7 +1,6 @@
 package com.netease.cloud.nsf.service.impl;
 
 import com.netease.cloud.nsf.cache.K8sResourceCache;
-import com.netease.cloud.nsf.configuration.ApiPlaneConfig;
 import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.gateway.service.ConfigStore;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
@@ -68,7 +67,7 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
     }
 
     @Override
-    public ErrorCode sidecarInject(String clusterId, String kind, String namespace, String name, String version) {
+    public ErrorCode sidecarInject(String clusterId, String kind, String namespace, String name, String version, String expectedVersion) {
         if (!K8sResourceEnum.StatefulSet.name().equals(kind) && !K8sResourceEnum.Deployment.name().equals(kind)) {
             return ApiPlaneErrorCode.MissingParamsError("resource kind");
         }
@@ -96,7 +95,7 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
                 logger.error("sidecar inject error", e);
             }
         }
-        createSidecarVersionCRD(clusterId, namespace, kind, name);
+        createSidecarVersionCRD(clusterId, namespace, kind, name, expectedVersion);
         return ApiPlaneErrorCode.Success;
     }
 
@@ -183,14 +182,17 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
     }
 
 
-    private void createSidecarVersionCRD(String clusterId, String namespace, String kind, String name) {
+    private void createSidecarVersionCRD(String clusterId, String namespace, String kind, String name, String expectedVersion) {
         SidecarVersionManagement versionManagement = new SidecarVersionManagement();
         versionManagement.setClusterId(clusterId);
         versionManagement.setNamespace(namespace);
         SVMSpec svmSpec = new SVMSpec();
         svmSpec.setWorkLoadType(kind);
         svmSpec.setWorkLoadName(name);
-        svmSpec.setExpectedVersion(DEFAULT_SIDECAR_VERSION);
+        svmSpec.setExpectedVersion(expectedVersion);
+        if (StringUtils.isEmpty(expectedVersion)){
+            svmSpec.setExpectedVersion(DEFAULT_SIDECAR_VERSION);
+        }
         versionManagement.setWorkLoads(Arrays.asList(svmSpec));
         gatewayService.updateSVM(versionManagement);
     }

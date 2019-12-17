@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
 
 /**
  * servicemesh产品化相关接口
+ *
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/11/7
  **/
 @RestController
@@ -45,10 +46,11 @@ public class ServiceMeshController extends BaseController {
     public String injectSidecar(@RequestParam(name = "Name") String name,
                                 @RequestParam(name = "Namespace") String namespace,
                                 @RequestParam(name = "ServiceVersion") String version,
+                                @RequestParam(name = "SidecarVersion") String sidecarVersion,
                                 @RequestParam(name = "Kind") String kind,
                                 @RequestParam(name = "ClusterId") String clusterId) {
 
-        ErrorCode code = istioService.sidecarInject(clusterId, kind, namespace, name, version);
+        ErrorCode code = istioService.sidecarInject(clusterId, kind, namespace, name, version, sidecarVersion            );
         return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), null);
     }
 
@@ -61,7 +63,7 @@ public class ServiceMeshController extends BaseController {
             return apiReturn(ApiPlaneErrorCode.InvalidFormat("duration"));
         }
 
-        if (!"app".equals(graphType) && !"versionedApp".equals(graphType) ) {
+        if (!"app".equals(graphType) && !"versionedApp".equals(graphType)) {
             return apiReturn(ApiPlaneErrorCode.InvalidFormat("graphType"));
         }
 

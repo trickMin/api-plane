@@ -8,5 +8,5 @@ public interface ServiceMeshService {
 
     void deleteIstioResource(String json);
 
-    ErrorCode sidecarInject(String clusterId, String kind, String namespace, String name, String version);
+    ErrorCode sidecarInject(String clusterId, String kind, String namespace, String name, String version, String expectedVersion);
 }

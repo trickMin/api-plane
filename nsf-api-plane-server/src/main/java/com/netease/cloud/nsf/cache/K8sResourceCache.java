@@ -52,9 +52,6 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     @Autowired
     GatewayService gatewayService;
 
-//    @Autowired
-//    @Qualifier("originalKubernetesClient")
-//    private KubernetesClient kubernetesClient;
 
     @Autowired
     private MultiClusterK8sClient multiClusterK8sClient;
@@ -250,11 +247,17 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
 
     @EventListener(ApplicationReadyEvent.class)
     public void startInformer() {
+        if (config.getStartInformer().equals(Const.OPTION_FALSE)){
+            return;
+        }
         resourceInformerMap.values().forEach(K8sResourceInformer::start);
     }
 
     @Scheduled(cron = UPDATE_RESOURCE_DURATION)
     public void updateResource() {
+        if (config.getStartInformer().equals(Const.OPTION_FALSE)){
+            return;
+        }
         resourceInformerMap.values().forEach(K8sResourceInformer::replaceResource);
     }
 

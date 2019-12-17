@@ -24,6 +24,7 @@ import org.springframework.http.client.BufferingClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.InterceptingClientHttpRequestFactory;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
@@ -87,6 +88,9 @@ public class ApiPlaneAutoConfiguration {
     ApiPlaneConfig apiPlaneConfig(){
         ApiPlaneConfig apiPlaneConfig = new ApiPlaneConfig();
         apiPlaneConfig.setNsfMetaUrl(environment.getProperty("nsfMetaUrl"));
+        if (!StringUtils.isEmpty(environment.getProperty("startInformer"))){
+            apiPlaneConfig.setStartInformer(environment.getProperty("startInformer"));
+        }
         return apiPlaneConfig;
     }
 
