@@ -27,7 +27,7 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
     static final String apiVirtualServiceApi = "gateway/api/virtualServiceApi";
     static final String apiVirtualServiceRoute = "gateway/api/virtualServiceRoute";
 
-    static final String defaultUserId = "qz-default-user";
+    static final String defaultUserId = "";
 
     ModelProcessor subModelProcessor;
     List<FragmentWrapper> fragments;
