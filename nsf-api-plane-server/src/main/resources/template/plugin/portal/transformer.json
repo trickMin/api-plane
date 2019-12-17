@@ -1,0 +1,18 @@
+{
+  "transformer": {
+    "headers": [
+      {
+        "op": "add",
+        "key": "",
+        "value": ""
+      }
+    ],
+    "querystring": [
+      {
+        "op": "add",
+        "key": "",
+        "value": ""
+      }
+    ]
+  }
+}

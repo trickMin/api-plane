@@ -2,7 +2,7 @@
   "item": [
     {
       "name": "ianus-percent-limit",
-      "resource": "plugin/ianus-percent-limit.json",
+      "schema": "plugin/portal/ianus-percent-limit.json",
       "description": "百分比限流插件",
       "processor": "FlowLimitProcessor",
       "author": "system",
@@ -14,7 +14,7 @@
     },
     {
       "name": "ianus-rate-limiting",
-      "resource": "plugin/ianus-rate-limiting.json",
+      "schema": "plugin/portal/ianus-rate-limiting.json",
       "description": "频控插件",
       "processor": "RateLimitProcessor",
       "author": "system",
@@ -26,7 +26,7 @@
     },
     {
       "name": "ianus-router",
-      "resource": "plugin/ianus-router.json",
+      "schema": "plugin/portal/ianus-router.json",
       "description": "路由插件",
       "processor": "RouteProcessor",
       "author": "system",
@@ -38,7 +38,7 @@
     },
     {
       "name": "ip-restriction",
-      "resource": "plugin/ip-restriction.json",
+      "schema": "plugin/portal/ip-restriction.json",
       "description": "黑白名单插件",
       "processor": "IpRestrictionProcessor",
       "author": "system",
@@ -50,7 +50,7 @@
     },
     {
       "name": "cors",
-      "resource": "plugin/cors.json",
+      "schema": "plugin/portal/cors.json",
       "description": "",
       "processor": "DefaultProcessor",
       "author": "system",
@@ -62,9 +62,9 @@
     },
     {
       "name": "jsonp",
-      "resource": "plugin/jsonp.json",
+      "schema": "plugin/portal/jsonp.json",
       "description": "jsonp插件",
-      "processor": "AggregateTransformProcessor",
+      "processor": "AggregateExtensionProcessor",
       "author": "system",
       "createTime": "1572537600000",
       "updateTime": "1572537600000",
@@ -74,9 +74,9 @@
     },
     {
       "name": "rewrite",
-      "resource": "plugin/rewrite.json",
+      "schema": "plugin/portal/rewrite.json",
       "description": "重写插件",
-      "processor": "AggregateTransformProcessor",
+      "processor": "AggregateExtensionProcessor",
       "author": "system",
       "createTime": "1572537600000",
       "updateTime": "1572537600000",
@@ -86,9 +86,9 @@
     },
     {
       "name": "request-transformer",
-      "resource": "plugin/request-transformer-cm.json",
+      "schema": "plugin/portal/request-transformer-cm.json",
       "description": "",
-      "processor": "AggregateTransformProcessor",
+      "processor": "AggregateExtensionProcessor",
       "author": "system",
       "createTime": "1572537600000",
       "updateTime": "1572537600000",
@@ -98,7 +98,7 @@
     },
     {
       "name": "cache",
-      "resource": "plugin/cache.json",
+      "schema": "plugin/portal/cache.json",
       "description": "",
       "processor": "DefaultProcessor",
       "author": "system",
@@ -109,22 +109,10 @@
       "instructionForUse": "缓存插件"
     },
     {
-      "name": "body-extractor",
-      "resource": "plugin/body-extractor.json",
+      "name": "transformer",
+      "schema": "plugin/portal/transformer.json",
       "description": "",
-      "processor": "DefaultProcessor",
-      "author": "system",
-      "createTime": "1572537600000",
-      "updateTime": "1572537600000",
-      "pluginScope": "routeRule",
-      "pluginPriority": "3000",
-      "instructionForUse": "body提取插件"
-    },
-    {
-      "name": "auth",
-      "resource": "plugin/auth.json",
-      "description": "",
-      "processor": "DefaultProcessor",
+      "processor": "AggregateExtensionProcessor",
       "author": "system",
       "createTime": "1572537600000",
       "updateTime": "1572537600000",

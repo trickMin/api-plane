@@ -16,6 +16,8 @@ public interface PluginService {
 
     Map<String, Plugin> getPlugins();
 
+    String getSchema(String path);
+
     String getPluginConfig();
 
     List<FragmentHolder> processSchema(List<String> plugins, ServiceInfo serviceInfo);

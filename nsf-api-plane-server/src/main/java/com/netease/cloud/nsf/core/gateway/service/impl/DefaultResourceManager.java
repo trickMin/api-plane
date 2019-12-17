@@ -40,7 +40,7 @@ public class DefaultResourceManager implements ResourceManager {
     @Autowired
     private EnvoyHttpClient envoyHttpClient;
 
-    @Value("${service.namespace.exclude}")
+    @Value("${service.namespace.exclude:gateway-system,kube-system,istio-system}")
     private String excludeNamespace;
 
     private List<String> getExcludeNamespace() {

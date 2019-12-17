@@ -34,7 +34,7 @@ public class GatewayPluginController extends BaseController {
         ErrorCode code = ApiPlaneErrorCode.Success;
 
         Map<String, Object> result = new HashMap<>();
-        result.put("Schema", ResourceGenerator.newInstance(plugin.getSchema()).object(Object.class));
+        result.put("Schema", ResourceGenerator.newInstance(pluginService.getSchema(plugin.getSchema())).object(Object.class));
         result.put("Plugin", plugin);
         return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), result);
     }

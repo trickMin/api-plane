@@ -15,15 +15,15 @@ import freemarker.template.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import static com.netease.cloud.nsf.core.editor.PathExpressionEnum.PLUGIN_GET_KIND;
 
 /**
  * @auther wupenghuai@corp.netmask.com
@@ -34,7 +34,10 @@ public class PluginServiceImpl implements PluginService {
 
     private static final Logger logger = LoggerFactory.getLogger(PluginServiceImpl.class);
 
-    private static final String PLUGIN_CONFIG = "plugin/plugin-config.json";
+    private static final String PLUGIN_CONFIG = "plugin/%s/plugin-config.json";
+
+    @Value("${pluginConfigEnv:yx}")
+    private String env;
 
     @Autowired
     private Configuration configuration;
@@ -61,24 +64,27 @@ public class PluginServiceImpl implements PluginService {
         ResourceGenerator rg = ResourceGenerator.newInstance(pluginConfig);
         int itemCount = rg.getValue("$.item.length()");
         for (int i = 0; i < itemCount; i++) {
-            String name = rg.getValue(String.format("$.item[%s].name", i));
-            String ftl = rg.getValue(String.format("$.item[%s].resource", i));
-            String processor = rg.getValue(String.format("$.item[%s].processor", i));
-            String description = rg.getValue(String.format("$.item[%s].description", i));
-            String author = rg.getValue(String.format("$.item[%s].author", i));
-            String createTime = rg.getValue(String.format("$.item[%s].createTime", i));
-            String updateTime = rg.getValue(String.format("$.item[%s].updateTime", i));
-            String pluginScope = rg.getValue(String.format("$.item[%s].pluginScope", i));
-            String pluginPriority = rg.getValue(String.format("$.item[%s].pluginPriority", i));
-            String instructionForUse = rg.getValue(String.format("$.item[%s].instructionForUse", i));
-            ret.put(name, createPlugin(name, ftl, processor, description, author, createTime, updateTime, pluginScope, pluginPriority, instructionForUse));
+            ResourceGenerator p = ResourceGenerator.newInstance(rg.getValue(String.format("$.item[%s]", i)), ResourceType.OBJECT);
+            Plugin plugin = p.object(Plugin.class);
+            ret.put(plugin.getName(), plugin);
         }
         return ret;
     }
 
     @Override
+    public String getSchema(String path) {
+        if (StringUtils.isEmpty(path)) {
+            throw new ApiPlaneException(String.format("schema path:[%s] can not be null, please check your plugin-config.json", path));
+        }
+        return TemplateUtils.getTemplate(path, configuration).toString();
+    }
+
+    @Override
     public String getPluginConfig() {
-        return TemplateUtils.getTemplate(PLUGIN_CONFIG, configuration).toString();
+        if (StringUtils.isEmpty(env)) {
+            throw new ApiPlaneException(String.format("the env:[%s] of plugin config can not be null.", env));
+        }
+        return TemplateUtils.getTemplate(String.format(PLUGIN_CONFIG, env), configuration).toString();
     }
 
     @Override
@@ -126,34 +132,5 @@ public class PluginServiceImpl implements PluginService {
             throw new ApiPlaneException("can not resolve the schema processor of name:" + name);
         }
         return processor.get();
-    }
-
-    private Plugin createPlugin(
-            String name,
-            String ftl,
-            String processor,
-            String description,
-            String author,
-            String createTime,
-            String updateTime,
-            String pluginScope,
-            String pluginPriority,
-            String instructionForUse
-    ) {
-        logger.info("create plugin name:{}, ftl:{}, processor:{}, description:{}", name, ftl, processor, description);
-        String schema = TemplateUtils.getTemplate(ftl, configuration).toString();
-
-        Plugin plugin = new Plugin();
-        plugin.setName(name);
-        plugin.setDescription(description);
-        plugin.setSchema(schema);
-        plugin.setProcessor(processor);
-        plugin.setAuthor(author);
-        plugin.setCreateTime(createTime);
-        plugin.setUpdateTime(updateTime);
-        plugin.setPluginScope(pluginScope);
-        plugin.setPluginPriority(pluginPriority);
-        plugin.setInstructionForUse(instructionForUse);
-        return plugin;
     }
 }
