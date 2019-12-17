@@ -21,6 +21,8 @@ release 1.1
 ServiceMesh:
 - 创建、删除资源接口
 - 拓扑功能，对接kiali
+- sidecar 自动注入及升级
+- k8s 资源监听管理
 
 
 工程整体:
