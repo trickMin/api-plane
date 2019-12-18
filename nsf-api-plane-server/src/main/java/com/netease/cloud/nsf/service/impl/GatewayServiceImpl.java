@@ -75,9 +75,11 @@ public class GatewayServiceImpl implements GatewayService {
     }
 
     @Override
-    public PluginOrderDTO getPluginOrder() {
+    public PluginOrderDTO getPluginOrder(PluginOrderDTO pluginOrderDto) {
+        pluginOrderDto.setPlugins(new ArrayList<>());
         PluginOrderDTO dto = new PluginOrderDTO();
-        IstioResource config = configManager.getConfig(new PluginOrder());
+        PluginOrder pluginOrder = Trans.pluginOrderDTO2PluginOrder(pluginOrderDto);
+        IstioResource config = configManager.getConfig(pluginOrder);
         if (Objects.isNull(config)) throw new ApiPlaneException("plugin manager config can not found.");
         PluginManager pm = (PluginManager) config;
         dto.setGatewayLabels(pm.getSpec().getWorkloadLabels());

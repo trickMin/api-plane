@@ -26,7 +26,7 @@ public interface GatewayService {
 
     void deleteService(PortalServiceDTO service);
 
-    PluginOrderDTO getPluginOrder();
+    PluginOrderDTO getPluginOrder(PluginOrderDTO pluginOrderDto);
 
     void updatePluginOrder(PluginOrderDTO pluginOrderDto);
 
