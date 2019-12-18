@@ -11,6 +11,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -37,7 +38,7 @@ public class TransformProcessor extends AbstractSchemaProcessor implements Schem
             texts.addAll(source.getValue("$.querystrings[*].text"));
         }
         List<String> placeholders = new ArrayList<>();
-        texts.forEach(text -> {
+        texts.stream().filter(Objects::nonNull).forEach(text -> {
             Matcher matcher = Pattern.compile("\\{\\{(.*)\\}\\}").matcher(text);
             while (matcher.find()) {
                 placeholders.add(matcher.group(1));
