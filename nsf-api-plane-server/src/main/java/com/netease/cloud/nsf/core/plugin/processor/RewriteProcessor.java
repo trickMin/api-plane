@@ -35,7 +35,7 @@ public class RewriteProcessor extends AbstractSchemaProcessor implements SchemaP
         String original = source.getValue("$.action.rewrite_regex");
         String target = source.getValue("$.action.target", String.class).replaceAll("(\\$\\d)", "{{$1}}");
         builder.createOrUpdateJson("$", "transformation",
-                String.format("{\"requestTransformations\":[{\"conditions\":[{\"headers\":{\":path\":{\"regex\":\"%s\"}}}],\"transformationTemplate\":{\"parseBodyBehavior\":1,\"extractors\":{},\"headers\":{}}}]}", original));
+                String.format("{\"requestTransformations\":[{\"conditions\":[{\"headers\":{\":path\":{\"regex\":\"%s\"}}}],\"transformationTemplate\":{\"parseBodyBehavior\":\"DontParse\",\"extractors\":{},\"headers\":{}}}]}", original));
         // $.action.target : 转换结果，格式如/$2/$1
         for (int i = 1; i <= regexCount; i++) {
             String key = "$" + i;
