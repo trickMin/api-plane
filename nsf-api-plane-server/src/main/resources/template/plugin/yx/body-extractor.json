@@ -1,19 +1,11 @@
 {
   "fields": {
-    "kind": {
-      "type": "string",
-      "help": "插件类型"
-    },
-    "version": {
-      "type": "string",
-      "help": "插件版本"
-    },
     "bodyExtractor": {
       "type": "table",
       "alias": "参数提取",
       "required": true,
       "order_index": 0,
-      "item_schema": {
+      "schema": {
         "fields": {
           "extractors": {
             "type": "array",
@@ -26,7 +18,7 @@
                   "type": "table",
                   "alias": "来源",
                   "order_index": 0,
-                  "item_schema": {
+                  "schema": {
                     "fields": {
                       "name": {
                         "type": "string",
@@ -36,10 +28,10 @@
                   }
                 },
                 "des": {
-                  "type": "string",
+                  "type": "table",
                   "alias": "目标",
                   "order_index": 1,
-                  "item_schema": {
+                  "schema": {
                     "fields": {
                       "to": {
                         "type": "number",
