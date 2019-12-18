@@ -112,7 +112,7 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
                         String.format("{\"name\":\"%s\",\"regexMatch\":\"%s\"}", matchHeader, regex));
             }
         }
-        if (length == 0 && rg.contain("$.identifier_extractor")) {
+        if (length == 0 && rg.contain("$.identifier_extractor") && !StringUtils.isEmpty(rg.getValue("$.identifier_extractor", String.class))) {
             String matchHeader = getMatchHeader(rg);
             String descriptorKey = String.format("WithoutValueHeader[%s]", matchHeader);
             vs.addJsonElement("$.actions", String.format("{\"requestHeaders\":{\"headerName\":\"%s\",\"descriptorKey\":\"%s\"}}", matchHeader, descriptorKey));
@@ -126,7 +126,7 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
         if (rg.contain("$.pre_condition")) {
             length = rg.getValue("$.pre_condition.length()");
         }
-        if (length == 0 && rg.contain("$.identifier_extractor")) {
+        if (length == 0 && rg.contain("$.identifier_extractor") && !StringUtils.isEmpty(rg.getValue("$.identifier_extractor", String.class))) {
             String matchHeader = getMatchHeader(rg);
             String descriptorKey = String.format("WithoutValueHeader[%s]", matchHeader);
             shareConfig = ResourceGenerator.newInstance(String.format("{\"api\":\"%s\",\"key\":\"header_match\",\"value\":\"%s\",\"descriptors\":[{\"key\":\"%s\",\"rateLimit\":{\"unit\":\"%s\",\"requestsPerUnit\":\"%d\"}}]}",
