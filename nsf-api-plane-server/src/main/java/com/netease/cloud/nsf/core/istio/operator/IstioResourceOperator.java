@@ -29,7 +29,7 @@ public interface IstioResourceOperator<T extends IstioResource> {
      * @return
      */
     default List mergeList(List oldL, List newL, Equals eq) {
-        List result = null;
+        List result = oldL;
         if (!CollectionUtils.isEmpty(newL)) {
             if (CollectionUtils.isEmpty(oldL)) {
                 return newL;
@@ -49,7 +49,7 @@ public interface IstioResourceOperator<T extends IstioResource> {
     }
 
     default Map mergeMap(Map oldM, Map newM, Equals eq) {
-        Map result = null;
+        Map result = oldM;
         if (!CollectionUtils.isEmpty(newM)) {
             if (CollectionUtils.isEmpty(oldM)) {
                 return newM;

@@ -40,7 +40,7 @@ public class IstioHttpClient {
 
     private static final Logger logger = LoggerFactory.getLogger(IstioHttpClient.class);
 
-    @Value(value = "${istioNamespace:istio-system}")
+    @Value(value = "${istioNamespace:gateway-system}")
     private String NAMESPACE;
     private static final String NAME = "pilot";
 

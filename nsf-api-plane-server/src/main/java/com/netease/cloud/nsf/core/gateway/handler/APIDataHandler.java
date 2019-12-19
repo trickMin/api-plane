@@ -52,7 +52,7 @@ public abstract class APIDataHandler implements DataHandler<API> {
 
         List<String> methods = new ArrayList<>();
         for (String m : api.getMethods()) {
-            if (m.equals("*")) return ".*";
+            if (m.equals("*")) return "";
             methods.add(m);
         }
         return String.join("|", methods);
@@ -72,6 +72,7 @@ public abstract class APIDataHandler implements DataHandler<API> {
     }
 
     private String getHosts(API api) {
+        if (api.getHosts().contains("*")) return "";
         return String.join("|", api.getHosts().stream()
                 .map(h -> CommonUtil.host2Regex(h))
                 .collect(Collectors.toList()));
