@@ -32,13 +32,14 @@ public interface ResourceCache {
 
     /**
      * @return 返回网格中全部的负载资源
+     * @param projectId
      */
-    List getAllWorkLoad();
+    List getAllWorkLoad(String projectId);
 
     /**
      * @return 返回网格中指定集群负载资源
      */
-    List getAllWorkLoadByClusterId(String clusterId);
+    List getAllWorkLoadByClusterId(String clusterId, String projectId);
 
 
     List getWorkLoadByServiceInfoAllClusterId(String projectId, String namespace, String serviceName);
