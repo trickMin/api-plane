@@ -2,24 +2,30 @@
   "fields": {
     "x_user_id": {
       "type": "string",
-      "help": "租户id"
-    },
-    "kind": {
-      "type": "string",
-      "help": "插件类型"
-    },
-    "version": {
-      "type": "string",
-      "help": "插件版本"
+      "help": "租户id",
+      "hidden": true,
+      "order_index": 0
     },
     "type": {
       "type": "number",
-      "help": "0黑名单，1白名单"
+      "enum": [
+        {
+          "name": "黑名单",
+          "value": 0
+        },
+        {
+          "name": "白名单",
+          "value": 1
+        }
+      ],
+      "help": "0黑名单，1白名单",
+      "order_index": 1
     },
     "ip": {
       "required": true,
       "default": "",
-      "type": "array"
+      "type": "array",
+      "order_index": 2
     }
   }
 }

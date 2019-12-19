@@ -74,7 +74,7 @@
     },
     {
       "name": "body-extractor",
-      "schema": "plugin/portal/body-extractor.json",
+      "schema": "plugin/yx/body-extractor.json",
       "description": "",
       "processor": "DefaultProcessor",
       "author": "system",
@@ -86,7 +86,7 @@
     },
     {
       "name": "auth",
-      "schema": "plugin/portal/auth.json",
+      "schema": "plugin/yx/auth.json",
       "description": "",
       "processor": "DefaultProcessor",
       "author": "system",
