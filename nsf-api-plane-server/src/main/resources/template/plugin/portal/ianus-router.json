@@ -28,11 +28,8 @@
       "key": "action_type",
       "alias": "动作类型",
       "type": "select",
+      "default": "return",
       "options": [
-        {
-          "text": "url path重写",
-          "value": "rewrite"
-        },
         {
           "text": "请求中断",
           "value": "return"
