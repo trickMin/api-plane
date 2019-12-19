@@ -1,0 +1,119 @@
+{
+  "formatter":{
+    "kind": "transformer",
+    "headers": "&headers",
+    "querystrings": "&querystrings"
+  },
+  "layouts":[
+    {
+      "key": "headers",
+      "alias": "请求头转换",
+      "type": "array",
+      "layouts": [
+        {
+          "key": "key",
+          "alias": "请求头名称",
+          "type": "input",
+          "rules": [
+            "Required"
+          ]
+        },
+        {
+          "key": "action",
+          "alias": "请求动作",
+          "type": "select",
+          "default": "Action_Default",
+          "options": [
+            {
+              "text": "增加或更新",
+              "value": "Action_Default"
+            },
+            {
+              "text": "增加（如果存在则不操作）",
+              "value": "Action_Add"
+            },
+            {
+              "text": "删除",
+              "value": "Action_Delete"
+            },
+            {
+              "text": "更新（如果不存在则不操作）",
+              "value": "Action_Update"
+            }
+          ],
+          "rules": [
+            "Required",
+            "MaxNumber(3)",
+            "MinNumber(0)"
+          ]
+        },
+        {
+          "key": "text",
+          "alias": "取值",
+          "type": "input",
+          "invisible": {
+            "this.action": "Action_Delete"
+          },
+          "rules": [
+            "Required"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "querystrings",
+      "alias": "query string参数",
+      "type": "array",
+      "layouts": [
+        {
+          "key": "key",
+          "alias": "参数名称",
+          "type": "input",
+          "rules": [
+            "Required"
+          ]
+        },
+        {
+          "key": "action",
+          "alias": "请求动作",
+          "type": "select",
+          "default": "Action_Default",
+          "options": [
+            {
+              "text": "增加或更新",
+              "value": "Action_Default"
+            },
+            {
+              "text": "增加（如果存在则不操作）",
+              "value": "Action_Add"
+            },
+            {
+              "text": "删除",
+              "value": "Action_Delete"
+            },
+            {
+              "text": "更新（如果不存在则不操作）",
+              "value": "Action_Update"
+            }
+          ],
+          "rules": [
+            "Required",
+            "MaxNumber(3)",
+            "MinNumber(0)"
+          ]
+        },
+        {
+          "key": "text",
+          "alias": "参数值",
+          "type": "input",
+          "invisible": {
+            "this.action": "Action_Delete"
+          },
+          "rules": [
+            "Required"
+          ]
+        }
+      ]
+    }
+  ]
+}
