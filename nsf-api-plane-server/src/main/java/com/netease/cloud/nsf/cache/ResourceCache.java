@@ -57,4 +57,8 @@ public interface ResourceCache {
     List getWorkLoadListWithSidecarVersion(List workLoadDTOList);
 
     List getPodListWithSidecarVersion(List podDTOList);
+
+    List getPodListByService(String clusterId, String namespace, String name);
+
+    List getEndPointByService(String clusterId, String namespace, String name);
 }
