@@ -71,15 +71,16 @@ public class K8sResourceController extends BaseController {
     }
 
     @RequestMapping(params = {"Action=GetAllWorkLoad"}, method = RequestMethod.GET)
-    public String getAllWorkLoad(@RequestParam(name = "ClusterId", required = false) String clusterId) {
+    public String getAllWorkLoad(@RequestParam(name = "ClusterId", required = false) String clusterId,
+                                 @RequestParam(name = "ProjectId",required = false) String projectId) {
         List workLoadList;
         if (StringUtils.isEmpty(clusterId)) {
-            workLoadList = resourceCache.getAllWorkLoad();
+            workLoadList = resourceCache.getAllWorkLoad(projectId);
         } else {
             if (!ResourceStoreFactory.listClusterId().contains(clusterId)) {
                 throw new ApiPlaneException("ClusterId not found", 404);
             }
-            workLoadList = resourceCache.getAllWorkLoadByClusterId(clusterId);
+            workLoadList = resourceCache.getAllWorkLoadByClusterId(clusterId, projectId);
         }
         workLoadList = resourceCache.getWorkLoadListWithSidecarVersion(workLoadList);
         checkResult(workLoadList);
