@@ -1,4 +1,140 @@
 {
-  "fields": {
-  }
+  "inject": {
+    "kind": "cache"
+  },
+  "formatter": {
+    "kind": "cache",
+    "cache": {
+      "enableRqx": "@enableRqx",
+      "enableRpx": "@enableRpx",
+      "cacheTtls": {
+        "LocalHttpCache": {
+          "default": 0,
+          "customs": "@localCacheCustoms"
+        },
+        "RedisHttpCache": {
+          "default": 0,
+          "customs": "@redisCacheCustoms"
+        }
+      },
+      "keyMaker": {
+        "queryParams": "&keyMaker.queryParams?",
+        "headersKeys": "&keyMaker.headersKeys?"
+      },
+      "lowLevelFill": "&lowLevelFill"
+    }
+  },
+  "layouts": [
+    {
+      "key": "localCacheCustoms",
+      "alias": "内存缓存",
+      "type": "array",
+      "layouts": [
+        {
+          "key": "key",
+          "alias": "响应码",
+          "help": "请求满足该响应码时使用缓存,支持输入具体的响应码及X.. 如2..代表2XX响应码",
+          "type": "input",
+          "rules": [
+            "Required",
+            "^[1-9]([0-9]|\\.){2,2}$"
+          ]
+        },
+        {
+          "key": "value",
+          "alias": "过期时间(ms)",
+          "type": "input",
+          "rules": [
+            "Required",
+            "Number"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "redisCacheCustoms",
+      "alias": "Redis缓存",
+      "type": "array",
+      "layouts": [
+        {
+          "key": "key",
+          "alias": "响应码",
+          "help": "请求满足该响应码时使用缓存,支持输入具体的响应码及X.. 如2..代表2XX响应码",
+          "type": "input",
+          "rules": [
+            "Required",
+            "^[1-9]([0-9]|\\.){2,2}$"
+          ]
+        },
+        {
+          "key": "value",
+          "alias": "过期时间(ms)",
+          "type": "input",
+          "rules": [
+            "Required",
+            "Number"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "keyMaker",
+      "alias": "缓存哈希计算",
+      "help": "网关将使用该配置计算参数该请求哈希值，用于缓存数据搜索与标识，默认使用方法，域名，路径进行计算",
+      "layouts": [
+        {
+          "key": "queryParams",
+          "alias": "请求参数",
+          "type": "multi_input"
+        },
+        {
+          "key": "headersKeys",
+          "alias": "请求头",
+          "type": "multi_input"
+        }
+      ]
+    },
+    {
+      "key": "enableRqx",
+      "alias": "请求匹配条件",
+      "type": "array",
+      "help": "满足请求匹配条件时使用缓存，支持Reqeust Header配置",
+      "layouts": [
+        {
+          "key": "key",
+          "alias": "请求头",
+          "type": "input"
+        },
+        {
+          "key": "value",
+          "alias": "取值",
+          "type": "input"
+        }
+      ]
+    },
+    {
+      "key": "enableRpx",
+      "alias": "响应匹配条件",
+      "type": "array",
+      "help": "满足请求匹配条件时使用缓存，支持Response Header配置",
+      "layouts": [
+        {
+          "key": "key",
+          "alias": "请求头",
+          "type": "input"
+        },
+        {
+          "key": "value",
+          "alias": "取值",
+          "type": "input"
+        }
+      ]
+    },
+    {
+      "key": "lowLevelFill",
+      "alias": "是否写入次级缓存",
+      "help": "当在高级别缓存中命中时，将数据写入到低级别缓存中,缓存顺序由全局配置决定",
+      "type": "boolean"
+    }
+  ]
 }
