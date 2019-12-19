@@ -54,6 +54,13 @@
                 }
               }
             }
+          },
+          "clearRouteCache": {
+            "type": "boolean",
+            "required": true,
+            "default": true,
+            "alias": "是否重新路由",
+            "order_index": 1
           }
         }
       }
