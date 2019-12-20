@@ -61,8 +61,8 @@
       "instructionForUse": ""
     },
     {
-      "name": "ianus-auth",
-      "schema": "plugin/yx/ianus-auth.json",
+      "name": "auth",
+      "schema": "plugin/yx/auth.json",
       "description": "",
       "processor": "AggregateExtensionProcessor",
       "author": "system",
