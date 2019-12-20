@@ -48,6 +48,8 @@ public class PriorityUtil {
         int num = 0;
         if (!CollectionUtils.isEmpty(api.getMethods())) num++;
         if (!CollectionUtils.isEmpty(api.getHosts())) num++;
+        if (!CollectionUtils.isEmpty(api.getHeaders())) num += api.getHeaders().size();
+        if (!CollectionUtils.isEmpty(api.getQueryParams())) num += api.getQueryParams().size();
         return num;
     }
 }
