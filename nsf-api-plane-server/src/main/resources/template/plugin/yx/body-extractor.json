@@ -20,9 +20,29 @@
                   "order_index": 0,
                   "schema": {
                     "fields": {
+                      "from": {
+                        "type": "string",
+                        "enum": [
+                          {
+                            "name": "Header",
+                            "value": "HEADER"
+                          },
+                          {
+                            "name": "QueryString",
+                            "value": "QUERY"
+                          },
+                          {
+                            "name": "Body",
+                            "value": "BODY"
+                          }
+                        ],
+                        "alias": "位置",
+                        "order_index": 0
+                      },
                       "name": {
                         "type": "string",
-                        "alias": "名称"
+                        "alias": "名称",
+                        "order_index": 1
                       }
                     }
                   }
@@ -34,11 +54,11 @@
                   "schema": {
                     "fields": {
                       "to": {
-                        "type": "number",
+                        "type": "string",
                         "enum": [
                           {
                             "name": "Header",
-                            "value": 0
+                            "value": "HEADER"
                           }
                         ],
                         "alias": "位置",
