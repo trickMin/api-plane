@@ -47,6 +47,16 @@ public class AggregateExtensionProcessor extends AbstractSchemaProcessor impleme
                 holder = getProcessor("TransformProcessor").process(plugin, serviceInfo);
                 coverToExtensionPlugin(holder, "com.netease.transformation");
                 break;
+            case "body-extractor":
+                //todo: encapsulated
+                holder = getProcessor("DefaultProcessor").process(plugin, serviceInfo);
+                coverToExtensionPlugin(holder, "com.netease.bodyextractor");
+                break;
+            case "ianus-auth":
+                //todo: encapsulated
+                holder = getProcessor("DefaultProcessor").process(plugin, serviceInfo);
+                coverToExtensionPlugin(holder, "envoy.ext_authz");
+                break;
             case "request-transformer":
             default:
                 holder = getProcessor("DefaultProcessor").process(plugin, serviceInfo);
