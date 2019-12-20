@@ -25,7 +25,7 @@ public class K8sConfigStore implements ConfigStore {
     @Autowired
     KubernetesClient client;
 
-    @Value("${resourceNamespace:default}")
+    @Value("${resourceNamespace:gateway-system}")
     private String resourceNamespace;
 
     @Override

@@ -1,4 +1,69 @@
 {
   "fields": {
+    "bodyExtractor": {
+      "type": "table",
+      "alias": "参数提取",
+      "required": true,
+      "order_index": 0,
+      "schema": {
+        "fields": {
+          "extractors": {
+            "type": "array",
+            "required": true,
+            "alias": "匹配器",
+            "order_index": 0,
+            "item_schema": {
+              "fields": {
+                "src": {
+                  "type": "table",
+                  "alias": "来源",
+                  "order_index": 0,
+                  "schema": {
+                    "fields": {
+                      "name": {
+                        "type": "string",
+                        "alias": "名称"
+                      }
+                    }
+                  }
+                },
+                "des": {
+                  "type": "table",
+                  "alias": "目标",
+                  "order_index": 1,
+                  "schema": {
+                    "fields": {
+                      "to": {
+                        "type": "number",
+                        "enum": [
+                          {
+                            "name": "Header",
+                            "value": 0
+                          }
+                        ],
+                        "alias": "位置",
+                        "order_index": 0
+                      },
+                      "rename": {
+                        "type": "string",
+                        "alias": "名称",
+                        "order_index": 1
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "clearRouteCache": {
+            "type": "boolean",
+            "required": true,
+            "default": true,
+            "alias": "是否重新路由",
+            "order_index": 1
+          }
+        }
+      }
+    }
   }
 }
