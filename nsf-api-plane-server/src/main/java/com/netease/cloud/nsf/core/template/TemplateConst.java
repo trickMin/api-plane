@@ -103,7 +103,7 @@ public interface TemplateConst {
     String DESTINATION_RULE_UNHEALTHY_THRESHOLD = "t_destination_rule_unhealthy_threshold";
     String DESTINATION_RULE_ALT_STAT_NAME = "t_destination_rule_alt_stat_name";
     String DESTINATION_RULE_LOAD_BALANCER = "t_destination_rule_load_balancer";
-
+    String DESTINATION_RULE_EXTRA_SUBSETS = "t_destination_rule_extra_subsets";
 
     String API_GATEWAYS = "t_api_gateways";
 
@@ -123,6 +123,7 @@ public interface TemplateConst {
      **/
     String GATEWAY_NAME = "t_gateway_name";
     String GATEWAY_HOSTS = "t_gateway_hosts";
+    String GATEWAY_HTTP_10 = "t_gateway_http_10";
 
 
     /**
