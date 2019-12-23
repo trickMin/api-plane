@@ -23,9 +23,8 @@ public class PluginManagerOperator implements IstioResourceOperator<PluginManage
 
         PluginManager latest = new PluginManagerBuilder(old).build();
 
-        List<Plugin> oldPlugins = old.getSpec().getPlugin();
         List<Plugin> latestPlugins = fresh.getSpec().getPlugin();
-        latest.getSpec().setPlugin(mergeList(oldPlugins, latestPlugins, new PluginEquals()));
+        latest.getSpec().setPlugin(latestPlugins);
         latest.getSpec().setWorkloadLabels(fresh.getSpec().getWorkloadLabels());
         return latest;
     }
