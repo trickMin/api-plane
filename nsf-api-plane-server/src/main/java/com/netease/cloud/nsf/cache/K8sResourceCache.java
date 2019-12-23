@@ -487,7 +487,9 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         if (!CollectionUtils.isEmpty(podReferences)) {
             podReferences.forEach(podRef -> {
                 T pod = (T) store.get(Pod.name(), podRef.getNamespace(), podRef.getName());
-                workLoadList.addAll(store.listLoadByPod(pod));
+                if (pod != null){
+                    workLoadList.addAll(store.listLoadByPod(pod));
+                }
             });
         }
         return new ArrayList<>(workLoadList);
