@@ -100,6 +100,13 @@ public class Service extends CommonModel {
      */
     private Integer port;
 
+    /**
+     * 服务subsets
+     */
+    private List<ServiceSubset> subsets;
+
+    private String subset;
+
     public String getCode() {
         return code;
     }
@@ -250,5 +257,21 @@ public class Service extends CommonModel {
 
     public void setPort(Integer port) {
         this.port = port;
+    }
+
+    public List<ServiceSubset> getSubsets() {
+        return subsets;
+    }
+
+    public void setSubsets(List<ServiceSubset> subsets) {
+        this.subsets = subsets;
+    }
+
+    public String getSubset() {
+        return subset;
+    }
+
+    public void setSubset(String subset) {
+        this.subset = subset;
     }
 }

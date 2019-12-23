@@ -11,13 +11,17 @@ import com.netease.cloud.nsf.core.k8s.K8sResourceGenerator;
 import com.netease.cloud.nsf.core.k8s.KubernetesClient;
 import com.netease.cloud.nsf.meta.*;
 import com.netease.cloud.nsf.meta.Endpoint;
+import com.netease.cloud.nsf.meta.dto.PluginOrderDTO;
+import com.netease.cloud.nsf.meta.dto.PluginOrderItemDTO;
 import com.netease.cloud.nsf.util.Const;
+import com.netease.cloud.nsf.util.Trans;
 import me.snowdrop.istio.api.IstioResource;
 import me.snowdrop.istio.api.networking.v1alpha3.*;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.util.CollectionUtils;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -153,36 +157,45 @@ public class GatewayModelProcessorTest extends BaseTest {
                     }
                 });
 
-        System.out.println(resources1);
     }
 
     @Test
     public void testTranslatePluginManager() {
 
-//        PluginOrderDTO po = new PluginOrderDTO();
-//        po.setGatewayLabels(ImmutableMap.of("k1","v1", "k2", "v2"));
-//        po.setPlugins(ImmutableList.of("p1", "p2", "p3"));
-//
-//        List<IstioResource> res = processor.translate(Trans.pluginOrderDTO2PluginOrder(po));
-//
-//        Assert.assertTrue(res.size() == 1);
-//
-//        PluginManager pm = (PluginManager) res.get(0);
-//
-//        Assert.assertTrue(pm.getSpec().getWorkloadLabels().size() == 2);
-//        Assert.assertTrue(pm.getSpec().getPlugin().size() == 3);
-//
-//        PluginOrderDTO po1 = new PluginOrderDTO();
-//        po1.setPlugins(ImmutableList.of("p1", "p2"));
-//
-//        List<IstioResource> res1 = processor.translate(Trans.pluginOrderDTO2PluginOrder(po1));
-//
-//        Assert.assertTrue(res1.size() == 1);
-//
-//        PluginManager pm1 = (PluginManager) res1.get(0);
-//        Assert.assertTrue(CollectionUtils.isEmpty(pm1.getSpec().getWorkloadLabels()));
-//        Assert.assertTrue(pm1.getMetadata().getName().equals("qz-global"));
+        PluginOrderDTO po = new PluginOrderDTO();
+        po.setGatewayLabels(ImmutableMap.of("k1","v1", "k2", "v2"));
+        po.setPlugins(ImmutableList.of(
+                getPlugin("p1", true, null),
+                getPlugin("p2", false, null),
+                getPlugin("p3", true, ImmutableMap.of("key","good"))));
 
+        List<IstioResource> res = processor.translate(Trans.pluginOrderDTO2PluginOrder(po));
+
+        Assert.assertTrue(res.size() == 1);
+
+        PluginManager pm = (PluginManager) res.get(0);
+
+        Assert.assertTrue(pm.getSpec().getWorkloadLabels().size() == 2);
+        Assert.assertTrue(pm.getSpec().getPlugin().size() == 3);
+
+        PluginOrderDTO po1 = new PluginOrderDTO();
+        po1.setPlugins(ImmutableList.of(
+                getPlugin("p1", false, null),
+                getPlugin("p2", true, ImmutableMap.of("key","good"))));
+
+        List<IstioResource> res1 = processor.translate(Trans.pluginOrderDTO2PluginOrder(po1));
+
+        Assert.assertTrue(res1.size() == 1);
+
+        PluginManager pm1 = (PluginManager) res1.get(0);
+        Assert.assertTrue(CollectionUtils.isEmpty(pm1.getSpec().getWorkloadLabels()));
+        Assert.assertTrue(pm1.getMetadata().getName().equals("qz-global"));
+        Assert.assertEquals(2, pm1.getSpec().getPlugin().size());
+        Assert.assertEquals("p1", pm1.getSpec().getPlugin().get(0).getName());
+        Assert.assertEquals(false, pm1.getSpec().getPlugin().get(0).getEnable());
+        Assert.assertEquals("p2", pm1.getSpec().getPlugin().get(1).getName());
+        Assert.assertEquals(true, pm1.getSpec().getPlugin().get(1).getEnable());
+        Assert.assertEquals(ImmutableMap.of("key","good"), pm1.getSpec().getPlugin().get(1).getSettings());
     }
 
     @Test
@@ -339,6 +352,14 @@ public class GatewayModelProcessorTest extends BaseTest {
                 ImmutableMap.of(K8sResourceEnum.VirtualService.name(), "plane-istio-test"));
 
         Assert.assertTrue(subtractedVs.getSpec().getHttp().size() == 1);
+    }
+
+    private PluginOrderItemDTO getPlugin(String name, boolean enable, Object content) {
+        PluginOrderItemDTO item = new PluginOrderItemDTO();
+        item.setName(name);
+        item.setEnable(enable);
+        item.setSettings(content);
+        return item;
     }
 
 }
