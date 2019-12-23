@@ -122,7 +122,7 @@ public class OwnerReferenceSupportStore<T extends HasMetadata> implements Store<
      * @return 负载资源列表
      */
     public List<T> listLoadByPod(T obj) {
-        if (obj.getMetadata() == null) {
+        if (obj == null || obj.getMetadata() == null) {
             return new ArrayList<>();
         }
         List<OwnerReference> ownerReferences = obj.getMetadata().getOwnerReferences();
@@ -155,6 +155,9 @@ public class OwnerReferenceSupportStore<T extends HasMetadata> implements Store<
      * @return 满足条件的资源列表
      */
     public List<T> listResourceByOwnerReference(String kind, T obj) {
+        if (obj == null){
+            return new ArrayList<>();
+        }
         List<T> resourceList = listByOwnerReferenceInfo(obj.getMetadata().getNamespace(), obj.getKind(), obj.getMetadata().getName());
         if (CollectionUtils.isEmpty(resourceList)) {
             return new ArrayList<>();
