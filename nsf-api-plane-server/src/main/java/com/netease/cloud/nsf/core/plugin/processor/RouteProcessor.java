@@ -120,9 +120,9 @@ public class RouteProcessor extends AbstractSchemaProcessor implements SchemaPro
         ret.createOrUpdateJson("$", "priority", info.getPriority());
         ret.createOrUpdateJson("$", "return",
                 String.format("{\"body\":{\"inlineString\":\"%s\"},\"code\":%s}", StringEscapeUtils.escapeJava(rg.getValue("$.action.return_target.body")), rg.getValue("$.action.return_target.code")));
-        if (rg.contain("$.action.header")) {
+        if (rg.contain("$.action.return_target.header")) {
             ret.createOrUpdateJson("$", "appendRequestHeaders", "{}");
-            List<Object> headers = rg.getValue("$.action.header[*]");
+            List<Object> headers = rg.getValue("$.action.return_target.header[*]");
             for (Object header : headers) {
                 ResourceGenerator h = ResourceGenerator.newInstance(header, ResourceType.OBJECT);
                 ret.createOrUpdateValue("$.appendRequestHeaders", h.getValue("$.name"), h.getValue("$.value"));
