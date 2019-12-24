@@ -5,17 +5,17 @@
       "help": "租户id",
       "order_index": 0
     },
-    "ip": {
+    "list": {
       "item_type": "string",
       "type": "array",
-      "order_index": 1,
+      "order_index": 2,
       "required": true
     },
     "type": {
       "help": "0黑名单，1白名单",
       "type": "number",
       "alias": "类型",
-      "order_index": 0,
+      "order_index": 1,
       "enum": [
         {
           "name": "黑名单",
