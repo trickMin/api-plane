@@ -50,6 +50,7 @@ public class GatewayOperator implements IstioResourceOperator<Gateway> {
         Server firstLatestServer = latestGateway.getSpec().getServers().get(0);
         firstLatestServer.setHosts(mergeList(oldHosts, freshHosts, (ot, nt) -> Objects.equals(ot, nt)));
         latestGateway.getSpec().setEnableHttp10(freshSpec.getEnableHttp10());
+        latestGateway.getSpec().setDefaultHostForHttp10(freshSpec.getDefaultHostForHttp10());
         return latestGateway;
     }
 

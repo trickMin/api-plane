@@ -5,6 +5,7 @@ metadata:
 spec:
 <#if t_gateway_http_10?has_content && t_gateway_http_10>
   enableHttp10: true
+  defaultHostForHttp10: netease.com
 </#if>
   selector:
     gw_cluster: ${t_api_gateway}
