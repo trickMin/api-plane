@@ -5,9 +5,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.RequestEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
+
+import java.net.URI;
 
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/12/12
@@ -49,4 +54,7 @@ public class KialiHttpClient {
         return resp;
     }
 
+    public HttpEntity<String> redirectToKiali(HttpMethod method, String path, String body) {
+        return restTemplate.exchange(new RequestEntity<>(body, method, URI.create(getKialiUrl() + path)), String.class);
+    }
 }
