@@ -3,7 +3,6 @@
     "x_user_id": {
       "type": "string",
       "help": "租户id",
-      "disable": true,
       "order_index": 0
     },
     "limit_percent": {
