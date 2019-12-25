@@ -39,7 +39,7 @@ public class TransformProcessor extends AbstractSchemaProcessor implements Schem
         }
         List<String> placeholders = new ArrayList<>();
         texts.stream().filter(Objects::nonNull).forEach(text -> {
-            Matcher matcher = Pattern.compile("\\{\\{(.*)\\}\\}").matcher(text);
+            Matcher matcher = Pattern.compile("\\{\\{(.*?)\\}\\}").matcher(text);
             while (matcher.find()) {
                 placeholders.add(matcher.group(1));
             }
@@ -61,21 +61,21 @@ public class TransformProcessor extends AbstractSchemaProcessor implements Schem
     private void buildExtractors(List<String> placeholders, ResourceGenerator builder, ServiceInfo serviceInfo) {
         for (String placeholder : placeholders) {
             if (placeholder.startsWith("url")) {
-                Matcher matcher = Pattern.compile("url\\[(.*)\\]").matcher(placeholder);
+                Matcher matcher = Pattern.compile("url\\[(.*?)\\]").matcher(placeholder);
                 if (matcher.find()) {
                     Integer index = Integer.parseInt(matcher.group(1)) + 1;
                     String value = String.format("{\"header\":\":path\",\"regex\":\"%s\",\"subgroup\":%s}", serviceInfo.getUri(), index);
                     builder.createOrUpdateJson("$.request_transformations[0].transformation_template.extractors", placeholder, value);
                 }
             } else if (placeholder.startsWith("querystrings")) {
-                Matcher matcher = Pattern.compile("querystrings\\[(.*)\\]").matcher(placeholder);
+                Matcher matcher = Pattern.compile("querystrings\\[(.*?)\\]").matcher(placeholder);
                 if (matcher.find()) {
                     String queryParam = matcher.group(1);
                     String value = String.format("{\"queryParam\":\"%s\",\"regex\":\"(.*)\",\"subgroup\":1}", queryParam);
                     builder.createOrUpdateJson("$.request_transformations[0].transformation_template.extractors", placeholder, value);
                 }
             } else if (placeholder.startsWith("headers")) {
-                Matcher matcher = Pattern.compile("headers\\[(.*)\\]").matcher(placeholder);
+                Matcher matcher = Pattern.compile("headers\\[(.*?)\\]").matcher(placeholder);
                 if (matcher.find()) {
                     String header = matcher.group(1);
                     String value = String.format("{\"header\":\"%s\",\"regex\":\"(.*)\",\"subgroup\":1}", header);
