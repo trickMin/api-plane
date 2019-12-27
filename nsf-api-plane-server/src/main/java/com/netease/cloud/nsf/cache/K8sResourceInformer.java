@@ -28,8 +28,9 @@ public class K8sResourceInformer<T extends HasMetadata> implements Informer {
     private static final Logger log = LoggerFactory.getLogger(K8sResourceInformer.class);
 
     private static final int EVENT_QUEUE_SIZE_FACTOR = 500;
-    private static final int MAX_PROCESSOR_THREAD = 20;
-    private AtomicInteger processorIndex = new AtomicInteger(0);
+    private static final int MAX_QUEUE_SIZE = 5000;
+    private static final int MAX_PROCESSOR_THREAD = 10;
+    private static AtomicInteger processorIndex = new AtomicInteger(0);
     private static final String UPDATE_EVENT = "MODIFIED";
     private static final String CREATE_EVENT = "ADDED";
     private static final String DELETE_EVENT = "DELETED";
@@ -42,7 +43,7 @@ public class K8sResourceInformer<T extends HasMetadata> implements Informer {
     private MultiClusterK8sClient multiClusterK8sClient;
 
 
-    private LinkedBlockingQueue<ResourceUpdateEvent> eventQueue = new LinkedBlockingQueue<>();
+    private ArrayBlockingQueue<ResourceUpdateEvent> eventQueue = new ArrayBlockingQueue<>(MAX_QUEUE_SIZE,false);
 
     private ExecutorService eventProcessor = Executors.newCachedThreadPool();
     private ScheduledExecutorService processorIndexUpdatePool = Executors.newScheduledThreadPool(1);
