@@ -5,10 +5,10 @@ import io.fabric8.kubernetes.api.model.OwnerReference;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
-import static com.netease.cloud.nsf.core.k8s.K8sResourceEnum.Deployment;
-import static com.netease.cloud.nsf.core.k8s.K8sResourceEnum.StatefulSet;
+import static com.netease.cloud.nsf.core.k8s.K8sResourceEnum.*;
 
 
 /**
@@ -23,7 +23,16 @@ public class OwnerReferenceSupportStore<T extends HasMetadata> implements Store<
 
     private ResourceStore resourceStore;
 
+    private Map<String, ReentrantLock> resourceLock = new HashMap<>();
+
     public OwnerReferenceSupportStore(ResourceStore resourceStore) {
+        resourceLock.putIfAbsent(Deployment.name(),new ReentrantLock());
+        resourceLock.putIfAbsent(StatefulSet.name(),new ReentrantLock());
+        resourceLock.putIfAbsent(Pod.name(),new ReentrantLock());
+        resourceLock.putIfAbsent(ReplicaSet.name(),new ReentrantLock());
+        resourceLock.putIfAbsent(Service.name(),new ReentrantLock());
+        resourceLock.putIfAbsent(Endpoints.name(),new ReentrantLock());
+        resourceLock.putIfAbsent(DaemonSet.name(),new ReentrantLock());
         this.resourceStore = resourceStore;
     }
 
@@ -33,31 +42,49 @@ public class OwnerReferenceSupportStore<T extends HasMetadata> implements Store<
     }
 
     @Override
-    public synchronized void add(String kind, String namespace, String name, T obj) {
-        resourceStore.add(kind, namespace, name, obj);
-        List<String> ownerReferenceNames = getOwnerName(obj);
-        // 添加新的ownerReference索引
-        ownerReferenceNames.forEach(n -> {
-            addResourceToReference(n, obj);
-        });
+    public void add(String kind, String namespace, String name, T obj) {
+        ReentrantLock lock = resourceLock.get(kind);
+        lock.lock();
+        try {
+            resourceStore.add(kind, namespace, name, obj);
+            List<String> ownerReferenceNames = getOwnerName(obj);
+            // 添加新的ownerReference索引
+            ownerReferenceNames.forEach(n -> {
+                addResourceToReference(n, obj);
+            });
+        } finally {
+            lock.unlock();
+        }
     }
 
     @Override
-    public synchronized void update(String kind, String namespace, String name, T obj) {
-        resourceStore.update(kind, namespace, name, obj);
-        List<String> ownerReferenceNames = getOwnerName(obj);
-        ownerReferenceNames.forEach(n -> {
-            addResourceToReference(n, obj);
-        });
+    public void update(String kind, String namespace, String name, T obj) {
+        ReentrantLock lock = resourceLock.get(kind);
+        lock.lock();
+        try {
+            resourceStore.update(kind, namespace, name, obj);
+            List<String> ownerReferenceNames = getOwnerName(obj);
+            ownerReferenceNames.forEach(n -> {
+                addResourceToReference(n, obj);
+            });
+        } finally {
+            lock.unlock();
+        }
     }
 
     @Override
-    public synchronized T delete(String kind, String namespace, String name) {
-        T oldValue = (T) resourceStore.delete(kind, namespace, name);
-        List<String> ownerReferenceNames = getOwnerName(oldValue);
-        // 删除旧的ownerReference索引
-        ownerReferenceNames.forEach(n -> removeResourceFromReference(n, oldValue));
-        return oldValue;
+    public T delete(String kind, String namespace, String name) {
+        ReentrantLock lock = resourceLock.get(kind);
+        lock.lock();
+        try {
+            T oldValue = (T) resourceStore.delete(kind, namespace, name);
+            List<String> ownerReferenceNames = getOwnerName(oldValue);
+            // 删除旧的ownerReference索引
+            ownerReferenceNames.forEach(n -> removeResourceFromReference(n, oldValue));
+            return oldValue;
+        } finally {
+            lock.unlock();
+        }
     }
 
     @Override
@@ -82,30 +109,36 @@ public class OwnerReferenceSupportStore<T extends HasMetadata> implements Store<
      * @param kind        资源类型
      */
     @Override
-    public synchronized void replaceByKind(Map<String, Map<String, T>> resourceMap, String kind) {
+    public void replaceByKind(Map<String, Map<String, T>> resourceMap, String kind) {
 
-        // 先清除原有的OwnerReference信息
-        List<T> oldResource = listByKind(kind);
-        Map<String, List<T>> tmpOwnerReference = new HashMap<>(ownerReference);
-        oldResource.forEach(t -> getOwnerName(t)
-                .forEach(name -> removeResourceFromReference(tmpOwnerReference, name, t)));
-        // 添加新的OwnerReference信息
-        if (resourceMap != null && !resourceMap.isEmpty()) {
-            List<T> newResource = resourceMap.entrySet()
+        ReentrantLock lock = resourceLock.get(kind);
+        lock.lock();
+        try {
+            // 先清除原有的OwnerReference信息
+            List<T> oldResource = listByKind(kind);
+            Map<String, List<T>> tmpOwnerReference = new HashMap<>(ownerReference);
+            oldResource.forEach(t -> getOwnerName(t)
+                    .forEach(name -> removeResourceFromReference(tmpOwnerReference, name, t)));
+            // 添加新的OwnerReference信息
+            if (resourceMap != null && !resourceMap.isEmpty()) {
+                List<T> newResource = resourceMap.entrySet()
+                        .stream()
+                        .flatMap(t -> t.getValue().values().stream())
+                        .collect(Collectors.toList());
+
+                newResource.forEach(t -> getOwnerName(t)
+                        .forEach(name -> addResourceToReference(tmpOwnerReference, name, t)));
+            }
+            // 过滤掉那些value值为空key
+            ownerReference = tmpOwnerReference.entrySet()
                     .stream()
-                    .flatMap(t -> t.getValue().values().stream())
-                    .collect(Collectors.toList());
-
-            newResource.forEach(t -> getOwnerName(t)
-                    .forEach(name -> addResourceToReference(tmpOwnerReference, name, t)));
+                    .filter(entry -> !CollectionUtils.isEmpty(entry.getValue()))
+                    .collect(Collectors.toMap(Map.Entry::getKey,
+                            Map.Entry::getValue));
+            resourceStore.replaceByKind(resourceMap, kind);
+        } finally {
+            lock.unlock();
         }
-        // 过滤掉那些value值为空key
-        ownerReference = tmpOwnerReference.entrySet()
-                .stream()
-                .filter(entry -> !CollectionUtils.isEmpty(entry.getValue()))
-                .collect(Collectors.toMap(Map.Entry::getKey,
-                        Map.Entry::getValue));
-        resourceStore.replaceByKind(resourceMap, kind);
     }
 
 
