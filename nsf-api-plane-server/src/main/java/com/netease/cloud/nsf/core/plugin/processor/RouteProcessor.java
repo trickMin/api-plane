@@ -160,21 +160,38 @@ public class RouteProcessor extends AbstractSchemaProcessor implements SchemaPro
         ResourceGenerator ret = ResourceGenerator.newInstance("{}", ResourceType.JSON, editorContext);
         ret.createOrUpdateJson("$", "match", createMatch(rg, info, xUserId));
         ret.createOrUpdateJson("$", "priority", info.getPriority());
-        ret.createOrUpdateJson("$", "transformation", "{\"requestTransformations\":[{\"transformationTemplate\":{\"extractors\":{},\"headers\":{}}}]}");
-        // $.action.target : 转换结果，格式如/$2/$1
-        Matcher matcher = Pattern.compile("\\$\\d").matcher(rg.getValue("$.action.target"));
-        int regexCount = 0;
-        while (matcher.find()) {
-            regexCount++;
+        ret.createOrUpdateJson("$", "transformation", "{\"requestTransformations\":[{\"transformationTemplate\":{\"extractors\":{},\"headers\":{},\"parseBodyBehavior\":1}}]}");
+        String extractor = rg.getValue("$.action.rewrite_regex");
+        String transformPath = rg.getValue("$.action.target", String.class);
+        // 兼容旧的格式，例如rewrite_regex: /anything/{code} action.target:/anything/gg/{{code}}
+        if (Pattern.compile("\\{(.*)\\}").matcher(extractor).find() && Pattern.compile("\\{\\{(.*)\\}\\}").matcher(transformPath).find()) {
+            // 将/anything/{code}转换为/anything/(.*)
+            Matcher extract = Pattern.compile("\\{(.*?)\\}").matcher(extractor);
+            String path = extractor.replaceAll("\\{(.*?)\\}", "\\(\\.\\*\\)");
+            int regexCount = 1;
+            while (extract.find()) {
+                String key = extract.group(1);
+                String value = String.format("{\"header\":\":path\",\"regex\":\"%s\",\"subgroup\":%s}", path, regexCount++);
+                ret.createOrUpdateJson("$.transformation.requestTransformations[0].transformationTemplate.extractors", key, value);
+            }
+            ret.createOrUpdateJson("$.transformation.requestTransformations[0].transformationTemplate.headers", ":path", String.format("{\"text\":\"%s\"}", transformPath));
+        } else {
+            // 新的使用方式
+            // 例如rewrite_regex: /anything/(.*)/(.*) $.action.target:/$2/$1
+            Matcher matcher = Pattern.compile("\\$\\d").matcher(rg.getValue("$.action.target"));
+            int regexCount = 0;
+            while (matcher.find()) {
+                regexCount++;
+            }
+            String original = rg.getValue("$.action.rewrite_regex");
+            String target = transformPath.replaceAll("(\\$\\d)", "{{$1}}");
+            for (int i = 1; i <= regexCount; i++) {
+                String key = "$" + i;
+                String value = String.format("{\"header\":\":path\",\"regex\":\"%s\",\"subgroup\":%s}", original, i);
+                ret.createOrUpdateJson("$.transformation.requestTransformations[0].transformationTemplate.extractors", key, value);
+            }
+            ret.createOrUpdateJson("$.transformation.requestTransformations[0].transformationTemplate.headers", ":path", String.format("{\"text\":\"%s\"}", target));
         }
-        String original = rg.getValue("$.action.rewrite_regex");
-        String target = rg.getValue("$.action.target", String.class).replaceAll("(\\$\\d)", "{{$1}}");
-        for (int i = 1; i <= regexCount; i++) {
-            String key = "$" + i;
-            String value = String.format("{\"header\":\":path\",\"regex\":\"%s\",\"subgroup\":%s}", original, i);
-            ret.createOrUpdateJson("$.transformation.requestTransformations[0].transformationTemplate.extractors", key, value);
-        }
-        ret.createOrUpdateJson("$.transformation.requestTransformations[0].transformationTemplate.headers", ":path", String.format("{\"text\":\"%s\"}", target));
         return ret.jsonString();
     }
 }
