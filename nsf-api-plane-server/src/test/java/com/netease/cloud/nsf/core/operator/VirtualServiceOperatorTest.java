@@ -39,6 +39,15 @@ public class VirtualServiceOperatorTest {
                         getHTTPRoute("c", null))
                 , getPlugins(Arrays.asList("a", "c"), 3)));
 
+        VirtualService fresh1 = getVirtualService(getVirtualServiceSpec(
+                Arrays.asList(
+                        getHTTPRoute("a",
+                                Arrays.asList(getHTTPMatchRequest(), getHTTPMatchRequest())),
+                        getHTTPRoute("b",null),
+                        getHTTPRoute("c", null),
+                        getHTTPRoute("c", null))
+                , Collections.EMPTY_MAP));
+
         VirtualService merge = operator.merge(old, fresh);
         assertTrue(merge.getSpec().getHttp().size() == 4);
 
@@ -62,6 +71,10 @@ public class VirtualServiceOperatorTest {
 
         Map<String, ApiPlugins> pluginMap = merge.getSpec().getPlugins();
         assertTrue(pluginMap.get("a").getUserPlugin().size() == 3);
+
+        VirtualService merge1 = operator.merge(old, fresh1);
+        Map<String, ApiPlugins> pluginMap1 = merge1.getSpec().getPlugins();
+        assertTrue(pluginMap1.get("a").getUserPlugin().size() == 2);
     }
 
     @Test

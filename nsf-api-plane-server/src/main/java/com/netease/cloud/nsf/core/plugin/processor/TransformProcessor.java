@@ -29,7 +29,7 @@ public class TransformProcessor extends AbstractSchemaProcessor implements Schem
     @Override
     public FragmentHolder process(String plugin, ServiceInfo serviceInfo) {
         ResourceGenerator source = ResourceGenerator.newInstance(plugin);
-        ResourceGenerator builder = ResourceGenerator.newInstance("{\"request_transformations\":[{\"transformation_template\":{\"extractors\":{},\"headers\":{},\"query_param_operators\":{}}}]}");
+        ResourceGenerator builder = ResourceGenerator.newInstance("{\"request_transformations\":[{\"transformation_template\":{\"extractors\":{},\"headers\":{},\"query_param_operators\":{},\"parse_body_behavior\":\"DontParse\"}}]}");
         List<String> texts = new ArrayList<>();
         if (source.contain("$.headers")) {
             texts.addAll(source.getValue("$.headers[*].text"));

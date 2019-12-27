@@ -69,7 +69,7 @@
       "createTime": "1572537600000",
       "updateTime": "1572537600000",
       "pluginScope": "routeRule",
-      "pluginPriority": "2500",
+      "pluginPriority": "2700",
       "instructionForUse": ""
     },
     {
@@ -85,18 +85,6 @@
       "instructionForUse": "前缀替换功能用这个插件实现"
     },
     {
-      "name": "request-transformer",
-      "schema": "plugin/portal/request-transformer-cm.json",
-      "description": "",
-      "processor": "AggregateExtensionProcessor",
-      "author": "system",
-      "createTime": "1572537600000",
-      "updateTime": "1572537600000",
-      "pluginScope": "routeRule",
-      "pluginPriority": "2500",
-      "instructionForUse": "请求转换插件"
-    },
-    {
       "name": "cache",
       "schema": "plugin/portal/cache.json",
       "description": "",
@@ -110,15 +98,27 @@
     },
     {
       "name": "transformer",
-      "schema": "plugin/portal/transformer.json",
+      "schema": "plugin/portal/request-transformer-new.json",
       "description": "",
       "processor": "AggregateExtensionProcessor",
       "author": "system",
       "createTime": "1572537600000",
       "updateTime": "1572537600000",
       "pluginScope": "routeRule",
-      "pluginPriority": "3000",
-      "instructionForUse": "auth插件"
+      "pluginPriority": "2300",
+      "instructionForUse": "请求转换插件，允许对header、queryString参数的增加、删除、修改，与request-transformer-cm插件二选一"
+    },
+    {
+      "name": "neTraceFileLog",
+      "schema": "plugin/portal/trace.json",
+      "description": "",
+      "processor": "",
+      "author": "system",
+      "createTime": "1572537600000",
+      "updateTime": "1572537600000",
+      "pluginScope": "global",
+      "pluginPriority": "0",
+      "instructionForUse": "trace插件"
     }
   ]
 }

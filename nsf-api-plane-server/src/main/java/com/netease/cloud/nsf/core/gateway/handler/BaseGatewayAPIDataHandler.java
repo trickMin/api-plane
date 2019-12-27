@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.netease.cloud.nsf.core.template.TemplateConst.API_GATEWAY;
+import static com.netease.cloud.nsf.core.template.TemplateConst.GATEWAY_HTTP_10;
 import static com.netease.cloud.nsf.core.template.TemplateConst.GATEWAY_NAME;
 
 /**
@@ -14,12 +15,19 @@ import static com.netease.cloud.nsf.core.template.TemplateConst.GATEWAY_NAME;
  **/
 public class BaseGatewayAPIDataHandler extends APIDataHandler {
 
+    private Boolean enableHttp10;
+
+    public BaseGatewayAPIDataHandler(Boolean enableHttp10) {
+        this.enableHttp10 = enableHttp10;
+    }
+
     @Override
     List<TemplateParams> doHandle(TemplateParams baseParams, API api) {
         return api.getGateways().stream()
                 .map(gw -> TemplateParams.instance()
                                 .setParent(baseParams)
                                 .put(API_GATEWAY, gw)
+                                .put(GATEWAY_HTTP_10, enableHttp10)
                                 .put(GATEWAY_NAME, buildGatewayName(api.getService(), gw)))
                 .collect(Collectors.toList());
 

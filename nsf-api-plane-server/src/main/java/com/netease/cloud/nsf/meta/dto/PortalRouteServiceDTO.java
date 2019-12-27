@@ -44,6 +44,12 @@ public class PortalRouteServiceDTO {
     @JsonProperty(value = "Port")
     private Integer port;
 
+    /**
+     * subset名
+     */
+    @JsonProperty(value = "Subset")
+    private String subset;
+
     public String getCode() {
         return code;
     }
@@ -82,5 +88,13 @@ public class PortalRouteServiceDTO {
 
     public void setPort(Integer port) {
         this.port = port;
+    }
+
+    public String getSubset() {
+        return subset;
+    }
+
+    public void setSubset(String subset) {
+        this.subset = subset;
     }
 }

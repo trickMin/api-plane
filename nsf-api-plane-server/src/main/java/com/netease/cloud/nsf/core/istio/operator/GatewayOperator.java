@@ -5,6 +5,7 @@ import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
 import me.snowdrop.istio.api.networking.v1alpha3.Gateway;
 import me.snowdrop.istio.api.networking.v1alpha3.GatewayBuilder;
+import me.snowdrop.istio.api.networking.v1alpha3.GatewaySpec;
 import me.snowdrop.istio.api.networking.v1alpha3.Server;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -34,7 +35,9 @@ public class GatewayOperator implements IstioResourceOperator<Gateway> {
         Server firstOldServer = oldServers.get(0);
         List<String> oldHosts = firstOldServer.getHosts();
 
-        List<Server> freshServers = fresh.getSpec().getServers();
+        GatewaySpec freshSpec = fresh.getSpec();
+
+        List<Server> freshServers = freshSpec.getServers();
         if (CollectionUtils.isEmpty(freshServers)) {
             return latestGateway;
         }
@@ -46,6 +49,7 @@ public class GatewayOperator implements IstioResourceOperator<Gateway> {
 
         Server firstLatestServer = latestGateway.getSpec().getServers().get(0);
         firstLatestServer.setHosts(mergeList(oldHosts, freshHosts, (ot, nt) -> Objects.equals(ot, nt)));
+        latestGateway.getSpec().setEnableHttp10(freshSpec.getEnableHttp10());
         return latestGateway;
     }
 

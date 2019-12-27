@@ -8,6 +8,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Pattern;
+import java.util.List;
 
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/9/19
@@ -86,6 +87,10 @@ public class PortalServiceDTO {
     @JsonProperty(value = "LoadBalancer")
     @Pattern(regexp = "(ROUND_ROBIN|LEAST_CONN|RANDOM)", message = "load balancer")
     private String loadBalancer;
+
+    @JsonProperty(value = "Subsets")
+    @Valid
+    private List<ServiceSubsetDTO> subsets;
 
     public String getCode() {
         return code;
@@ -181,5 +186,13 @@ public class PortalServiceDTO {
 
     public void setLoadBalancer(String loadBalancer) {
         this.loadBalancer = loadBalancer;
+    }
+
+    public List<ServiceSubsetDTO> getSubsets() {
+        return subsets;
+    }
+
+    public void setSubsets(List<ServiceSubsetDTO> subsets) {
+        this.subsets = subsets;
     }
 }

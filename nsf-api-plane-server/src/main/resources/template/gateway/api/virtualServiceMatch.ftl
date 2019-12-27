@@ -5,7 +5,7 @@ match:
   method:
     regex: ${t_api_methods}
 </#if>
-<#if t_virtual_service_hosts??>
+<#if t_virtual_service_hosts?has_content>
   headers:
     :authority:
       regex: ${t_virtual_service_hosts}

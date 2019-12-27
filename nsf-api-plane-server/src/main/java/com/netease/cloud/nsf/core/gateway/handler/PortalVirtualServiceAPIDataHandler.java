@@ -9,6 +9,7 @@ import com.netease.cloud.nsf.meta.Service;
 import com.netease.cloud.nsf.util.Const;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
+import org.springframework.util.StringUtils;
 
 import java.util.*;
 
@@ -37,7 +38,7 @@ public class PortalVirtualServiceAPIDataHandler extends BaseVirtualServiceAPIDat
 
             Map<String, Object> param = new HashMap<>();
             param.put("weight", service.getWeight());
-            param.put("subset", service.getCode() + "-" + gateway);
+            param.put("subset", StringUtils.isEmpty(service.getSubset()) ? service.getCode() + "-" + gateway : service.getSubset());
 
             Integer port = -1;
             String host = decorateHost(service.getCode());

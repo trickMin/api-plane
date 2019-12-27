@@ -11,7 +11,7 @@
       "layouts": [
         {
           "key": "identifier_extractor",
-          "help": "用于计算请求标识，以供计数使用;仅支持IP限流，Header参数限流，例如，Ip, Header[User-Agent]",
+          "help": "用于计算请求标识，以供计数使用;仅支持IP限流，Header参数限流，例如 Header[User-Agent]",
           "alias": "标识提取策略",
           "type": "string",
           "rules":[

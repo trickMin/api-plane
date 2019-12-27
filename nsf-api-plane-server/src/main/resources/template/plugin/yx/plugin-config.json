@@ -61,10 +61,10 @@
       "instructionForUse": ""
     },
     {
-      "name": "ianus-auth",
-      "schema": "plugin/yx/ianus-auth.json",
+      "name": "auth",
+      "schema": "plugin/yx/auth.json",
       "description": "",
-      "processor": "DefaultProcessor",
+      "processor": "AggregateExtensionProcessor",
       "author": "system",
       "createTime": "1572537600000",
       "updateTime": "1572537600000",
@@ -74,27 +74,15 @@
     },
     {
       "name": "body-extractor",
-      "schema": "plugin/portal/body-extractor.json",
+      "schema": "plugin/yx/body-extractor.json",
       "description": "",
-      "processor": "DefaultProcessor",
+      "processor": "AggregateExtensionProcessor",
       "author": "system",
       "createTime": "1572537600000",
       "updateTime": "1572537600000",
       "pluginScope": "routeRule",
       "pluginPriority": "3000",
       "instructionForUse": "body提取插件"
-    },
-    {
-      "name": "auth",
-      "schema": "plugin/portal/auth.json",
-      "description": "",
-      "processor": "DefaultProcessor",
-      "author": "system",
-      "createTime": "1572537600000",
-      "updateTime": "1572537600000",
-      "pluginScope": "routeRule",
-      "pluginPriority": "3000",
-      "instructionForUse": "auth插件"
     }
   ]
 }

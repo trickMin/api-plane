@@ -74,6 +74,7 @@ public class Trans {
             throw new ApiPlaneException("dynamic service must have port " + s.getCode());
         }
         s.setPort(port);
+        s.setSubset(portalRouteService.getSubset());
         return s;
     }
 
@@ -103,7 +104,20 @@ public class Trans {
             s.setUnhealthyThreshold(healthCheck.getUnhealthyThreshold());
         }
         s.setLoadBalancer(portalService.getLoadBalancer());
+        s.setSubsets(subsetDTO2Subset(portalService.getSubsets()));
         return s;
+    }
+
+    private static List<ServiceSubset> subsetDTO2Subset(List<ServiceSubsetDTO> subsets) {
+        if (CollectionUtils.isEmpty(subsets)) return Collections.emptyList();
+        return subsets.stream()
+                    .map(sd -> {
+                        ServiceSubset ss = new ServiceSubset();
+                        ss.setLabels(sd.getLabels());
+                        ss.setName(sd.getName());
+                        return ss;
+                    })
+                    .collect(Collectors.toList());
     }
 
     public static PluginOrder pluginOrderDTO2PluginOrder(PluginOrderDTO pluginOrderDTO) {
