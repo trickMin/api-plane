@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.netease.cloud.nsf.meta.Gateway;
 import com.netease.cloud.nsf.meta.dto.PluginOrderDTO;
 import com.netease.cloud.nsf.service.GatewayService;
+import com.netease.cloud.nsf.util.Const;
 import com.netease.cloud.nsf.util.errorcode.ApiPlaneErrorCode;
 import com.netease.cloud.nsf.util.errorcode.ErrorCode;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +39,7 @@ public class GatewayCommonController extends BaseController {
                                         @RequestParam(name = "Type", required = false) String type) {
 
         if (type != null) {
-            if (!type.equals("consul") && !type.equals("k8s")) {
+            if (!type.equals(Const.SERVICE_TYPE_CONSUL) && !type.equals(Const.SERVICE_TYPE_K8S)) {
                 return apiReturn(ApiPlaneErrorCode.ParameterError("Type"));
             }
         }
