@@ -52,10 +52,9 @@ public class GatewayServiceImpl implements GatewayService {
     }
 
     @Override
-    public void deleteAPI(PortalAPIDTO api) {
-        configManager.deleteConfig(Trans.portalAPI2API(api));
+    public void deleteAPI(PortalAPIDeleteDTO api) {
+        configManager.deleteConfig(Trans.portalDeleteAPI2API(api));
     }
-
 
     @Override
     public void updateService(PortalServiceDTO service) {

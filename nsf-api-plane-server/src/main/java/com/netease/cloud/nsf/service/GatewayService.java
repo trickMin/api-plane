@@ -20,7 +20,7 @@ public interface GatewayService {
 
     void updateAPI(PortalAPIDTO portalAPI);
 
-    void deleteAPI(PortalAPIDTO portalAPI);
+    void deleteAPI(PortalAPIDeleteDTO portalAPI);
 
     void updateService(PortalServiceDTO service);
 
