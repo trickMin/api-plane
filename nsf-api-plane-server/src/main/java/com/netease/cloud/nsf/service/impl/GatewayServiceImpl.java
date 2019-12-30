@@ -3,21 +3,13 @@ package com.netease.cloud.nsf.service.impl;
 import com.netease.cloud.nsf.core.gateway.service.ConfigManager;
 import com.netease.cloud.nsf.core.gateway.service.ResourceManager;
 import com.netease.cloud.nsf.meta.*;
-import com.netease.cloud.nsf.meta.Gateway;
-import com.netease.cloud.nsf.meta.PluginOrder;
 import com.netease.cloud.nsf.meta.dto.*;
-import com.netease.cloud.nsf.meta.ServiceHealth;
-import com.netease.cloud.nsf.meta.dto.PluginOrderDTO;
-import com.netease.cloud.nsf.meta.dto.PortalAPIDTO;
-import com.netease.cloud.nsf.meta.dto.PortalServiceDTO;
-import com.netease.cloud.nsf.meta.dto.YxAPIDTO;
 import com.netease.cloud.nsf.service.GatewayService;
 import com.netease.cloud.nsf.util.Trans;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import me.snowdrop.istio.api.IstioResource;
 import me.snowdrop.istio.api.networking.v1alpha3.Plugin;
 import me.snowdrop.istio.api.networking.v1alpha3.PluginManager;
-import me.snowdrop.istio.api.networking.v1alpha3.VersionManager;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -114,7 +106,7 @@ public class GatewayServiceImpl implements GatewayService {
     }
 
     @Override
-    public List<ServiceAndPortDTO> getServiceAndPortList(String name) {
+    public List<ServiceAndPortDTO> getServiceAndPortList(String name, String type) {
         String pattern = ".*";
         if (!StringUtils.isEmpty(name)) {
             pattern = "^" + name + pattern + "$";
@@ -122,6 +114,7 @@ public class GatewayServiceImpl implements GatewayService {
         final String fPattern = pattern;
         return resourceManager.getServiceAndPortList().stream()
                 .filter(sap -> Pattern.compile(fPattern).matcher(sap.getName()).find())
+                .filter(sap -> matchType(type, sap.getName()))
                 .map(sap -> {
                     ServiceAndPortDTO dto = new ServiceAndPortDTO();
                     dto.setName(sap.getName());
@@ -150,5 +143,10 @@ public class GatewayServiceImpl implements GatewayService {
         return resourceManager.getServiceHealthList(host);
     }
 
-
+    private boolean matchType(String type, String name) {
+        if (StringUtils.isEmpty(type)) return true;
+        if (type.equals("consul") && name.endsWith(".consul")) return true;
+        if (type.equals("k8s") && name.endsWith(".svc.cluster.local")) return true;
+        return false;
+    }
 }

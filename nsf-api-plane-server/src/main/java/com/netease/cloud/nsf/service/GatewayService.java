@@ -34,7 +34,7 @@ public interface GatewayService {
 
     List<String> getServiceList();
 
-    List<ServiceAndPortDTO> getServiceAndPortList(String name);
+    List<ServiceAndPortDTO> getServiceAndPortList(String name, String type);
 
     List<Gateway> getGatewayList();
 

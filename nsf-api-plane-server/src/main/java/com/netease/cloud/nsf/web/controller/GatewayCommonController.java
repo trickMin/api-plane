@@ -34,10 +34,17 @@ public class GatewayCommonController extends BaseController {
     }
 
     @RequestMapping(params = "Action=GetServiceAndPortList", method = RequestMethod.GET)
-    public String getServiceAndPortList(@RequestParam(name = "Name", required = false) String name) {
+    public String getServiceAndPortList(@RequestParam(name = "Name", required = false) String name,
+                                        @RequestParam(name = "Type", required = false) String type) {
+
+        if (type != null) {
+            if (!type.equals("consul") && !type.equals("k8s")) {
+                return apiReturn(ApiPlaneErrorCode.ParameterError("Type"));
+            }
+        }
         ErrorCode code = ApiPlaneErrorCode.Success;
         return apiReturn(code.getStatusCode(), code.getCode(), null,
-                ImmutableMap.of("ServiceList", gatewayService.getServiceAndPortList(name)));
+                ImmutableMap.of("ServiceList", gatewayService.getServiceAndPortList(name, type)));
     }
 
     @RequestMapping(params = "Action=GetGatewayList", method = RequestMethod.GET)
