@@ -49,6 +49,7 @@ public interface TemplateConst {
     String VIRTUAL_SERVICE_PLUGIN_MATCH_PRIORITY = "t_virtual_service_plugin_match_priority";
     String VIRTUAL_SERVICE_SERVICE_TAG = "t_virtual_service_service_tag";
     String VIRTUAL_SERVICE_API_ID = "t_virtual_service_api_id";
+    String VIRTUAL_SERVICE_API_NAME = "t_virtual_service_api_name";
 
     /**
      * MATCH级別插件
@@ -69,6 +70,7 @@ public interface TemplateConst {
      * api请求uri
      */
     String API_REQUEST_URIS = "t_api_request_uris";
+
     /**
      * api请求方法
      */

@@ -59,6 +59,7 @@ public class Trans {
         api.setPriority(portalAPI.getPriority());
         api.setServiceTag(portalAPI.getServiceTag());
         api.setApiId(portalAPI.getRouteId());
+        api.setApiName(portalAPI.getRouteName());
         return api;
     }
 

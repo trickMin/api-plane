@@ -92,6 +92,13 @@ public class PortalAPIDTO {
     @NotNull(message = "RouteId")
     private Long routeId;
 
+    /**
+     * 路由名字
+     */
+    @JsonProperty(value = "RouteName")
+    @NotNull(message = "RouteName")
+    private String routeName;
+
     public String getGateway() {
         return gateway;
     }
@@ -194,5 +201,13 @@ public class PortalAPIDTO {
 
     public void setRouteId(Long routeId) {
         this.routeId = routeId;
+    }
+
+    public String getRouteName() {
+        return routeName;
+    }
+
+    public void setRouteName(String routeName) {
+        this.routeName = routeName;
     }
 }
