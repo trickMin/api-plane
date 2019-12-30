@@ -115,6 +115,11 @@ public class API extends CommonModel {
      */
     private Long apiId;
 
+    /**
+     * api name
+     */
+    private String apiName;
+
     public List<String> getGateways() {
         return gateways;
     }
@@ -321,5 +326,13 @@ public class API extends CommonModel {
 
     public void setApiId(Long apiId) {
         this.apiId = apiId;
+    }
+
+    public String getApiName() {
+        return apiName;
+    }
+
+    public void setApiName(String apiName) {
+        this.apiName = apiName;
     }
 }

@@ -24,9 +24,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/7/25
@@ -105,39 +105,47 @@ public class GatewayConfigManager implements ConfigManager {
     public void deleteConfig(Service service) {
         if (StringUtils.isEmpty(service.getGateway())) return;
         List<IstioResource> resources = modelProcessor.translate(service);
-
         Class<? extends HasMetadata> drClz = K8sResourceEnum.DestinationRule.mappingType();
 
-        //dr若不存在subset，则全部删除相关资源
-        boolean noSubsets = false;
-
         //move dr to head
-        resources.sort((o1, o2) -> {
+        Comparator<IstioResource> compareFun = (o1, o2) -> {
             if (o1.getClass() == drClz) {
                 return -1;
             } else if (o2.getClass() == drClz) {
                 return 1;
             }
             return 0;
-        });
+        };
 
-        for (int i = 0; i < resources.size(); i++) {
-            IstioResource r = resources.get(i);
-            if (r.getClass() == drClz){
-                ResourceGenerator gen = ResourceGenerator.newInstance(r, ResourceType.OBJECT);
-                gen.removeElement(PathExpressionEnum.REMOVE_DST_SUBSET_NAME.translate(String.format("%s-%s", service.getCode(), service.getGateway())));
-                DestinationRule dr = gen.object(DestinationRule.class);
-                //replace dr
-                resources.set(i, dr);
-                if (CollectionUtils.isEmpty(dr.getSpec().getSubsets())) noSubsets = true;
-            } else {
-                // 若没有subset，则删除所有关联资源
-                if (noSubsets) {
-                    r.setApiVersion(null);
-                }
-            }
+        Set<String> subsets = new HashSet<>();
+        if (!CollectionUtils.isEmpty(service.getSubsets())) {
+            subsets.addAll(service.getSubsets().stream().map(s -> s.getName()).collect(Collectors.toSet()));
         }
-        delete(resources, r -> r);
+        Function<IstioResource, IstioResource> deleteFun = new Function<IstioResource, IstioResource>() {
+            //dr若不存在subset，则全部删除相关资源
+            boolean noSubsets = false;
+            @Override
+            public IstioResource apply(IstioResource r) {
+                if (r.getClass() == drClz){
+                    ResourceGenerator gen = ResourceGenerator.newInstance(r, ResourceType.OBJECT);
+                    // 如果没有传入subset，则删除默认subset
+                    if (CollectionUtils.isEmpty(subsets)) {
+                        subsets.add(String.format("%s-%s", service.getCode(), service.getGateway()));
+                    }
+                    subsets.forEach(ss -> gen.removeElement(PathExpressionEnum.REMOVE_DST_SUBSET_NAME.translate(ss)));
+                    DestinationRule dr = gen.object(DestinationRule.class);
+                    if (CollectionUtils.isEmpty(dr.getSpec().getSubsets())) noSubsets = true;
+                    return dr;
+                } else {
+                    // 若没有subset，则删除所有关联资源
+                    if (noSubsets) {
+                        r.setApiVersion(null);
+                    }
+                }
+                return r;
+            }
+        };
+        delete(resources, compareFun, deleteFun);
     }
 
     @Override
@@ -177,6 +185,10 @@ public class GatewayConfigManager implements ConfigManager {
     }
 
     private void delete(List<IstioResource> resources, Function<IstioResource, IstioResource> fun) {
+        delete(resources, (i1,i2) -> 0, fun);
+    }
+
+    private void delete(List<IstioResource> resources, Comparator<IstioResource> compare, Function<IstioResource, IstioResource> fun) {
         if (CollectionUtils.isEmpty(resources)) return;
         List<IstioResource> existResources = new ArrayList<>();
         for (IstioResource resource : resources) {
@@ -186,6 +198,7 @@ public class GatewayConfigManager implements ConfigManager {
             }
         }
         existResources.stream()
+                .sorted(compare)
                 .map(er -> fun.apply(er))
                 .filter(i -> i != null)
                 .forEach(r -> handle(r));
