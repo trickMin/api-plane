@@ -5,6 +5,7 @@ import com.netease.cloud.nsf.core.gateway.service.ResourceManager;
 import com.netease.cloud.nsf.meta.*;
 import com.netease.cloud.nsf.meta.dto.*;
 import com.netease.cloud.nsf.service.GatewayService;
+import com.netease.cloud.nsf.util.Const;
 import com.netease.cloud.nsf.util.Trans;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import me.snowdrop.istio.api.IstioResource;
@@ -145,8 +146,8 @@ public class GatewayServiceImpl implements GatewayService {
 
     private boolean matchType(String type, String name) {
         if (StringUtils.isEmpty(type)) return true;
-        if (type.equals("consul") && name.endsWith(".consul")) return true;
-        if (type.equals("k8s") && name.endsWith(".svc.cluster.local")) return true;
+        if (type.equals(Const.SERVICE_TYPE_CONSUL) && name.endsWith(".consul")) return true;
+        if (type.equals(Const.SERVICE_TYPE_K8S) && name.endsWith(".svc.cluster.local")) return true;
         return false;
     }
 }
