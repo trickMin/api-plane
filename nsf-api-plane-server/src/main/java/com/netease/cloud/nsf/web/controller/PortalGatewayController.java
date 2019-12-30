@@ -2,6 +2,7 @@ package com.netease.cloud.nsf.web.controller;
 
 import com.netease.cloud.nsf.meta.ServiceHealth;
 import com.netease.cloud.nsf.meta.dto.PortalAPIDTO;
+import com.netease.cloud.nsf.meta.dto.PortalAPIDeleteDTO;
 import com.netease.cloud.nsf.meta.dto.PortalServiceDTO;
 import com.netease.cloud.nsf.service.GatewayService;
 import com.netease.cloud.nsf.util.errorcode.ApiPlaneErrorCode;
@@ -39,7 +40,7 @@ public class PortalGatewayController extends BaseController {
     }
 
     @RequestMapping(value = "/portal", params = "Action=DeleteAPI", method = RequestMethod.POST)
-    public String deletePortalAPI(@RequestBody @Valid PortalAPIDTO api) {
+    public String deletePortalAPI(@RequestBody @Valid PortalAPIDeleteDTO api) {
         gatewayService.deleteAPI(api);
         return apiReturn(ApiPlaneErrorCode.Success);
     }
