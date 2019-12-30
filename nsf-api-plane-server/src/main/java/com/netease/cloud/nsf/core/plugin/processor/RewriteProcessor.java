@@ -34,15 +34,15 @@ public class RewriteProcessor extends AbstractSchemaProcessor implements SchemaP
         }
         String original = source.getValue("$.action.rewrite_regex");
         String target = source.getValue("$.action.target", String.class).replaceAll("(\\$\\d)", "{{$1}}");
-        builder.createOrUpdateJson("$", "transformation",
-                String.format("{\"requestTransformations\":[{\"conditions\":[{\"headers\":{\":path\":{\"regex\":\"%s\"}}}],\"transformationTemplate\":{\"extractors\":{},\"headers\":{}}}]}", original));
+        builder.createOrUpdateJson("$", "request_transformations",
+                String.format("[{\"conditions\":[{\"headers\":[{\"name\":\":path\",\"regex_match\":\"%s\"}]}],\"transformation_template\":{\"parse_body_behavior\":\"DontParse\",\"extractors\":{},\"headers\":{}}}]", original));
         // $.action.target : 转换结果，格式如/$2/$1
         for (int i = 1; i <= regexCount; i++) {
             String key = "$" + i;
             String value = String.format("{\"header\":\":path\",\"regex\":\"%s\",\"subgroup\":%s}", original, i);
-            builder.createOrUpdateJson("$.transformation.requestTransformations[0].transformationTemplate.extractors", key, value);
+            builder.createOrUpdateJson("$.request_transformations[0].transformation_template.extractors", key, value);
         }
-        builder.createOrUpdateJson("$.transformation.requestTransformations[0].transformationTemplate.headers", ":path", String.format("{\"text\":\"%s\"}", target));
+        builder.createOrUpdateJson("$.request_transformations[0].transformation_template.headers", ":path", String.format("{\"text\":\"%s\"}", target));
 
         FragmentHolder holder = new FragmentHolder();
         FragmentWrapper wrapper = new FragmentWrapper.Builder()

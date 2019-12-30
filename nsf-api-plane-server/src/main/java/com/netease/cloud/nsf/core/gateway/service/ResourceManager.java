@@ -2,6 +2,7 @@ package com.netease.cloud.nsf.core.gateway.service;
 
 import com.netease.cloud.nsf.meta.Endpoint;
 import com.netease.cloud.nsf.meta.Gateway;
+import com.netease.cloud.nsf.meta.ServiceAndPort;
 import com.netease.cloud.nsf.meta.ServiceHealth;
 
 import java.util.List;
@@ -16,6 +17,8 @@ public interface ResourceManager {
     List<Gateway> getGatewayList();
 
     List<String> getServiceList();
+
+    List<ServiceAndPort> getServiceAndPortList();
 
     Integer getServicePort(List<Endpoint> endpoints, String targetHost);
 

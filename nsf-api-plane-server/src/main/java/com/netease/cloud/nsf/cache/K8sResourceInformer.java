@@ -3,9 +3,7 @@ package com.netease.cloud.nsf.cache;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.k8s.KubernetesClient;
 import com.netease.cloud.nsf.core.k8s.MultiClusterK8sClient;
-import com.netease.cloud.nsf.core.k8s.http.K8sHttpClient;
 import io.fabric8.kubernetes.api.model.HasMetadata;
-import io.fabric8.kubernetes.api.model.KubernetesList;
 import io.fabric8.kubernetes.client.KubernetesClientException;
 import io.fabric8.kubernetes.client.Watcher;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
@@ -14,11 +12,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 
-import java.util.*;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author zhangzihao
@@ -28,7 +27,10 @@ public class K8sResourceInformer<T extends HasMetadata> implements Informer {
 
     private static final Logger log = LoggerFactory.getLogger(K8sResourceInformer.class);
 
-    private static final int EVENT_QUEUE_SIZE = 500;
+    private static final int EVENT_QUEUE_SIZE_FACTOR = 500;
+    private static final int MAX_QUEUE_SIZE = 5000;
+    private static final int MAX_PROCESSOR_THREAD = 10;
+    private AtomicInteger processorIndex = new AtomicInteger(0);
     private static final String UPDATE_EVENT = "MODIFIED";
     private static final String CREATE_EVENT = "ADDED";
     private static final String DELETE_EVENT = "DELETED";
@@ -41,9 +43,10 @@ public class K8sResourceInformer<T extends HasMetadata> implements Informer {
     private MultiClusterK8sClient multiClusterK8sClient;
 
 
-    private ArrayBlockingQueue<ResourceUpdateEvent> eventQueue = new ArrayBlockingQueue<>(EVENT_QUEUE_SIZE, false);
+    private ArrayBlockingQueue<ResourceUpdateEvent> eventQueue = new ArrayBlockingQueue<>(MAX_QUEUE_SIZE,false);
 
     private ExecutorService eventProcessor = Executors.newCachedThreadPool();
+    private ScheduledExecutorService processorIndexUpdatePool = Executors.newScheduledThreadPool(1);
 
 
     public static class Builder {
@@ -108,11 +111,25 @@ public class K8sResourceInformer<T extends HasMetadata> implements Informer {
 
     }
 
-    @Override
-    public void start() {
-        eventProcessor.execute(() -> {
+    class ResourceProcessor implements Runnable {
+
+        private int index;
+
+        public ResourceProcessor(int index) {
+            this.index = index;
+        }
+
+        private boolean closeProcessor() {
+            if (this.index > processorIndex.get()) {
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public void run() {
             try {
-                while (true) {
+                while (!closeProcessor()) {
                     ResourceUpdateEvent event = eventQueue.take();
                     String eventType = event.getEventType();
                     switch (eventType) {
@@ -132,10 +149,36 @@ public class K8sResourceInformer<T extends HasMetadata> implements Informer {
                             log.warn("unknown event ");
                     }
                 }
+                log.info("Resource processor end with index {}", index);
             } catch (InterruptedException e) {
                 log.error("Get resource update event from queue error", e);
             }
-        });
+
+        }
+    }
+
+    @Override
+    public void start() {
+
+        processorIndexUpdatePool.scheduleAtFixedRate(() -> {
+                    if (processorIndex.get() * EVENT_QUEUE_SIZE_FACTOR <= eventQueue.size()
+                            || processorIndex.get() == 0) {
+                        processorIndex.incrementAndGet();
+                        if (processorIndex.get() < MAX_PROCESSOR_THREAD) {
+                            int index = processorIndex.get();
+                            eventProcessor.execute(new ResourceProcessor(index));
+                            log.info("start new thread to process event , index is {}",index);
+                        }
+
+                    }else if (processorIndex.get() * EVENT_QUEUE_SIZE_FACTOR > eventQueue.size()
+                            && processorIndex.get() > 1){
+                        processorIndex.decrementAndGet();
+                    }
+
+                },
+                0,
+                5,
+                TimeUnit.MINUTES);
         for (MixedOperation mixedOperation : mixedOperationList) {
             eventProcessor.execute(() -> {
                 mixedOperation.watch(new Watcher<T>() {

@@ -8,7 +8,7 @@ release 1.1
 
 严选网关:
 - 多租户支持
-
+- route插件rewrite子插件增加condition,兼容严选旧用法
 
 轻舟网关：
 - vs元数据增加
@@ -23,6 +23,8 @@ release 1.1
 ServiceMesh:
 - 创建、删除资源接口
 - 拓扑功能，对接kiali
+- sidecar 自动注入及升级
+- k8s 资源监听管理
 
 
 工程整体:

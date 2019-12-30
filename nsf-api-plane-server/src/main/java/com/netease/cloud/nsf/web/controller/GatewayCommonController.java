@@ -1,5 +1,6 @@
 package com.netease.cloud.nsf.web.controller;
 
+import com.google.common.collect.ImmutableMap;
 import com.netease.cloud.nsf.meta.Gateway;
 import com.netease.cloud.nsf.meta.dto.PluginOrderDTO;
 import com.netease.cloud.nsf.service.GatewayService;
@@ -32,6 +33,13 @@ public class GatewayCommonController extends BaseController {
         return apiReturn(code.getStatusCode(), code.getCode(), null, result);
     }
 
+    @RequestMapping(params = "Action=GetServiceAndPortList", method = RequestMethod.GET)
+    public String getServiceAndPortList(@RequestParam(name = "Name", required = false) String name) {
+        ErrorCode code = ApiPlaneErrorCode.Success;
+        return apiReturn(code.getStatusCode(), code.getCode(), null,
+                ImmutableMap.of("ServiceList", gatewayService.getServiceAndPortList(name)));
+    }
+
     @RequestMapping(params = "Action=GetGatewayList", method = RequestMethod.GET)
     public String getGatewayList() {
 
@@ -43,11 +51,11 @@ public class GatewayCommonController extends BaseController {
         return apiReturn(code.getStatusCode(), code.getCode(), null, result);
     }
 
-    @RequestMapping(params = "Action=GetPluginOrder", method = RequestMethod.GET)
-    public String getPluginOrder() {
+    @RequestMapping(params = "Action=GetPluginOrder", method = RequestMethod.POST)
+    public String getPluginOrder(@RequestBody PluginOrderDTO pluginOrderDTO) {
         Map<String, Object> result = new HashMap<>();
 
-        result.put(RESULT, gatewayService.getPluginOrder());
+        result.put(RESULT, gatewayService.getPluginOrder(pluginOrderDTO));
         ErrorCode code = ApiPlaneErrorCode.Success;
         return apiReturn(code.getStatusCode(), code.getCode(), null, result);
     }

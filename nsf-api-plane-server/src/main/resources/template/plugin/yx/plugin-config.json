@@ -2,7 +2,7 @@
   "item": [
     {
       "name": "ianus-percent-limit",
-      "resource": "plugin/ianus-percent-limit.json",
+      "schema": "plugin/yx/ianus-percent-limit.json",
       "description": "百分比限流插件",
       "processor": "FlowLimitProcessor",
       "author": "system",
@@ -14,7 +14,7 @@
     },
     {
       "name": "ianus-rate-limiting",
-      "resource": "plugin/ianus-rate-limiting.json",
+      "schema": "plugin/yx/ianus-rate-limiting.json",
       "description": "频控插件",
       "processor": "RateLimitProcessor",
       "author": "system",
@@ -26,7 +26,7 @@
     },
     {
       "name": "ianus-router",
-      "resource": "plugin/ianus-router.json",
+      "schema": "plugin/yx/ianus-router.json",
       "description": "路由插件",
       "processor": "RouteProcessor",
       "author": "system",
@@ -38,7 +38,7 @@
     },
     {
       "name": "ip-restriction",
-      "resource": "plugin/ip-restriction.json",
+      "schema": "plugin/yx/ip-restriction.json",
       "description": "黑白名单插件",
       "processor": "IpRestrictionProcessor",
       "author": "system",
@@ -50,7 +50,7 @@
     },
     {
       "name": "cors",
-      "resource": "plugin/cors.json",
+      "schema": "plugin/yx/cors.json",
       "description": "",
       "processor": "DefaultProcessor",
       "author": "system",
@@ -61,64 +61,28 @@
       "instructionForUse": ""
     },
     {
-      "name": "jsonp",
-      "resource": "plugin/jsonp.json",
-      "description": "jsonp插件",
-      "processor": "AggregateTransformProcessor",
-      "author": "system",
-      "createTime": "1572537600000",
-      "updateTime": "1572537600000",
-      "pluginScope": "routeRule",
-      "pluginPriority": "2500",
-      "instructionForUse": ""
-    },
-    {
-      "name": "rewrite",
-      "resource": "plugin/rewrite.json",
-      "description": "重写插件",
-      "processor": "AggregateTransformProcessor",
-      "author": "system",
-      "createTime": "1572537600000",
-      "updateTime": "1572537600000",
-      "pluginScope": "routeRule",
-      "pluginPriority": "2500",
-      "instructionForUse": "前缀替换功能用这个插件实现"
-    },
-    {
-      "name": "request-transformer",
-      "resource": "plugin/request-transformer-cm.json",
+      "name": "auth",
+      "schema": "plugin/yx/auth.json",
       "description": "",
-      "processor": "AggregateTransformProcessor",
-      "author": "system",
-      "createTime": "1572537600000",
-      "updateTime": "1572537600000",
-      "pluginScope": "routeRule",
-      "pluginPriority": "2500",
-      "instructionForUse": "请求转换插件"
-    },
-    {
-      "name": "cache",
-      "resource": "plugin/cache.json",
-      "description": "",
-      "processor": "DefaultProcessor",
+      "processor": "AggregateExtensionProcessor",
       "author": "system",
       "createTime": "1572537600000",
       "updateTime": "1572537600000",
       "pluginScope": "routeRule",
       "pluginPriority": "3000",
-      "instructionForUse": "缓存插件"
+      "instructionForUse": "auth插件"
     },
     {
       "name": "body-extractor",
-      "resource": "plugin/body-extractor.json",
+      "schema": "plugin/yx/body-extractor.json",
       "description": "",
-      "processor": "DefaultProcessor",
+      "processor": "AggregateExtensionProcessor",
       "author": "system",
       "createTime": "1572537600000",
       "updateTime": "1572537600000",
       "pluginScope": "routeRule",
       "pluginPriority": "3000",
-      "instructionForUse": "缓存插件"
+      "instructionForUse": "body提取插件"
     }
   ]
 }

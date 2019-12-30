@@ -1,31 +1,40 @@
 package com.netease.cloud.nsf.meta;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/7/23
  **/
 public class Plugin {
 
+    @JsonProperty("name")
     private String name;
 
+    @JsonProperty("processor")
     private String processor;
 
+    @JsonProperty("description")
     private String description;
 
+    @JsonProperty("author")
     private String author;
 
+    @JsonProperty("createTime")
     private String createTime;
 
+    @JsonProperty("updateTime")
     private String updateTime;
 
+    @JsonProperty("pluginScope")
     private String pluginScope;
 
+    @JsonProperty("pluginPriority")
     private String pluginPriority;
 
+    @JsonProperty("instructionForUse")
     private String instructionForUse;
 
-    @JsonIgnore
+    @JsonProperty("schema")
     private String schema;
 
     public String getName() {
@@ -36,12 +45,12 @@ public class Plugin {
         this.name = name;
     }
 
-    public String getSchema() {
-        return schema;
+    public String getProcessor() {
+        return processor;
     }
 
-    public void setSchema(String schema) {
-        this.schema = schema;
+    public void setProcessor(String processor) {
+        this.processor = processor;
     }
 
     public String getDescription() {
@@ -50,14 +59,6 @@ public class Plugin {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public String getProcessor() {
-        return processor;
-    }
-
-    public void setProcessor(String processor) {
-        this.processor = processor;
     }
 
     public String getAuthor() {
@@ -106,6 +107,14 @@ public class Plugin {
 
     public void setInstructionForUse(String instructionForUse) {
         this.instructionForUse = instructionForUse;
+    }
+
+    public String getSchema() {
+        return schema;
+    }
+
+    public void setSchema(String schema) {
+        this.schema = schema;
     }
 
     @Override

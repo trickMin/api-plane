@@ -47,7 +47,7 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
             getUnits(rg).forEach((unit, duration) -> {
                 String headerDescriptor = getHeaderDescriptor(serviceInfo, xUserId);
                 rateLimitGen.addJsonElement("$.ratelimit.rateLimits", createRateLimits(rg, serviceInfo, headerDescriptor, null));
-                shareConfigGen.addJsonElement("$[0].descriptors", createShareConfig(serviceInfo, headerDescriptor, unit, duration));
+                shareConfigGen.addJsonElement("$[0].descriptors", createShareConfig(rg, serviceInfo, headerDescriptor, unit, duration));
             });
         });
         holder.setSharedConfigFragment(
@@ -74,14 +74,19 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
 
         vs.addJsonElement("$.actions",
                 String.format("{\"headerValueMatch\":{\"headers\":[],\"descriptorValue\":\"%s\"}}", headerDescriptor));
-        // 添加租户信息
-        if (StringUtils.isNotBlank(xUserId)) {
-            vs.addJsonElement("$.actions[0].headerValueMatch.headers",
-                    String.format("{\"name\":\"x_user_id\",\"regexMatch\":\"%s\"}", xUserId));
-        }
+        vs.addJsonElement("$.actions[0].headerValueMatch.headers",
+                String.format("{\"name\":\":path\",\"regexMatch\":\"%s\"}", serviceInfo.getUri()));
+        vs.addJsonElement("$.actions[0].headerValueMatch.headers",
+                String.format("{\"name\":\":authority\",\"regexMatch\":\"%s\"}", serviceInfo.getHosts()));
+        vs.addJsonElement("$.actions[0].headerValueMatch.headers",
+                String.format("{\"name\":\":method\",\"regexMatch\":\"%s\"}", serviceInfo.getMethod()));
+
+        int length = 0;
         if (rg.contain("$.pre_condition")) {
+            length = rg.getValue("$.pre_condition.length()");
+        }
+        if (length != 0) {
             String matchHeader = getMatchHeader(rg);
-            int length = rg.getValue("$.pre_condition.length()");
             for (int i = 0; i < length; i++) {
                 String operator = rg.getValue(String.format("$.pre_condition[%d].operator", i));
                 String rightValue = rg.getValue(String.format("$.pre_condition[%d].right_value", i));
@@ -107,22 +112,38 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
                         String.format("{\"name\":\"%s\",\"regexMatch\":\"%s\"}", matchHeader, regex));
             }
         }
-        vs.addJsonElement("$.actions[0].headerValueMatch.headers",
-                String.format("{\"name\":\":path\",\"regexMatch\":\"%s\"}", serviceInfo.getUri()));
-        vs.addJsonElement("$.actions[0].headerValueMatch.headers",
-                String.format("{\"name\":\":authority\",\"regexMatch\":\"%s\"}", serviceInfo.getHosts()));
-        vs.addJsonElement("$.actions[0].headerValueMatch.headers",
-                String.format("{\"name\":\":method\",\"regexMatch\":\"%s\"}", serviceInfo.getMethod()));
+        if (length == 0 && rg.contain("$.identifier_extractor") && !StringUtils.isEmpty(rg.getValue("$.identifier_extractor", String.class))) {
+            String matchHeader = getMatchHeader(rg);
+            String descriptorKey = String.format("WithoutValueHeader[%s]", matchHeader);
+            vs.addJsonElement("$.actions", String.format("{\"requestHeaders\":{\"headerName\":\"%s\",\"descriptorKey\":\"%s\"}}", matchHeader, descriptorKey));
+        }
         return vs.jsonString();
     }
 
-    private String createShareConfig(ServiceInfo serviceInfo, String headerDescriptor, String unit, Long duration) {
-        ResourceGenerator shareConfig = ResourceGenerator.newInstance(String.format("{\"api\":\"%s\",\"key\":\"header_match\",\"value\":\"%s\",\"rateLimit\":{\"unit\":\"%s\",\"requestsPerUnit\":%d}}",
-                getApiName(serviceInfo),
-                headerDescriptor,
-                unit,
-                duration
-        ));
+    private String createShareConfig(ResourceGenerator rg, ServiceInfo serviceInfo, String headerDescriptor, String unit, Long duration) {
+        ResourceGenerator shareConfig;
+        int length = 0;
+        if (rg.contain("$.pre_condition")) {
+            length = rg.getValue("$.pre_condition.length()");
+        }
+        if (length == 0 && rg.contain("$.identifier_extractor") && !StringUtils.isEmpty(rg.getValue("$.identifier_extractor", String.class))) {
+            String matchHeader = getMatchHeader(rg);
+            String descriptorKey = String.format("WithoutValueHeader[%s]", matchHeader);
+            shareConfig = ResourceGenerator.newInstance(String.format("{\"api\":\"%s\",\"key\":\"header_match\",\"value\":\"%s\",\"descriptors\":[{\"key\":\"%s\",\"rateLimit\":{\"unit\":\"%s\",\"requestsPerUnit\":\"%d\"}}]}",
+                    getApiName(serviceInfo),
+                    headerDescriptor,
+                    descriptorKey,
+                    unit,
+                    duration
+            ));
+        } else {
+            shareConfig = ResourceGenerator.newInstance(String.format("{\"api\":\"%s\",\"key\":\"header_match\",\"value\":\"%s\",\"rateLimit\":{\"unit\":\"%s\",\"requestsPerUnit\":%d}}",
+                    getApiName(serviceInfo),
+                    headerDescriptor,
+                    unit,
+                    duration
+            ));
+        }
         return shareConfig.jsonString();
     }
 
@@ -132,9 +153,7 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
 
         String matchHeader;
         Matcher matcher = Pattern.compile("Header\\[(.*)\\]").matcher(extractor);
-        if ("Ip".equalsIgnoreCase(extractor)) {
-            matchHeader = "X-Forwarded-For";
-        } else if (matcher.find()) {
+        if (matcher.find()) {
             matchHeader = matcher.group(1);
         } else {
             throw new ApiPlaneException(String.format("Unsupported $.config.limit_by_list.identifier_extractor: %s", extractor));
