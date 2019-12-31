@@ -43,4 +43,11 @@ public interface Const {
     String SERVICE_TYPE_CONSUL = "Consul";
     String SERVICE_TYPE_K8S = "Kubernetes";
 
+    String DOWNLOAD_ENVOY_EVENT = "1";
+    String DELETE_ENVOY_EVENT = "2";
+
+    String DOWNLOAD_DAEMONSET_NAME = "nsf-api-plane-daemon";
+    String DOWNLOAD_DAEMONSET_NAMESPACE = "gateway-system";
+    String DOWNLOAD_DAEMONSET_PORT = "9050";
+
 }

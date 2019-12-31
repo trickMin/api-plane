@@ -284,7 +284,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     }
 
     @Override
-    public List<PodDTO<T>> getPodByWorkLoadInfo(String clusterId, String kind, String namespace, String name) {
+    public List<PodDTO<T>> getPodDtoByWorkLoadInfo(String clusterId, String kind, String namespace, String name) {
         OwnerReferenceSupportStore store = ResourceStoreFactory.getResourceStore(clusterId);
         T obj = (T) store.get(kind, namespace, name);
         if (obj == null) {
@@ -294,6 +294,16 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                 .stream()
                 .map(po -> new PodDTO<T>((T) po, clusterId))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<T> getPodInfoByWorkLoadInfo(String clusterId, String kind, String namespace, String name){
+        OwnerReferenceSupportStore store = ResourceStoreFactory.getResourceStore(clusterId);
+        T obj = (T) store.get(kind, namespace, name);
+        if (obj == null) {
+            return new ArrayList<>();
+        }
+        return (List<T>) store.listResourceByOwnerReference(Pod.name(), obj);
     }
 
     @Override
@@ -443,7 +453,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     }
 
     private WorkLoadDTO<T> addSidecarVersionOnWorkLoad(WorkLoadDTO<T> workLoadDTO) {
-        List<PodDTO<T>> podByWorkLoadInfo = getPodByWorkLoadInfo(workLoadDTO.getClusterId(), workLoadDTO.getKind(), workLoadDTO.getNamespace(),
+        List<PodDTO<T>> podByWorkLoadInfo = getPodDtoByWorkLoadInfo(workLoadDTO.getClusterId(), workLoadDTO.getKind(), workLoadDTO.getNamespace(),
                 workLoadDTO.getName());
         PodVersion queryVersion = new PodVersion();
         queryVersion.setClusterId(workLoadDTO.getClusterId());

@@ -10,7 +10,8 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
-import static com.netease.cloud.nsf.core.template.TemplateConst.*;
+import static com.netease.cloud.nsf.core.template.TemplateConst.BLANK_LINE;
+import static com.netease.cloud.nsf.core.template.TemplateConst.IGNORE_SCHEME;
 
 
 /**

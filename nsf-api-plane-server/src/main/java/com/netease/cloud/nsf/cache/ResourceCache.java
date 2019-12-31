@@ -27,8 +27,10 @@ public interface ResourceCache {
      * @param name 资源名称
      * @return Pod 列表
      */
-    List getPodByWorkLoadInfo(String clusterId, String kind, String namespace, String name);
+    List getPodDtoByWorkLoadInfo(String clusterId, String kind, String namespace, String name);
 
+
+    List getPodInfoByWorkLoadInfo(String clusterId, String kind, String namespace, String name);
 
     /**
      * @return 返回网格中全部的负载资源

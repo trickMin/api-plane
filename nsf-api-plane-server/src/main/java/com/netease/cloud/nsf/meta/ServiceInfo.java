@@ -1,6 +1,5 @@
 package com.netease.cloud.nsf.meta;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import static com.netease.cloud.nsf.core.template.TemplateConst.*;

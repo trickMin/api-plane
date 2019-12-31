@@ -4,12 +4,13 @@ import com.google.common.collect.ImmutableMap;
 import com.netease.cloud.nsf.meta.Graph;
 import com.netease.cloud.nsf.service.ServiceMeshService;
 import com.netease.cloud.nsf.service.TopoService;
+import com.netease.cloud.nsf.util.Const;
 import com.netease.cloud.nsf.util.errorcode.ApiPlaneErrorCode;
 import com.netease.cloud.nsf.util.errorcode.ErrorCode;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.regex.Pattern;
 
@@ -74,4 +75,13 @@ public class ServiceMeshController extends BaseController {
         Graph graph = topoService.getAppGraph(namespaces, duration, graphType);
         return apiReturn(ImmutableMap.of(RESULT, graph.getElements()));
     }
+
+    @RequestMapping(params = "Action=NotifySidecarEvent", method = RequestMethod.GET)
+    public String notifySidecarDownload(@RequestParam(name = "SidecarVersion") String version,
+                                        @RequestParam(name = "Type") String type){
+        istioService.notifySidecarFileEvent(version, type);
+        return apiReturn(SUCCESS, "Success", null, null);
+    }
+
+
 }

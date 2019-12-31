@@ -19,6 +19,7 @@
     <modules>
         <module>nsf-api-plane-protocol</module>
         <module>nsf-api-plane-server</module>
+        <module>nsf-api-plane-daemon</module>
     </modules>
 
 
