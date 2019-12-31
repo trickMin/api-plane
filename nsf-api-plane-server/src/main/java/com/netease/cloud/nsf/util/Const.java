@@ -39,6 +39,10 @@ public interface Const {
     String OPTION_ENABLED = "enabled";
     String OPTION_DISABLED = "disabled";
 
+
+    String SERVICE_TYPE_CONSUL = "Consul";
+    String SERVICE_TYPE_K8S = "Kubernetes";
+
     String DOWNLOAD_ENVOY_EVENT = "1";
     String DELETE_ENVOY_EVENT = "2";
 

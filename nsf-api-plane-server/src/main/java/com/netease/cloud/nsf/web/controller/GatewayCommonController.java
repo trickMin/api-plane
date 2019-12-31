@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.netease.cloud.nsf.meta.Gateway;
 import com.netease.cloud.nsf.meta.dto.PluginOrderDTO;
 import com.netease.cloud.nsf.service.GatewayService;
+import com.netease.cloud.nsf.util.Const;
 import com.netease.cloud.nsf.util.errorcode.ApiPlaneErrorCode;
 import com.netease.cloud.nsf.util.errorcode.ErrorCode;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,10 +35,17 @@ public class GatewayCommonController extends BaseController {
     }
 
     @RequestMapping(params = "Action=GetServiceAndPortList", method = RequestMethod.GET)
-    public String getServiceAndPortList(@RequestParam(name = "Name", required = false) String name) {
+    public String getServiceAndPortList(@RequestParam(name = "Name", required = false) String name,
+                                        @RequestParam(name = "Type", required = false) String type) {
+
+        if (type != null) {
+            if (!type.equals(Const.SERVICE_TYPE_CONSUL) && !type.equals(Const.SERVICE_TYPE_K8S)) {
+                return apiReturn(ApiPlaneErrorCode.ParameterError("Type"));
+            }
+        }
         ErrorCode code = ApiPlaneErrorCode.Success;
         return apiReturn(code.getStatusCode(), code.getCode(), null,
-                ImmutableMap.of("ServiceList", gatewayService.getServiceAndPortList(name)));
+                ImmutableMap.of("ServiceList", gatewayService.getServiceAndPortList(name, type)));
     }
 
     @RequestMapping(params = "Action=GetGatewayList", method = RequestMethod.GET)

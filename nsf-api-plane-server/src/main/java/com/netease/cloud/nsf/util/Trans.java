@@ -1,5 +1,6 @@
 package com.netease.cloud.nsf.util;
 
+import com.google.common.collect.ImmutableList;
 import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.meta.*;
@@ -59,6 +60,7 @@ public class Trans {
         api.setPriority(portalAPI.getPriority());
         api.setServiceTag(portalAPI.getServiceTag());
         api.setApiId(portalAPI.getRouteId());
+        api.setApiName(portalAPI.getRouteName());
         return api;
     }
 
@@ -105,6 +107,7 @@ public class Trans {
         }
         s.setLoadBalancer(portalService.getLoadBalancer());
         s.setSubsets(subsetDTO2Subset(portalService.getSubsets()));
+
         return s;
     }
 
@@ -148,5 +151,18 @@ public class Trans {
         pm.setKey(pairMatchDTO.getKey());
         pm.setValue(pairMatchDTO.getValue());
         return pm;
+    }
+
+    public static API portalDeleteAPI2API(PortalAPIDeleteDTO portalAPI) {
+
+        API api = new API();
+        api.setGateways(Arrays.asList(portalAPI.getGateway().toLowerCase()));
+        api.setName(portalAPI.getCode());
+        api.setMethods(Collections.EMPTY_LIST);
+        api.setUriMatch(UriMatch.REGEX);
+        api.setRequestUris(Collections.EMPTY_LIST);
+        api.setHosts(Collections.EMPTY_LIST);
+        api.setProxyServices(ImmutableList.of(new Service()));
+        return api;
     }
 }

@@ -5,6 +5,7 @@ import com.netease.cloud.nsf.core.gateway.service.ResourceManager;
 import com.netease.cloud.nsf.meta.*;
 import com.netease.cloud.nsf.meta.dto.*;
 import com.netease.cloud.nsf.service.GatewayService;
+import com.netease.cloud.nsf.util.Const;
 import com.netease.cloud.nsf.util.Trans;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import me.snowdrop.istio.api.IstioResource;
@@ -51,10 +52,9 @@ public class GatewayServiceImpl implements GatewayService {
     }
 
     @Override
-    public void deleteAPI(PortalAPIDTO api) {
-        configManager.deleteConfig(Trans.portalAPI2API(api));
+    public void deleteAPI(PortalAPIDeleteDTO api) {
+        configManager.deleteConfig(Trans.portalDeleteAPI2API(api));
     }
-
 
     @Override
     public void updateService(PortalServiceDTO service) {
@@ -106,7 +106,7 @@ public class GatewayServiceImpl implements GatewayService {
     }
 
     @Override
-    public List<ServiceAndPortDTO> getServiceAndPortList(String name) {
+    public List<ServiceAndPortDTO> getServiceAndPortList(String name, String type) {
         String pattern = ".*";
         if (!StringUtils.isEmpty(name)) {
             pattern = "^" + name + pattern + "$";
@@ -114,6 +114,7 @@ public class GatewayServiceImpl implements GatewayService {
         final String fPattern = pattern;
         return resourceManager.getServiceAndPortList().stream()
                 .filter(sap -> Pattern.compile(fPattern).matcher(sap.getName()).find())
+                .filter(sap -> matchType(type, sap.getName()))
                 .map(sap -> {
                     ServiceAndPortDTO dto = new ServiceAndPortDTO();
                     dto.setName(sap.getName());
@@ -142,5 +143,10 @@ public class GatewayServiceImpl implements GatewayService {
         return resourceManager.getServiceHealthList(host);
     }
 
-
+    private boolean matchType(String type, String name) {
+        if (StringUtils.isEmpty(type)) return true;
+        if (type.equals(Const.SERVICE_TYPE_CONSUL) && name.endsWith(".consul")) return true;
+        if (type.equals(Const.SERVICE_TYPE_K8S) && name.endsWith(".svc.cluster.local")) return true;
+        return false;
+    }
 }

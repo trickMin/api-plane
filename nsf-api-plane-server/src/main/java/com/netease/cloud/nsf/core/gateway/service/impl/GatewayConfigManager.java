@@ -1,6 +1,9 @@
 package com.netease.cloud.nsf.core.gateway.service.impl;
 
 import com.google.common.collect.ImmutableMap;
+import com.netease.cloud.nsf.core.editor.PathExpressionEnum;
+import com.netease.cloud.nsf.core.editor.ResourceGenerator;
+import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.gateway.GatewayModelOperator;
 import com.netease.cloud.nsf.core.gateway.service.ConfigManager;
 import com.netease.cloud.nsf.core.gateway.service.ConfigStore;
@@ -10,7 +13,9 @@ import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.meta.*;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
+import io.fabric8.kubernetes.api.model.HasMetadata;
 import me.snowdrop.istio.api.IstioResource;
+import me.snowdrop.istio.api.networking.v1alpha3.DestinationRule;
 import me.snowdrop.istio.api.networking.v1alpha3.VersionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,9 +24,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/7/25
@@ -100,7 +105,47 @@ public class GatewayConfigManager implements ConfigManager {
     public void deleteConfig(Service service) {
         if (StringUtils.isEmpty(service.getGateway())) return;
         List<IstioResource> resources = modelProcessor.translate(service);
-        delete(resources, clearResource());
+        Class<? extends HasMetadata> drClz = K8sResourceEnum.DestinationRule.mappingType();
+
+        //move dr to head
+        Comparator<IstioResource> compareFun = (o1, o2) -> {
+            if (o1.getClass() == drClz) {
+                return -1;
+            } else if (o2.getClass() == drClz) {
+                return 1;
+            }
+            return 0;
+        };
+
+        Set<String> subsets = new HashSet<>();
+        if (!CollectionUtils.isEmpty(service.getSubsets())) {
+            subsets.addAll(service.getSubsets().stream().map(s -> s.getName()).collect(Collectors.toSet()));
+        }
+        Function<IstioResource, IstioResource> deleteFun = new Function<IstioResource, IstioResource>() {
+            //dr若不存在subset，则全部删除相关资源
+            boolean noSubsets = false;
+            @Override
+            public IstioResource apply(IstioResource r) {
+                if (r.getClass() == drClz){
+                    ResourceGenerator gen = ResourceGenerator.newInstance(r, ResourceType.OBJECT);
+                    // 如果没有传入subset，则删除默认subset
+                    if (CollectionUtils.isEmpty(subsets)) {
+                        subsets.add(String.format("%s-%s", service.getCode(), service.getGateway()));
+                    }
+                    subsets.forEach(ss -> gen.removeElement(PathExpressionEnum.REMOVE_DST_SUBSET_NAME.translate(ss)));
+                    DestinationRule dr = gen.object(DestinationRule.class);
+                    if (CollectionUtils.isEmpty(dr.getSpec().getSubsets())) noSubsets = true;
+                    return dr;
+                } else {
+                    // 若没有subset，则删除所有关联资源
+                    if (noSubsets) {
+                        r.setApiVersion(null);
+                    }
+                }
+                return r;
+            }
+        };
+        delete(resources, compareFun, deleteFun);
     }
 
     @Override
@@ -109,7 +154,6 @@ public class GatewayConfigManager implements ConfigManager {
         if (CollectionUtils.isEmpty(resources) || resources.size() != 1) throw new ApiPlaneException();
         return configStore.get(resources.get(0));
     }
-
 
     @Override
     public void updateConfig(PluginOrder pluginOrder) {
@@ -141,6 +185,10 @@ public class GatewayConfigManager implements ConfigManager {
     }
 
     private void delete(List<IstioResource> resources, Function<IstioResource, IstioResource> fun) {
+        delete(resources, (i1,i2) -> 0, fun);
+    }
+
+    private void delete(List<IstioResource> resources, Comparator<IstioResource> compare, Function<IstioResource, IstioResource> fun) {
         if (CollectionUtils.isEmpty(resources)) return;
         List<IstioResource> existResources = new ArrayList<>();
         for (IstioResource resource : resources) {
@@ -150,6 +198,7 @@ public class GatewayConfigManager implements ConfigManager {
             }
         }
         existResources.stream()
+                .sorted(compare)
                 .map(er -> fun.apply(er))
                 .filter(i -> i != null)
                 .forEach(r -> handle(r));

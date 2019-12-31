@@ -30,6 +30,8 @@ public enum PathExpressionEnum {
     /** destinationrule **/
     REMOVE_DST_SUBSET_API("$.spec.subsets[?(@.api == '%s')]", 1),
 
+    REMOVE_DST_SUBSET_NAME("$.spec.subsets[?(@.name == '%s')]", 1),
+
     /** sharedconfig **/
     REMOVE_SC_RATELIMITDESC("$.spec.rateLimitConfigs[*].descriptors[?(@.api == '%s')]", 1),
 

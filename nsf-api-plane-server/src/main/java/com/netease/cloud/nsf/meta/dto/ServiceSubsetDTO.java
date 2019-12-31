@@ -15,7 +15,6 @@ public class ServiceSubsetDTO {
     private String name;
 
     @JsonProperty(value = "Labels")
-    @NotEmpty(message = "subset labels")
     private Map<String, String> labels;
 
     public String getName() {
