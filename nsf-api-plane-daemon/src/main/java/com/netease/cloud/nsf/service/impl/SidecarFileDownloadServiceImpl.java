@@ -111,6 +111,7 @@ public class SidecarFileDownloadServiceImpl implements SidecarFileDownloadServic
                 + sidecarVersion;
         GetObjectRequest getObjectRequest = new GetObjectRequest(nosConfig.getNosBucketName(), nosFilePath);
         ObjectMetadata objectMetadata = nosClient.getObject(getObjectRequest, new File(filePath));
+        log.info("download file from nos path {} to local path {}",nosFilePath,filePath);
     }
 
 
