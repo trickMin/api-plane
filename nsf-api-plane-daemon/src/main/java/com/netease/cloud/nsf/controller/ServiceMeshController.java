@@ -19,9 +19,9 @@ public class ServiceMeshController extends BaseController {
     @RequestMapping(params = {"Action=EnvoyEvent"}, method = RequestMethod.GET)
     public String DownloadEnvoy(@RequestParam(name = "SidecarVersion") String sidecarVersion,
                                 @RequestParam(name = "Type") String type) {
-        if (type == Const.DOWNLOAD_ENVOY_EVENT) {
+        if (Const.DOWNLOAD_ENVOY_EVENT.equals(type)) {
             downloadService.downloadSidecar(sidecarVersion);
-        }else if (type == Const.DELETE_ENVOY_EVENT){
+        }else if (Const.DELETE_ENVOY_EVENT.equals(type)){
             downloadService.deleteSidecar(sidecarVersion);
         }
         return apiReturn(ApiPlaneErrorCode.Success);
