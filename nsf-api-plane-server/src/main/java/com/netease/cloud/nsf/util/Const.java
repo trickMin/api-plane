@@ -39,4 +39,11 @@ public interface Const {
     String OPTION_ENABLED = "enabled";
     String OPTION_DISABLED = "disabled";
 
+    String DOWNLOAD_ENVOY_EVENT = "1";
+    String DELETE_ENVOY_EVENT = "2";
+
+    String DOWNLOAD_DAEMONSET_NAME = "nsf-api-plane-daemon";
+    String DOWNLOAD_DAEMONSET_NAMESPACE = "gateway-system";
+    String DOWNLOAD_DAEMONSET_PORT = "9050";
+
 }

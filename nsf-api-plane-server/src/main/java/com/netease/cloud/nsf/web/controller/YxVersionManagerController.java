@@ -3,8 +3,8 @@ package com.netease.cloud.nsf.web.controller;
 import com.netease.cloud.nsf.cache.K8sResourceCache;
 import com.netease.cloud.nsf.cache.ResourceStoreFactory;
 import com.netease.cloud.nsf.cache.meta.PodDTO;
-import com.netease.cloud.nsf.meta.PodVersion;
 import com.netease.cloud.nsf.meta.PodStatus;
+import com.netease.cloud.nsf.meta.PodVersion;
 import com.netease.cloud.nsf.meta.SVMSpec;
 import com.netease.cloud.nsf.meta.SidecarVersionManagement;
 import com.netease.cloud.nsf.service.GatewayService;
@@ -53,7 +53,7 @@ public class YxVersionManagerController extends BaseController {
                 return apiReturn(ApiPlaneErrorCode.workLoadNotFound);
             }
 
-            List<PodDTO> podDTOList =  k8sResourceCache.getPodByWorkLoadInfo(svm.getClusterId(), svmSpec.getWorkLoadType(), svm.getNamespace(), svmSpec.getWorkLoadName());
+            List<PodDTO> podDTOList =  k8sResourceCache.getPodDtoByWorkLoadInfo(svm.getClusterId(), svmSpec.getWorkLoadType(), svm.getNamespace(), svmSpec.getWorkLoadName());
             if (CollectionUtils.isEmpty(podDTOList)) {
                 return apiReturn(ApiPlaneErrorCode.workLoadNotInMesh);
             }

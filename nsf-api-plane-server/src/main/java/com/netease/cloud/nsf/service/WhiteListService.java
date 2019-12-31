@@ -1,7 +1,6 @@
 package com.netease.cloud.nsf.service;
 
 import com.netease.cloud.nsf.meta.WhiteList;
-import com.netease.cloud.nsf.meta.template.ServiceMeshTemplate;
 
 /**
  * 几个概念:

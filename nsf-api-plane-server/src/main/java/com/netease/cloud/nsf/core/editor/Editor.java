@@ -2,8 +2,6 @@ package com.netease.cloud.nsf.core.editor;
 
 import com.jayway.jsonpath.Predicate;
 
-import java.util.List;
-
 /**
  * @auther wupenghuai@corp.netease.com
  * @date 2019/7/25

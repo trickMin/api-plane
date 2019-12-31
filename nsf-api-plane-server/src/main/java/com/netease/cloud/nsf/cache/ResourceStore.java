@@ -1,6 +1,5 @@
 package com.netease.cloud.nsf.cache;
 
-import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import org.springframework.util.StringUtils;
 
