@@ -163,6 +163,7 @@ public class Trans {
         api.setRequestUris(Collections.EMPTY_LIST);
         api.setHosts(Collections.EMPTY_LIST);
         api.setProxyServices(ImmutableList.of(new Service()));
+        api.setPlugins(portalAPI.getPlugins());
         return api;
     }
 }
