@@ -120,7 +120,7 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
                 Set<String> notified = new HashSet<>();
                 for (T pod : podByWorkLoadInfo) {
                     Pod p = (Pod) pod;
-                    String hostAddress = p.getStatus().getHostIP();
+                    String hostAddress = p.getStatus().getPodIP();
                     if (!notified.contains(hostAddress)) {
                         notified.add(hostAddress);
                         doNotify(hostAddress, sidecarVersion, type);
