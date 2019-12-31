@@ -44,10 +44,6 @@ public class SidecarFileDownloadServiceImpl implements SidecarFileDownloadServic
 
     @Override
     public void downloadSidecar(String sidecarVersion) {
-        if (StringUtils.isEmpty(daemonSetConfig.getNsfMetaUrl())) {
-            log.error("envoy file download fail , nsf-meta url can't be null");
-            return;
-        }
         String fileName = getFilePath(sidecarVersion);
         File sidecarFile = new File(fileName);
         if (!sidecarFile.exists()) {
