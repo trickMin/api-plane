@@ -31,6 +31,8 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static com.netease.cloud.nsf.core.editor.ResourceType.OBJECT;
 import static com.netease.cloud.nsf.core.k8s.K8sResourceEnum.DaemonSet;
@@ -43,6 +45,7 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
 
     private static final Logger logger = LoggerFactory.getLogger(ServiceMeshServiceImpl.class);
     private static final String DEFAULT_SIDECAR_VERSION = "envoy";
+    private ExecutorService notifyTask = Executors.newCachedThreadPool();
 
 
     @Autowired
@@ -123,7 +126,13 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
                     String hostAddress = p.getStatus().getPodIP();
                     if (!notified.contains(hostAddress)) {
                         notified.add(hostAddress);
-                        doNotify(hostAddress, sidecarVersion, type);
+                        notifyTask.execute(()->{
+                            try {
+                                doNotify(hostAddress, sidecarVersion, type);
+                            } catch (Exception e) {
+                                logger.error("notify sidecar event to Pod[{}] error",pod.getMetadata().getName());
+                            }
+                        });
                     }
                 }
             }
