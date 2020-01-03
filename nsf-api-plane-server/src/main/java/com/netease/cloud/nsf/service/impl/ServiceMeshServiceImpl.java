@@ -123,7 +123,11 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
                     String hostAddress = p.getStatus().getPodIP();
                     if (!notified.contains(hostAddress)) {
                         notified.add(hostAddress);
-                        doNotify(hostAddress, sidecarVersion, type);
+                        try {
+                            doNotify(hostAddress, sidecarVersion, type);
+                        } catch (Exception e) {
+                            logger.error("notify sidecar event to Pod[{}] error",pod.getMetadata().getName());
+                        }
                     }
                 }
             }
