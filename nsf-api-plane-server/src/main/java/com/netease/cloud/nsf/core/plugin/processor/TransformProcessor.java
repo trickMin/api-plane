@@ -37,6 +37,9 @@ public class TransformProcessor extends AbstractSchemaProcessor implements Schem
         if (source.contain("$.querystrings")) {
             texts.addAll(source.getValue("$.querystrings[*].text"));
         }
+        if (source.contain("$.url")) {
+            texts.addAll(source.getValue("$.url[*].text"));
+        }
         List<String> placeholders = new ArrayList<>();
         texts.stream().filter(Objects::nonNull).forEach(text -> {
             Matcher matcher = Pattern.compile("\\{\\{(.*?)\\}\\}").matcher(text);
@@ -47,6 +50,7 @@ public class TransformProcessor extends AbstractSchemaProcessor implements Schem
         buildExtractors(placeholders, builder, serviceInfo);
         buildHeaders(source, builder);
         buildQueryParam(source, builder);
+        buildUrl(source, builder);
         FragmentHolder fragmentHolder = new FragmentHolder();
         FragmentWrapper wrapper = new FragmentWrapper.Builder()
                 .withXUserId(getAndDeleteXUserId(source))
@@ -119,6 +123,17 @@ public class TransformProcessor extends AbstractSchemaProcessor implements Schem
                     value = String.format("{\"text\":\"%s\",\"action\":\"%s\"}", text, action);
                 }
                 builder.createOrUpdateJson("$.request_transformations[0].transformation_template.query_param_operators", key, value);
+            }
+        }
+    }
+
+    private void buildUrl(ResourceGenerator source, ResourceGenerator builder) {
+        if (source.contain("url")) {
+            Integer size = source.getValue("$.url.size()");
+            for (Integer i = 0; i < size; i++) {
+                String text = source.getValue(String.format("$.url[%s].text", i));
+                String value = String.format("{\"text\":\"%s\",\"action\":\"%s\"}", text, "Action_Update");
+                builder.createOrUpdateJson("$.request_transformations[0].transformation_template.headers", ":path", value);
             }
         }
     }

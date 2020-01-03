@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import java.util.*;
 
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 public class VirtualServiceOperatorTest {
@@ -74,7 +75,7 @@ public class VirtualServiceOperatorTest {
 
         VirtualService merge1 = operator.merge(old, fresh1);
         Map<String, ApiPlugins> pluginMap1 = merge1.getSpec().getPlugins();
-        assertTrue(pluginMap1.get("a").getUserPlugin().size() == 2);
+        assertNull(pluginMap1);
     }
 
     @Test
