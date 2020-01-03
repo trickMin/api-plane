@@ -18,9 +18,10 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.attribute.PosixFilePermission;
+import java.util.*;
 
 @Service
 public class SidecarFileDownloadServiceImpl implements SidecarFileDownloadService {
@@ -42,6 +43,22 @@ public class SidecarFileDownloadServiceImpl implements SidecarFileDownloadServic
 
     private final String SIDECAR_URL = "/api/servicemesh?Version=2018-05-31&Action=";
 
+    static Set<PosixFilePermission> perms = new HashSet<>();
+
+    static {
+        perms.add(PosixFilePermission.OWNER_READ);
+        perms.add(PosixFilePermission.OWNER_WRITE);
+        perms.add(PosixFilePermission.OWNER_EXECUTE);
+
+        perms.add(PosixFilePermission.OTHERS_READ);
+        perms.add(PosixFilePermission.OTHERS_WRITE);
+        perms.add(PosixFilePermission.OTHERS_EXECUTE);
+
+        perms.add(PosixFilePermission.GROUP_READ);
+        perms.add(PosixFilePermission.GROUP_WRITE);
+        perms.add(PosixFilePermission.GROUP_EXECUTE);
+    }
+
     @Override
     public void downloadSidecar(String sidecarVersion) {
         String fileName = getFilePath(sidecarVersion);
@@ -50,8 +67,10 @@ public class SidecarFileDownloadServiceImpl implements SidecarFileDownloadServic
             // 从NOS中下载对应的envoy文件
             downloadFromNOS(sidecarVersion, fileName);
         }
-        if (sidecarFile == null) {
-            throw new RuntimeException("downLoad sidecar file from nsf-meta error");
+        try {
+            Files.setPosixFilePermissions(sidecarFile.toPath(), perms);
+        } catch (IOException e) {
+            log.warn("Modify envoy file Permissions fail");
         }
     }
 
@@ -106,8 +125,13 @@ public class SidecarFileDownloadServiceImpl implements SidecarFileDownloadServic
                 + "/"
                 + sidecarVersion;
         GetObjectRequest getObjectRequest = new GetObjectRequest(nosConfig.getNosBucketName(), nosFilePath);
-        ObjectMetadata objectMetadata = nosClient.getObject(getObjectRequest, new File(filePath));
-        log.info("download file from nos path {} to local path {}",nosFilePath,filePath);
+        try {
+            ObjectMetadata objectMetadata = nosClient.getObject(getObjectRequest, new File(filePath));
+        } catch (Exception e) {
+            log.error("download file from nos path {} to local path {} error", nosFilePath, filePath, e);
+            throw new RuntimeException(e.getMessage());
+        }
+        log.info("download file from nos path {} to local path {}", nosFilePath, filePath);
     }
 
 
