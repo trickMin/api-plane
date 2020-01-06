@@ -119,6 +119,8 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
         for (String clusterId : clusterIds) {
             List<T> podByWorkLoadInfo = k8sResource.getPodInfoByWorkLoadInfo(clusterId, DaemonSet.name(),
                     apiPlaneConfig.getDaemonSetNamespace(), apiPlaneConfig.getDaemonSetName());
+            logger.info("get {} daemonSet with namespace [{}] and name [{}]",podByWorkLoadInfo.size(),
+                    apiPlaneConfig.getDaemonSetNamespace(),apiPlaneConfig.getDaemonSetName());
             if (!CollectionUtils.isEmpty(podByWorkLoadInfo)) {
                 Set<String> notified = new HashSet<>();
                 for (T pod : podByWorkLoadInfo) {
