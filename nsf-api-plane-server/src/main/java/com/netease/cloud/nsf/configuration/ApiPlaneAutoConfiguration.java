@@ -100,7 +100,7 @@ public class ApiPlaneAutoConfiguration {
         if (StringUtils.isEmpty(environment.getProperty("daemonSetNamespace"))){
             apiPlaneConfig.setDaemonSetNamespace(Const.DOWNLOAD_DAEMONSET_NAMESPACE);
         }else {
-            apiPlaneConfig.setDaemonSetNamespace(environment.getProperty("daemonSetName"));
+            apiPlaneConfig.setDaemonSetNamespace(environment.getProperty("daemonSetNamespace"));
         }
         if (StringUtils.isEmpty(environment.getProperty("daemonSetPort"))){
             apiPlaneConfig.setDaemonSetPort(Const.DOWNLOAD_DAEMONSET_PORT);
