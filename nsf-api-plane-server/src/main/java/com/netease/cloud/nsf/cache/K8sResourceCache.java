@@ -276,7 +276,8 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                 return getWorkLoadByIndex(clusterId,
                         service.getMetadata().getNamespace(),
                         service.getMetadata().getName()).stream()
-                        .map(obj -> new WorkLoadDTO<>(obj, getServiceName(service), clusterId))
+                        .map(obj -> new WorkLoadDTO<>(obj, getServiceName(service), clusterId,
+                                getProjectCodeFromService(service),getEnvNameFromService(service)))
                         .collect(Collectors.toList());
             }
         }
@@ -332,10 +333,25 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         serviceList.forEach(service -> workLoadList.addAll(getWorkLoadByIndex(clusterId,
                 service.getMetadata().getNamespace(),
                 service.getMetadata().getName()).stream()
-                .map(obj -> new WorkLoadDTO<>(obj, getServiceName(service), clusterId))
+                .map(obj -> new WorkLoadDTO<>(obj, getServiceName(service), clusterId ,
+                       getProjectCodeFromService(service), getEnvNameFromService(service)))
                 .collect(Collectors.toList())
         ));
         return workLoadList;
+    }
+
+    private String getProjectCodeFromService(T service){
+        if (service.getMetadata().getLabels()==null){
+            return null;
+        }
+        return  service.getMetadata().getLabels().get(Const.LABEL_NSF_PROJECT_ID);
+    }
+
+    private String getEnvNameFromService(T service){
+        if (service.getMetadata().getLabels()==null){
+            return null;
+        }
+        return  service.getMetadata().getLabels().get(Const.LABEL_NSF_ENV);
     }
 
     @Override

@@ -5,7 +5,7 @@ import io.fabric8.kubernetes.api.model.HasMetadata;
 import java.util.List;
 import java.util.Map;
 
-class ResourceUpdateEvent<T extends HasMetadata> {
+public class ResourceUpdateEvent<T extends HasMetadata> {
 
     private T resourceObject;
     private List<T> resourceList;

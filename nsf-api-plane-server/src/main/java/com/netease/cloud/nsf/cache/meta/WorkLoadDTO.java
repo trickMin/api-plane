@@ -1,5 +1,6 @@
 package com.netease.cloud.nsf.cache.meta;
 
+import com.netease.cloud.nsf.util.Const;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.apps.DeploymentStatus;
@@ -19,10 +20,14 @@ public class WorkLoadDTO<T extends HasMetadata> extends K8sResourceDTO {
 
     protected List<String> sidecarVersion;
 
+    private String projectCode;
+
+    private String envName;
+
     private Map<String, String> statusInfo = new HashMap<>();
 
 
-    public WorkLoadDTO(T obj, String serviceName, String clusterId) {
+    public WorkLoadDTO(T obj, String serviceName, String clusterId, String projectCode, String envName) {
         super(obj, clusterId);
         this.serviceDomain = serviceName;
         this.serviceName = serviceName;
@@ -41,6 +46,8 @@ public class WorkLoadDTO<T extends HasMetadata> extends K8sResourceDTO {
             statusInfo.put("current", getValueOrDefault(status.getReplicas()).toString());
             statusInfo.put("up-to-date", getValueOrDefault(status.getUpdatedReplicas()).toString());
         }
+        this.setProjectCode(projectCode);
+        this.setEnvName(envName);
     }
 
     public List<String> getSidecarVersion() {
@@ -85,5 +92,19 @@ public class WorkLoadDTO<T extends HasMetadata> extends K8sResourceDTO {
         this.statusInfo = statusInfo;
     }
 
+    public String getProjectCode() {
+        return projectCode;
+    }
 
+    public void setProjectCode(String projectCode) {
+        this.projectCode = projectCode;
+    }
+
+    public String getEnvName() {
+        return envName;
+    }
+
+    public void setEnvName(String envName) {
+        this.envName = envName;
+    }
 }
