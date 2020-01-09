@@ -1,11 +1,16 @@
 package com.netease.cloud.nsf.meta;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/12/12
  **/
 public class Graph {
+
+    public Graph() {
+        this.elements = new Elements();
+    }
 
     private Long timestamp;
 
@@ -16,6 +21,11 @@ public class Graph {
     private Elements elements;
 
     public class Elements {
+
+        public Elements() {
+            this.nodes = new ArrayList<>();
+            this.edges = new ArrayList<>();
+        }
 
         private List<Object> nodes;
         private List<Object> edges;
