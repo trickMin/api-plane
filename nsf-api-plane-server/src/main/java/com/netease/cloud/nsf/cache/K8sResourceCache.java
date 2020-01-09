@@ -78,12 +78,11 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
 
         Map<String, MultiClusterK8sClient.ClientSet> allClients = multiClusterK8sClient.getAllClients();
 
-        ResourceUpdatedListener versionUpdateListener = new VersionUpdateListener();
+        //ResourceUpdatedListener versionUpdateListener = new VersionUpdateListener();
         // 初始化Deploy informer
         K8sResourceInformer deployInformer = new K8sResourceInformer
                 .Builder()
                 .addResourceKind(Deployment)
-                .addUpdateListener(versionUpdateListener)
                 .addMixedOperation(getDeployMixedOperationList(allClients))
                 .addHttpK8sClient(multiClusterK8sClient)
                 .build();
@@ -94,7 +93,6 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                 .Builder()
                 .addResourceKind(StatefulSet)
                 .addMixedOperation(getStatefulSetMixedOperationList(allClients))
-                .addUpdateListener(versionUpdateListener)
                 .addHttpK8sClient(multiClusterK8sClient)
                 .build();
         resourceInformerMap.putIfAbsent(StatefulSet, statefulSetInformer);
