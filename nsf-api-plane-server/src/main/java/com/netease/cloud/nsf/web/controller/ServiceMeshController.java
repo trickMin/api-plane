@@ -72,6 +72,6 @@ public class ServiceMeshController extends BaseController {
         }
 
         Graph graph = topoService.getAppGraph(namespaces, duration, graphType);
-        return apiReturn(ImmutableMap.of(RESULT, graph.getElements()));
+        return apiReturn(ImmutableMap.of(RESULT, graph.getElements() == null ? "" : graph.getElements()));
     }
 }
