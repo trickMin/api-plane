@@ -1,11 +1,11 @@
 package com.netease.cloud.nsf.cache.meta;
 
-import com.netease.cloud.nsf.util.Const;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.apps.DeploymentStatus;
 import io.fabric8.kubernetes.api.model.apps.StatefulSet;
 import io.fabric8.kubernetes.api.model.apps.StatefulSetStatus;
+import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -48,6 +48,9 @@ public class WorkLoadDTO<T extends HasMetadata> extends K8sResourceDTO {
         }
         this.setProjectCode(projectCode);
         this.setEnvName(envName);
+        if (StringUtils.isEmpty(envName)){
+            this.setEnvName(this.getNamespace());
+        }
     }
 
     public List<String> getSidecarVersion() {
