@@ -18,7 +18,7 @@ public class ServiceMeshController extends BaseController {
 
     @RequestMapping(params = {"Action=EnvoyEvent"}, method = RequestMethod.GET)
     public String DownloadEnvoy(@RequestParam(name = "SidecarVersion") String sidecarVersion,
-                                @RequestParam(name = "Type") String type) {
+                                @RequestParam(name = "Type") String type) throws InterruptedException {
         if (Const.DOWNLOAD_ENVOY_EVENT.equals(type)) {
             downloadService.downloadSidecar(sidecarVersion);
         }else if (Const.DELETE_ENVOY_EVENT.equals(type)){

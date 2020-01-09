@@ -60,7 +60,7 @@ public class SidecarFileDownloadServiceImpl implements SidecarFileDownloadServic
     }
 
     @Override
-    public void downloadSidecar(String sidecarVersion) {
+    public void downloadSidecar(String sidecarVersion) throws InterruptedException {
         String fileName = getFilePath(sidecarVersion);
         File sidecarFile = new File(fileName);
         if (!sidecarFile.exists()) {
@@ -84,7 +84,7 @@ public class SidecarFileDownloadServiceImpl implements SidecarFileDownloadServic
     }
 
     @Scheduled(cron = "0 0 0 * * ?")
-    public void synchronizeSidecarFile() {
+    public void synchronizeSidecarFile() throws InterruptedException {
         List<SidecarVersionInfoDto> sidecarList = getSidecarList();
         if (!CollectionUtils.isEmpty(sidecarList)) {
             for (SidecarVersionInfoDto sidecarVersionInfoDto : sidecarList) {
@@ -120,16 +120,23 @@ public class SidecarFileDownloadServiceImpl implements SidecarFileDownloadServic
         return filePath;
     }
 
-    private void downloadFromNOS(String sidecarVersion, String filePath) {
+    private void downloadFromNOS(String sidecarVersion, String filePath) throws InterruptedException {
         String nosFilePath = nosConfig.getNosFilePath()
                 + "/"
                 + sidecarVersion;
         GetObjectRequest getObjectRequest = new GetObjectRequest(nosConfig.getNosBucketName(), nosFilePath);
-        try {
-            ObjectMetadata objectMetadata = nosClient.getObject(getObjectRequest, new File(filePath));
-        } catch (Exception e) {
-            log.error("download file from nos path {} to local path {} error", nosFilePath, filePath, e);
-            throw new RuntimeException(e.getMessage());
+        // 下载失败后尝试重试
+        int reTry = daemonSetConfig.getReTryCount();
+        while (reTry > 0) {
+            try {
+                ObjectMetadata objectMetadata = nosClient.getObject(getObjectRequest, new File(filePath));
+                reTry = 0;
+            } catch (Exception e) {
+                log.error("download file from nos path {} to local path {} error ,retry request",
+                        nosFilePath, filePath, e);
+                reTry--;
+                Thread.sleep(daemonSetConfig.getDownloadRetryWait());
+            }
         }
         log.info("download file from nos path {} to local path {}", nosFilePath, filePath);
     }
