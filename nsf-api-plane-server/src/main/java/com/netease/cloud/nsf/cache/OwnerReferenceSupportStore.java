@@ -212,6 +212,10 @@ public class OwnerReferenceSupportStore<T extends HasMetadata> implements Store<
         return result;
     }
 
+    public List<String> listNamespaces(){
+        return resourceStore.listNamespaces();
+    }
+
     public List<T> getFilterByLabel(List<T> resourceList, Map<String, String> keyValues) {
         return resourceList.stream()
                 .filter(i -> labelsMatch(keyValues, i.getMetadata().getLabels()))

@@ -78,12 +78,11 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
 
         Map<String, MultiClusterK8sClient.ClientSet> allClients = multiClusterK8sClient.getAllClients();
 
-        ResourceUpdatedListener versionUpdateListener = new VersionUpdateListener();
+        //ResourceUpdatedListener versionUpdateListener = new VersionUpdateListener();
         // 初始化Deploy informer
         K8sResourceInformer deployInformer = new K8sResourceInformer
                 .Builder()
                 .addResourceKind(Deployment)
-                .addUpdateListener(versionUpdateListener)
                 .addMixedOperation(getDeployMixedOperationList(allClients))
                 .addHttpK8sClient(multiClusterK8sClient)
                 .build();
@@ -94,7 +93,6 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                 .Builder()
                 .addResourceKind(StatefulSet)
                 .addMixedOperation(getStatefulSetMixedOperationList(allClients))
-                .addUpdateListener(versionUpdateListener)
                 .addHttpK8sClient(multiClusterK8sClient)
                 .build();
         resourceInformerMap.putIfAbsent(StatefulSet, statefulSetInformer);
@@ -276,7 +274,8 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                 return getWorkLoadByIndex(clusterId,
                         service.getMetadata().getNamespace(),
                         service.getMetadata().getName()).stream()
-                        .map(obj -> new WorkLoadDTO<>(obj, getServiceName(service), clusterId))
+                        .map(obj -> new WorkLoadDTO<>(obj, getServiceName(service), clusterId,
+                                getProjectCodeFromService(service),getEnvNameFromService(service)))
                         .collect(Collectors.toList());
             }
         }
@@ -332,10 +331,25 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         serviceList.forEach(service -> workLoadList.addAll(getWorkLoadByIndex(clusterId,
                 service.getMetadata().getNamespace(),
                 service.getMetadata().getName()).stream()
-                .map(obj -> new WorkLoadDTO<>(obj, getServiceName(service), clusterId))
+                .map(obj -> new WorkLoadDTO<>(obj, getServiceName(service), clusterId ,
+                       getProjectCodeFromService(service), getEnvNameFromService(service)))
                 .collect(Collectors.toList())
         ));
         return workLoadList;
+    }
+
+    private String getProjectCodeFromService(T service){
+        if (service.getMetadata().getLabels()==null){
+            return null;
+        }
+        return  service.getMetadata().getLabels().get(Const.LABEL_NSF_PROJECT_ID);
+    }
+
+    private String getEnvNameFromService(T service){
+        if (service.getMetadata().getLabels()==null){
+            return null;
+        }
+        return  service.getMetadata().getLabels().get(Const.LABEL_NSF_ENV);
     }
 
     @Override

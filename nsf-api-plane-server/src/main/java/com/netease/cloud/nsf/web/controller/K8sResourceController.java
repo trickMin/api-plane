@@ -90,6 +90,16 @@ public class K8sResourceController extends BaseController {
         return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), result);
     }
 
+    @RequestMapping(params = {"Action=GetNamespaceList"}, method = RequestMethod.GET)
+    public String getNamespaceList(@RequestParam(name = "ClusterId", required = false) String clusterId) {
+
+        List<String> namespaceList = ResourceStoreFactory.listNamespaceByClusterId(clusterId);
+        Map<String, Object> result = new HashMap<>();
+        result.put("Result", namespaceList);
+        ErrorCode code = ApiPlaneErrorCode.Success;
+        return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), result);
+    }
+
     @RequestMapping(params = {"Action=GetClusterIdList"}, method = RequestMethod.GET)
     public String getClusterIdList() {
 
