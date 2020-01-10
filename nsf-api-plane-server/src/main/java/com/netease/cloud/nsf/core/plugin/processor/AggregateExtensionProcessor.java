@@ -57,6 +57,10 @@ public class AggregateExtensionProcessor extends AbstractSchemaProcessor impleme
                 holder = getProcessor("DefaultProcessor").process(plugin, serviceInfo);
                 coverToExtensionPlugin(holder, "envoy.ext_authz");
                 break;
+            case "static-downgrade":
+                holder = getProcessor("StaticDowngradeProcessor").process(plugin, serviceInfo);
+                coverToExtensionPlugin(holder,"com.netease.staticdowngrade");
+                break;
             case "request-transformer":
             default:
                 holder = getProcessor("DefaultProcessor").process(plugin, serviceInfo);
