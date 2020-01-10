@@ -109,6 +109,18 @@
       "instructionForUse": "请求转换插件，允许对header、queryString参数的增加、删除、修改，与request-transformer-cm插件二选一"
     },
     {
+      "name": "static-downgrade",
+      "schema": "plugin/portal/request-transformer-new.json",
+      "description": "",
+      "processor": "AggregateExtensionProcessor",
+      "author": "system",
+      "createTime": "",
+      "updateTime": "",
+      "pluginScope": "routeRule",
+      "pluginPriority": "",
+      "instructionForUse": "静态降级插件，当返回结果符合条时件对返回结果进行降级"
+    },
+    {
       "name": "neTraceFileLog",
       "schema": "plugin/portal/trace.json",
       "description": "",
