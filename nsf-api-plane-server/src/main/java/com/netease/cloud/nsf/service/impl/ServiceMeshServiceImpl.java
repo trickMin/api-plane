@@ -14,6 +14,7 @@ import com.netease.cloud.nsf.util.Const;
 import com.netease.cloud.nsf.util.errorcode.ApiPlaneErrorCode;
 import com.netease.cloud.nsf.util.errorcode.ErrorCode;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
+import com.netease.cloud.nsf.util.exception.ExceptionConst;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.Namespace;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
@@ -64,6 +65,16 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
 
         json = optimize(json);
         configStore.delete(json2Resource(json));
+    }
+
+    @Override
+    public IstioResource getIstioResource(String name, String namespace, String kind) {
+
+        IstioResource istioResource = configStore.get(kind, namespace, name);
+        if (istioResource == null) {
+            throw new ApiPlaneException(ExceptionConst.RESOURCE_NON_EXIST, 404);
+        }
+        return configStore.get(kind, namespace, name);
     }
 
     @Override
