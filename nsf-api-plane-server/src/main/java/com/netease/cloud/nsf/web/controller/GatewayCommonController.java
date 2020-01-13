@@ -36,7 +36,8 @@ public class GatewayCommonController extends BaseController {
 
     @RequestMapping(params = "Action=GetServiceAndPortList", method = RequestMethod.GET)
     public String getServiceAndPortList(@RequestParam(name = "Name", required = false) String name,
-                                        @RequestParam(name = "Type", required = false) String type) {
+                                        @RequestParam(name = "Type", required = false) String type,
+                                        @RequestParam(name = "Registry", required = false) String registry) {
 
         if (type != null) {
             if (!type.equals(Const.SERVICE_TYPE_CONSUL) && !type.equals(Const.SERVICE_TYPE_K8S)) {
@@ -45,7 +46,7 @@ public class GatewayCommonController extends BaseController {
         }
         ErrorCode code = ApiPlaneErrorCode.Success;
         return apiReturn(code.getStatusCode(), code.getCode(), null,
-                ImmutableMap.of("ServiceList", gatewayService.getServiceAndPortList(name, type)));
+                ImmutableMap.of("ServiceList", gatewayService.getServiceAndPortList(name, type, registry)));
     }
 
     @RequestMapping(params = "Action=GetGatewayList", method = RequestMethod.GET)
