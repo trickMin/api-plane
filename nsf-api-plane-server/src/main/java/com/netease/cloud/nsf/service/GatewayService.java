@@ -30,7 +30,7 @@ public interface GatewayService {
 
     List<String> getServiceList();
 
-    List<ServiceAndPortDTO> getServiceAndPortList(String name, String type);
+    List<ServiceAndPortDTO> getServiceAndPortList(String name, String type, String registryId);
 
     List<Gateway> getGatewayList();
 

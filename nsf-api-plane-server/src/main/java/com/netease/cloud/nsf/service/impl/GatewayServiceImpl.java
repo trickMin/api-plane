@@ -106,7 +106,7 @@ public class GatewayServiceImpl implements GatewayService {
     }
 
     @Override
-    public List<ServiceAndPortDTO> getServiceAndPortList(String name, String type) {
+    public List<ServiceAndPortDTO> getServiceAndPortList(String name, String type, String registryId) {
         String pattern = ".*";
         if (!StringUtils.isEmpty(name)) {
             pattern = "^" + name + pattern + "$";
@@ -114,7 +114,7 @@ public class GatewayServiceImpl implements GatewayService {
         final String fPattern = pattern;
         return resourceManager.getServiceAndPortList().stream()
                 .filter(sap -> Pattern.compile(fPattern).matcher(sap.getName()).find())
-                .filter(sap -> matchType(type, sap.getName()))
+                .filter(sap -> matchType(type, sap.getName(), registryId))
                 .map(sap -> {
                     ServiceAndPortDTO dto = new ServiceAndPortDTO();
                     dto.setName(sap.getName());
@@ -143,10 +143,11 @@ public class GatewayServiceImpl implements GatewayService {
         return resourceManager.getServiceHealthList(host);
     }
 
-    private boolean matchType(String type, String name) {
+    private boolean matchType(String type, String name, String registryId) {
         if (StringUtils.isEmpty(type)) return true;
-        if (type.equals(Const.SERVICE_TYPE_CONSUL) && name.endsWith(".consul")) return true;
-        if (type.equals(Const.SERVICE_TYPE_K8S) && name.endsWith(".svc.cluster.local")) return true;
+        if (type.equalsIgnoreCase(Const.SERVICE_TYPE_CONSUL) && StringUtils.isEmpty(registryId) && Pattern.compile(".*\\.consul\\.(.*?)").matcher(name).find()) return true;
+        if (type.equalsIgnoreCase(Const.SERVICE_TYPE_CONSUL) && name.endsWith(String.format(".consul.%s", registryId))) return true;
+        if (type.equalsIgnoreCase(Const.SERVICE_TYPE_K8S) && name.endsWith(".svc.cluster.local")) return true;
         return false;
     }
 }
