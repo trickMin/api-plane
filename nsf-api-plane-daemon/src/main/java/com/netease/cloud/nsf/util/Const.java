@@ -49,5 +49,6 @@ public interface Const {
     String DELETE_ENVOY_EVENT = "2";
 
 
-
+    int DEFAULT_WAIT_TIME = 1000;
+    int DEFAULT_RETRY_COUNT = 3;
 }

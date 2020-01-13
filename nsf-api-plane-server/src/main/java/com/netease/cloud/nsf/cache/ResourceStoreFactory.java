@@ -1,9 +1,6 @@
 package com.netease.cloud.nsf.cache;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ResourceStoreFactory {
 
@@ -31,5 +28,10 @@ public class ResourceStoreFactory {
 
     static Map<String, OwnerReferenceSupportStore> getResourceStoreMap(){
         return resourceStoreMap;
+    }
+
+    public static List<String> listNamespaceByClusterId(String clusterId){
+        OwnerReferenceSupportStore store = resourceStoreMap.get(clusterId);
+        return store.listNamespaces();
     }
 }

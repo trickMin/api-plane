@@ -43,6 +43,14 @@ public class ServiceMeshController extends BaseController {
         return apiReturn(SUCCESS, "Success", null, null);
     }
 
+    @RequestMapping(params = "Action=GetConfig", method = RequestMethod.GET)
+    public String deleteConfig(@RequestParam(name = "Name")String name,
+                               @RequestParam(name = "Namespace")String namespace,
+                               @RequestParam(name = "Kind")String kind) {
+        return apiReturn(ImmutableMap.of(RESULT, istioService.getIstioResource(name, namespace, kind)));
+    }
+
+
     @RequestMapping(params = {"Action=InjectSidecar"}, method = RequestMethod.GET)
     public String injectSidecar(@RequestParam(name = "Name") String name,
                                 @RequestParam(name = "Namespace") String namespace,

@@ -18,9 +18,10 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.attribute.PosixFilePermission;
+import java.util.*;
 
 @Service
 public class SidecarFileDownloadServiceImpl implements SidecarFileDownloadService {
@@ -42,16 +43,34 @@ public class SidecarFileDownloadServiceImpl implements SidecarFileDownloadServic
 
     private final String SIDECAR_URL = "/api/servicemesh?Version=2018-05-31&Action=";
 
+    static Set<PosixFilePermission> perms = new HashSet<>();
+
+    static {
+        perms.add(PosixFilePermission.OWNER_READ);
+        perms.add(PosixFilePermission.OWNER_WRITE);
+        perms.add(PosixFilePermission.OWNER_EXECUTE);
+
+        perms.add(PosixFilePermission.OTHERS_READ);
+        perms.add(PosixFilePermission.OTHERS_WRITE);
+        perms.add(PosixFilePermission.OTHERS_EXECUTE);
+
+        perms.add(PosixFilePermission.GROUP_READ);
+        perms.add(PosixFilePermission.GROUP_WRITE);
+        perms.add(PosixFilePermission.GROUP_EXECUTE);
+    }
+
     @Override
-    public void downloadSidecar(String sidecarVersion) {
+    public void downloadSidecar(String sidecarVersion) throws InterruptedException {
         String fileName = getFilePath(sidecarVersion);
         File sidecarFile = new File(fileName);
         if (!sidecarFile.exists()) {
             // 从NOS中下载对应的envoy文件
             downloadFromNOS(sidecarVersion, fileName);
         }
-        if (sidecarFile == null) {
-            throw new RuntimeException("downLoad sidecar file from nsf-meta error");
+        try {
+            Files.setPosixFilePermissions(sidecarFile.toPath(), perms);
+        } catch (IOException e) {
+            log.warn("Modify envoy file Permissions fail");
         }
     }
 
@@ -65,7 +84,7 @@ public class SidecarFileDownloadServiceImpl implements SidecarFileDownloadServic
     }
 
     @Scheduled(cron = "0 0 0 * * ?")
-    public void synchronizeSidecarFile() {
+    public void synchronizeSidecarFile() throws InterruptedException {
         List<SidecarVersionInfoDto> sidecarList = getSidecarList();
         if (!CollectionUtils.isEmpty(sidecarList)) {
             for (SidecarVersionInfoDto sidecarVersionInfoDto : sidecarList) {
@@ -101,13 +120,25 @@ public class SidecarFileDownloadServiceImpl implements SidecarFileDownloadServic
         return filePath;
     }
 
-    private void downloadFromNOS(String sidecarVersion, String filePath) {
+    private void downloadFromNOS(String sidecarVersion, String filePath) throws InterruptedException {
         String nosFilePath = nosConfig.getNosFilePath()
                 + "/"
                 + sidecarVersion;
         GetObjectRequest getObjectRequest = new GetObjectRequest(nosConfig.getNosBucketName(), nosFilePath);
-        ObjectMetadata objectMetadata = nosClient.getObject(getObjectRequest, new File(filePath));
-        log.info("download file from nos path {} to local path {}",nosFilePath,filePath);
+        // 下载失败后尝试重试
+        int reTry = daemonSetConfig.getReTryCount();
+        while (reTry > 0) {
+            try {
+                ObjectMetadata objectMetadata = nosClient.getObject(getObjectRequest, new File(filePath));
+                reTry = 0;
+            } catch (Exception e) {
+                log.error("download file from nos path {} to local path {} error ,retry request",
+                        nosFilePath, filePath, e);
+                reTry--;
+                Thread.sleep(daemonSetConfig.getDownloadRetryWait());
+            }
+        }
+        log.info("download file from nos path {} to local path {}", nosFilePath, filePath);
     }
 
 

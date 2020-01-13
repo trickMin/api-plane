@@ -17,6 +17,7 @@ import com.netease.cloud.nsf.util.RestTemplateClient;
 import com.netease.cloud.nsf.util.errorcode.ApiPlaneErrorCode;
 import com.netease.cloud.nsf.util.errorcode.ErrorCode;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
+import com.netease.cloud.nsf.util.exception.ExceptionConst;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.Namespace;
 import io.fabric8.kubernetes.api.model.Pod;
@@ -31,6 +32,8 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static com.netease.cloud.nsf.core.editor.ResourceType.OBJECT;
 import static com.netease.cloud.nsf.core.k8s.K8sResourceEnum.DaemonSet;
@@ -43,6 +46,7 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
 
     private static final Logger logger = LoggerFactory.getLogger(ServiceMeshServiceImpl.class);
     private static final String DEFAULT_SIDECAR_VERSION = "envoy";
+    private ExecutorService notifyTask = Executors.newCachedThreadPool();
 
 
     @Autowired
@@ -75,6 +79,16 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
 
         json = optimize(json);
         configStore.delete(json2Resource(json));
+    }
+
+    @Override
+    public IstioResource getIstioResource(String name, String namespace, String kind) {
+
+        IstioResource istioResource = configStore.get(kind, namespace, name);
+        if (istioResource == null) {
+            throw new ApiPlaneException(ExceptionConst.RESOURCE_NON_EXIST, 404);
+        }
+        return configStore.get(kind, namespace, name);
     }
 
     @Override
@@ -116,6 +130,8 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
         for (String clusterId : clusterIds) {
             List<T> podByWorkLoadInfo = k8sResource.getPodInfoByWorkLoadInfo(clusterId, DaemonSet.name(),
                     apiPlaneConfig.getDaemonSetNamespace(), apiPlaneConfig.getDaemonSetName());
+            logger.info("get {} daemonSet with namespace [{}] and name [{}]",podByWorkLoadInfo.size(),
+                    apiPlaneConfig.getDaemonSetNamespace(),apiPlaneConfig.getDaemonSetName());
             if (!CollectionUtils.isEmpty(podByWorkLoadInfo)) {
                 Set<String> notified = new HashSet<>();
                 for (T pod : podByWorkLoadInfo) {
@@ -123,7 +139,13 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
                     String hostAddress = p.getStatus().getPodIP();
                     if (!notified.contains(hostAddress)) {
                         notified.add(hostAddress);
-                        doNotify(hostAddress, sidecarVersion, type);
+                        notifyTask.execute(()->{
+                            try {
+                                doNotify(hostAddress, sidecarVersion, type);
+                            } catch (Exception e) {
+                                logger.error("notify sidecar event to Pod[{}] error",pod.getMetadata().getName());
+                            }
+                        });
                     }
                 }
             }

@@ -8,7 +8,7 @@ package com.netease.cloud.nsf.service;
 public interface SidecarFileDownloadService {
 
 
-    public void downloadSidecar(String sidecarVersion);
+    public void downloadSidecar(String sidecarVersion) throws InterruptedException;
 
 
     void deleteSidecar(String sidecarVersion);
