@@ -166,6 +166,23 @@ public class IstioHttpClient {
         return new ArrayList<>(temp.values());
     }
 
+
+  /*  public List<IstioGateway> getIstioGateway(Predicate<Gateway> filter) {
+        if (Objects.isNull(filter)) {
+            filter = e -> true;
+        }
+        List<IstioGateway> gateways = getEndpointList().stream().map(endpoint -> {
+            IstioGateway gateway = new IstioGateway();
+            gateway.setName(endpoint.get());
+            gateway.setHostname(endpoint.getHostname());
+            gateway.setLabels(endpoint.getLabels());
+            return gateway;
+        }).filter(filter).distinct().collect(Collectors.toList());
+        Map<String, IstioGateway> temp = new HashMap<>();
+        gateways.forEach(gateway -> temp.putIfAbsent(gateway.getGwCluster(), gateway));
+        return new ArrayList<>(temp.values());
+    }*/
+
     private <T> ResponseEntity getForEntity(String str, Class<T> clz) {
 
         ResponseEntity<T> entity;
