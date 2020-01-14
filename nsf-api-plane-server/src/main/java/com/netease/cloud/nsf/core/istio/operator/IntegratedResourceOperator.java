@@ -32,9 +32,17 @@ public class IntegratedResourceOperator {
     }
 
     private boolean identical(IstioResource old, IstioResource fresh) {
-        return old.getKind().equals(fresh.getKind()) &&
-                old.getMetadata().getNamespace().equals(fresh.getMetadata().getNamespace()) &&
-                old.getMetadata().getName().equals(fresh.getMetadata().getName());
+
+        boolean sameKind = old.getKind().equals(fresh.getKind());
+        boolean sameNamespace;
+        // 全局配置
+        if (old.getMetadata().getNamespace() == null) {
+            sameNamespace = true;
+        } else {
+            sameNamespace = old.getMetadata().getNamespace().equals(fresh.getMetadata().getNamespace());
+        }
+        boolean sameName = old.getMetadata().getName().equals(fresh.getMetadata().getName());
+        return sameKind && sameNamespace && sameName;
     }
 
     public boolean isUseless(IstioResource i) {

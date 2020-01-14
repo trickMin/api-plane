@@ -182,7 +182,17 @@ public class GatewayModelOperator {
     public List<IstioResource> translate(GlobalPlugins gp) {
 
         List<IstioResource> resources = new ArrayList<>();
-        List<String> rawResources = defaultModelProcessor.process(gatewayPlugin, gp, new GatewayPluginDataHandler(pluginService));
+        List<String> rawResources = new ArrayList<>();
+        RawResourceContainer rawResourceContainer = new RawResourceContainer();
+        List<FragmentHolder> plugins = pluginService.processSchema(gp.getPlugins(), new ServiceInfo());
+        rawResourceContainer.add(plugins);
+
+        List<String> rawGatewayPlugins = defaultModelProcessor.process(gatewayPlugin, gp, new GatewayPluginDataHandler(rawResourceContainer.getGatewayPlugins()));
+        List<String> rawSharedConfigs = renderTwiceModelProcessor.process(apiSharedConfig, gp, new GatewayPluginSharedConfigDataHandler(rawResourceContainer.getSharedConfigs()));
+
+        rawResources.addAll(rawGatewayPlugins);
+        rawResources.addAll(rawSharedConfigs);
+
         rawResources.stream()
                 .forEach(rs -> resources.add(str2IstioResource(rs)));
         return resources;

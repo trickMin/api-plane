@@ -1,0 +1,30 @@
+package com.netease.cloud.nsf.core.gateway.handler;
+
+import com.netease.cloud.nsf.core.plugin.FragmentWrapper;
+import com.netease.cloud.nsf.core.template.TemplateParams;
+
+import java.util.Arrays;
+import java.util.List;
+
+import static com.netease.cloud.nsf.core.template.TemplateConst.SHARED_CONFIG_DESCRIPTOR;
+
+/**
+ * @Author chenjiahan | chenjiahan@corp.netease.com | 2020/1/14
+ **/
+public class GatewayPluginSharedConfigDataHandler extends GatewayPluginDataHandler {
+
+
+    public GatewayPluginSharedConfigDataHandler(List<FragmentWrapper> fragments) {
+        super(fragments);
+    }
+
+    @Override
+    List<TemplateParams> doHandle(TemplateParams baseParams) {
+        List<String> descriptors = extractFragments(fragments);
+
+        return Arrays.asList(TemplateParams.instance()
+                .setParent(baseParams)
+                .put(SHARED_CONFIG_DESCRIPTOR, descriptors));
+
+    }
+}
