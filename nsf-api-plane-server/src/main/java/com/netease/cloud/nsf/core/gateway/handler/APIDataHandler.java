@@ -19,7 +19,10 @@ public abstract class APIDataHandler implements DataHandler<API> {
 
         String uris = getUris(api);
         String methods = getMethods(api);
-        String hosts = getHosts(api);
+        // host用于virtualservice的host
+        List<String> hostList = productHostList(api);
+        // host用于match中的header match
+        String hostHeaders = produceHostHeaders(api);
         int priority = PriorityUtil.calculate(api);
 
         TemplateParams tp = TemplateParams.instance()
@@ -39,14 +42,16 @@ public abstract class APIDataHandler implements DataHandler<API> {
                 .put(API_IDLE_TIMEOUT, api.getIdleTimeout())
                 .put(GATEWAY_HOSTS, api.getHosts())
                 .put(VIRTUAL_SERVICE_MATCH_PRIORITY, priority)
-                .put(VIRTUAL_SERVICE_HOSTS, hosts)
+                .put(VIRTUAL_SERVICE_HOSTS, hostList)
                 .put(API_PRIORITY, api.getPriority())
                 .put(VIRTUAL_SERVICE_SERVICE_TAG, api.getServiceTag())
                 .put(VIRTUAL_SERVICE_API_ID, api.getApiId())
                 .put(VIRTUAL_SERVICE_API_NAME, api.getApiName())
-
+                .put(VIRTUAL_SERVICE_HOST_HEADERS, hostHeaders)
 
                 ;
+
+
 
         return doHandle(tp, api);
     }
@@ -74,10 +79,18 @@ public abstract class APIDataHandler implements DataHandler<API> {
                 .collect(Collectors.toList()));
     }
 
-    private String getHosts(API api) {
+    String getHosts(API api) {
         if (api.getHosts().contains("*")) return "";
         return String.join("|", api.getHosts().stream()
                 .map(h -> CommonUtil.host2Regex(h))
                 .collect(Collectors.toList()));
+    }
+
+    String produceHostHeaders(API api) {
+        return getHosts(api);
+    }
+
+    List<String> productHostList(API api) {
+        return api.getHosts();
     }
 }

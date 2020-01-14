@@ -64,6 +64,10 @@ public interface ConfigManager {
      */
     List<PodStatus> querySVMConfig(PodVersion podVersion);
 
+    void updateConfig(GlobalPlugins gp);
+
+    void deleteConfig(GlobalPlugins gp);
+
     /**
      * 查询网关
      * @param istioGateway

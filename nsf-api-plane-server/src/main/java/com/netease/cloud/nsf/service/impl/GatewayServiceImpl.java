@@ -142,6 +142,17 @@ public class GatewayServiceImpl implements GatewayService {
     }
 
     @Override
+    public void updateGlobalPlugins(GlobalPluginsDTO globalPluginsDTO) {
+        configManager.updateConfig(Trans.globalPluginsDTO2GlobalPlugins(globalPluginsDTO));
+
+    }
+
+    @Override
+    public void deleteGlobalPlugins(GlobalPluginsDeleteDTO globalPluginsDeleteDTO) {
+        configManager.deleteConfig(Trans.globalPluginsDeleteDTO2GlobalPlugins(globalPluginsDeleteDTO));
+    }
+
+    @Override
     public List<ServiceHealth> getServiceHealthList(String host) {
         return resourceManager.getServiceHealthList(host);
     }

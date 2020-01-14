@@ -18,10 +18,10 @@ release 1.1
 - 路由规则排序
 - virtual service拆分,一个api一个vs
 - 接口暴露subset
-
+- virtualservice的host改为具体host而不是*
 
 ServiceMesh:
-- 创建、删除资源接口
+- 创建、删除、查询资源接口
 - 拓扑功能，对接kiali
 - sidecar 自动注入及升级
 - k8s 资源监听管理

@@ -1,10 +1,7 @@
 package com.netease.cloud.nsf.web.controller;
 
 import com.netease.cloud.nsf.meta.ServiceHealth;
-import com.netease.cloud.nsf.meta.dto.PortalAPIDTO;
-import com.netease.cloud.nsf.meta.dto.PortalIstioGatewayDTO;
-import com.netease.cloud.nsf.meta.dto.PortalAPIDeleteDTO;
-import com.netease.cloud.nsf.meta.dto.PortalServiceDTO;
+import com.netease.cloud.nsf.meta.dto.*;
 import com.netease.cloud.nsf.service.GatewayService;
 import com.netease.cloud.nsf.util.errorcode.ApiPlaneErrorCode;
 import com.netease.cloud.nsf.util.errorcode.ErrorCode;
@@ -79,5 +76,17 @@ public class PortalGatewayController extends BaseController {
         result.put(RESULT, istioGateway);
 
         return apiReturn(result);
+    }
+
+    @RequestMapping(value = "/portal", params = "Action=PublishGlobalPlugins", method = RequestMethod.POST)
+    public String publishGlobalPlugins(@RequestBody @Valid GlobalPluginsDTO globalPluginsDTO) {
+        gatewayService.updateGlobalPlugins(globalPluginsDTO);
+        return apiReturn(ApiPlaneErrorCode.Success);
+    }
+
+    @RequestMapping(value = "/portal", params = "Action=DeleteGlobalPlugins", method = RequestMethod.POST)
+    public String deleteGlobalPlugins(@RequestBody @Valid GlobalPluginsDeleteDTO globalPluginsDeleteDTO) {
+        gatewayService.deleteGlobalPlugins(globalPluginsDeleteDTO);
+        return apiReturn(ApiPlaneErrorCode.Success);
     }
 }

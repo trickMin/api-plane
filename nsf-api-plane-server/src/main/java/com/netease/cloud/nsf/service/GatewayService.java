@@ -44,5 +44,7 @@ public interface GatewayService {
 
     PortalIstioGatewayDTO getIstioGateway(String clusterName);
 
+    void updateGlobalPlugins(GlobalPluginsDTO globalPluginsDTO);
 
+    void deleteGlobalPlugins(GlobalPluginsDeleteDTO globalPluginsDeleteDTO);
 }

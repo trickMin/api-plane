@@ -195,4 +195,22 @@ public class Trans {
         api.setPlugins(portalAPI.getPlugins());
         return api;
     }
+
+    public static GlobalPlugins globalPluginsDTO2GlobalPlugins(GlobalPluginsDTO globalPluginsDTO) {
+
+        GlobalPlugins gp = new GlobalPlugins();
+        gp.setCode(globalPluginsDTO.getCode());
+        gp.setGateway(globalPluginsDTO.getGateway());
+        gp.setHosts(globalPluginsDTO.getHosts());
+        gp.setPlugins(globalPluginsDTO.getPlugins());
+        return gp;
+    }
+
+    public static GlobalPlugins globalPluginsDeleteDTO2GlobalPlugins(GlobalPluginsDeleteDTO globalPluginsDeleteDTO) {
+
+        GlobalPlugins gp = new GlobalPlugins();
+        gp.setCode(globalPluginsDeleteDTO.getCode());
+        gp.setPlugins(globalPluginsDeleteDTO.getPlugins());
+        return gp;
+    }
 }

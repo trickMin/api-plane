@@ -19,6 +19,8 @@ import me.snowdrop.istio.api.IstioResource;
 import me.snowdrop.istio.api.networking.v1alpha3.DestinationRule;
 import me.snowdrop.istio.api.networking.v1alpha3.Gateway;
 import me.snowdrop.istio.api.networking.v1alpha3.GatewaySpec;
+import me.snowdrop.istio.api.networking.v1alpha3.GatewayPlugin;
+import me.snowdrop.istio.api.networking.v1alpha3.SharedConfig;
 import me.snowdrop.istio.api.networking.v1alpha3.VersionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +61,6 @@ public class GatewayConfigManager implements ConfigManager {
 
     @Override
     public void updateConfig(API api) {
-
         List<IstioResource> resources = modelProcessor.translate(api);
         update(resources);
     }
@@ -226,6 +227,34 @@ public class GatewayConfigManager implements ConfigManager {
     public void updateConfig(IstioGateway istioGateway) {
         List<IstioResource> resources = modelProcessor.translate(istioGateway);
         update(resources);
+    }
+
+    @Override
+    public void updateConfig(GlobalPlugins gp) {
+        List<IstioResource> resources = modelProcessor.translate(gp);
+        update(resources);
+    }
+
+    @Override
+    public void deleteConfig(GlobalPlugins gp) {
+        List<IstioResource> resources = modelProcessor.translate(gp);
+
+        Function<IstioResource, IstioResource> deleteFun = r -> {
+
+            if (r.getClass() == K8sResourceEnum.GatewayPlugin.mappingType()) {
+                GatewayPlugin gatewayPlugin = (GatewayPlugin) r;
+                gatewayPlugin.setSpec(null);
+                return gatewayPlugin;
+            } else if (r.getClass() == K8sResourceEnum.SharedConfig.mappingType()) {
+                //TODO
+                ResourceGenerator gen = ResourceGenerator.newInstance(r, ResourceType.OBJECT);
+                gen.removeElement(PathExpressionEnum.REMOVE_SC_RATELIMITDESC_BY_CODE.translate(gp.getCode()));
+                return gen.object(SharedConfig.class);
+            }
+            return r;
+        };
+
+        delete(resources, deleteFun);
     }
 
     private void delete(List<IstioResource> resources, Function<IstioResource, IstioResource> fun) {

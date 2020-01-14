@@ -60,4 +60,10 @@ public class PortalVirtualServiceAPIDataHandler extends BaseVirtualServiceAPIDat
         String destinationStr = subModelProcessor.process(apiVirtualServiceRoute, TemplateParams.instance().put(VIRTUAL_SERVICE_DESTINATIONS, destinations));
         return destinationStr;
     }
+
+
+    @Override
+    String produceHostHeaders(API api) {
+        return "";
+    }
 }

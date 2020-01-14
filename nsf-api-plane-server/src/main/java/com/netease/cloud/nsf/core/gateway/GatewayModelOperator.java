@@ -77,6 +77,7 @@ public class GatewayModelOperator {
     private static final String serviceDestinationRule = "gateway/service/destinationRule";
     private static final String pluginManager = "gateway/pluginManager";
     private static final String serviceServiceEntry = "gateway/service/serviceEntry";
+    private static final String gatewayPlugin = "gateway/gatewayPlugin";
 
     private static final String versionManager = "sidecarVersionManagement";
 
@@ -178,6 +179,15 @@ public class GatewayModelOperator {
         return resources;
     }
 
+    public List<IstioResource> translate(GlobalPlugins gp) {
+
+        List<IstioResource> resources = new ArrayList<>();
+        List<String> rawResources = defaultModelProcessor.process(gatewayPlugin, gp, new GatewayPluginDataHandler(pluginService));
+        rawResources.stream()
+                .forEach(rs -> resources.add(str2IstioResource(rs)));
+        return resources;
+    }
+
     /**
      * 合并两个crd,新的和旧的重叠部分会用新的覆盖旧的
      *
@@ -223,7 +233,7 @@ public class GatewayModelOperator {
         service.setUri(wrap(API_REQUEST_URIS));
         service.setMethod(wrap(API_METHODS));
         service.setSubset(wrap(VIRTUAL_SERVICE_SUBSET_NAME));
-        service.setHosts(wrap(VIRTUAL_SERVICE_HOSTS));
+        service.setHosts(wrap(VIRTUAL_SERVICE_HOST_HEADERS));
         service.setPriority(wrap(VIRTUAL_SERVICE_PLUGIN_MATCH_PRIORITY));
         service.setApiName(wrap(API_NAME));
         service.setServiceName(wrap(API_SERVICE));

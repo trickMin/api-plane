@@ -52,15 +52,14 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
 
         distributePlugins(fragments, matchPlugins, apiPlugins, hostPlugins);
 
-        String matchYaml = produceMatch(baseParams);
         String httpApiYaml = produceHttpApi(baseParams);
-        String hosts = productHosts(api);
         int pluginPriority = calculatePluginPriority(api, baseParams.get(VIRTUAL_SERVICE_MATCH_PRIORITY));
+
+        String matchYaml = produceMatch(baseParams);
         TemplateParams vsParams = TemplateParams.instance()
                 .setParent(baseParams)
                 .put(VIRTUAL_SERVICE_MATCH_YAML, matchYaml)
                 .put(VIRTUAL_SERVICE_API_YAML, httpApiYaml)
-                .put(VIRTUAL_SERVICE_HOSTS, hosts)
                 .put(API_MATCH_PLUGINS, matchPlugins)
                 .put(API_API_PLUGINS, apiPlugins)
                 .put(API_HOST_PLUGINS, hostPlugins)
@@ -86,12 +85,6 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
 
     String buildVirtualServiceName(String serviceName, String apiName, String gw) {
         return String.format("%s-%s-%s", serviceName, apiName, gw);
-    }
-
-    String productHosts(API api) {
-        return String.join("|", api.getHosts().stream()
-                .map(h -> CommonUtil.host2Regex(h))
-                .collect(Collectors.toList()));
     }
 
     String productExtra(TemplateParams params) {
