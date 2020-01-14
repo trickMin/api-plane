@@ -88,6 +88,7 @@ public abstract class AbstractSchemaProcessor implements SchemaProcessor<Service
 
     protected String getRegexByOp(String op, String value) {
         switch (op) {
+            case "exact":
             case "=":
                 return String.format("%s", escapeExprSpecialWord(value));
             case "!=":
@@ -95,6 +96,7 @@ public abstract class AbstractSchemaProcessor implements SchemaProcessor<Service
             case "regex":
             case "≈":
                 return escapeBackSlash(value);
+            case "prefix":
             case "startsWith":
                 return String.format("%s.*", escapeExprSpecialWord(value));
             case "endsWith":
