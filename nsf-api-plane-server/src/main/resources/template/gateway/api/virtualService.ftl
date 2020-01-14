@@ -8,7 +8,9 @@ spec:
   gateways:
   - ${t_gateway_name}
   hosts:
-    - "*"
+<#list t_virtual_service_host_list as host>
+  - "${host}"
+</#list>
 <#if t_api_host_plugins?has_content>
 <#list t_api_host_plugins as p>
 <@indent count=2>${p}</@indent>
