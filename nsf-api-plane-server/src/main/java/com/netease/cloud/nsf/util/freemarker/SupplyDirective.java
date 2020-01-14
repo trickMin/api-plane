@@ -13,7 +13,7 @@ import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.*;
+import java.util.Map;
 
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/8/26

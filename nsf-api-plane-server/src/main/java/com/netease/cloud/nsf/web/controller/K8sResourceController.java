@@ -61,7 +61,7 @@ public class K8sResourceController extends BaseController {
         if (!StringUtils.isEmpty(clusterId) && !ResourceStoreFactory.listClusterId().contains(clusterId)) {
             throw new ApiPlaneException("ClusterId not found", 404);
         }
-        List podList = resourceCache.getPodByWorkLoadInfo(clusterId, kind, namespace, name);
+        List podList = resourceCache.getPodDtoByWorkLoadInfo(clusterId, kind, namespace, name);
         checkResult(podList);
         podList = resourceCache.getPodListWithSidecarVersion(podList);
         Map<String, Object> result = new HashMap<>();
@@ -86,6 +86,16 @@ public class K8sResourceController extends BaseController {
         checkResult(workLoadList);
         Map<String, Object> result = new HashMap<>();
         result.put("Result", workLoadList);
+        ErrorCode code = ApiPlaneErrorCode.Success;
+        return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), result);
+    }
+
+    @RequestMapping(params = {"Action=GetNamespaceList"}, method = RequestMethod.GET)
+    public String getNamespaceList(@RequestParam(name = "ClusterId", required = false) String clusterId) {
+
+        List<String> namespaceList = ResourceStoreFactory.listNamespaceByClusterId(clusterId);
+        Map<String, Object> result = new HashMap<>();
+        result.put("Result", namespaceList);
         ErrorCode code = ApiPlaneErrorCode.Success;
         return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), result);
     }

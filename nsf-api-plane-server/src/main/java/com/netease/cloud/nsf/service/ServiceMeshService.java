@@ -12,4 +12,6 @@ public interface ServiceMeshService {
     IstioResource getIstioResource(String name, String namespace, String kind);
 
     ErrorCode sidecarInject(String clusterId, String kind, String namespace, String name, String version, String expectedVersion);
+
+    void notifySidecarFileEvent(String sidecarVersion, String type);
 }

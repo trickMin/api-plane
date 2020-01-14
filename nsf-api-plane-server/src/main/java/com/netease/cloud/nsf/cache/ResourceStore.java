@@ -1,13 +1,9 @@
 package com.netease.cloud.nsf.cache;
 
-import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -120,4 +116,15 @@ public class ResourceStore<T extends HasMetadata> implements Store<T> {
         return resourceByKindAndNamespace;
     }
 
+    public List<String> listNamespaces() {
+        if (resourceStore ==null || resourceStore.isEmpty()){
+            return new ArrayList<>();
+        }
+        Set<String> namespaceSet = new HashSet<>();
+        Collection<Map<String, Map<String, T>>> values = resourceStore.values();
+        for (Map<String, Map<String, T>> resourceByNamespace : values) {
+            namespaceSet.addAll(resourceByNamespace.keySet());
+        }
+        return new ArrayList<>(namespaceSet);
+    }
 }

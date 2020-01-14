@@ -3,7 +3,6 @@ package com.netease.cloud.nsf.core.istio.operator;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
 import me.snowdrop.istio.api.IstioResource;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

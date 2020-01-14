@@ -8,10 +8,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import com.google.common.collect.ImmutableList;
+import com.netease.cloud.nsf.util.Const;
 import com.netease.cloud.nsf.util.freemarker.AutoRemoveDirective;
-import com.netease.cloud.nsf.util.freemarker.SupplyDirective;
 import com.netease.cloud.nsf.util.freemarker.IgnoreDirective;
 import com.netease.cloud.nsf.util.freemarker.IndentationDirective;
+import com.netease.cloud.nsf.util.freemarker.SupplyDirective;
 import com.netease.cloud.nsf.util.interceptor.RestTemplateLogInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -90,6 +91,21 @@ public class ApiPlaneAutoConfiguration {
         apiPlaneConfig.setNsfMetaUrl(environment.getProperty("nsfMetaUrl"));
         if (!StringUtils.isEmpty(environment.getProperty("startInformer"))){
             apiPlaneConfig.setStartInformer(environment.getProperty("startInformer"));
+        }
+        if (StringUtils.isEmpty(environment.getProperty("daemonSetName"))){
+            apiPlaneConfig.setDaemonSetName(Const.DOWNLOAD_DAEMONSET_NAME);
+        }else {
+            apiPlaneConfig.setDaemonSetName(environment.getProperty("daemonSetName"));
+        }
+        if (StringUtils.isEmpty(environment.getProperty("daemonSetNamespace"))){
+            apiPlaneConfig.setDaemonSetNamespace(Const.DOWNLOAD_DAEMONSET_NAMESPACE);
+        }else {
+            apiPlaneConfig.setDaemonSetNamespace(environment.getProperty("daemonSetNamespace"));
+        }
+        if (StringUtils.isEmpty(environment.getProperty("daemonSetPort"))){
+            apiPlaneConfig.setDaemonSetPort(Const.DOWNLOAD_DAEMONSET_PORT);
+        }else {
+            apiPlaneConfig.setDaemonSetPort(environment.getProperty("daemonSetPort"));
         }
         return apiPlaneConfig;
     }

@@ -103,10 +103,14 @@ public class GatewayModelOperator {
                 Collections.emptyList() : pluginService.extractService(api.getPlugins());
 
         BaseVirtualServiceAPIDataHandler vsHandler;
+        List<String> rawResources = new ArrayList<>();
+
         if (CollectionUtils.isEmpty(api.getProxyServices())) {
             //yx
             vsHandler = new YxVirtualServiceAPIDataHandler(
                     defaultModelProcessor, rawResourceContainer.getVirtualServices(), endpoints, simple);
+            List<String> rawGateways = defaultModelProcessor.process(apiGateway, api, new BaseGatewayAPIDataHandler(enableHttp10));
+            rawResources.addAll(rawGateways);
         } else {
             //gportal
             vsHandler = new PortalVirtualServiceAPIDataHandler(
@@ -114,12 +118,9 @@ public class GatewayModelOperator {
         }
 
         List<String> rawVirtualServices = renderTwiceModelProcessor.process(apiVirtualService, api, vsHandler);
-        List<String> rawGateways = defaultModelProcessor.process(apiGateway, api, new BaseGatewayAPIDataHandler(enableHttp10));
         List<String> rawDestinationRules = defaultModelProcessor.process(apiDestinationRule, api, new BaseDestinationRuleAPIDataHandler(extraDestination));
         List<String> rawSharedConfigs = renderTwiceModelProcessor.process(apiSharedConfig, api, new BaseSharedConfigAPIDataHandler(rawResourceContainer.getSharedConfigs()));
 
-        List<String> rawResources = new ArrayList<>();
-        rawResources.addAll(rawGateways);
         rawResources.addAll(rawVirtualServices.stream().map(vs -> adjustVs(vs)).collect(Collectors.toList()));
         rawResources.addAll(rawDestinationRules);
         rawResources.addAll(rawSharedConfigs);
@@ -139,6 +140,24 @@ public class GatewayModelOperator {
         }
         destinations.stream()
                 .forEach(ds -> resources.add(str2IstioResource(ds)));
+
+        return resources;
+    }
+
+    /**
+     * 将gateway转换为istio对应的规则
+     * @param istioGateway
+     * @return
+     */
+    public List<IstioResource> translate(IstioGateway istioGateway) {
+        List<IstioResource> resources = new ArrayList<>();
+
+        List<String> rawGateways = defaultModelProcessor.process(apiGateway, istioGateway, new PortalGatewayDatahandler());
+        List<String> rawResources = new ArrayList<>();
+        rawResources.addAll(rawGateways);
+
+        rawResources.stream()
+                .forEach(r -> resources.add(str2IstioResource(r)));
 
         return resources;
     }

@@ -127,6 +127,11 @@ public interface TemplateConst {
     String GATEWAY_NAME = "t_gateway_name";
     String GATEWAY_HOSTS = "t_gateway_hosts";
     String GATEWAY_HTTP_10 = "t_gateway_http_10";
+    String GATEWAY_GW_CLUSTER = "t_api_gateway";
+    String GATEWAY_CUSTOM_IP_HEADER = "t_custom_ip_header";
+    String GATEWAY_XFF_NUM_TRUSTED_HOPS = "t_xff_num_trusted_hops";
+    String GATEWAY_USE_REMOTE_ADDRESS = "t_use_remote_address";
+
 
 
     /**

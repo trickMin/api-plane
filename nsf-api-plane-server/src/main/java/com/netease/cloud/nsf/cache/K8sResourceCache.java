@@ -78,12 +78,11 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
 
         Map<String, MultiClusterK8sClient.ClientSet> allClients = multiClusterK8sClient.getAllClients();
 
-        ResourceUpdatedListener versionUpdateListener = new VersionUpdateListener();
+        //ResourceUpdatedListener versionUpdateListener = new VersionUpdateListener();
         // 初始化Deploy informer
         K8sResourceInformer deployInformer = new K8sResourceInformer
                 .Builder()
                 .addResourceKind(Deployment)
-                .addUpdateListener(versionUpdateListener)
                 .addMixedOperation(getDeployMixedOperationList(allClients))
                 .addHttpK8sClient(multiClusterK8sClient)
                 .build();
@@ -94,7 +93,6 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                 .Builder()
                 .addResourceKind(StatefulSet)
                 .addMixedOperation(getStatefulSetMixedOperationList(allClients))
-                .addUpdateListener(versionUpdateListener)
                 .addHttpK8sClient(multiClusterK8sClient)
                 .build();
         resourceInformerMap.putIfAbsent(StatefulSet, statefulSetInformer);
@@ -276,7 +274,8 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                 return getWorkLoadByIndex(clusterId,
                         service.getMetadata().getNamespace(),
                         service.getMetadata().getName()).stream()
-                        .map(obj -> new WorkLoadDTO<>(obj, getServiceName(service), clusterId))
+                        .map(obj -> new WorkLoadDTO<>(obj, getServiceName(service), clusterId,
+                                getProjectCodeFromService(service),getEnvNameFromService(service)))
                         .collect(Collectors.toList());
             }
         }
@@ -284,7 +283,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     }
 
     @Override
-    public List<PodDTO<T>> getPodByWorkLoadInfo(String clusterId, String kind, String namespace, String name) {
+    public List<PodDTO<T>> getPodDtoByWorkLoadInfo(String clusterId, String kind, String namespace, String name) {
         OwnerReferenceSupportStore store = ResourceStoreFactory.getResourceStore(clusterId);
         T obj = (T) store.get(kind, namespace, name);
         if (obj == null) {
@@ -294,6 +293,16 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                 .stream()
                 .map(po -> new PodDTO<T>((T) po, clusterId))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<T> getPodInfoByWorkLoadInfo(String clusterId, String kind, String namespace, String name){
+        OwnerReferenceSupportStore store = ResourceStoreFactory.getResourceStore(clusterId);
+        T obj = (T) store.get(kind, namespace, name);
+        if (obj == null) {
+            return new ArrayList<>();
+        }
+        return (List<T>) store.listResourceByOwnerReference(Pod.name(), obj);
     }
 
     @Override
@@ -322,10 +331,25 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         serviceList.forEach(service -> workLoadList.addAll(getWorkLoadByIndex(clusterId,
                 service.getMetadata().getNamespace(),
                 service.getMetadata().getName()).stream()
-                .map(obj -> new WorkLoadDTO<>(obj, getServiceName(service), clusterId))
+                .map(obj -> new WorkLoadDTO<>(obj, getServiceName(service), clusterId ,
+                       getProjectCodeFromService(service), getEnvNameFromService(service)))
                 .collect(Collectors.toList())
         ));
         return workLoadList;
+    }
+
+    private String getProjectCodeFromService(T service){
+        if (service.getMetadata().getLabels()==null){
+            return null;
+        }
+        return  service.getMetadata().getLabels().get(Const.LABEL_NSF_PROJECT_ID);
+    }
+
+    private String getEnvNameFromService(T service){
+        if (service.getMetadata().getLabels()==null){
+            return null;
+        }
+        return  service.getMetadata().getLabels().get(Const.LABEL_NSF_ENV);
     }
 
     @Override
@@ -443,7 +467,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     }
 
     private WorkLoadDTO<T> addSidecarVersionOnWorkLoad(WorkLoadDTO<T> workLoadDTO) {
-        List<PodDTO<T>> podByWorkLoadInfo = getPodByWorkLoadInfo(workLoadDTO.getClusterId(), workLoadDTO.getKind(), workLoadDTO.getNamespace(),
+        List<PodDTO<T>> podByWorkLoadInfo = getPodDtoByWorkLoadInfo(workLoadDTO.getClusterId(), workLoadDTO.getKind(), workLoadDTO.getNamespace(),
                 workLoadDTO.getName());
         PodVersion queryVersion = new PodVersion();
         queryVersion.setClusterId(workLoadDTO.getClusterId());

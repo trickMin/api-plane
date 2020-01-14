@@ -3,6 +3,7 @@ package com.netease.cloud.nsf.util.advice;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.jayway.jsonpath.InvalidJsonException;
 import com.jayway.jsonpath.JsonPathException;
 import com.netease.cloud.nsf.util.errorcode.ErrorCode;
@@ -163,6 +164,10 @@ public class CommonExceptionHandler extends ResponseEntityExceptionHandler {
             return newResponse(ExceptionHandlerErrorCode.InvalidBodyFormat, ex);
         }
         if (ex.getCause().getClass().isAssignableFrom(JsonMappingException.class)) {
+            return newResponse(ExceptionHandlerErrorCode.InvalidBodyFormat, ex);
+        }
+
+        if (ex.getCause().getClass().isAssignableFrom(InvalidFormatException.class)) {
             return newResponse(ExceptionHandlerErrorCode.InvalidBodyFormat, ex);
         }
         return newResponse(ExceptionHandlerErrorCode.InternalServerError, ex);

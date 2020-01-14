@@ -6,9 +6,7 @@ import com.netease.cloud.nsf.meta.API;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.netease.cloud.nsf.core.template.TemplateConst.API_GATEWAY;
-import static com.netease.cloud.nsf.core.template.TemplateConst.GATEWAY_HTTP_10;
-import static com.netease.cloud.nsf.core.template.TemplateConst.GATEWAY_NAME;
+import static com.netease.cloud.nsf.core.template.TemplateConst.*;
 
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/9/27

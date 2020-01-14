@@ -30,7 +30,7 @@ public interface GatewayService {
 
     List<String> getServiceList();
 
-    List<ServiceAndPortDTO> getServiceAndPortList(String name, String type);
+    List<ServiceAndPortDTO> getServiceAndPortList(String name, String type, String registryId);
 
     List<Gateway> getGatewayList();
 
@@ -39,6 +39,10 @@ public interface GatewayService {
     void updateSVM(SidecarVersionManagement svm);
 
     List<PodStatus> queryByPodNameList(PodVersion podVersion);
+
+    void updateIstioGateway(PortalIstioGatewayDTO portalGateway);
+
+    PortalIstioGatewayDTO getIstioGateway(String clusterName);
 
     void updateGlobalPlugins(GlobalPluginsDTO globalPluginsDTO);
 

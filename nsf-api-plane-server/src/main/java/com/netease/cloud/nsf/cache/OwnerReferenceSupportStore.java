@@ -4,7 +4,10 @@ import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.OwnerReference;
 import org.springframework.util.CollectionUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
@@ -207,6 +210,10 @@ public class OwnerReferenceSupportStore<T extends HasMetadata> implements Store<
             }
         }
         return result;
+    }
+
+    public List<String> listNamespaces(){
+        return resourceStore.listNamespaces();
     }
 
     public List<T> getFilterByLabel(List<T> resourceList, Map<String, String> keyValues) {

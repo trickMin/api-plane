@@ -1,6 +1,8 @@
 package com.netease.cloud.nsf.service.impl;
 
 import com.netease.cloud.nsf.cache.K8sResourceCache;
+import com.netease.cloud.nsf.cache.ResourceStoreFactory;
+import com.netease.cloud.nsf.configuration.ApiPlaneConfig;
 import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.gateway.service.ConfigStore;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
@@ -11,12 +13,14 @@ import com.netease.cloud.nsf.meta.SidecarVersionManagement;
 import com.netease.cloud.nsf.service.GatewayService;
 import com.netease.cloud.nsf.service.ServiceMeshService;
 import com.netease.cloud.nsf.util.Const;
+import com.netease.cloud.nsf.util.RestTemplateClient;
 import com.netease.cloud.nsf.util.errorcode.ApiPlaneErrorCode;
 import com.netease.cloud.nsf.util.errorcode.ErrorCode;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.Namespace;
+import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.apps.StatefulSet;
 import me.snowdrop.istio.api.IstioResource;
@@ -24,13 +28,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static com.netease.cloud.nsf.core.editor.ResourceType.OBJECT;
+import static com.netease.cloud.nsf.core.k8s.K8sResourceEnum.DaemonSet;
 
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/11/7
@@ -40,6 +46,8 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
 
     private static final Logger logger = LoggerFactory.getLogger(ServiceMeshServiceImpl.class);
     private static final String DEFAULT_SIDECAR_VERSION = "envoy";
+    private ExecutorService notifyTask = Executors.newCachedThreadPool();
+
 
     @Autowired
     ConfigStore configStore;
@@ -52,6 +60,12 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
 
     @Autowired
     GatewayService gatewayService;
+
+    @Autowired
+    RestTemplateClient restTemplateClient;
+
+    @Autowired
+    ApiPlaneConfig apiPlaneConfig;
 
     @Override
     public void updateIstioResource(String json) {
@@ -108,6 +122,47 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
         }
         createSidecarVersionCRD(clusterId, namespace, kind, name, expectedVersion);
         return ApiPlaneErrorCode.Success;
+    }
+
+    @Override
+    public void notifySidecarFileEvent(String sidecarVersion, String type) {
+        List<String> clusterIds = ResourceStoreFactory.listClusterId();
+        for (String clusterId : clusterIds) {
+            List<T> podByWorkLoadInfo = k8sResource.getPodInfoByWorkLoadInfo(clusterId, DaemonSet.name(),
+                    apiPlaneConfig.getDaemonSetNamespace(), apiPlaneConfig.getDaemonSetName());
+            logger.info("get {} daemonSet with namespace [{}] and name [{}]",podByWorkLoadInfo.size(),
+                    apiPlaneConfig.getDaemonSetNamespace(),apiPlaneConfig.getDaemonSetName());
+            if (!CollectionUtils.isEmpty(podByWorkLoadInfo)) {
+                Set<String> notified = new HashSet<>();
+                for (T pod : podByWorkLoadInfo) {
+                    Pod p = (Pod) pod;
+                    String hostAddress = p.getStatus().getPodIP();
+                    if (!notified.contains(hostAddress)) {
+                        notified.add(hostAddress);
+                        notifyTask.execute(()->{
+                            try {
+                                doNotify(hostAddress, sidecarVersion, type);
+                            } catch (Exception e) {
+                                logger.error("notify sidecar event to Pod[{}] error",pod.getMetadata().getName());
+                            }
+                        });
+                    }
+                }
+            }
+        }
+    }
+
+    private void doNotify(String host, String sidecarVersion, String type) {
+        Map<String, Object> param = new HashMap<>();
+        param.put("sidecarVersion", sidecarVersion);
+        param.put("type", type);
+        String url = host +
+                ":" +
+                apiPlaneConfig.getDaemonSetPort() +
+                "/api/servicemesh?Action=EnvoyEvent&Version=2019-01-02&"
+                + "SidecarVersion={sidecarVersion}"
+                + "&Type={type}";
+        restTemplateClient.getForValue(url, param, Const.GET_METHOD, String.class);
     }
 
 
@@ -201,7 +256,7 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
         svmSpec.setWorkLoadType(kind);
         svmSpec.setWorkLoadName(name);
         svmSpec.setExpectedVersion(expectedVersion);
-        if (StringUtils.isEmpty(expectedVersion)){
+        if (StringUtils.isEmpty(expectedVersion)) {
             svmSpec.setExpectedVersion(DEFAULT_SIDECAR_VERSION);
         }
         versionManagement.setWorkLoads(Arrays.asList(svmSpec));

@@ -5,6 +5,7 @@ import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.apps.DeploymentStatus;
 import io.fabric8.kubernetes.api.model.apps.StatefulSet;
 import io.fabric8.kubernetes.api.model.apps.StatefulSetStatus;
+import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -19,10 +20,14 @@ public class WorkLoadDTO<T extends HasMetadata> extends K8sResourceDTO {
 
     protected List<String> sidecarVersion;
 
+    private String projectCode;
+
+    private String envName;
+
     private Map<String, String> statusInfo = new HashMap<>();
 
 
-    public WorkLoadDTO(T obj, String serviceName, String clusterId) {
+    public WorkLoadDTO(T obj, String serviceName, String clusterId, String projectCode, String envName) {
         super(obj, clusterId);
         this.serviceDomain = serviceName;
         this.serviceName = serviceName;
@@ -40,6 +45,11 @@ public class WorkLoadDTO<T extends HasMetadata> extends K8sResourceDTO {
             statusInfo.put("desired", getValueOrDefault(statefulSet.getSpec().getReplicas()).toString());
             statusInfo.put("current", getValueOrDefault(status.getReplicas()).toString());
             statusInfo.put("up-to-date", getValueOrDefault(status.getUpdatedReplicas()).toString());
+        }
+        this.setProjectCode(projectCode);
+        this.setEnvName(envName);
+        if (StringUtils.isEmpty(envName)){
+            this.setEnvName(this.getNamespace());
         }
     }
 
@@ -85,5 +95,19 @@ public class WorkLoadDTO<T extends HasMetadata> extends K8sResourceDTO {
         this.statusInfo = statusInfo;
     }
 
+    public String getProjectCode() {
+        return projectCode;
+    }
 
+    public void setProjectCode(String projectCode) {
+        this.projectCode = projectCode;
+    }
+
+    public String getEnvName() {
+        return envName;
+    }
+
+    public void setEnvName(String envName) {
+        this.envName = envName;
+    }
 }

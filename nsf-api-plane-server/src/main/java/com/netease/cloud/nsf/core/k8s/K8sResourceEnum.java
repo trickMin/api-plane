@@ -6,7 +6,8 @@ import com.sun.javafx.binding.StringFormatter;
 import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.apps.*;
 import io.fabric8.kubernetes.client.utils.URLUtils;
-import me.snowdrop.istio.api.authentication.v1alpha1.*;
+import me.snowdrop.istio.api.authentication.v1alpha1.Policy;
+import me.snowdrop.istio.api.authentication.v1alpha1.PolicyList;
 import me.snowdrop.istio.api.networking.v1alpha3.*;
 import me.snowdrop.istio.api.rbac.v1alpha1.*;
 

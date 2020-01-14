@@ -6,6 +6,7 @@ import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.meta.*;
 import com.netease.cloud.nsf.meta.dto.*;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -63,6 +64,34 @@ public class Trans {
         api.setApiName(portalAPI.getRouteName());
         return api;
     }
+
+    public static IstioGateway portalGW2GW(PortalIstioGatewayDTO portalGateway) {
+        if (portalGateway == null) {
+            return null;
+        }
+        IstioGateway istioGateway = new IstioGateway();
+        istioGateway.setName(portalGateway.getName());
+        istioGateway.setGwCluster(portalGateway.getGwCluster());
+        istioGateway.setCustomIpAddressHeader(portalGateway.getCustomIpAddressHeader());
+        istioGateway.setUseRemoteAddress(portalGateway.getUseRemoteAddress() == null ? null : String.valueOf(portalGateway.getUseRemoteAddress()));
+        istioGateway.setXffNumTrustedHops(portalGateway.getXffNumTrustedHops() == null ? null : (portalGateway.getXffNumTrustedHops() - 1));
+        return istioGateway;
+    }
+
+    public static PortalIstioGatewayDTO GW2portal(IstioGateway istioGateway) {
+        if (istioGateway == null) {
+            return null;
+        }
+        PortalIstioGatewayDTO portalIstioGatewayDTO = new PortalIstioGatewayDTO();
+        portalIstioGatewayDTO.setName(istioGateway.getName());
+        portalIstioGatewayDTO.setGwCluster(istioGateway.getGwCluster());
+        portalIstioGatewayDTO.setCustomIpAddressHeader(istioGateway.getCustomIpAddressHeader());
+        portalIstioGatewayDTO.setUseRemoteAddress(BooleanUtils.toBooleanObject(istioGateway.getUseRemoteAddress()));
+        portalIstioGatewayDTO.setXffNumTrustedHops(istioGateway.getXffNumTrustedHops() == null ? 1 : (istioGateway.getXffNumTrustedHops() + 1));
+
+        return portalIstioGatewayDTO;
+    }
+
 
     public static Service portalRouteService2Service(PortalRouteServiceDTO portalRouteService) {
         Service s = new Service();

@@ -3,6 +3,7 @@ package com.netease.cloud.nsf.meta;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.validator.constraints.NotEmpty;
+
 import javax.validation.constraints.Pattern;
 
 public class SVMSpec {

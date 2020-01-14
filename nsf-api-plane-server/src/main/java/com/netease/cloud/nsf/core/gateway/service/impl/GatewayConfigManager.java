@@ -14,8 +14,11 @@ import com.netease.cloud.nsf.meta.*;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
 import io.fabric8.kubernetes.api.model.HasMetadata;
+import io.fabric8.kubernetes.api.model.ObjectMeta;
 import me.snowdrop.istio.api.IstioResource;
 import me.snowdrop.istio.api.networking.v1alpha3.DestinationRule;
+import me.snowdrop.istio.api.networking.v1alpha3.Gateway;
+import me.snowdrop.istio.api.networking.v1alpha3.GatewaySpec;
 import me.snowdrop.istio.api.networking.v1alpha3.GatewayPlugin;
 import me.snowdrop.istio.api.networking.v1alpha3.SharedConfig;
 import me.snowdrop.istio.api.networking.v1alpha3.VersionManager;
@@ -26,6 +29,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -184,6 +191,42 @@ public class GatewayConfigManager implements ConfigManager {
         }
         VersionManagerOperator ir = (VersionManagerOperator)resolve(versionmanager);
         return ir.getPodVersion(podVersion, (VersionManager)versionmanager);
+    }
+
+    @Override
+    public IstioResource getConfig(IstioGateway istioGateway) {
+        if (StringUtils.isEmpty(istioGateway.getGwCluster())){
+            return null;
+        }
+        final String gwClusgterKey = "gw_cluster";
+        Gateway gwt = new Gateway();
+        gwt.setMetadata(new ObjectMeta());
+        configStore.supply(gwt);
+        ObjectMeta metadata = gwt.getMetadata();
+        //获取所有Gateway资源
+        List<IstioResource> istioResources = configStore.get(gwt.getKind(), metadata.getNamespace());
+        Optional<IstioResource> first = istioResources.stream().filter(g ->
+        {
+            GatewaySpec spec = (GatewaySpec) g.getSpec();
+            if (spec == null){
+                return false;
+            }
+            Map<String, String> selector = spec.getSelector();
+            if (selector == null){
+                return false;
+            }
+            return istioGateway.getGwCluster().equals(selector.get(gwClusgterKey));
+        }).findFirst();
+        if (first.isPresent()){
+            return first.get();
+        }
+        return null;
+    }
+
+    @Override
+    public void updateConfig(IstioGateway istioGateway) {
+        List<IstioResource> resources = modelProcessor.translate(istioGateway);
+        update(resources);
     }
 
     @Override
