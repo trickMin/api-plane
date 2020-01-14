@@ -214,7 +214,7 @@ public class GatewayModelOperator {
         service.setUri(wrap(API_REQUEST_URIS));
         service.setMethod(wrap(API_METHODS));
         service.setSubset(wrap(VIRTUAL_SERVICE_SUBSET_NAME));
-        service.setHosts(wrap(VIRTUAL_SERVICE_HOSTS));
+        service.setHosts(wrap(VIRTUAL_SERVICE_HOST_HEADERS));
         service.setPriority(wrap(VIRTUAL_SERVICE_PLUGIN_MATCH_PRIORITY));
         service.setApiName(wrap(API_NAME));
         service.setServiceName(wrap(API_SERVICE));

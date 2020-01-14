@@ -1,6 +1,5 @@
 package com.netease.cloud.nsf.meta;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import static com.netease.cloud.nsf.core.template.TemplateConst.*;
@@ -32,7 +31,7 @@ public class ServiceInfo {
     @JsonProperty(VIRTUAL_SERVICE_SUBSET_NAME)
     private String subset;
 
-    @JsonProperty(VIRTUAL_SERVICE_HOSTS)
+    @JsonProperty(VIRTUAL_SERVICE_HOST_HEADERS)
     private String hosts;
 
     @JsonProperty(VIRTUAL_SERVICE_PLUGIN_MATCH_PRIORITY)
@@ -78,7 +77,7 @@ public class ServiceInfo {
         return hosts;
     }
 
-    @JsonProperty(VIRTUAL_SERVICE_HOSTS)
+    @JsonProperty(VIRTUAL_SERVICE_HOST_HEADERS)
     public void setHosts(String hosts) {
         this.hosts = hosts;
     }

@@ -19,8 +19,9 @@ public abstract class APIDataHandler implements DataHandler<API> {
 
         String uris = getUris(api);
         String methods = getMethods(api);
-        String hosts = getHosts(api);
+        // host用于virtualservice的host
         List<String> hostList = productHostList(api);
+        // host用于match中的header match
         String hostHeaders = produceHostHeaders(api);
         int priority = PriorityUtil.calculate(api);
 
@@ -41,12 +42,11 @@ public abstract class APIDataHandler implements DataHandler<API> {
                 .put(API_IDLE_TIMEOUT, api.getIdleTimeout())
                 .put(GATEWAY_HOSTS, api.getHosts())
                 .put(VIRTUAL_SERVICE_MATCH_PRIORITY, priority)
-                .put(VIRTUAL_SERVICE_HOSTS, hosts)
+                .put(VIRTUAL_SERVICE_HOSTS, hostList)
                 .put(API_PRIORITY, api.getPriority())
                 .put(VIRTUAL_SERVICE_SERVICE_TAG, api.getServiceTag())
                 .put(VIRTUAL_SERVICE_API_ID, api.getApiId())
                 .put(VIRTUAL_SERVICE_API_NAME, api.getApiName())
-                .put(VIRTUAL_SERVICE_HOST_LIST, hostList)
                 .put(VIRTUAL_SERVICE_HOST_HEADERS, hostHeaders)
 
                 ;
