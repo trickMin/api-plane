@@ -90,7 +90,7 @@ public abstract class AbstractSchemaProcessor implements SchemaProcessor<Service
         switch (op) {
             case "exact":
             case "=":
-                return String.format("%s", escapeExprSpecialWord(value));
+                return String.format("^%s$", escapeExprSpecialWord(value));
             case "!=":
                 return String.format("((?!%s).)*", escapeExprSpecialWord(value));
             case "regex":
