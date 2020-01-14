@@ -77,6 +77,7 @@ public class GatewayModelOperator {
     private static final String serviceDestinationRule = "gateway/service/destinationRule";
     private static final String pluginManager = "gateway/pluginManager";
     private static final String serviceServiceEntry = "gateway/service/serviceEntry";
+    private static final String gatewayPlugin = "gateway/gatewayPlugin";
 
     private static final String versionManager = "sidecarVersionManagement";
 
@@ -156,6 +157,15 @@ public class GatewayModelOperator {
         List<IstioResource> resources = new ArrayList<>();
         List<String> versionManagers = defaultModelProcessor.process(versionManager, svm, new VersionManagersDataHandler());
         resources.add(str2IstioResource(versionManagers.get(0)));
+        return resources;
+    }
+
+    public List<IstioResource> translate(GlobalPlugins gp) {
+
+        List<IstioResource> resources = new ArrayList<>();
+        List<String> rawResources = defaultModelProcessor.process(gatewayPlugin, gp, new GatewayPluginDataHandler(pluginService));
+        rawResources.stream()
+                .forEach(rs -> resources.add(str2IstioResource(rs)));
         return resources;
     }
 

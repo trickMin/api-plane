@@ -1,10 +1,6 @@
 package com.netease.cloud.nsf.service;
 
-import com.netease.cloud.nsf.meta.Gateway;
-import com.netease.cloud.nsf.meta.PodVersion;
-import com.netease.cloud.nsf.meta.PodStatus;
-import com.netease.cloud.nsf.meta.SidecarVersionManagement;
-import com.netease.cloud.nsf.meta.ServiceHealth;
+import com.netease.cloud.nsf.meta.*;
 import com.netease.cloud.nsf.meta.dto.*;
 
 import java.util.List;
@@ -43,4 +39,8 @@ public interface GatewayService {
     void updateSVM(SidecarVersionManagement svm);
 
     List<PodStatus> queryByPodNameList(PodVersion podVersion);
+
+    void updateGlobalPlugins(GlobalPluginsDTO globalPluginsDTO);
+
+    void deleteGlobalPlugins(GlobalPluginsDeleteDTO globalPluginsDeleteDTO);
 }

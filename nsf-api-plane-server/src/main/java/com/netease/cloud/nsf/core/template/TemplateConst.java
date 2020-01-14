@@ -145,6 +145,16 @@ public interface TemplateConst {
      **/
     String VERSION_MANAGER_WORKLOADS = "t_version_manager_workloads";
 
+    /**
+     * GatewayPlugin
+     */
+    String GATEWAY_PLUGIN_NAME = "t_gateway_plugin_name";
+    String GATEWAY_PLUGIN_GATEWAYS = "t_gateway_plugin_gateways";
+    String GATEWAY_PLUGIN_HOSTS = "t_gateway_plugin_hosts";
+    String GATEWAY_PLUGIN_PLUGINS = "t_gateway_plugin_plugins";
+
+
+
     /** ---------- 模板占位符名 end ---------- **/
 
 }

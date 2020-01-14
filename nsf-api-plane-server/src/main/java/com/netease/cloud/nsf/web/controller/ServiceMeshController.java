@@ -58,7 +58,7 @@ public class ServiceMeshController extends BaseController {
                                 @RequestParam(name = "Kind") String kind,
                                 @RequestParam(name = "ClusterId") String clusterId) {
 
-        ErrorCode code = istioService.sidecarInject(clusterId, kind, namespace, name, version, sidecarVersion            );
+        ErrorCode code = istioService.sidecarInject(clusterId, kind, namespace, name, version, sidecarVersion);
         return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), null);
     }
 

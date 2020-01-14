@@ -1,12 +1,9 @@
 package com.netease.cloud.nsf.core.gateway.service;
 
 import com.netease.cloud.nsf.meta.*;
+import me.snowdrop.istio.api.IstioResource;
 
 import java.util.List;
-import com.netease.cloud.nsf.meta.API;
-import com.netease.cloud.nsf.meta.PluginOrder;
-import com.netease.cloud.nsf.meta.Service;
-import me.snowdrop.istio.api.IstioResource;
 
 /**
  *  API配置客户端，用于发送配置
@@ -66,4 +63,8 @@ public interface ConfigManager {
      * @param podVersion
      */
     List<PodStatus> querySVMConfig(PodVersion podVersion);
+
+    void updateConfig(GlobalPlugins gp);
+
+    void deleteConfig(GlobalPlugins gp);
 }

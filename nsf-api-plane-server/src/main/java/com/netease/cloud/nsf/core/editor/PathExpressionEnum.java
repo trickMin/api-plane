@@ -35,6 +35,8 @@ public enum PathExpressionEnum {
     /** sharedconfig **/
     REMOVE_SC_RATELIMITDESC("$.spec.rateLimitConfigs[*].descriptors[?(@.api == '%s')]", 1),
 
+    REMOVE_SC_RATELIMITDESC_BY_CODE("$.spec.rateLimitConfigs[*].descriptors[?(@.code == '%s')]", 1),
+
     /** plugin **/
     PLUGIN_GET_KIND("$.kind", 0),
     ;
