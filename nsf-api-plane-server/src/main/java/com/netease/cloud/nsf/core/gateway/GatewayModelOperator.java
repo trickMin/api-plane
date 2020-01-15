@@ -77,6 +77,7 @@ public class GatewayModelOperator {
     private static final String serviceDestinationRule = "gateway/service/destinationRule";
     private static final String pluginManager = "gateway/pluginManager";
     private static final String serviceServiceEntry = "gateway/service/serviceEntry";
+    private static final String gatewayPlugin = "gateway/gatewayPlugin";
 
     private static final String versionManager = "sidecarVersionManagement";
 
@@ -102,10 +103,14 @@ public class GatewayModelOperator {
                 Collections.emptyList() : pluginService.extractService(api.getPlugins());
 
         BaseVirtualServiceAPIDataHandler vsHandler;
+        List<String> rawResources = new ArrayList<>();
+
         if (CollectionUtils.isEmpty(api.getProxyServices())) {
             //yx
             vsHandler = new YxVirtualServiceAPIDataHandler(
                     defaultModelProcessor, rawResourceContainer.getVirtualServices(), endpoints, simple);
+            List<String> rawGateways = defaultModelProcessor.process(apiGateway, api, new BaseGatewayAPIDataHandler(enableHttp10));
+            rawResources.addAll(rawGateways);
         } else {
             //gportal
             vsHandler = new PortalVirtualServiceAPIDataHandler(
@@ -113,12 +118,9 @@ public class GatewayModelOperator {
         }
 
         List<String> rawVirtualServices = renderTwiceModelProcessor.process(apiVirtualService, api, vsHandler);
-        List<String> rawGateways = defaultModelProcessor.process(apiGateway, api, new BaseGatewayAPIDataHandler(enableHttp10));
         List<String> rawDestinationRules = defaultModelProcessor.process(apiDestinationRule, api, new BaseDestinationRuleAPIDataHandler(extraDestination));
         List<String> rawSharedConfigs = renderTwiceModelProcessor.process(apiSharedConfig, api, new BaseSharedConfigAPIDataHandler(rawResourceContainer.getSharedConfigs()));
 
-        List<String> rawResources = new ArrayList<>();
-        rawResources.addAll(rawGateways);
         rawResources.addAll(rawVirtualServices.stream().map(vs -> adjustVs(vs)).collect(Collectors.toList()));
         rawResources.addAll(rawDestinationRules);
         rawResources.addAll(rawSharedConfigs);
@@ -142,6 +144,24 @@ public class GatewayModelOperator {
         return resources;
     }
 
+    /**
+     * 将gateway转换为istio对应的规则
+     * @param istioGateway
+     * @return
+     */
+    public List<IstioResource> translate(IstioGateway istioGateway) {
+        List<IstioResource> resources = new ArrayList<>();
+
+        List<String> rawGateways = defaultModelProcessor.process(apiGateway, istioGateway, new PortalGatewayDatahandler());
+        List<String> rawResources = new ArrayList<>();
+        rawResources.addAll(rawGateways);
+
+        rawResources.stream()
+                .forEach(r -> resources.add(str2IstioResource(r)));
+
+        return resources;
+    }
+
     public List<IstioResource> translate(PluginOrder po) {
 
         List<IstioResource> resources = new ArrayList<>();
@@ -156,6 +176,15 @@ public class GatewayModelOperator {
         List<IstioResource> resources = new ArrayList<>();
         List<String> versionManagers = defaultModelProcessor.process(versionManager, svm, new VersionManagersDataHandler());
         resources.add(str2IstioResource(versionManagers.get(0)));
+        return resources;
+    }
+
+    public List<IstioResource> translate(GlobalPlugins gp) {
+
+        List<IstioResource> resources = new ArrayList<>();
+        List<String> rawResources = defaultModelProcessor.process(gatewayPlugin, gp, new GatewayPluginDataHandler(pluginService));
+        rawResources.stream()
+                .forEach(rs -> resources.add(str2IstioResource(rs)));
         return resources;
     }
 
@@ -204,7 +233,7 @@ public class GatewayModelOperator {
         service.setUri(wrap(API_REQUEST_URIS));
         service.setMethod(wrap(API_METHODS));
         service.setSubset(wrap(VIRTUAL_SERVICE_SUBSET_NAME));
-        service.setHosts(wrap(VIRTUAL_SERVICE_HOSTS));
+        service.setHosts(wrap(VIRTUAL_SERVICE_HOST_HEADERS));
         service.setPriority(wrap(VIRTUAL_SERVICE_PLUGIN_MATCH_PRIORITY));
         service.setApiName(wrap(API_NAME));
         service.setServiceName(wrap(API_SERVICE));

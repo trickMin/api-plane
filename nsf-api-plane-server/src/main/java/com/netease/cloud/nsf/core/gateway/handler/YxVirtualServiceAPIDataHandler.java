@@ -1,7 +1,9 @@
 package com.netease.cloud.nsf.core.gateway.handler;
 
+import com.google.common.collect.ImmutableList;
 import com.netease.cloud.nsf.core.gateway.processor.ModelProcessor;
 import com.netease.cloud.nsf.core.plugin.FragmentWrapper;
+import com.netease.cloud.nsf.meta.API;
 import com.netease.cloud.nsf.meta.Endpoint;
 
 import java.util.List;
@@ -14,6 +16,11 @@ public class YxVirtualServiceAPIDataHandler extends BaseVirtualServiceAPIDataHan
 
     public YxVirtualServiceAPIDataHandler(ModelProcessor subModelProcessor, List<FragmentWrapper> fragments, List<Endpoint> endpoints, boolean simple) {
         super(subModelProcessor, fragments, endpoints, simple);
+    }
+
+    @Override
+    List<String> productHostList(API api) {
+        return ImmutableList.of("*");
     }
 
     @Override

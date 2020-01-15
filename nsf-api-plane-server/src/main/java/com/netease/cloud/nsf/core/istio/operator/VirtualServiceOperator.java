@@ -33,6 +33,7 @@ public class VirtualServiceOperator implements IstioResourceOperator<VirtualServ
         latest.getSpec().setPlugins(latestPlugins);
 
         latest.getSpec().setRateLimits(fresh.getSpec().getRateLimits());
+        latest.getSpec().setHosts(fresh.getSpec().getHosts());
         return latest;
     }
 

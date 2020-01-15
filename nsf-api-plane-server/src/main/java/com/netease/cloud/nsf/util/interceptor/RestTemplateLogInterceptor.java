@@ -28,4 +28,6 @@ public class RestTemplateLogInterceptor implements ClientHttpRequestInterceptor 
 		return response;
 	}
 
+
+
 }

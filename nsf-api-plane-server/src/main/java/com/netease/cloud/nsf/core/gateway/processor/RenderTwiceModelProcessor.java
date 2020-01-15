@@ -28,7 +28,9 @@ public class RenderTwiceModelProcessor<T> implements ModelProcessor<T> {
         if (CollectionUtils.isEmpty(params)) return Collections.emptyList();
 
         return params.stream()
-                .map(p -> templateTranslator.translate("tmp", templateTranslator.translate(template, p.output()), p.output()))
+                .map(p -> templateTranslator.translate("tmp",
+                        templateTranslator.translate(template, p.output()),
+                        p.output()))
                 .filter(r -> !StringUtils.isEmpty(r))
                 .collect(Collectors.toList());
     }

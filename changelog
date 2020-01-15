@@ -4,11 +4,12 @@ release 1.1
 - 查询服务和查询实例接口优化
 - 实例健康状态查询接口
 - 增加gateway的http10字段支持
-
+- TransformProcessor支持Condition
 
 严选网关:
 - 多租户支持
 - route插件rewrite子插件增加condition,兼容严选旧用法
+- route插件rewrite子插件将渲染配置迁移到ext字段，使用插件别名为com.netease.rewrite
 
 轻舟网关：
 - vs元数据增加
@@ -18,10 +19,10 @@ release 1.1
 - 路由规则排序
 - virtual service拆分,一个api一个vs
 - 接口暴露subset
-
+- virtualservice的host改为具体host而不是*
 
 ServiceMesh:
-- 创建、删除资源接口
+- 创建、删除、查询资源接口
 - 拓扑功能，对接kiali
 - sidecar 自动注入及升级
 - k8s 资源监听管理

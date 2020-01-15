@@ -43,6 +43,7 @@ public class AggregateExtensionProcessor extends AbstractSchemaProcessor impleme
                 holder = getProcessor("JsonpProcessor").process(plugin, serviceInfo);
                 coverToExtensionPlugin(holder, "com.netease.jsonp");
                 break;
+            case "ianus-request-transformer":
             case "transformer":
                 holder = getProcessor("TransformProcessor").process(plugin, serviceInfo);
                 coverToExtensionPlugin(holder, "com.netease.transformation");
@@ -56,6 +57,10 @@ public class AggregateExtensionProcessor extends AbstractSchemaProcessor impleme
                 //todo: encapsulated
                 holder = getProcessor("DefaultProcessor").process(plugin, serviceInfo);
                 coverToExtensionPlugin(holder, "envoy.ext_authz");
+                break;
+            case "static-downgrade":
+                holder = getProcessor("StaticDowngradeProcessor").process(plugin, serviceInfo);
+                coverToExtensionPlugin(holder, "com.netease.staticdowngrade");
                 break;
             case "request-transformer":
             default:
