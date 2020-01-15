@@ -2,6 +2,7 @@ package com.netease.cloud.nsf.service.impl;
 
 import com.netease.cloud.nsf.cache.K8sResourceCache;
 import com.netease.cloud.nsf.cache.ResourceStoreFactory;
+import com.netease.cloud.nsf.cache.meta.PodDTO;
 import com.netease.cloud.nsf.configuration.ApiPlaneConfig;
 import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.gateway.service.ConfigStore;
@@ -45,7 +46,7 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
 
     private static final Logger logger = LoggerFactory.getLogger(ServiceMeshServiceImpl.class);
     private static final String DEFAULT_SIDECAR_VERSION = "envoy";
-    private ExecutorService notifyTask = Executors.newCachedThreadPool();
+    private ExecutorService taskPool = Executors.newCachedThreadPool();
 
 
     @Autowired
@@ -119,8 +120,8 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
         for (String clusterId : clusterIds) {
             List<T> podByWorkLoadInfo = k8sResource.getPodInfoByWorkLoadInfo(clusterId, DaemonSet.name(),
                     apiPlaneConfig.getDaemonSetNamespace(), apiPlaneConfig.getDaemonSetName());
-            logger.info("get {} daemonSet with namespace [{}] and name [{}]",podByWorkLoadInfo.size(),
-                    apiPlaneConfig.getDaemonSetNamespace(),apiPlaneConfig.getDaemonSetName());
+            logger.info("get {} daemonSet with namespace [{}] and name [{}]", podByWorkLoadInfo.size(),
+                    apiPlaneConfig.getDaemonSetNamespace(), apiPlaneConfig.getDaemonSetName());
             if (!CollectionUtils.isEmpty(podByWorkLoadInfo)) {
                 Set<String> notified = new HashSet<>();
                 for (T pod : podByWorkLoadInfo) {
@@ -128,11 +129,11 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
                     String hostAddress = p.getStatus().getPodIP();
                     if (!notified.contains(hostAddress)) {
                         notified.add(hostAddress);
-                        notifyTask.execute(()->{
+                        taskPool.execute(() -> {
                             try {
                                 doNotify(hostAddress, sidecarVersion, type);
                             } catch (Exception e) {
-                                logger.error("notify sidecar event to Pod[{}] error",pod.getMetadata().getName());
+                                logger.error("notify sidecar event to Pod[{}] error", pod.getMetadata().getName());
                             }
                         });
                     }
@@ -236,8 +237,8 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
         return true;
     }
 
-
-    private void createSidecarVersionCRD(String clusterId, String namespace, String kind, String name, String expectedVersion) {
+    @Override
+    public void createSidecarVersionCRD(String clusterId, String namespace, String kind, String name, String expectedVersion) {
         SidecarVersionManagement versionManagement = new SidecarVersionManagement();
         versionManagement.setClusterId(clusterId);
         versionManagement.setNamespace(namespace);
@@ -250,6 +251,24 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
         }
         versionManagement.setWorkLoads(Arrays.asList(svmSpec));
         gatewayService.updateSVM(versionManagement);
+    }
+
+    @Override
+    public void createMissingCrd(List podList, String workLoadType, String workLoadName, String clusterId, String namespace) {
+
+        boolean createCrd = false;
+        for (Object o : podList) {
+            PodDTO dto = (PodDTO) o;
+            if (dto.getVersionManagerCrdStatus() == Const.VERSION_MANAGER_CRD_MISSING) {
+                createCrd = true;
+                break;
+            }
+        }
+        if (createCrd) {
+            taskPool.execute(() -> {
+                createSidecarVersionCRD(clusterId, namespace, workLoadType, workLoadName, null);
+            });
+        }
     }
 
 }
