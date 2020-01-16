@@ -1,9 +1,9 @@
-字段 | 含义 | 范围 | 备注 |
----|---|---|---|
-kind | 插件类型 | ianus-rate-limiting | | 
-identifier_extractor | 指定限流header | | 格式必须为Header[$header] |
-operator | 比较符 | ≈，!≈，=，!= | |
-right_value | 匹配的value | | |
+| 字段                   | 含义         | 范围                  | 备注                   |    |
+|:---------------------|:-----------|:--------------------|:---------------------|:---|
+| kind                 | 插件类型       | ianus-rate-limiting |                      |    |
+| identifier_extractor | 指定限流header |                     | 格式必须为Header[$header] |    |
+| operator             | 比较符        | ≈，!≈，=，!=           |                      |    |
+| right_value          | 匹配的value   |                     |                      |    |
 ```
 场景1：不配置条件，对整个api限流
 {
