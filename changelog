@@ -4,7 +4,7 @@ release 1.1
 - 查询服务和查询实例接口优化
 - 实例健康状态查询接口
 - 增加gateway的http10字段支持
-
+- 增加路由默认超时时间60s
 
 严选网关:
 - 多租户支持
@@ -19,6 +19,7 @@ release 1.1
 - virtual service拆分,一个api一个vs
 - 接口暴露subset
 - virtualservice的host改为具体host而不是*
+- 增加idletimeout 3s
 
 ServiceMesh:
 - 创建、删除、查询资源接口
