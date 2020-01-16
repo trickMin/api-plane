@@ -228,22 +228,8 @@ public class GatewayModelOperator {
                 .filter(p -> !StringUtils.isEmpty(p))
                 .collect(Collectors.toList());
         api.setPlugins(plugins);
-        ServiceInfo service = new ServiceInfo();
-        service.setApiName(wrap(API_NAME));
-        service.setUri(wrap(API_REQUEST_URIS));
-        service.setMethod(wrap(API_METHODS));
-        service.setSubset(wrap(VIRTUAL_SERVICE_SUBSET_NAME));
-        service.setHosts(wrap(VIRTUAL_SERVICE_HOST_HEADERS));
-        service.setPriority(wrap(VIRTUAL_SERVICE_PLUGIN_MATCH_PRIORITY));
-        service.setApiName(wrap(API_NAME));
-        service.setServiceName(wrap(API_SERVICE));
 
-        return pluginService.processSchema(plugins, service);
-    }
-
-    private String wrap(String raw) {
-        if (StringUtils.isEmpty(raw)) throw new NullPointerException();
-        return "${" + raw + "}";
+        return pluginService.processSchema(plugins, new ServiceInfo());
     }
 
     private IstioResource str2IstioResource(String str) {
