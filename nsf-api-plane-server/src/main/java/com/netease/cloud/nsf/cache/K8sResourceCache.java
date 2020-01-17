@@ -462,8 +462,10 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         if (CollectionUtils.isEmpty(podStatuses)) {
             if (podDTO.isInjected()){
                 podDTO.setVersionManagerCrdStatus(Const.VERSION_MANAGER_CRD_MISSING);
+                log.info("no sidecar status for pod[{}] and pod is injected",podDTO.getName());
             }else {
                 podDTO.setVersionManagerCrdStatus(Const.VERSION_MANAGER_CRD_DEFAULT);
+                log.info("no sidecar status for pod[{}] and pod is not injected",podDTO.getName());
             }
             return podDTO;
         }
