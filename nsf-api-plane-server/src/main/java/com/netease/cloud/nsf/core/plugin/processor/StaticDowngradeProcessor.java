@@ -32,7 +32,7 @@ public class StaticDowngradeProcessor extends AbstractSchemaProcessor implements
         builder.updateValue("$.static_response.http_status", source.getValue("$.response.code", Integer.class));
         if (source.contain("$.condition")) {
             String code = source.getValue("$.condition.code.regex", String.class);
-            builder.createOrUpdateJson("$", "downgrade_rpx", String.format("{\":status\":\"%s\"}", code));
+            builder.createOrUpdateJson("$", "downgrade_rpx", String.format("{\":status\":\"(%s)\"}", code));
         }
         if (source.contain("$.response.code")) {
             String code = source.getValue("$.response.code", String.class);
