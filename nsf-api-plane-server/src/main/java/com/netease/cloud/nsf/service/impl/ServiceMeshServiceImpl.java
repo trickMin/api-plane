@@ -277,6 +277,7 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
         }
         if (createCrd) {
             taskPool.execute(() -> {
+                logger.info("auto create VersionManager for workload[{}]", workLoadName);
                 createSidecarVersionCRD(clusterId, namespace, workLoadType, workLoadName, null);
             });
         }
