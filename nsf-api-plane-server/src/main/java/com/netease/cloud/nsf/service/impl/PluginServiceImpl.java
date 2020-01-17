@@ -51,24 +51,12 @@ public class PluginServiceImpl implements PluginService {
 
     @Override
     public Plugin getPlugin(String name) {
-        Plugin p = getPlugins().get(name);
-        if (Objects.isNull(p)) throw new ApiPlaneException(String.format("plugin processor [%s] does not exit.", name));
-        return p;
+        return getPlugin(env, name);
     }
 
     @Override
     public Map<String, Plugin> getPlugins() {
-        Map<String, Plugin> ret = new LinkedHashMap<>();
-        String pluginConfig = getPluginConfig();
-
-        ResourceGenerator rg = ResourceGenerator.newInstance(pluginConfig);
-        int itemCount = rg.getValue("$.item.length()");
-        for (int i = 0; i < itemCount; i++) {
-            ResourceGenerator p = ResourceGenerator.newInstance(rg.getValue(String.format("$.item[%s]", i)), ResourceType.OBJECT);
-            Plugin plugin = p.object(Plugin.class);
-            ret.put(plugin.getName(), plugin);
-        }
-        return ret;
+        return getPlugins(env);
     }
 
     @Override
@@ -80,32 +68,13 @@ public class PluginServiceImpl implements PluginService {
     }
 
     @Override
-    public String getPluginConfig() {
-        if (StringUtils.isEmpty(env)) {
-            throw new ApiPlaneException(String.format("the env:[%s] of plugin config can not be null.", env));
-        }
-        return TemplateUtils.getTemplate(String.format(PLUGIN_CONFIG, env), configuration).toString();
+    public List<FragmentHolder> processPlugin(List<String> plugins, ServiceInfo serviceInfo) {
+        return processPlugin(env, plugins, serviceInfo);
     }
 
     @Override
-    public List<FragmentHolder> processSchema(List<String> plugins, ServiceInfo serviceInfo) {
-        List<FragmentHolder> ret = new ArrayList<>();
-
-        // 1. classify plugins
-        List<PluginInstance> totalPlugin = plugins.stream().map(PluginInstance::new).collect(Collectors.toList());
-        MultiValueMap<SchemaProcessor, PluginInstance> pluginMap = new LinkedMultiValueMap<>();
-        totalPlugin.forEach(plugin -> pluginMap.add(getProcessor(getPlugin(plugin.getKind()).getProcessor()), plugin));
-
-        // 2. process plugins
-        Set<SchemaProcessor> processors = pluginMap.keySet();
-        for (SchemaProcessor processor : processors) {
-            List<PluginInstance> classifiedPlugins = pluginMap.get(processor);
-            List<String> pluginStrs = classifiedPlugins.stream().map(PluginInstance::jsonString).collect(Collectors.toList());
-            logger.info("process multi processor :[{}], jsons :[{}], serviceInfo :[{}]", processor.getName(), pluginStrs, serviceInfo);
-            ret.addAll(processor.process(pluginStrs, serviceInfo));
-        }
-
-        return ret;
+    public List<FragmentHolder> processGlobalPlugin(List<String> plugins, ServiceInfo serviceInfo) {
+        return processPlugin("global", plugins, serviceInfo);
     }
 
     @Override
@@ -123,6 +92,54 @@ public class PluginServiceImpl implements PluginService {
                     return true;
                 })
                 .collect(Collectors.toList());
+    }
+
+
+    private List<FragmentHolder> processPlugin(String env, List<String> plugins, ServiceInfo serviceInfo) {
+        List<FragmentHolder> ret = new ArrayList<>();
+
+        // 1. classify plugins
+        List<PluginInstance> totalPlugin = plugins.stream().map(PluginInstance::new).collect(Collectors.toList());
+        MultiValueMap<SchemaProcessor, PluginInstance> pluginMap = new LinkedMultiValueMap<>();
+        totalPlugin.forEach(plugin -> pluginMap.add(getProcessor(getPlugin(env, plugin.getKind()).getProcessor()), plugin));
+
+        // 2. process plugins
+        Set<SchemaProcessor> processors = pluginMap.keySet();
+        for (SchemaProcessor processor : processors) {
+            List<PluginInstance> classifiedPlugins = pluginMap.get(processor);
+            List<String> pluginStrs = classifiedPlugins.stream().map(PluginInstance::jsonString).collect(Collectors.toList());
+            logger.info("process multi processor :[{}], jsons :[{}], serviceInfo :[{}]", processor.getName(), pluginStrs, serviceInfo);
+            ret.addAll(processor.process(pluginStrs, serviceInfo));
+        }
+
+        return ret;
+    }
+
+    private Plugin getPlugin(String env, String name) {
+        Plugin p = getPlugins(env).get(name);
+        if (Objects.isNull(p)) throw new ApiPlaneException(String.format("plugin [%s] does not exit.", name));
+        return p;
+    }
+
+    private Map<String, Plugin> getPlugins(String env) {
+        Map<String, Plugin> ret = new LinkedHashMap<>();
+        String pluginConfig = getPluginConfig(env);
+
+        ResourceGenerator rg = ResourceGenerator.newInstance(pluginConfig);
+        int itemCount = rg.getValue("$.item.length()");
+        for (int i = 0; i < itemCount; i++) {
+            ResourceGenerator p = ResourceGenerator.newInstance(rg.getValue(String.format("$.item[%s]", i)), ResourceType.OBJECT);
+            Plugin plugin = p.object(Plugin.class);
+            ret.put(plugin.getName(), plugin);
+        }
+        return ret;
+    }
+
+    private String getPluginConfig(String env) {
+        if (StringUtils.isEmpty(env)) {
+            throw new ApiPlaneException(String.format("the env:[%s] of plugin config can not be null.", env));
+        }
+        return TemplateUtils.getTemplate(String.format(PLUGIN_CONFIG, env), configuration).toString();
     }
 
     private SchemaProcessor getProcessor(String name) {

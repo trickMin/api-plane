@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.netease.cloud.nsf.core.template.TemplateConst.*;
 
 
 /**
@@ -229,7 +228,7 @@ public class GatewayModelOperator {
                 .collect(Collectors.toList());
         api.setPlugins(plugins);
 
-        return pluginService.processSchema(plugins, new ServiceInfo());
+        return pluginService.processPlugin(plugins, new ServiceInfo());
     }
 
     private IstioResource str2IstioResource(String str) {
