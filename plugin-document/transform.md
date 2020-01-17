@@ -1,11 +1,12 @@
-字段 | 含义 | 范围 | 备注 |
----|---|---|---|
-kind | 插件类型 | transformer | |
-conditions | 插件生效条件 | |
-op | conditions的匹配方法 | 支持：regex、prefix、exact| |
-headers | 对headers进行转换 | |
-querystrings | 对querystring进行转换 | |
-action | 转换方式 |支持：Action_Default、Action_Add、Action_Update、Action_Delete | |
+| 字段     | 含义              | 范围                                                       | 备注 |
+|:-------|:----------------|:---------------------------------------------------------|:---|
+| kind   | 插件类型            | transformer                                              |    |
+|        | conditions      | 插件生效条件                                                   |    |
+| op     | conditions的匹配方法 | 支持：regex、prefix、exact                                    |    |
+|        | headers         | 对headers进行转换                                             |    |
+|        | querystrings    | 对querystring进行转换                                         |    |
+| action | 转换方式            | 支持：Action_Default、Action_Add、Action_Update、Action_Delete |    |
+
 ```
 场景1：提取headers中的abc,def，并加入到新header:addHeaders
 插件:

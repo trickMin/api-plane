@@ -1,11 +1,11 @@
-字段 | 含义 | 范围 | 备注 |
----|---|---|---|
-kind | 插件类型 | static-downgrade | | 
-condition | 降级生效的条件 | | |
-condition.code | 降级生效的返回状态码 | | |
-response | 降级返回 | | |
-header | 降级返回header | | 存在则覆盖，不存在则增加 |
-body | 降级返回body | | |
+| 字段             | 含义         | 范围               | 备注           |    |
+|:---------------|:-----------|:-----------------|:-------------|:---|
+| kind           | 插件类型       | static-downgrade |              |    |
+| condition      | 降级生效的条件    |                  |              |    |
+| condition.code | 降级生效的返回状态码 |                  |              |    |
+| response       | 降级返回       |                  |              |    |
+| header         | 降级返回header |                  | 存在则覆盖，不存在则增加 |    |
+| body           | 降级返回body   |                  |              |    |
 ```
 {
   "kind":"static-downgrade",
