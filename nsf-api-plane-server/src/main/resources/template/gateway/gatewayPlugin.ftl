@@ -18,6 +18,7 @@ spec:
 <#if t_gateway_plugin_plugins??>
   plugins:
     <#list t_gateway_plugin_plugins as p>
-        <@indent count=4>${p}</@indent>
+    -
+<@indent count=6>${p}</@indent>
     </#list>
 </#if>

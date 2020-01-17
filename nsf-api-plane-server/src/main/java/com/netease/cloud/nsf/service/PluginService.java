@@ -18,9 +18,9 @@ public interface PluginService {
 
     String getSchema(String path);
 
-    String getPluginConfig();
+    List<FragmentHolder> processPlugin(List<String> plugins, ServiceInfo serviceInfo);
 
-    List<FragmentHolder> processSchema(List<String> plugins, ServiceInfo serviceInfo);
+    List<FragmentHolder> processGlobalPlugin(List<String> plugins, ServiceInfo serviceInfo);
 
     List<String> extractService(List<String> plugins);
 }
