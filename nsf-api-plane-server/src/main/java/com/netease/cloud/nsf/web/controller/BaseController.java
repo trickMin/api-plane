@@ -49,6 +49,7 @@ public class BaseController {
         if (params != null && !params.isEmpty()) {
             body.putAll(params);
         }
+        logger.info("----- Request Id: {}, Response body: {} -----", LogTraceUUIDHolder.getUUIDId(), body);
         HttpServletResponse response = RequestContextHolder.getResponse();
         response.setCharacterEncoding(Charsets.UTF_8.name());
         response.setContentType(MappingJackson2JsonView.DEFAULT_CONTENT_TYPE);

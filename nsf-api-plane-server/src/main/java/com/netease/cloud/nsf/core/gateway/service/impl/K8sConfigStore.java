@@ -5,12 +5,14 @@ import com.netease.cloud.nsf.core.gateway.service.ConfigStore;
 import com.netease.cloud.nsf.core.k8s.KubernetesClient;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import me.snowdrop.istio.api.IstioResource;
+import me.snowdrop.istio.api.networking.v1alpha3.GatewayPlugin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -27,6 +29,8 @@ public class K8sConfigStore implements ConfigStore {
 
     @Value("${resourceNamespace:gateway-system}")
     private String resourceNamespace;
+
+    List<Class<? extends IstioResource>> globalCrds = Arrays.asList(GatewayPlugin.class);
 
     @Override
     public void create(IstioResource istioResource) {
@@ -77,8 +81,14 @@ public class K8sConfigStore implements ConfigStore {
     }
 
     void supply(IstioResource istioResource) {
+        if (isGlobalCrd(istioResource)) return;
         if (StringUtils.isEmpty(istioResource.getMetadata().getNamespace())) {
             istioResource.getMetadata().setNamespace(resourceNamespace);
         }
+    }
+
+    boolean isGlobalCrd(IstioResource istioResource) {
+        if (globalCrds.contains(istioResource.getClass())) return true;
+        return false;
     }
 }
