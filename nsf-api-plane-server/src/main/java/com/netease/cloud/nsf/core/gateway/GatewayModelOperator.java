@@ -35,7 +35,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 
-
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/7/17
  **/
@@ -83,8 +82,10 @@ public class GatewayModelOperator {
     public List<IstioResource> translate(API api) {
         return translate(api, false);
     }
+
     /**
      * 将api转换为istio对应的规则
+     *
      * @param api
      * @param simple 是否为简单模式，部分字段不渲染，主要用于删除
      * @return
@@ -145,6 +146,7 @@ public class GatewayModelOperator {
 
     /**
      * 将gateway转换为istio对应的规则
+     *
      * @param istioGateway
      * @return
      */
@@ -181,7 +183,17 @@ public class GatewayModelOperator {
     public List<IstioResource> translate(GlobalPlugins gp) {
 
         List<IstioResource> resources = new ArrayList<>();
-        List<String> rawResources = defaultModelProcessor.process(gatewayPlugin, gp, new GatewayPluginDataHandler(pluginService));
+        List<String> rawResources = new ArrayList<>();
+        RawResourceContainer rawResourceContainer = new RawResourceContainer();
+        List<FragmentHolder> plugins = pluginService.processGlobalPlugin(gp.getPlugins(), new ServiceInfo());
+        rawResourceContainer.add(plugins);
+
+        List<String> rawGatewayPlugins = defaultModelProcessor.process(gatewayPlugin, gp, new GatewayPluginDataHandler(rawResourceContainer.getGatewayPlugins()));
+        //todo: shareConfig逻辑需要适配
+        List<String> rawSharedConfigs = renderTwiceModelProcessor.process(apiSharedConfig, gp, new GatewayPluginSharedConfigDataHandler(rawResourceContainer.getSharedConfigs()));
+        rawResources.addAll(rawGatewayPlugins);
+        rawResources.addAll(rawSharedConfigs);
+
         rawResources.stream()
                 .forEach(rs -> resources.add(str2IstioResource(rs)));
         return resources;

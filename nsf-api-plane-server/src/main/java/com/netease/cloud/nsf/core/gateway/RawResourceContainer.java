@@ -14,6 +14,7 @@ public class RawResourceContainer {
 
     List<FragmentWrapper> virtualServices = new ArrayList<>();
     List<FragmentWrapper> sharedConfigs = new ArrayList<>();
+    List<FragmentWrapper> gatewayPlugins = new ArrayList<>();
 
     public void add(FragmentHolder holder) {
 
@@ -24,6 +25,9 @@ public class RawResourceContainer {
         }
         if (holder.getSharedConfigFragment() != null) {
             sharedConfigs.add(holder.getSharedConfigFragment());
+        }
+        if (holder.getGatewayPluginsFragment() != null) {
+            gatewayPlugins.add(holder.getGatewayPluginsFragment());
         }
     }
 
@@ -38,5 +42,9 @@ public class RawResourceContainer {
 
     public List<FragmentWrapper> getSharedConfigs() {
         return sharedConfigs;
+    }
+
+    public List<FragmentWrapper> getGatewayPlugins() {
+        return gatewayPlugins;
     }
 }
