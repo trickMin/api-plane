@@ -109,7 +109,7 @@ public class PortalAPIDTO {
      * 路由重试策略
      */
     @JsonProperty(value = "HttpRetry")
-    private HttpRetryDto httpRetry;
+    private HttpRetryDTO httpRetry;
 
     public String getGateway() {
         return gateway;
@@ -231,11 +231,11 @@ public class PortalAPIDTO {
         this.timeout = timeout;
     }
 
-    public HttpRetryDto getHttpRetry() {
+    public HttpRetryDTO getHttpRetry() {
         return httpRetry;
     }
 
-    public void setHttpRetry(HttpRetryDto httpRetry) {
+    public void setHttpRetry(HttpRetryDTO httpRetry) {
         this.httpRetry = httpRetry;
     }
 }
