@@ -25,6 +25,7 @@ public class SupplyDirective implements TemplateDirectiveModel {
         MATCH("match:", indent(wrap(TemplateConst.VIRTUAL_SERVICE_MATCH_YAML))),
         ROUTE("route:", indent(wrap(TemplateConst.VIRTUAL_SERVICE_ROUTE_YAML))),
         EXTRA("extra:", indent(wrap(TemplateConst.VIRTUAL_SERVICE_EXTRA_YAML))),
+        RETRY("retry:", indent(wrap(TemplateConst.VIRTUAL_SERVICE_HTTP_RETRY_YAML))),
         API("api:", wrap(TemplateConst.API_NAME)),
 
 
@@ -61,6 +62,7 @@ public class SupplyDirective implements TemplateDirectiveModel {
         gen.createOrUpdateValue("$[?]", "nsf-template-match", Keyword.MATCH.replacement, Criteria.where("match").exists(false));
         gen.createOrUpdateValue("$[?]", "nsf-template-route", Keyword.ROUTE.replacement, Criteria.where("route").exists(false));
         gen.createOrUpdateValue("$[?]", "nsf-template-extra", Keyword.EXTRA.replacement, Criteria.where("extra").exists(false));
+        gen.createOrUpdateValue("$[?]", "nsf-template-retry", Keyword.RETRY.replacement, Criteria.where("retry").exists(false));
         gen.createOrUpdateValue("$[?]", "api", Keyword.API.replacement, Criteria.where("api").exists(false));
 
         String yaml = gen.yamlString();

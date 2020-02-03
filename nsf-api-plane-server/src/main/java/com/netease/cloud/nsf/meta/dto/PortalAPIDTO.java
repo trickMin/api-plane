@@ -99,6 +99,18 @@ public class PortalAPIDTO {
     @NotNull(message = "RouteName")
     private String routeName;
 
+    /**
+     * 路由超时时间
+     */
+    @JsonProperty(value = "Timeout")
+    private Long timeout;
+
+    /**
+     * 路由重试策略
+     */
+    @JsonProperty(value = "HttpRetry")
+    private HttpRetryDto httpRetry;
+
     public String getGateway() {
         return gateway;
     }
@@ -209,5 +221,21 @@ public class PortalAPIDTO {
 
     public void setRouteName(String routeName) {
         this.routeName = routeName;
+    }
+
+    public Long getTimeout() {
+        return timeout;
+    }
+
+    public void setTimeout(Long timeout) {
+        this.timeout = timeout;
+    }
+
+    public HttpRetryDto getHttpRetry() {
+        return httpRetry;
+    }
+
+    public void setHttpRetry(HttpRetryDto httpRetry) {
+        this.httpRetry = httpRetry;
     }
 }

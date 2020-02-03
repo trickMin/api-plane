@@ -6,6 +6,7 @@ import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.meta.*;
 import com.netease.cloud.nsf.meta.dto.*;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
+import com.sun.corba.se.spi.ior.iiop.IIOPFactories;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.CollectionUtils;
@@ -62,6 +63,14 @@ public class Trans {
         api.setServiceTag(portalAPI.getServiceTag());
         api.setApiId(portalAPI.getRouteId());
         api.setApiName(portalAPI.getRouteName());
+        //timeout 默认60000ms
+        if (api.getTimeout() == null) api.setTimeout(60000L);
+        if (portalAPI.getHttpRetry() != null && portalAPI.getHttpRetry() instanceof HttpRetryDto
+        && portalAPI.getHttpRetry().isRetry()){
+            api.setAttempts(portalAPI.getHttpRetry().getAttempts());
+            api.setPerTryTimeout(portalAPI.getHttpRetry().getPerTryTimeout());
+            api.setRetryOn(portalAPI.getHttpRetry().getRetryOn());
+        }
         return api;
     }
 
