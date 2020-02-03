@@ -48,10 +48,11 @@ public abstract class APIDataHandler implements DataHandler<API> {
                 .put(VIRTUAL_SERVICE_API_ID, api.getApiId())
                 .put(VIRTUAL_SERVICE_API_NAME, api.getApiName())
                 .put(VIRTUAL_SERVICE_HOST_HEADERS, hostHeaders)
-
+                .put(VIRTUAL_SERVICE_TIME_OUT, api.getTimeout())
+                .put(VIRTUAL_SERVICE_RETRY_ATTEMPTS, api.getAttempts())
+                .put(VIRTUAL_SERVICE_RETRY_PER_TIMEOUT, api.getPerTryTimeout())
+                .put(VIRTUAL_SERVICE_RETRY_RETRY_ON, api.getRetryOn())
                 ;
-
-
 
         return doHandle(tp, api);
     }

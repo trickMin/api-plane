@@ -26,6 +26,7 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
     static final String apiVirtualServiceExtra = "gateway/api/virtualServiceExtra";
     static final String apiVirtualServiceApi = "gateway/api/virtualServiceApi";
     static final String apiVirtualServiceRoute = "gateway/api/virtualServiceRoute";
+    static final String apiVirtualServiceHttpRetry = "gateway/api/virtualServiceHttpRetry";
 
     static final String defaultUserId = "";
 
@@ -56,6 +57,7 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
         int pluginPriority = calculatePluginPriority(api, baseParams.get(VIRTUAL_SERVICE_MATCH_PRIORITY));
 
         String matchYaml = produceMatch(baseParams);
+        String httpRetryYaml = produceHttpRetry(baseParams);
         TemplateParams vsParams = TemplateParams.instance()
                 .setParent(baseParams)
                 .put(VIRTUAL_SERVICE_MATCH_YAML, matchYaml)
@@ -63,6 +65,7 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
                 .put(API_MATCH_PLUGINS, matchPlugins)
                 .put(API_API_PLUGINS, apiPlugins)
                 .put(API_HOST_PLUGINS, hostPlugins)
+                .put(VIRTUAL_SERVICE_HTTP_RETRY_YAML, httpRetryYaml)
                 .put(VIRTUAL_SERVICE_PLUGIN_MATCH_PRIORITY, pluginPriority);
 
         List<TemplateParams> collect = api.getGateways().stream()
@@ -93,6 +96,10 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
 
     String produceMatch(TemplateParams params) {
         return subModelProcessor.process(apiVirtualServiceMatch, params);
+    }
+
+    String produceHttpRetry(TemplateParams params) {
+        return subModelProcessor.process(apiVirtualServiceHttpRetry, params);
     }
 
     String produceHttpApi(TemplateParams params) {
