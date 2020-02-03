@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.netease.cloud.nsf.core.editor.PathExpressionEnum;
 import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
-import com.netease.cloud.nsf.core.gateway.GatewayModelOperator;
+import com.netease.cloud.nsf.core.gateway.IstioModelProcessor;
 import com.netease.cloud.nsf.core.gateway.service.ConfigManager;
 import com.netease.cloud.nsf.core.gateway.service.ConfigStore;
 import com.netease.cloud.nsf.core.istio.operator.IstioResourceOperator;
@@ -41,14 +41,14 @@ import java.util.stream.Collectors;
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/7/25
  **/
 @Component
-public class GatewayConfigManager implements ConfigManager {
+public class K8sConfigManager implements ConfigManager {
 
-    private static final Logger logger = LoggerFactory.getLogger(GatewayConfigManager.class);
+    private static final Logger logger = LoggerFactory.getLogger(K8sConfigManager.class);
 
     private static final String VM_RESOURCE_NAME = "version-manager";
 
     @Autowired
-    private GatewayModelOperator modelProcessor;
+    private IstioModelProcessor modelProcessor;
 
     @Autowired
     private K8sConfigStore configStore;
@@ -230,13 +230,13 @@ public class GatewayConfigManager implements ConfigManager {
     }
 
     @Override
-    public void updateConfig(GlobalPlugins gp) {
+    public void updateConfig(GlobalPlugin gp) {
         List<IstioResource> resources = modelProcessor.translate(gp);
         update(resources);
     }
 
     @Override
-    public void deleteConfig(GlobalPlugins gp) {
+    public void deleteConfig(GlobalPlugin gp) {
         List<IstioResource> resources = modelProcessor.translate(gp);
 
         Function<IstioResource, IstioResource> deleteFun = r -> {

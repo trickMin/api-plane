@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableMap;
 import com.netease.cloud.nsf.meta.Graph;
 import com.netease.cloud.nsf.service.ServiceMeshService;
 import com.netease.cloud.nsf.service.TopoService;
-import com.netease.cloud.nsf.util.Const;
 import com.netease.cloud.nsf.util.errorcode.ApiPlaneErrorCode;
 import com.netease.cloud.nsf.util.errorcode.ErrorCode;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -49,7 +48,6 @@ public class ServiceMeshController extends BaseController {
                                @RequestParam(name = "Kind")String kind) {
         return apiReturn(ImmutableMap.of(RESULT, istioService.getIstioResource(name, namespace, kind)));
     }
-
 
     @RequestMapping(params = {"Action=InjectSidecar"}, method = RequestMethod.GET)
     public String injectSidecar(@RequestParam(name = "Name") String name,

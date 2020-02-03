@@ -142,8 +142,8 @@ public class GatewayServiceImpl implements GatewayService {
     }
 
     @Override
-    public void updateGlobalPlugins(GlobalPluginsDTO globalPluginsDTO) {
-        configManager.updateConfig(Trans.globalPluginsDTO2GlobalPlugins(globalPluginsDTO));
+    public void updateGlobalPlugins(GlobalPluginDTO globalPluginDTO) {
+        configManager.updateConfig(Trans.globalPluginsDTO2GlobalPlugins(globalPluginDTO));
 
     }
 

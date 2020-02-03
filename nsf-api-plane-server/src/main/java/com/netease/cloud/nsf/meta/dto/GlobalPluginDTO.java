@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2020/1/13
  **/
-public class GlobalPluginsDTO {
+public class GlobalPluginDTO {
 
     @JsonProperty(value = "Gateway")
     @NotNull(message = "Gateway")

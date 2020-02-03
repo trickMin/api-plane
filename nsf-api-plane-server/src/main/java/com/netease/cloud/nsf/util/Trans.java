@@ -196,9 +196,9 @@ public class Trans {
         return api;
     }
 
-    public static GlobalPlugins globalPluginsDTO2GlobalPlugins(GlobalPluginsDTO globalPluginsDTO) {
+    public static GlobalPlugin globalPluginsDTO2GlobalPlugins(GlobalPluginDTO globalPluginsDTO) {
 
-        GlobalPlugins gp = new GlobalPlugins();
+        GlobalPlugin gp = new GlobalPlugin();
         gp.setCode(globalPluginsDTO.getCode());
         gp.setGateway(globalPluginsDTO.getGateway());
         gp.setHosts(globalPluginsDTO.getHosts());
@@ -206,9 +206,9 @@ public class Trans {
         return gp;
     }
 
-    public static GlobalPlugins globalPluginsDeleteDTO2GlobalPlugins(GlobalPluginsDeleteDTO globalPluginsDeleteDTO) {
+    public static GlobalPlugin globalPluginsDeleteDTO2GlobalPlugins(GlobalPluginsDeleteDTO globalPluginsDeleteDTO) {
 
-        GlobalPlugins gp = new GlobalPlugins();
+        GlobalPlugin gp = new GlobalPlugin();
         gp.setCode(globalPluginsDeleteDTO.getCode());
         gp.setPlugins(globalPluginsDeleteDTO.getPlugins());
         return gp;

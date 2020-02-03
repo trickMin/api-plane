@@ -2,8 +2,10 @@ package com.netease.cloud.nsf.core.gateway.handler;
 
 import com.netease.cloud.nsf.core.plugin.FragmentWrapper;
 import com.netease.cloud.nsf.core.template.TemplateParams;
+import org.springframework.util.CollectionUtils;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static com.netease.cloud.nsf.core.template.TemplateConst.SHARED_CONFIG_DESCRIPTOR;
@@ -22,6 +24,7 @@ public class GatewayPluginSharedConfigDataHandler extends GatewayPluginDataHandl
     List<TemplateParams> doHandle(TemplateParams baseParams) {
         List<String> descriptors = extractFragments(fragments);
 
+        if (CollectionUtils.isEmpty(descriptors)) return Collections.EMPTY_LIST;
         return Arrays.asList(TemplateParams.instance()
                 .setParent(baseParams)
                 .put(SHARED_CONFIG_DESCRIPTOR, descriptors));

@@ -2,7 +2,7 @@ package com.netease.cloud.nsf.core.gateway.handler;
 
 import com.netease.cloud.nsf.core.plugin.FragmentWrapper;
 import com.netease.cloud.nsf.core.template.TemplateParams;
-import com.netease.cloud.nsf.meta.GlobalPlugins;
+import com.netease.cloud.nsf.meta.GlobalPlugin;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Arrays;
@@ -15,7 +15,7 @@ import static com.netease.cloud.nsf.core.template.TemplateConst.*;
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2020/1/13
  **/
-public class GatewayPluginDataHandler implements DataHandler<GlobalPlugins> {
+public class GatewayPluginDataHandler implements DataHandler<GlobalPlugin> {
 
     List<FragmentWrapper> fragments;
 
@@ -24,7 +24,7 @@ public class GatewayPluginDataHandler implements DataHandler<GlobalPlugins> {
     }
 
     @Override
-    public List<TemplateParams> handle(GlobalPlugins gp) {
+    public List<TemplateParams> handle(GlobalPlugin gp) {
 
         List<String> plugins = extractFragments(fragments);
         TemplateParams pmParams = TemplateParams.instance()
