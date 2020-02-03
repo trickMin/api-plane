@@ -30,6 +30,9 @@ public class TransformProcessor extends AbstractSchemaProcessor implements Schem
     public FragmentHolder process(String plugin, ServiceInfo serviceInfo) {
         ResourceGenerator source = ResourceGenerator.newInstance(plugin);
         ResourceGenerator builder = ResourceGenerator.newInstance("{\"request_transformations\":[{\"transformation_template\":{\"extractors\":{},\"headers\":{},\"query_param_operators\":{},\"parse_body_behavior\":\"DontParse\"}}]}");
+        if (source.contain("$.conditions")) {
+            buildConditions(source, builder);
+        }
         List<String> texts = new ArrayList<>();
         if (source.contain("$.headers")) {
             texts.addAll(source.getValue("$.headers[*].text"));
@@ -60,6 +63,28 @@ public class TransformProcessor extends AbstractSchemaProcessor implements Schem
                 .build();
         fragmentHolder.setVirtualServiceFragment(wrapper);
         return fragmentHolder;
+    }
+
+    private void buildConditions(ResourceGenerator source, ResourceGenerator builder) {
+        builder.createOrUpdateJson("$.request_transformations[0]", "conditions", "[{\"headers\":[],\"query_parameters\":[]}]");
+        if (source.contain("$.conditions.headers")) {
+            int itemCount = source.getValue("$.conditions.headers.length()", Integer.class);
+            for (int i = 0; i < itemCount; i++) {
+                String op = source.getValue(String.format("$.conditions.headers[%s].op", i));
+                String key = source.getValue(String.format("$.conditions.headers[%s].key", i));
+                String text = source.getValue(String.format("$.conditions.headers[%s].text", i));
+                builder.addJsonElement("$.request_transformations[0].conditions[0].headers", String.format("{\"name\":\"%s\",\"regex_match\":\"%s\"}", key, getRegexByOp(op, text)));
+            }
+        }
+        if (source.contain("$.conditions.querystrings")) {
+            int itemCount = source.getValue("$.conditions.querystrings.length()", Integer.class);
+            for (int i = 0; i < itemCount; i++) {
+                String op = source.getValue(String.format("$.conditions.querystrings[%s].op", i));
+                String key = source.getValue(String.format("$.conditions.querystrings[%s].key", i));
+                String text = source.getValue(String.format("$.conditions.querystrings[%s].text", i));
+                builder.addJsonElement("$.request_transformations[0].conditions[0].query_parameters", String.format("{\"name\":\"%s\",\"value\":\"%s\",\"regex\":true}", key, getRegexByOp(op, text)));
+            }
+        }
     }
 
     private void buildExtractors(List<String> placeholders, ResourceGenerator builder, ServiceInfo serviceInfo) {

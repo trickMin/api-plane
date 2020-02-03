@@ -34,8 +34,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.netease.cloud.nsf.core.template.TemplateConst.*;
-
 
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/7/17
@@ -84,8 +82,10 @@ public class GatewayModelOperator {
     public List<IstioResource> translate(API api) {
         return translate(api, false);
     }
+
     /**
      * 将api转换为istio对应的规则
+     *
      * @param api
      * @param simple 是否为简单模式，部分字段不渲染，主要用于删除
      * @return
@@ -146,6 +146,7 @@ public class GatewayModelOperator {
 
     /**
      * 将gateway转换为istio对应的规则
+     *
      * @param istioGateway
      * @return
      */
@@ -184,12 +185,12 @@ public class GatewayModelOperator {
         List<IstioResource> resources = new ArrayList<>();
         List<String> rawResources = new ArrayList<>();
         RawResourceContainer rawResourceContainer = new RawResourceContainer();
-        List<FragmentHolder> plugins = pluginService.processSchema(gp.getPlugins(), new ServiceInfo());
+        List<FragmentHolder> plugins = pluginService.processGlobalPlugin(gp.getPlugins(), new ServiceInfo());
         rawResourceContainer.add(plugins);
 
         List<String> rawGatewayPlugins = defaultModelProcessor.process(gatewayPlugin, gp, new GatewayPluginDataHandler(rawResourceContainer.getGatewayPlugins()));
+        //todo: shareConfig逻辑需要适配
         List<String> rawSharedConfigs = renderTwiceModelProcessor.process(apiSharedConfig, gp, new GatewayPluginSharedConfigDataHandler(rawResourceContainer.getSharedConfigs()));
-
         rawResources.addAll(rawGatewayPlugins);
         rawResources.addAll(rawSharedConfigs);
 
@@ -238,22 +239,8 @@ public class GatewayModelOperator {
                 .filter(p -> !StringUtils.isEmpty(p))
                 .collect(Collectors.toList());
         api.setPlugins(plugins);
-        ServiceInfo service = new ServiceInfo();
-        service.setApiName(wrap(API_NAME));
-        service.setUri(wrap(API_REQUEST_URIS));
-        service.setMethod(wrap(API_METHODS));
-        service.setSubset(wrap(VIRTUAL_SERVICE_SUBSET_NAME));
-        service.setHosts(wrap(VIRTUAL_SERVICE_HOST_HEADERS));
-        service.setPriority(wrap(VIRTUAL_SERVICE_PLUGIN_MATCH_PRIORITY));
-        service.setApiName(wrap(API_NAME));
-        service.setServiceName(wrap(API_SERVICE));
 
-        return pluginService.processSchema(plugins, service);
-    }
-
-    private String wrap(String raw) {
-        if (StringUtils.isEmpty(raw)) throw new NullPointerException();
-        return "${" + raw + "}";
+        return pluginService.processPlugin(plugins, new ServiceInfo());
     }
 
     private IstioResource str2IstioResource(String str) {

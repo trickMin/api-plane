@@ -1,6 +1,6 @@
 package com.netease.cloud.nsf.meta;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import org.springframework.util.StringUtils;
 
 import static com.netease.cloud.nsf.core.template.TemplateConst.*;
 
@@ -11,46 +11,45 @@ import static com.netease.cloud.nsf.core.template.TemplateConst.*;
 public class ServiceInfo {
     // 提供apiName占位符，例如${t_api_name},后续GatewayModelProcessor会进行渲染
     // 也可直接从API中获得apiName
-    @JsonProperty(API_NAME)
-    private String apiName;
+    private String apiName = wrap(API_NAME);
 
-    @JsonProperty(API_SERVICE)
-    private String serviceName;
+    private String serviceName = wrap(API_SERVICE);
 
     // 提供method占位符，例如${t_api_methods},后续GatewayModelProcessor会进行渲染
     // 也可直接从API中获得method
-    @JsonProperty(API_METHODS)
-    private String method;
+    private String method = wrap(API_METHODS);
 
     // 提供uri占位符，例如${t_api_request_uris},后续GatewayModelProcessor会进行渲染
     // 也可直接从API中获得uri
-    @JsonProperty(VIRTUAL_SERVICE_HOSTS_YAML)
-    private String uri;
+    private String uri = wrap(API_REQUEST_URIS);
 
     // 提供subset占位符，例如${t_virtual_service_subset_name},后续GatewayModelProcessor会进行渲染，不能从API中获得
-    @JsonProperty(VIRTUAL_SERVICE_SUBSET_NAME)
-    private String subset;
+    private String subset = wrap(VIRTUAL_SERVICE_SUBSET_NAME);
 
-    @JsonProperty(VIRTUAL_SERVICE_HOST_HEADERS)
-    private String hosts;
+    private String hosts = wrap(VIRTUAL_SERVICE_HOST_HEADERS);
 
-    @JsonProperty(VIRTUAL_SERVICE_PLUGIN_MATCH_PRIORITY)
-    private String priority;
+    private String priority = wrap(VIRTUAL_SERVICE_PLUGIN_MATCH_PRIORITY);
 
     public String getApiName() {
         return apiName;
     }
 
-    @JsonProperty(API_NAME)
     public void setApiName(String apiName) {
         this.apiName = apiName;
+    }
+
+    public String getServiceName() {
+        return serviceName;
+    }
+
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName;
     }
 
     public String getMethod() {
         return method;
     }
 
-    @JsonProperty(API_METHODS)
     public void setMethod(String method) {
         this.method = method;
     }
@@ -59,7 +58,6 @@ public class ServiceInfo {
         return uri;
     }
 
-    @JsonProperty(VIRTUAL_SERVICE_HOSTS_YAML)
     public void setUri(String uri) {
         this.uri = uri;
     }
@@ -68,7 +66,6 @@ public class ServiceInfo {
         return subset;
     }
 
-    @JsonProperty(VIRTUAL_SERVICE_SUBSET_NAME)
     public void setSubset(String subset) {
         this.subset = subset;
     }
@@ -77,7 +74,6 @@ public class ServiceInfo {
         return hosts;
     }
 
-    @JsonProperty(VIRTUAL_SERVICE_HOST_HEADERS)
     public void setHosts(String hosts) {
         this.hosts = hosts;
     }
@@ -86,18 +82,8 @@ public class ServiceInfo {
         return priority;
     }
 
-    @JsonProperty(VIRTUAL_SERVICE_PLUGIN_MATCH_PRIORITY)
     public void setPriority(String priority) {
         this.priority = priority;
-    }
-
-    public String getServiceName() {
-        return serviceName;
-    }
-
-    @JsonProperty(API_SERVICE)
-    public void setServiceName(String serviceName) {
-        this.serviceName = serviceName;
     }
 
     @Override
@@ -111,5 +97,10 @@ public class ServiceInfo {
                 ", hosts='" + hosts + '\'' +
                 ", priority='" + priority + '\'' +
                 '}';
+    }
+
+    private String wrap(String raw) {
+        if (StringUtils.isEmpty(raw)) throw new NullPointerException();
+        return "${" + raw + "}";
     }
 }

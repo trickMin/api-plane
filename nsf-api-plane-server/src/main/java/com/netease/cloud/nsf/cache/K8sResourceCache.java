@@ -11,13 +11,11 @@ import com.netease.cloud.nsf.core.k8s.MultiClusterK8sClient;
 import com.netease.cloud.nsf.meta.PodStatus;
 import com.netease.cloud.nsf.meta.PodVersion;
 import com.netease.cloud.nsf.service.GatewayService;
+import com.netease.cloud.nsf.service.ServiceMeshService;
 import com.netease.cloud.nsf.util.Const;
 import com.netease.cloud.nsf.util.RestTemplateClient;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
-import io.fabric8.kubernetes.api.model.EndpointAddress;
-import io.fabric8.kubernetes.api.model.Endpoints;
-import io.fabric8.kubernetes.api.model.HasMetadata;
-import io.fabric8.kubernetes.api.model.ObjectReference;
+import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +49,9 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
 
     @Autowired
     GatewayService gatewayService;
+
+    @Autowired
+    ServiceMeshService serviceMeshService;
 
 
     @Autowired
@@ -275,7 +276,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                         service.getMetadata().getNamespace(),
                         service.getMetadata().getName()).stream()
                         .map(obj -> new WorkLoadDTO<>(obj, getServiceName(service), clusterId,
-                                getProjectCodeFromService(service),getEnvNameFromService(service)))
+                                getProjectCodeFromService(service), getEnvNameFromService(service)))
                         .collect(Collectors.toList());
             }
         }
@@ -296,7 +297,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     }
 
     @Override
-    public List<T> getPodInfoByWorkLoadInfo(String clusterId, String kind, String namespace, String name){
+    public List<T> getPodInfoByWorkLoadInfo(String clusterId, String kind, String namespace, String name) {
         OwnerReferenceSupportStore store = ResourceStoreFactory.getResourceStore(clusterId);
         T obj = (T) store.get(kind, namespace, name);
         if (obj == null) {
@@ -331,25 +332,25 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         serviceList.forEach(service -> workLoadList.addAll(getWorkLoadByIndex(clusterId,
                 service.getMetadata().getNamespace(),
                 service.getMetadata().getName()).stream()
-                .map(obj -> new WorkLoadDTO<>(obj, getServiceName(service), clusterId ,
-                       getProjectCodeFromService(service), getEnvNameFromService(service)))
+                .map(obj -> new WorkLoadDTO<>(obj, getServiceName(service), clusterId,
+                        getProjectCodeFromService(service), getEnvNameFromService(service)))
                 .collect(Collectors.toList())
         ));
         return workLoadList;
     }
 
-    private String getProjectCodeFromService(T service){
-        if (service.getMetadata().getLabels()==null){
+    private String getProjectCodeFromService(T service) {
+        if (service.getMetadata().getLabels() == null) {
             return null;
         }
-        return  service.getMetadata().getLabels().get(Const.LABEL_NSF_PROJECT_ID);
+        return service.getMetadata().getLabels().get(Const.LABEL_NSF_PROJECT_ID);
     }
 
-    private String getEnvNameFromService(T service){
-        if (service.getMetadata().getLabels()==null){
+    private String getEnvNameFromService(T service) {
+        if (service.getMetadata().getLabels() == null) {
             return null;
         }
-        return  service.getMetadata().getLabels().get(Const.LABEL_NSF_ENV);
+        return service.getMetadata().getLabels().get(Const.LABEL_NSF_ENV);
     }
 
     @Override
@@ -459,12 +460,19 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         queryVersion.setPodNames(Arrays.asList(podDTO.getName()));
         List<PodStatus> podStatuses = gatewayService.queryByPodNameList(queryVersion);
         if (CollectionUtils.isEmpty(podStatuses)) {
+            if (podDTO.isInjected()){
+                podDTO.setVersionManagerCrdStatus(Const.VERSION_MANAGER_CRD_MISSING);
+            }else {
+                podDTO.setVersionManagerCrdStatus(Const.VERSION_MANAGER_CRD_DEFAULT);
+            }
             return podDTO;
         }
+        podDTO.setVersionManagerCrdStatus(Const.VERSION_MANAGER_CRD_EXIST);
         PodStatus status = podStatuses.get(0);
         podDTO.setSidecarStatus(status.getCurrentVersion());
         return podDTO;
     }
+
 
     private WorkLoadDTO<T> addSidecarVersionOnWorkLoad(WorkLoadDTO<T> workLoadDTO) {
         List<PodDTO<T>> podByWorkLoadInfo = getPodDtoByWorkLoadInfo(workLoadDTO.getClusterId(), workLoadDTO.getKind(), workLoadDTO.getNamespace(),
@@ -511,7 +519,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         if (!CollectionUtils.isEmpty(podReferences)) {
             podReferences.forEach(podRef -> {
                 T pod = (T) store.get(Pod.name(), podRef.getNamespace(), podRef.getName());
-                if (pod != null){
+                if (pod != null) {
                     workLoadList.addAll(store.listLoadByPod(pod));
                 }
             });

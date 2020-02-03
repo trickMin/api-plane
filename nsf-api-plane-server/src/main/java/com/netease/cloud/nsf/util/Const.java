@@ -50,4 +50,10 @@ public interface Const {
     String DOWNLOAD_DAEMONSET_NAMESPACE = "gateway-system";
     String DOWNLOAD_DAEMONSET_PORT = "9050";
 
+    String SIDECAR_CONTAINER = "istio-proxy";
+
+    int VERSION_MANAGER_CRD_EXIST = 1;
+    int VERSION_MANAGER_CRD_MISSING = 2;
+    int VERSION_MANAGER_CRD_DEFAULT = 3;
+
 }

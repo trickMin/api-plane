@@ -78,14 +78,14 @@ public class PortalGatewayController extends BaseController {
         return apiReturn(result);
     }
 
-    @RequestMapping(value = "/portal", params = "Action=PublishGlobalPlugins", method = RequestMethod.POST)
-    public String publishGlobalPlugins(@RequestBody @Valid GlobalPluginsDTO globalPluginsDTO) {
+    @RequestMapping(value = "/portal", params = "Action=PublishGlobalPlugin", method = RequestMethod.POST)
+    public String publishGlobalPlugin(@RequestBody @Valid GlobalPluginsDTO globalPluginsDTO) {
         gatewayService.updateGlobalPlugins(globalPluginsDTO);
         return apiReturn(ApiPlaneErrorCode.Success);
     }
 
-    @RequestMapping(value = "/portal", params = "Action=DeleteGlobalPlugins", method = RequestMethod.POST)
-    public String deleteGlobalPlugins(@RequestBody @Valid GlobalPluginsDeleteDTO globalPluginsDeleteDTO) {
+    @RequestMapping(value = "/portal", params = "Action=DeleteGlobalPlugin", method = RequestMethod.POST)
+    public String deleteGlobalPlugin(@RequestBody @Valid GlobalPluginsDeleteDTO globalPluginsDeleteDTO) {
         gatewayService.deleteGlobalPlugins(globalPluginsDeleteDTO);
         return apiReturn(ApiPlaneErrorCode.Success);
     }

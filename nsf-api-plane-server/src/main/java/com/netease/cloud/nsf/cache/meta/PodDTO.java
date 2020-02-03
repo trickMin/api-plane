@@ -1,5 +1,7 @@
 package com.netease.cloud.nsf.cache.meta;
 
+import com.netease.cloud.nsf.util.Const;
+import io.fabric8.kubernetes.api.model.ContainerStatus;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.Quantity;
@@ -36,6 +38,25 @@ public class PodDTO<T extends HasMetadata> extends K8sResourceDTO {
 
     private String sidecarStatus;
 
+    private boolean isInjected;
+
+    private int versionManagerCrdStatus;
+
+    public int getVersionManagerCrdStatus() {
+        return versionManagerCrdStatus;
+    }
+
+    public void setVersionManagerCrdStatus(int versionManagerCrdStatus) {
+        this.versionManagerCrdStatus = versionManagerCrdStatus;
+    }
+
+    public boolean isInjected() {
+        return isInjected;
+    }
+
+    public void setInjected(boolean injected) {
+        isInjected = injected;
+    }
 
     private List<ContainerInfo> containerInfoList = new ArrayList<>();
 
@@ -78,6 +99,7 @@ public class PodDTO<T extends HasMetadata> extends K8sResourceDTO {
             this.hostIp = pod.getStatus().getHostIP();
             this.podIp = pod.getStatus().getPodIP();
             this.status = pod.getStatus().getPhase();
+            this.isInjected = isInjected(pod);
             Map<String, ContainerInfo> containerInfoMap = new HashMap<>();
             // 更新容器资源信息
 
@@ -201,6 +223,21 @@ public class PodDTO<T extends HasMetadata> extends K8sResourceDTO {
         }
     }
 
+    private boolean isInjected(Pod pod){
+        if (pod.getStatus() == null){
+            return false;
+        }
+        if (pod.getStatus().getContainerStatuses() == null){
+            return false;
+        }
+        List<ContainerStatus> containerStatuses = pod.getStatus().getContainerStatuses();
+        for (ContainerStatus containerStatus : containerStatuses) {
+            if (Const.SIDECAR_CONTAINER.equals(containerStatus.getName())){
+                return true;
+            }
+        }
+        return false;
+    }
 
     private int getResourceValueIndex(String amount) {
         if (StringUtils.isEmpty(amount)) {
