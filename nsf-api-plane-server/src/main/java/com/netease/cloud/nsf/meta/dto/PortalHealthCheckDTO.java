@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/11/25
  **/
-public class HealthCheckDTO {
+public class PortalHealthCheckDTO {
 
     @JsonProperty(value = "Path")
     @NotNull(message = "path")

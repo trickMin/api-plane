@@ -120,24 +120,66 @@ public class Trans {
             s.setGateway(portalService.getGateway().toLowerCase());
         }
         s.setProtocol(portalService.getProtocol());
-        s.setConsecutiveErrors(portalService.getConsecutiveErrors());
-        s.setBaseEjectionTime(portalService.getBaseEjectionTime());
-        s.setMaxEjectionPercent(portalService.getMaxEjectionPercent());
-        s.setServiceTag(portalService.getServiceTag());
-        if (portalService.getHealthCheck() != null) {
-            HealthCheckDTO healthCheck = portalService.getHealthCheck();
-            s.setPath(healthCheck.getPath());
-            s.setTimeout(healthCheck.getTimeout());
-            s.setExpectedStatuses(healthCheck.getExpectedStatuses());
-            s.setHealthyInterval(healthCheck.getHealthyInterval());
-            s.setHealthyThreshold(healthCheck.getHealthyThreshold());
-            s.setUnhealthyInterval(healthCheck.getUnhealthyInterval());
-            s.setUnhealthyThreshold(healthCheck.getUnhealthyThreshold());
+        if (portalService.getTrafficPolicy() != null) {
+            PortalTrafficPolicyDTO trafficPolicy = portalService.getTrafficPolicy();
+            PortalOutlierDetectionDTO outlierDetection = trafficPolicy.getOutlierDetection();
+            PortalHealthCheckDTO healthCheck = trafficPolicy.getHealthCheck();
+            PortalLoadBalancerDTO loadbalancer = trafficPolicy.getLoadbalancer();
+
+            if (outlierDetection != null) {
+                s.setConsecutiveErrors(outlierDetection.getConsecutiveErrors());
+                s.setBaseEjectionTime(outlierDetection.getBaseEjectionTime());
+                s.setMaxEjectionPercent(outlierDetection.getMaxEjectionPercent());
+            }
+
+            if (healthCheck != null) {
+                s.setPath(healthCheck.getPath());
+                s.setTimeout(healthCheck.getTimeout());
+                s.setExpectedStatuses(healthCheck.getExpectedStatuses());
+                s.setHealthyInterval(healthCheck.getHealthyInterval());
+                s.setHealthyThreshold(healthCheck.getHealthyThreshold());
+                s.setUnhealthyInterval(healthCheck.getUnhealthyInterval());
+                s.setUnhealthyThreshold(healthCheck.getUnhealthyThreshold());
+            }
+
+            if (loadbalancer != null) {
+                s.setLoadBalancer(serviceLBDTO2ServiceLB(loadbalancer));
+            }
         }
-        s.setLoadBalancer(portalService.getLoadBalancer());
+
+        s.setServiceTag(portalService.getServiceTag());
         s.setSubsets(subsetDTO2Subset(portalService.getSubsets()));
 
         return s;
+    }
+
+    private static Service.ServiceLoadBalancer serviceLBDTO2ServiceLB(PortalLoadBalancerDTO loadBalancerDTO) {
+
+        if (loadBalancerDTO == null) return null;
+        Service.ServiceLoadBalancer serviceLoadBalancer = new Service.ServiceLoadBalancer();
+
+        if (StringUtils.isEmpty(loadBalancerDTO.getSimple())) {
+            // round robin, random, least conn
+            serviceLoadBalancer.setSimple(loadBalancerDTO.getSimple());
+        } else if (loadBalancerDTO.getConsistentHashDTO() != null){
+            // consistent hash
+            PortalLoadBalancerDTO.ConsistentHashDTO consistentHashDTO = loadBalancerDTO.getConsistentHashDTO();
+            Service.ServiceLoadBalancer.ConsistentHash consistentHash = new Service.ServiceLoadBalancer.ConsistentHash();
+            if (consistentHashDTO.getUseSourceIp() != null) {
+                consistentHash.setUseSourceIp(consistentHashDTO.getUseSourceIp());
+            } else if (StringUtils.isEmpty(consistentHashDTO.getHttpHeaderName())) {
+                consistentHash.setHttpHeaderName(consistentHashDTO.getHttpHeaderName());
+            } else if (consistentHashDTO.getHttpCookie() != null) {
+                PortalLoadBalancerDTO.ConsistentHashDTO.HttpCookieDTO httpCookieDTO = consistentHashDTO.getHttpCookie();
+                Service.ServiceLoadBalancer.ConsistentHash.HttpCookie httpCookie = new Service.ServiceLoadBalancer.ConsistentHash.HttpCookie();
+                httpCookie.setName(httpCookieDTO.getName());
+                httpCookie.setPath(httpCookieDTO.getPath());
+                httpCookie.setTtl(httpCookieDTO.getTtl());
+                consistentHash.setHttpCookie(httpCookie);
+            }
+            serviceLoadBalancer.setConsistentHash(consistentHash);
+        }
+        return serviceLoadBalancer;
     }
 
     private static List<ServiceSubset> subsetDTO2Subset(List<ServiceSubsetDTO> subsets) {

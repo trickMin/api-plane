@@ -1,8 +1,16 @@
 package com.netease.cloud.nsf.core.gateway.handler;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
+import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import com.netease.cloud.nsf.core.template.TemplateParams;
 import com.netease.cloud.nsf.meta.Service;
+import com.netease.cloud.nsf.util.CommonUtil;
 import com.netease.cloud.nsf.util.Const;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.List;
@@ -13,6 +21,10 @@ import static com.netease.cloud.nsf.core.template.TemplateConst.*;
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/9/27
  **/
 public class PortalDestinationRuleServiceDataHandler extends ServiceDataHandler {
+
+    private static final Logger logger = LoggerFactory.getLogger(PortalDestinationRuleServiceDataHandler.class);
+
+    private static YAMLMapper yamlMapper;
 
     @Override
     List<TemplateParams> doHandle(TemplateParams tp, Service service) {
@@ -32,7 +44,7 @@ public class PortalDestinationRuleServiceDataHandler extends ServiceDataHandler 
                 .put(DESTINATION_RULE_UNHEALTHY_INTERVAL, service.getUnhealthyInterval())
                 .put(DESTINATION_RULE_UNHEALTHY_THRESHOLD, service.getUnhealthyThreshold())
                 .put(DESTINATION_RULE_ALT_STAT_NAME, service.getServiceTag())
-                .put(DESTINATION_RULE_LOAD_BALANCER, service.getLoadBalancer())
+                .put(DESTINATION_RULE_LOAD_BALANCER, CommonUtil.obj2yaml(service.getLoadBalancer()))
                 .put(DESTINATION_RULE_EXTRA_SUBSETS, service.getSubsets())
                 .put(API_GATEWAY, service.getGateway());
 
@@ -43,5 +55,4 @@ public class PortalDestinationRuleServiceDataHandler extends ServiceDataHandler 
         }
         return Arrays.asList(params);
     }
-
 }

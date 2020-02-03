@@ -4,7 +4,7 @@ trafficPolicy:
       idleTimeout: 3s
   loadBalancer:
 <#if t_destination_rule_load_balancer?has_content>
-    simple: ${t_destination_rule_load_balancer}
+<@indent count=4>${t_destination_rule_load_balancer}></@indent>
 </#if>
   outlierDetection:
 <#if t_destination_rule_consecutive_errors?has_content>

@@ -93,7 +93,7 @@ public class Service extends CommonModel {
     /**
      * 负载均衡
      */
-    private String loadBalancer;
+    private ServiceLoadBalancer loadBalancer;
 
     /**
      * 端口
@@ -243,11 +243,11 @@ public class Service extends CommonModel {
         this.serviceTag = serviceTag;
     }
 
-    public String getLoadBalancer() {
+    public ServiceLoadBalancer getLoadBalancer() {
         return loadBalancer;
     }
 
-    public void setLoadBalancer(String loadBalancer) {
+    public void setLoadBalancer(ServiceLoadBalancer loadBalancer) {
         this.loadBalancer = loadBalancer;
     }
 
@@ -273,5 +273,88 @@ public class Service extends CommonModel {
 
     public void setSubset(String subset) {
         this.subset = subset;
+    }
+
+    public static class ServiceLoadBalancer {
+        private String simple;
+        private ConsistentHash consistentHash;
+
+        public String getSimple() {
+            return simple;
+        }
+
+        public void setSimple(String simple) {
+            this.simple = simple;
+        }
+
+        public ConsistentHash getConsistentHash() {
+            return consistentHash;
+        }
+
+        public void setConsistentHash(ConsistentHash consistentHash) {
+            this.consistentHash = consistentHash;
+        }
+
+        public static class ConsistentHash {
+
+            private String httpHeaderName;
+            private Boolean useSourceIp;
+            private HttpCookie httpCookie;
+
+            public static class HttpCookie {
+                private String name;
+                private String path;
+                private String ttl;
+
+                public String getName() {
+                    return name;
+                }
+
+                public void setName(String name) {
+                    this.name = name;
+                }
+
+                public String getPath() {
+                    return path;
+                }
+
+                public void setPath(String path) {
+                    this.path = path;
+                }
+
+                public String getTtl() {
+                    return ttl;
+                }
+
+                public void setTtl(String ttl) {
+                    this.ttl = ttl;
+                }
+            }
+
+            public String getHttpHeaderName() {
+                return httpHeaderName;
+            }
+
+            public void setHttpHeaderName(String httpHeaderName) {
+                this.httpHeaderName = httpHeaderName;
+            }
+
+            public Boolean getUseSourceIp() {
+                return useSourceIp;
+            }
+
+            public void setUseSourceIp(Boolean useSourceIp) {
+                this.useSourceIp = useSourceIp;
+            }
+
+            public HttpCookie getHttpCookie() {
+                return httpCookie;
+            }
+
+            public void setHttpCookie(HttpCookie httpCookie) {
+                this.httpCookie = httpCookie;
+            }
+        }
+
     }
 }
