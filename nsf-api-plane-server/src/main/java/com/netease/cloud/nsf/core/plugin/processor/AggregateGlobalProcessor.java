@@ -32,7 +32,7 @@ public class AggregateGlobalProcessor extends AbstractSchemaProcessor implements
             return;
         }
         if (Objects.nonNull(holder.getSharedConfigFragment())) {
-            holder.setGatewayPluginsFragment(holder.getGatewayPluginsFragment());
+            holder.setGatewayPluginsFragment(holder.getSharedConfigFragment());
             return;
         }
     }
