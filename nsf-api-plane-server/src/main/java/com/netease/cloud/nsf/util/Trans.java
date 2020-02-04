@@ -158,7 +158,7 @@ public class Trans {
         if (loadBalancerDTO == null) return null;
         Service.ServiceLoadBalancer serviceLoadBalancer = new Service.ServiceLoadBalancer();
 
-        if (StringUtils.isEmpty(loadBalancerDTO.getSimple())) {
+        if (!StringUtils.isEmpty(loadBalancerDTO.getSimple())) {
             // round robin, random, least conn
             serviceLoadBalancer.setSimple(loadBalancerDTO.getSimple());
         } else if (loadBalancerDTO.getConsistentHashDTO() != null){
@@ -167,7 +167,7 @@ public class Trans {
             Service.ServiceLoadBalancer.ConsistentHash consistentHash = new Service.ServiceLoadBalancer.ConsistentHash();
             if (consistentHashDTO.getUseSourceIp() != null) {
                 consistentHash.setUseSourceIp(consistentHashDTO.getUseSourceIp());
-            } else if (StringUtils.isEmpty(consistentHashDTO.getHttpHeaderName())) {
+            } else if (!StringUtils.isEmpty(consistentHashDTO.getHttpHeaderName())) {
                 consistentHash.setHttpHeaderName(consistentHashDTO.getHttpHeaderName());
             } else if (consistentHashDTO.getHttpCookie() != null) {
                 PortalLoadBalancerDTO.ConsistentHashDTO.HttpCookieDTO httpCookieDTO = consistentHashDTO.getHttpCookie();

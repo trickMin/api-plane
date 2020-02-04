@@ -37,7 +37,7 @@ public class PortalLoadBalancerDTO {
         @JsonProperty(value = "UseSourceIp")
         private Boolean useSourceIp;
 
-        @JsonProperty(value = "httpCookie")
+        @JsonProperty(value = "HttpCookie")
         @Valid
         private HttpCookieDTO httpCookie;
 

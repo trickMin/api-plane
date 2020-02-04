@@ -51,6 +51,7 @@ public class CommonUtilTest {
     public void testObj2Yaml() {
 
         Service.ServiceLoadBalancer lb = new Service.ServiceLoadBalancer();
+        lb.setSimple("RANDOM");
         Service.ServiceLoadBalancer.ConsistentHash consistentHash = new Service.ServiceLoadBalancer.ConsistentHash();
         consistentHash.setHttpHeaderName("thisisheader");
         lb.setConsistentHash(consistentHash);
