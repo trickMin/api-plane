@@ -18,12 +18,21 @@ public class MixerApa extends HandleNsfmetaServiceGrpc.HandleNsfmetaServiceImplB
 		String sourceUid = instance.getSourceUid();
 		String destinationUid = instance.getDestinationUid();
 		TemplateHandlerService.OutputMsg output = TemplateHandlerService.OutputMsg.newBuilder()
-			.setDestinationProject("dProj " + destinationUid)
-			.setSourceProject("sProj " + sourceUid)
+			.setDestinationProject(testGetProjectId(destinationUid))
+			.setSourceProject(testGetProjectId(sourceUid))
 			.build();
 		System.out.println(String.format("############################################## %s|%s|%s", output, sourceUid, destinationUid));
 		responseObserver.onNext(output);
 		responseObserver.onCompleted();
 	}
+
+	private String testGetProjectId(String destinationUid) {
+		if (destinationUid.hashCode() % 2 == 0) {
+			return "test";
+		} else {
+			return "project1";
+		}
+	}
+
 }
 
