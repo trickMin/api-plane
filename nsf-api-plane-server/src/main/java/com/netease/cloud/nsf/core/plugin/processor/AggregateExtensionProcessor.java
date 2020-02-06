@@ -62,6 +62,14 @@ public class AggregateExtensionProcessor extends AbstractSchemaProcessor impleme
                 holder = getProcessor("StaticDowngradeProcessor").process(plugin, serviceInfo);
                 coverToExtensionPlugin(holder, "com.netease.staticdowngrade");
                 break;
+            case "ianus-percent-limit":
+                holder = getProcessor("FlowLimitProcessor").process(plugin, serviceInfo);
+                coverToExtensionPlugin(holder, "envoy.fault");
+                break;
+            case "ip-restriction":
+                holder = getProcessor("IpRestrictionProcessor").process(plugin, serviceInfo);
+                coverToExtensionPlugin(holder, "com.netease.iprestriction");
+                break;
             case "request-transformer":
             default:
                 holder = getProcessor("DefaultProcessor").process(plugin, serviceInfo);
