@@ -47,6 +47,30 @@
       "pluginScope": "routeRule",
       "pluginPriority": "",
       "instructionForUse": "静态降级插件，当返回结果符合条时件对返回结果进行降级"
+    },
+    {
+      "name": "ip-restriction",
+      "schema": "plugin/portal/ip-restriction.json",
+      "description": "黑白名单插件",
+      "processor": "AggregateGlobalProcessor",
+      "author": "system",
+      "createTime": "1572537600000",
+      "updateTime": "1572537600000",
+      "pluginScope": "routeRule",
+      "pluginPriority": "1000",
+      "instructionForUse": "根据ip过滤请求"
+    },
+    {
+      "name": "ianus-percent-limit",
+      "schema": "plugin/portal/ianus-percent-limit.json",
+      "description": "百分比限流插件",
+      "processor": "AggregateGlobalProcessor",
+      "author": "system",
+      "createTime": "1572537600000",
+      "updateTime": "1572537600000",
+      "pluginScope": "routeRule",
+      "pluginPriority": "500",
+      "instructionForUse": "按百分比限流，例如允许50%通"
     }
   ]
 }

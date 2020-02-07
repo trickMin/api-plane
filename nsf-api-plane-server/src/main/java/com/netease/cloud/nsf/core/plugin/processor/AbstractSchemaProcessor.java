@@ -6,6 +6,8 @@ import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.meta.ServiceInfo;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 
@@ -17,6 +19,8 @@ import java.util.List;
  **/
 public abstract class AbstractSchemaProcessor implements SchemaProcessor<ServiceInfo> {
 
+    private static final Logger logger = LoggerFactory.getLogger(AbstractSchemaProcessor.class);
+
     @Autowired
     protected EditorContext editorContext;
 
@@ -24,11 +28,12 @@ public abstract class AbstractSchemaProcessor implements SchemaProcessor<Service
     protected List<SchemaProcessor> processorList;
 
     protected SchemaProcessor getProcessor(String name) {
-        if (CollectionUtils.isEmpty(processorList)) return null;
+        logger.info("Get processor {}", name);
+        if (CollectionUtils.isEmpty(processorList)) throw new ApiPlaneException("The list of processors is empty");
         for (SchemaProcessor item : processorList) {
             if (name.equalsIgnoreCase(item.getName())) return item;
         }
-        return null;
+        throw new ApiPlaneException(String.format("Processor [%s] could not be found", name));
     }
 
     protected String getApiName(ServiceInfo serviceInfo) {

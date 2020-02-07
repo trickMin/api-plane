@@ -9,6 +9,7 @@ import com.netease.cloud.nsf.meta.ServiceInfo;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @auther wupenghuai@corp.netease.com
@@ -24,11 +25,16 @@ public class IpRestrictionProcessor extends AbstractSchemaProcessor implements S
     @Override
     public FragmentHolder process(String plugin, ServiceInfo serviceInfo) {
         ResourceGenerator rg = ResourceGenerator.newInstance(plugin);
-        ResourceGenerator ret = ResourceGenerator.newInstance("{\"ipRestriction\":{\"list\":[]}}");
-        ret.createOrUpdateJson("$.ipRestriction", "type", rg.getValue("$.type", String.class));
+        ResourceGenerator ret = ResourceGenerator.newInstance("{\"list\":[]}");
+        if (Objects.equals("0", rg.getValue("$.type", String.class))) {
+            ret.createOrUpdateJson("$", "type", "BLACK");
+        } else if (Objects.equals("1", rg.getValue("$.type", String.class))) {
+            ret.createOrUpdateJson("$", "type", "WHITE");
+        }
+        ret.createOrUpdateJson("$.ip_restriction", "type", rg.getValue("$.type", String.class));
         List<String> ips = rg.getValue("$.list[*]");
         for (String ip : ips) {
-            ret.addJsonElement("$.ipRestriction.list", ip);
+            ret.addJsonElement("$.list", ip);
         }
         FragmentHolder fragmentHolder = new FragmentHolder();
         FragmentWrapper wrapper = new FragmentWrapper.Builder()
