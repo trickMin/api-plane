@@ -59,7 +59,7 @@ public class CommonUtilTest {
         Service.ServiceLoadBalancer.ConsistentHash.HttpCookie cookie = new Service.ServiceLoadBalancer.ConsistentHash.HttpCookie();
         cookie.setName("na");
         cookie.setPath("path");
-        cookie.setTtl("30s");
+        cookie.setTtl(30);
 
         consistentHash.setHttpCookie(cookie);
 

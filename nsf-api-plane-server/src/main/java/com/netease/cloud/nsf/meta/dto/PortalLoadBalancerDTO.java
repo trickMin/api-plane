@@ -74,9 +74,9 @@ public class PortalLoadBalancerDTO {
             @JsonProperty(value = "Path")
             private String path;
 
-            @JsonProperty(value = "Ttl")
+            @JsonProperty(value = "TTL")
             @NotEmpty(message = "http cookie ttl")
-            private String ttl;
+            private Integer ttl;
 
             public String getName() {
                 return name;
@@ -94,11 +94,11 @@ public class PortalLoadBalancerDTO {
                 this.path = path;
             }
 
-            public String getTtl() {
+            public Integer getTtl() {
                 return ttl;
             }
 
-            public void setTtl(String ttl) {
+            public void setTtl(Integer ttl) {
                 this.ttl = ttl;
             }
         }
