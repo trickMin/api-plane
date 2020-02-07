@@ -7,6 +7,8 @@ import com.netease.cloud.nsf.core.plugin.FragmentHolder;
 import com.netease.cloud.nsf.core.plugin.FragmentTypeEnum;
 import com.netease.cloud.nsf.core.plugin.FragmentWrapper;
 import com.netease.cloud.nsf.meta.ServiceInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -24,6 +26,8 @@ import java.util.stream.Collectors;
  **/
 @Component
 public class AggregateExtensionProcessor extends AbstractSchemaProcessor implements SchemaProcessor<ServiceInfo> {
+
+    private static final Logger logger = LoggerFactory.getLogger(AggregateExtensionProcessor.class);
 
     @Override
     public String getName() {
@@ -85,6 +89,7 @@ public class AggregateExtensionProcessor extends AbstractSchemaProcessor impleme
             ResourceGenerator builder = ResourceGenerator.newInstance(String.format("{\"name\":\"%s\"}", name));
             builder.createOrUpdateJson("$", "settings", source.jsonString());
             holder.getVirtualServiceFragment().setContent(builder.yamlString());
+            logger.info("Extension plugin: [{}]", builder.yamlString());
         }
     }
 
