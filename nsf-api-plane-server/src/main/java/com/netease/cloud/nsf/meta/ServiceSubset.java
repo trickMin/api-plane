@@ -2,7 +2,7 @@ package com.netease.cloud.nsf.meta;
 
 import com.netease.cloud.nsf.meta.dto.PortalHealthCheckDTO;
 import com.netease.cloud.nsf.meta.dto.PortalOutlierDetectionDTO;
-import com.netease.cloud.nsf.meta.dto.PortalServiceConnectionPoolDto;
+import com.netease.cloud.nsf.meta.dto.PortalServiceConnectionPoolDTO;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
@@ -62,7 +62,7 @@ public class ServiceSubset {
         /**
          * 连接池
          */
-        private PortalServiceConnectionPoolDto connectionPool;
+        private PortalServiceConnectionPoolDTO connectionPool;
 
         public Service.ServiceLoadBalancer getLoadbalancer() {
             return loadbalancer;
@@ -88,11 +88,11 @@ public class ServiceSubset {
             this.outlierDetection = outlierDetection;
         }
 
-        public PortalServiceConnectionPoolDto getConnectionPool() {
+        public PortalServiceConnectionPoolDTO getConnectionPool() {
             return connectionPool;
         }
 
-        public void setConnectionPool(PortalServiceConnectionPoolDto connectionPool) {
+        public void setConnectionPool(PortalServiceConnectionPoolDTO connectionPool) {
             this.connectionPool = connectionPool;
         }
 

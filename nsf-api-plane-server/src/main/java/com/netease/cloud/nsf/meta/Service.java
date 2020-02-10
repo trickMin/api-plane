@@ -1,6 +1,6 @@
 package com.netease.cloud.nsf.meta;
 
-import com.netease.cloud.nsf.meta.dto.PortalServiceConnectionPoolDto;
+import com.netease.cloud.nsf.meta.dto.PortalServiceConnectionPoolDTO;
 
 import java.util.List;
 
@@ -111,12 +111,12 @@ public class Service extends CommonModel {
     /**
      * 连接池
      */
-    private PortalServiceConnectionPoolDto connectionPool;
+    private PortalServiceConnectionPoolDTO connectionPool;
 
     /**
      * tcp连接池
      */
-    private PortalServiceConnectionPoolDto.PortalServiceTcpConnectionPoolDto tcpConnectionPool;
+    private PortalServiceConnectionPoolDTO.PortalServiceTcpConnectionPoolDTO tcpConnectionPool;
 
     /**
      * 最大连接数
@@ -131,7 +131,7 @@ public class Service extends CommonModel {
     /**
      * http连接池
      */
-    private PortalServiceConnectionPoolDto.PortalServiceHttpConnectionPoolDto httpConnectionPool;
+    private PortalServiceConnectionPoolDTO.PortalServiceHttpConnectionPoolDTO httpConnectionPool;
 
     /**
      * 最大等待HTTP请求数。默认值是1024，仅适用于HTTP/1.1的服务，因为HTTP/2协议的请求在到来时
@@ -323,19 +323,19 @@ public class Service extends CommonModel {
         this.subset = subset;
     }
 
-    public PortalServiceConnectionPoolDto getConnectionPool() {
+    public PortalServiceConnectionPoolDTO getConnectionPool() {
         return connectionPool;
     }
 
-    public void setConnectionPool(PortalServiceConnectionPoolDto connectionPool) {
+    public void setConnectionPool(PortalServiceConnectionPoolDTO connectionPool) {
         this.connectionPool = connectionPool;
     }
 
-    public PortalServiceConnectionPoolDto.PortalServiceTcpConnectionPoolDto getTcpConnectionPool() {
+    public PortalServiceConnectionPoolDTO.PortalServiceTcpConnectionPoolDTO getTcpConnectionPool() {
         return tcpConnectionPool;
     }
 
-    public void setTcpConnectionPool(PortalServiceConnectionPoolDto.PortalServiceTcpConnectionPoolDto tcpConnectionPool) {
+    public void setTcpConnectionPool(PortalServiceConnectionPoolDTO.PortalServiceTcpConnectionPoolDTO tcpConnectionPool) {
         this.tcpConnectionPool = tcpConnectionPool;
     }
 
@@ -355,11 +355,11 @@ public class Service extends CommonModel {
         this.connectTimeout = connectTimeout;
     }
 
-    public PortalServiceConnectionPoolDto.PortalServiceHttpConnectionPoolDto getHttpConnectionPool() {
+    public PortalServiceConnectionPoolDTO.PortalServiceHttpConnectionPoolDTO getHttpConnectionPool() {
         return httpConnectionPool;
     }
 
-    public void setHttpConnectionPool(PortalServiceConnectionPoolDto.PortalServiceHttpConnectionPoolDto httpConnectionPool) {
+    public void setHttpConnectionPool(PortalServiceConnectionPoolDTO.PortalServiceHttpConnectionPoolDTO httpConnectionPool) {
         this.httpConnectionPool = httpConnectionPool;
     }
 

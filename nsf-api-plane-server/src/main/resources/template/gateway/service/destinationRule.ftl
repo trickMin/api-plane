@@ -25,29 +25,29 @@ spec:
 </#if>
     <#if ss.trafficPolicy?has_content>
     trafficPolicy:
-      <#if ss.trafficPolicy.loadbalancer?has_content>
+      <#if ss.trafficPolicy.loadBalancer?has_content>
       loadBalancer:
-        <#if ss.trafficPolicy.loadbalancer.simple?has_content>
-        simple: ${ss.trafficPolicy.loadbalancer.simple}
+        <#if ss.trafficPolicy.loadBalancer.simple?has_content>
+        simple: ${ss.trafficPolicy.loadBalancer.simple}
         </#if>
-        <#if ss.trafficPolicy.loadbalancer.consistentHash?has_content>
+        <#if ss.trafficPolicy.loadBalancer.consistentHash?has_content>
         consistentHash:
-          <#if ss.trafficPolicy.loadbalancer.consistentHash.httpHeaderName?has_content>
-          httpHeaderName: ${ss.trafficPolicy.loadbalancer.consistentHash.httpHeaderName}
+          <#if ss.trafficPolicy.loadBalancer.consistentHash.httpHeaderName?has_content>
+          httpHeaderName: ${ss.trafficPolicy.loadBalancer.consistentHash.httpHeaderName}
           </#if>
-          <#if ss.trafficPolicy.loadbalancer.consistentHash.useSourceIp?has_content>
-          useSourceIp: ${ss.trafficPolicy.loadbalancer.consistentHash.useSourceIp}
+          <#if ss.trafficPolicy.loadBalancer.consistentHash.useSourceIp?has_content>
+          useSourceIp: ${ss.trafficPolicy.loadBalancer.consistentHash.useSourceIp}
           </#if>
-          <#if ss.trafficPolicy.loadbalancer.consistentHash.httpCookie?has_content>
+          <#if ss.trafficPolicy.loadBalancer.consistentHash.httpCookie?has_content>
           httpCookie:
-            <#if ss.trafficPolicy.loadbalancer.consistentHash.httpCookie.name?has_content>
-            name: ${ss.trafficPolicy.loadbalancer.consistentHash.httpCookie.name}
+            <#if ss.trafficPolicy.loadBalancer.consistentHash.httpCookie.name?has_content>
+            name: ${ss.trafficPolicy.loadBalancer.consistentHash.httpCookie.name}
             </#if>
-            <#if ss.trafficPolicy.loadbalancer.consistentHash.httpCookie.ttl?has_content>
-            ttl: ${ss.trafficPolicy.loadbalancer.consistentHash.httpCookie.ttl}s
+            <#if ss.trafficPolicy.loadBalancer.consistentHash.httpCookie.ttl?has_content>
+            ttl: ${ss.trafficPolicy.loadBalancer.consistentHash.httpCookie.ttl}s
             </#if>
-            <#if ss.trafficPolicy.loadbalancer.consistentHash.httpCookie.path?has_content>
-            path: ${ss.trafficPolicy.loadbalancer.consistentHash.httpCookie.path}
+            <#if ss.trafficPolicy.loadBalancer.consistentHash.httpCookie.path?has_content>
+            path: ${ss.trafficPolicy.loadBalancer.consistentHash.httpCookie.path}
             </#if>
           </#if>
         </#if>

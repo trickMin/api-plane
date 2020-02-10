@@ -16,7 +16,7 @@ public class PortalTrafficPolicyDTO {
      */
     @JsonProperty(value = "LoadBalancer")
     @Valid
-    private PortalLoadBalancerDTO loadbalancer;
+    private PortalLoadBalancerDTO loadBalancer;
 
     /**
      * 主动健康检查
@@ -37,14 +37,14 @@ public class PortalTrafficPolicyDTO {
      */
     @Valid
     @JsonProperty(value = "ConnectionPool")
-    private PortalServiceConnectionPoolDto connectionPool;
+    private PortalServiceConnectionPoolDTO connectionPool;
 
-    public PortalLoadBalancerDTO getLoadbalancer() {
-        return loadbalancer;
+    public PortalLoadBalancerDTO getLoadBalancer() {
+        return loadBalancer;
     }
 
-    public void setLoadbalancer(PortalLoadBalancerDTO loadbalancer) {
-        this.loadbalancer = loadbalancer;
+    public void setLoadBalancer(PortalLoadBalancerDTO loadBalancer) {
+        this.loadBalancer = loadBalancer;
     }
 
     public PortalOutlierDetectionDTO getOutlierDetection() {
@@ -63,11 +63,11 @@ public class PortalTrafficPolicyDTO {
         this.healthCheck = healthCheck;
     }
 
-    public PortalServiceConnectionPoolDto getConnectionPool() {
+    public PortalServiceConnectionPoolDTO getConnectionPool() {
         return connectionPool;
     }
 
-    public void setConnectionPool(PortalServiceConnectionPoolDto connectionPool) {
+    public void setConnectionPool(PortalServiceConnectionPoolDTO connectionPool) {
         this.connectionPool = connectionPool;
     }
 

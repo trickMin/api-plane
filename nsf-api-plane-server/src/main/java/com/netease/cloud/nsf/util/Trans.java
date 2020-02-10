@@ -124,8 +124,8 @@ public class Trans {
             PortalTrafficPolicyDTO trafficPolicy = portalService.getTrafficPolicy();
             PortalOutlierDetectionDTO outlierDetection = trafficPolicy.getOutlierDetection();
             PortalHealthCheckDTO healthCheck = trafficPolicy.getHealthCheck();
-            PortalLoadBalancerDTO loadBalancer = trafficPolicy.getLoadbalancer();
-            PortalServiceConnectionPoolDto serviceConnectionPool = trafficPolicy.getConnectionPool();
+            PortalLoadBalancerDTO loadBalancer = trafficPolicy.getLoadBalancer();
+            PortalServiceConnectionPoolDTO serviceConnectionPool = trafficPolicy.getConnectionPool();
 
             if (outlierDetection != null) {
                 s.setConsecutiveErrors(outlierDetection.getConsecutiveErrors());
@@ -214,7 +214,7 @@ public class Trans {
         ServiceSubset.TrafficPolicy trafficPolicy = new ServiceSubset.TrafficPolicy();
         trafficPolicy.setHealthCheck(portalTrafficPolicyDTO.getHealthCheck());
         trafficPolicy.setOutlierDetection(portalTrafficPolicyDTO.getOutlierDetection());
-        trafficPolicy.setLoadbalancer(serviceLBDTO2ServiceLB(portalTrafficPolicyDTO.getLoadbalancer()));
+        trafficPolicy.setLoadbalancer(serviceLBDTO2ServiceLB(portalTrafficPolicyDTO.getLoadBalancer()));
         trafficPolicy.setConnectionPool(portalTrafficPolicyDTO.getConnectionPool());
         return trafficPolicy;
     }

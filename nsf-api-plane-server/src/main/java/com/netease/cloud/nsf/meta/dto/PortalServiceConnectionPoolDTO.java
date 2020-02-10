@@ -12,36 +12,36 @@ import java.io.Serializable;
  * @author TC_WANG
  * @date 2020/1/20 下午2:51.
  */
-public class PortalServiceConnectionPoolDto implements Serializable {
+public class PortalServiceConnectionPoolDTO implements Serializable {
     /**
      * TCP连接池
      */
     @JsonProperty(value = "TCP")
-    private PortalServiceTcpConnectionPoolDto tcp;
+    private PortalServiceTcpConnectionPoolDTO tcp;
 
     /**
      * HTTP连接池
      */
     @JsonProperty(value = "HTTP")
-    private PortalServiceHttpConnectionPoolDto http;
+    private PortalServiceHttpConnectionPoolDTO http;
 
-    public PortalServiceTcpConnectionPoolDto getTcp() {
+    public PortalServiceTcpConnectionPoolDTO getTcp() {
         return tcp;
     }
 
-    public void setTcp(PortalServiceTcpConnectionPoolDto tcp) {
+    public void setTcp(PortalServiceTcpConnectionPoolDTO tcp) {
         this.tcp = tcp;
     }
 
-    public PortalServiceHttpConnectionPoolDto getHttp() {
+    public PortalServiceHttpConnectionPoolDTO getHttp() {
         return http;
     }
 
-    public void setHttp(PortalServiceHttpConnectionPoolDto http) {
+    public void setHttp(PortalServiceHttpConnectionPoolDTO http) {
         this.http = http;
     }
 
-    public static class PortalServiceHttpConnectionPoolDto implements Serializable{
+    public static class PortalServiceHttpConnectionPoolDTO implements Serializable{
 
         /**
          * 最大等待HTTP请求数。默认值是1024，仅适用于HTTP/1.1的服务，因为HTTP/2协议的请求在到来时
@@ -107,7 +107,7 @@ public class PortalServiceConnectionPoolDto implements Serializable {
         }
     }
 
-    public static class PortalServiceTcpConnectionPoolDto implements Serializable {
+    public static class PortalServiceTcpConnectionPoolDTO implements Serializable {
         /**
          * 最大连接数
          */
@@ -118,7 +118,7 @@ public class PortalServiceConnectionPoolDto implements Serializable {
          * tcp连接超时时间
          */
         @JsonProperty(value = "ConnectTimeout")
-        private String connectTimeout;
+        private Integer connectTimeout;
 
         public Integer getMaxConnections() {
             return maxConnections;
@@ -128,11 +128,11 @@ public class PortalServiceConnectionPoolDto implements Serializable {
             this.maxConnections = maxConnections;
         }
 
-        public String getConnectTimeout() {
+        public Integer getConnectTimeout() {
             return connectTimeout;
         }
 
-        public void setConnectTimeout(String connectTimeout) {
+        public void setConnectTimeout(Integer connectTimeout) {
             this.connectTimeout = connectTimeout;
         }
 

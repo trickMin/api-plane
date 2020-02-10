@@ -3,7 +3,7 @@ package com.netease.cloud.nsf.core.gateway.handler;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import com.netease.cloud.nsf.core.template.TemplateParams;
 import com.netease.cloud.nsf.meta.Service;
-import com.netease.cloud.nsf.meta.dto.PortalServiceConnectionPoolDto;
+import com.netease.cloud.nsf.meta.dto.PortalServiceConnectionPoolDTO;
 import com.netease.cloud.nsf.util.CommonUtil;
 import com.netease.cloud.nsf.util.Const;
 import org.slf4j.Logger;
@@ -79,26 +79,26 @@ public class PortalDestinationRuleServiceDataHandler extends ServiceDataHandler 
             params.put(DESTINATION_RULE_CONNECTION_POOL, CommonUtil.obj2yaml(service.getConnectionPool()));
         }
         if (service.getConnectionPool() != null && service.getConnectionPool().getHttp() != null) {
-            PortalServiceConnectionPoolDto.PortalServiceHttpConnectionPoolDto portalServiceHttpConnectionPoolDto
+            PortalServiceConnectionPoolDTO.PortalServiceHttpConnectionPoolDTO portalServiceHttpConnectionPoolDTO
                     = service.getConnectionPool().getHttp();
             params.put(DESTINATION_RULE_HTTP_CONNECTION_POOL, DESTINATION_RULE_HTTP_CONNECTION_POOL);
             params.put(DESTINATION_RULE_HTTP_CONNECTION_POOL_HTTP1MAXPENDINGREQUESTS,
-                    portalServiceHttpConnectionPoolDto.getHttp1MaxPendingRequests());
+                    portalServiceHttpConnectionPoolDTO.getHttp1MaxPendingRequests());
             params.put(DESTINATION_RULE_HTTP_CONNECTION_POOL_HTTP2MAXREQUESTS,
-                    portalServiceHttpConnectionPoolDto.getHttp2MaxRequests());
+                    portalServiceHttpConnectionPoolDTO.getHttp2MaxRequests());
             params.put(DESTINATION_RULE_HTTP_CONNECTION_POOL_MAXREQUESTSPERCONNECTION,
-                    portalServiceHttpConnectionPoolDto.getMaxRequestsPerConnection());
+                    portalServiceHttpConnectionPoolDTO.getMaxRequestsPerConnection());
             params.put(DESTINATION_RULE_HTTP_CONNECTION_POOL_IDLETIMEOUT,
-                    portalServiceHttpConnectionPoolDto.getIdleTimeout());
+                    portalServiceHttpConnectionPoolDTO.getIdleTimeout());
         }
         if (service.getConnectionPool() != null && service.getConnectionPool().getTcp() != null) {
-            PortalServiceConnectionPoolDto.PortalServiceTcpConnectionPoolDto portalServiceTcpConnectionPoolDto
+            PortalServiceConnectionPoolDTO.PortalServiceTcpConnectionPoolDTO portalServiceTcpConnectionPoolDTO
                     = service.getConnectionPool().getTcp();
             params.put(DESTINATION_RULE_TCP_CONNECTION_POOL, DESTINATION_RULE_TCP_CONNECTION_POOL);
             params.put(DESTINATION_RULE_TCP_CONNECTION_POOL_CONNECT_TIMEOUT,
-                    portalServiceTcpConnectionPoolDto.getConnectTimeout());
+                    portalServiceTcpConnectionPoolDTO.getConnectTimeout());
             params.put(DESTINATION_RULE_TCP_CONNECTION_POOL_MAX_CONNECTIONS,
-                    portalServiceTcpConnectionPoolDto.getMaxConnections());
+                    portalServiceTcpConnectionPoolDTO.getMaxConnections());
         }
         return Arrays.asList(params);
     }
