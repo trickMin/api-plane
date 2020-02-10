@@ -42,6 +42,16 @@ public class PodDTO<T extends HasMetadata> extends K8sResourceDTO {
 
     private int versionManagerCrdStatus;
 
+    private String sidecarContainerStatus;
+
+    public String getSidecarContainerStatus() {
+        return sidecarContainerStatus;
+    }
+
+    public void setSidecarContainerStatus(String sidecarContainerStatus) {
+        this.sidecarContainerStatus = sidecarContainerStatus;
+    }
+
     public int getVersionManagerCrdStatus() {
         return versionManagerCrdStatus;
     }
@@ -100,6 +110,8 @@ public class PodDTO<T extends HasMetadata> extends K8sResourceDTO {
             this.podIp = pod.getStatus().getPodIP();
             this.status = pod.getStatus().getPhase();
             this.isInjected = isInjected(pod);
+            this.sidecarContainerStatus = getSidecarContainerStatus(pod);
+
             Map<String, ContainerInfo> containerInfoMap = new HashMap<>();
             // 更新容器资源信息
 
@@ -237,6 +249,23 @@ public class PodDTO<T extends HasMetadata> extends K8sResourceDTO {
             }
         }
         return false;
+    }
+
+    private String getSidecarContainerStatus(Pod pod){
+        if (pod.getStatus() == null){
+            return Const.DEFAULT_SIDECAR_CONTAINER;
+        }
+        if (pod.getStatus().getContainerStatuses() == null){
+            return Const.DEFAULT_SIDECAR_CONTAINER;
+        }
+        List<ContainerStatus> containerStatuses = pod.getStatus().getContainerStatuses();
+        for (ContainerStatus containerStatus : containerStatuses) {
+            if (Const.SIDECAR_CONTAINER.equals(containerStatus.getName())){
+                return  containerStatus.getState().toString();
+            }
+        }
+        return Const.DEFAULT_SIDECAR_CONTAINER;
+
     }
 
     private int getResourceValueIndex(String amount) {
