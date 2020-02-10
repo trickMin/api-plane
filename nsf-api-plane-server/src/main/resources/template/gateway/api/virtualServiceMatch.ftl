@@ -28,3 +28,6 @@ match:
 <#if t_virtual_service_match_priority??>
 priority: ${t_virtual_service_match_priority}
 </#if>
+<#if t_virtual_service_timeout??>
+timeout: ${t_virtual_service_timeout}ms
+</#if>

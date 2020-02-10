@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/7/30
@@ -33,9 +32,17 @@ public class IntegratedResourceOperator {
     }
 
     private boolean identical(IstioResource old, IstioResource fresh) {
-        return Objects.equals(old.getKind(), fresh.getKind()) &&
-                Objects.equals(old.getMetadata().getNamespace(), fresh.getMetadata().getNamespace()) &&
-                Objects.equals(old.getMetadata().getName(), fresh.getMetadata().getName());
+
+        boolean sameKind = old.getKind().equals(fresh.getKind());
+        boolean sameNamespace;
+        // 全局配置
+        if (old.getMetadata().getNamespace() == null) {
+            sameNamespace = true;
+        } else {
+            sameNamespace = old.getMetadata().getNamespace().equals(fresh.getMetadata().getNamespace());
+        }
+        boolean sameName = old.getMetadata().getName().equals(fresh.getMetadata().getName());
+        return sameKind && sameNamespace && sameName;
     }
 
     public boolean isUseless(IstioResource i) {

@@ -15,6 +15,7 @@ import com.netease.cloud.nsf.core.plugin.FragmentHolder;
 import com.netease.cloud.nsf.core.template.TemplateTranslator;
 import com.netease.cloud.nsf.meta.API;
 import com.netease.cloud.nsf.meta.*;
+import com.netease.cloud.nsf.service.GatewayService;
 import com.netease.cloud.nsf.service.PluginService;
 import com.netease.cloud.nsf.util.Const;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
@@ -33,7 +34,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
 
 
 /**
@@ -60,6 +60,9 @@ public class GatewayModelOperator {
     PluginService pluginService;
 
     @Autowired
+    GatewayService gatewayService;
+
+    @Autowired
     RenderTwiceModelProcessor renderTwiceModelProcessor;
 
     @Autowired
@@ -83,8 +86,10 @@ public class GatewayModelOperator {
     public List<IstioResource> translate(API api) {
         return translate(api, false);
     }
+
     /**
      * 将api转换为istio对应的规则
+     *
      * @param api
      * @param simple 是否为简单模式，部分字段不渲染，主要用于删除
      * @return
@@ -145,6 +150,7 @@ public class GatewayModelOperator {
 
     /**
      * 将gateway转换为istio对应的规则
+     *
      * @param istioGateway
      * @return
      */
@@ -181,7 +187,18 @@ public class GatewayModelOperator {
     public List<IstioResource> translate(GlobalPlugins gp) {
 
         List<IstioResource> resources = new ArrayList<>();
-        List<String> rawResources = defaultModelProcessor.process(gatewayPlugin, gp, new GatewayPluginDataHandler(pluginService));
+        List<String> rawResources = new ArrayList<>();
+        RawResourceContainer rawResourceContainer = new RawResourceContainer();
+        List<FragmentHolder> plugins = pluginService.processGlobalPlugin(gp.getPlugins(), new ServiceInfo());
+        rawResourceContainer.add(plugins);
+        List<Gateway> gateways = gatewayService.getGatewayList();
+
+        List<String> rawGatewayPlugins = defaultModelProcessor.process(gatewayPlugin, gp, new GatewayPluginDataHandler(rawResourceContainer.getGatewayPlugins(), gateways));
+        //todo: shareConfig逻辑需要适配
+        List<String> rawSharedConfigs = renderTwiceModelProcessor.process(apiSharedConfig, gp, new GatewayPluginSharedConfigDataHandler(rawResourceContainer.getSharedConfigs(), gateways));
+        rawResources.addAll(rawGatewayPlugins);
+        rawResources.addAll(rawSharedConfigs);
+
         rawResources.stream()
                 .forEach(rs -> resources.add(str2IstioResource(rs)));
         return resources;

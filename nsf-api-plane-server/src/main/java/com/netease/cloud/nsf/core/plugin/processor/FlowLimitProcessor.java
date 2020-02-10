@@ -22,8 +22,8 @@ public class FlowLimitProcessor extends AbstractSchemaProcessor implements Schem
     @Override
     public FragmentHolder process(String plugin, ServiceInfo serviceInfo) {
         ResourceGenerator rg = ResourceGenerator.newInstance(plugin);
-        ResourceGenerator ret = ResourceGenerator.newInstance("{\"fault\":{\"abort\":{\"percentage\":{},\"httpStatus\":429}}}");
-        ret.createOrUpdateJson("$.fault.abort.percentage", "value", rg.getValue("$.limit_percent",String.class));
+        int percent = Integer.parseInt(rg.getValue("$.limit_percent", String.class));
+        ResourceGenerator ret = ResourceGenerator.newInstance(String.format("{\"abort\":{\"http_status\":429,\"percentage\":{\"denominator\":\"MILLION\",\"numerator\":%s}}}", percent * 10000));
 
         FragmentHolder fragmentHolder = new FragmentHolder();
         FragmentWrapper wrapper = new FragmentWrapper.Builder()

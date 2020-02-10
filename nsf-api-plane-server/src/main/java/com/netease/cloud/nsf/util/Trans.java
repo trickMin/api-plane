@@ -62,6 +62,14 @@ public class Trans {
         api.setServiceTag(portalAPI.getServiceTag());
         api.setApiId(portalAPI.getRouteId());
         api.setApiName(portalAPI.getRouteName());
+        //timeout 默认60000ms
+        if (api.getTimeout() == null) api.setTimeout(60000L);
+        if (portalAPI.getHttpRetry() != null && portalAPI.getHttpRetry() instanceof HttpRetryDTO
+        && portalAPI.getHttpRetry().isRetry()){
+            api.setAttempts(portalAPI.getHttpRetry().getAttempts());
+            api.setPerTryTimeout(portalAPI.getHttpRetry().getPerTryTimeout());
+            api.setRetryOn(portalAPI.getHttpRetry().getRetryOn());
+        }
         return api;
     }
 
