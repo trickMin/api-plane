@@ -214,7 +214,7 @@ public class Trans {
         ServiceSubset.TrafficPolicy trafficPolicy = new ServiceSubset.TrafficPolicy();
         trafficPolicy.setHealthCheck(portalTrafficPolicyDTO.getHealthCheck());
         trafficPolicy.setOutlierDetection(portalTrafficPolicyDTO.getOutlierDetection());
-        trafficPolicy.setLoadbalancer(serviceLBDTO2ServiceLB(portalTrafficPolicyDTO.getLoadBalancer()));
+        trafficPolicy.setLoadBalancer(serviceLBDTO2ServiceLB(portalTrafficPolicyDTO.getLoadBalancer()));
         trafficPolicy.setConnectionPool(portalTrafficPolicyDTO.getConnectionPool());
         return trafficPolicy;
     }
