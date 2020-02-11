@@ -2,6 +2,7 @@ package com.netease.cloud.nsf.service;
 
 import com.netease.cloud.nsf.meta.*;
 import com.netease.cloud.nsf.meta.dto.*;
+import com.netease.cloud.nsf.util.errorcode.ErrorCode;
 
 import java.util.List;
 
@@ -19,6 +20,14 @@ public interface GatewayService {
     void deleteAPI(PortalAPIDeleteDTO portalAPI);
 
     void updateService(PortalServiceDTO service);
+
+    /**
+     * 用于服务发布时参数校验
+     *
+     * @param service
+     * @return
+     */
+    ErrorCode checkUpdateService(PortalServiceDTO service);
 
     void deleteService(PortalServiceDTO service);
 

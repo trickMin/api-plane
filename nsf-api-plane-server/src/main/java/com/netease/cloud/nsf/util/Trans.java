@@ -124,7 +124,8 @@ public class Trans {
             PortalTrafficPolicyDTO trafficPolicy = portalService.getTrafficPolicy();
             PortalOutlierDetectionDTO outlierDetection = trafficPolicy.getOutlierDetection();
             PortalHealthCheckDTO healthCheck = trafficPolicy.getHealthCheck();
-            PortalLoadBalancerDTO loadbalancer = trafficPolicy.getLoadbalancer();
+            PortalLoadBalancerDTO loadBalancer = trafficPolicy.getLoadBalancer();
+            PortalServiceConnectionPoolDTO serviceConnectionPool = trafficPolicy.getConnectionPool();
 
             if (outlierDetection != null) {
                 s.setConsecutiveErrors(outlierDetection.getConsecutiveErrors());
@@ -142,14 +143,17 @@ public class Trans {
                 s.setUnhealthyThreshold(healthCheck.getUnhealthyThreshold());
             }
 
-            if (loadbalancer != null) {
-                s.setLoadBalancer(serviceLBDTO2ServiceLB(loadbalancer));
+            if (loadBalancer != null) {
+                s.setLoadBalancer(serviceLBDTO2ServiceLB(loadBalancer));
+            }
+
+            if (serviceConnectionPool != null) {
+                s.setConnectionPool(serviceConnectionPool);
             }
         }
 
         s.setServiceTag(portalService.getServiceTag());
         s.setSubsets(subsetDTO2Subset(portalService.getSubsets()));
-
         return s;
     }
 
@@ -189,9 +193,30 @@ public class Trans {
                         ServiceSubset ss = new ServiceSubset();
                         ss.setLabels(sd.getLabels());
                         ss.setName(sd.getName());
+                        ss.setTrafficPolicy(subsetTrafficPolicyDtoTosubsetTrafficPolicy(sd.getTrafficPolicy()));
                         return ss;
                     })
                     .collect(Collectors.toList());
+    }
+
+    /**
+     * 主要是将subset中的ServiceLoadBalancer生成出来
+     *
+     * @param portalTrafficPolicyDTO
+     * @return
+     */
+    private static ServiceSubset.TrafficPolicy subsetTrafficPolicyDtoTosubsetTrafficPolicy
+            (PortalTrafficPolicyDTO portalTrafficPolicyDTO) {
+        if (portalTrafficPolicyDTO == null) {
+            return null;
+        }
+
+        ServiceSubset.TrafficPolicy trafficPolicy = new ServiceSubset.TrafficPolicy();
+        trafficPolicy.setHealthCheck(portalTrafficPolicyDTO.getHealthCheck());
+        trafficPolicy.setOutlierDetection(portalTrafficPolicyDTO.getOutlierDetection());
+        trafficPolicy.setLoadbalancer(serviceLBDTO2ServiceLB(portalTrafficPolicyDTO.getLoadBalancer()));
+        trafficPolicy.setConnectionPool(portalTrafficPolicyDTO.getConnectionPool());
+        return trafficPolicy;
     }
 
     public static PluginOrder pluginOrderDTO2PluginOrder(PluginOrderDTO pluginOrderDTO) {
