@@ -47,7 +47,7 @@ public class ServiceSubset {
         /**
          * 负载均衡策略
          */
-        private Service.ServiceLoadBalancer loadbalancer;
+        private Service.ServiceLoadBalancer loadBalancer;
 
         /**
          * 主动健康检查
@@ -64,12 +64,12 @@ public class ServiceSubset {
          */
         private PortalServiceConnectionPoolDTO connectionPool;
 
-        public Service.ServiceLoadBalancer getLoadbalancer() {
-            return loadbalancer;
+        public Service.ServiceLoadBalancer getLoadBalancer() {
+            return loadBalancer;
         }
 
-        public void setLoadbalancer(Service.ServiceLoadBalancer loadbalancer) {
-            this.loadbalancer = loadbalancer;
+        public void setLoadBalancer(Service.ServiceLoadBalancer loadBalancer) {
+            this.loadBalancer = loadBalancer;
         }
 
         public PortalHealthCheckDTO getHealthCheck() {
