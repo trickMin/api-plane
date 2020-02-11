@@ -261,7 +261,7 @@ public class PodDTO<T extends HasMetadata> extends K8sResourceDTO {
         List<ContainerStatus> containerStatuses = pod.getStatus().getContainerStatuses();
         for (ContainerStatus containerStatus : containerStatuses) {
             if (Const.SIDECAR_CONTAINER.equals(containerStatus.getName())){
-                return  containerStatus.getState().toString();
+                return getContainerStatus(containerStatus);
             }
         }
         return Const.DEFAULT_SIDECAR_CONTAINER;
@@ -280,4 +280,22 @@ public class PodDTO<T extends HasMetadata> extends K8sResourceDTO {
         return -1;
     }
 
+    private String getContainerStatus(ContainerStatus containerStatus){
+        if (containerStatus == null){
+            return Const.DEFAULT_SIDECAR_CONTAINER;
+        }
+        if (containerStatus.getState().getRunning() !=null){
+            return Const.SIDECAR_CONTAINER_RUNNING;
+        }
+        if (containerStatus.getState().getTerminated()!=null){
+            return Const.SIDECAR_CONTAINER_TERMINATED;
+        }
+        if (containerStatus.getState().getWaiting() !=null){
+            return Const.SIDECAR_CONTAINER_WAITING;
+        }
+        return Const.DEFAULT_SIDECAR_CONTAINER;
+    }
+
 }
+
+

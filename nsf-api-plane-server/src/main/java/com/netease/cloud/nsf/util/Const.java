@@ -52,6 +52,9 @@ public interface Const {
 
     String SIDECAR_CONTAINER = "istio-proxy";
     String DEFAULT_SIDECAR_CONTAINER = "unknown";
+    String SIDECAR_CONTAINER_RUNNING = "running";
+    String SIDECAR_CONTAINER_TERMINATED = "terminated";
+    String SIDECAR_CONTAINER_WAITING = "waiting";
 
     int VERSION_MANAGER_CRD_EXIST = 1;
     int VERSION_MANAGER_CRD_MISSING = 2;
