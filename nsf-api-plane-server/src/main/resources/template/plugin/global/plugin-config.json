@@ -71,6 +71,18 @@
       "pluginScope": "routeRule",
       "pluginPriority": "500",
       "instructionForUse": "按百分比限流，例如允许50%通"
+    },
+    {
+      "name": "trace",
+      "schema": "plugin/portal/trace.json",
+      "description": "",
+      "processor": "AggregateGlobalProcessor",
+      "author": "system",
+      "createTime": "",
+      "updateTime": "",
+      "pluginScope": "routeRule",
+      "pluginPriority": "4000",
+      "instructionForUse": "trace插件"
     }
   ]
 }
