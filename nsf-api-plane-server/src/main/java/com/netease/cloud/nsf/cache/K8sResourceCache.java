@@ -448,7 +448,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     @Override
     public String getAppNameByPod(String clusterId, String namespace, String name) {
         OwnerReferenceSupportStore<Pod> store = ResourceStoreFactory.getResourceStore(clusterId);
-        Pod pod = store.get(clusterId, namespace, name);
+        Pod pod = store.get(Pod.name(), namespace, name);
         if (pod == null || pod.getMetadata() == null || pod.getMetadata().getLabels() == null) {
             return "";
         } else {
