@@ -28,7 +28,7 @@ ServiceMesh:
 - 拓扑功能，对接kiali
 - sidecar 自动注入及升级
 - k8s 资源监听管理
-
+- 增加pilot健康检查接口
 
 工程整体:
 - 增加全局Reqeust,Response日志打印
