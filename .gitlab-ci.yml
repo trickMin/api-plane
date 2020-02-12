@@ -1,0 +1,51 @@
+image: maven:3-jdk-8
+
+stages:
+  - build
+  - test
+
+before_script:
+  - export MAVEN_HOME=/root/tools/apache-maven-3.5.4
+
+job_build:
+  stage: build
+  script:
+    - $MAVEN_HOME/bin/mvn clean
+    - echo "now stage is 1-build"
+  only:
+     - merge_requests
+  tags:
+    - gitlab-runner
+
+job_sonar_test:
+  stage: test
+  script:
+    - $MAVEN_HOME/bin/mvn clean install -Dmaven.test.failure.ignore=true   -DsuiteXmlFile=src/main/resources/testng.xml  -D$.initIfNecessary=true -D $.destroyIfNecessary=true -DactiveEnv=wangguan -D$.envoyConfigDump=true -D$.virtualServiceDump=true -D$.waitPublishComplete=5000|tee -a result.txt
+    - echo "now stage is code static analysise test..."
+    - ci/sonar_analyze_show.sh
+
+ tags:
+    - gitlab-runner
+
+
+
+
+
+> # ci/sonar_analyze_show.sh内容,也可以直接放到yml文件中：
+ci/sonar_analyze_show.sh内容：
+
+*#!/bin/bash
+mvn --batch-mode sonar:sonar \
+-Dsonar.host.url=sonar.storage.netease.com\
+-Dsonar.login=admin \
+-Dsonar.password=storageadmin \
+-Dsonar.issuesReport.html.enable=true \
+-Dsonar.analysis.mode=preview \
+-Dsonar.preview.excludePlugins=issueassign,scmstats
+-Dsonar.gitlab.project_id=$CI_PROJECT_ID \
+-Dsonar.gitlab.commit_sha=$CI_COMMIT_SHA \
+-Dsonar.gitlab.ref_name=$CI_COMMIT_REF_NAME
+
+if [ $? -eq 0 ]; then
+echo "sonarqube code-analyze-preview over."
+fi 
