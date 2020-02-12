@@ -1,5 +1,6 @@
 package com.netease.cloud.nsf.cache;
 
+import com.google.common.base.Strings;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -15,8 +16,16 @@ import com.netease.cloud.nsf.service.ServiceMeshService;
 import com.netease.cloud.nsf.util.Const;
 import com.netease.cloud.nsf.util.RestTemplateClient;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
-import io.fabric8.kubernetes.api.model.*;
+import io.fabric8.kubernetes.api.model.EndpointAddress;
+import io.fabric8.kubernetes.api.model.Endpoints;
+import io.fabric8.kubernetes.api.model.HasMetadata;
+import io.fabric8.kubernetes.api.model.ObjectReference;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.apiextensions.CustomResourceDefinition;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
+import me.snowdrop.istio.api.networking.v1alpha3.DoneableMixerUrlPattern;
+import me.snowdrop.istio.api.networking.v1alpha3.MixerUrlPattern;
+import me.snowdrop.istio.api.networking.v1alpha3.MixerUrlPatternList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +37,15 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -145,6 +162,16 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                 .build();
         resourceInformerMap.put(DaemonSet, daemonSetInformer);
 
+        CustomResourceDefinition mupCrd = allClients.get("default").originalK8sClient.customResourceDefinitions().withName("mixerurlpatterns.networking.istio.io").get();
+
+        K8sResourceInformer<HasMetadata> mupInformer = new K8sResourceInformer
+            .Builder()
+            .addResourceKind(MixerUrlPattern)
+            .addMixedOperation(getMixerUrlPatternMixedOperationList(allClients, mupCrd))
+            .addHttpK8sClient(multiClusterK8sClient)
+            .build();
+
+        resourceInformerMap.put(MixerUrlPattern, mupInformer);
 
     }
 
@@ -407,6 +434,28 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         return result;
     }
 
+    @Override
+    public List<String> getUrlMetricPatterns(String clusterId, String namespace, String app) {
+        OwnerReferenceSupportStore<MixerUrlPattern> store = ResourceStoreFactory.getResourceStore(clusterId);
+        MixerUrlPattern mup = store.get(MixerUrlPattern.name(), namespace, app);
+        if (mup == null || mup.getSpec() == null || mup.getSpec().getPatterns() == null) {
+            return Collections.emptyList();
+        } else {
+            return mup.getSpec().getPatterns();
+        }
+    }
+
+    @Override
+    public String getAppNameByPod(String clusterId, String namespace, String name) {
+        OwnerReferenceSupportStore<Pod> store = ResourceStoreFactory.getResourceStore(clusterId);
+        Pod pod = store.get(clusterId, namespace, name);
+        if (pod == null || pod.getMetadata() == null || pod.getMetadata().getLabels() == null) {
+            return "";
+        } else {
+            return Strings.nullToEmpty(pod.getMetadata().getLabels().get("app"));
+        }
+    }
+
     private List<T> getPodListByServiceAndClusterId(String clusterId, String namespace, String name) {
 
         OwnerReferenceSupportStore store = ResourceStoreFactory.getResourceStore(clusterId);
@@ -570,6 +619,18 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                 result.add(new ClusterMixedOperation(name, (MixedOperation) client.originalK8sClient
                         .pods()
                         .inAnyNamespace()));
+            }
+        });
+        return result;
+    }
+
+    private List<MixedOperation> getMixerUrlPatternMixedOperationList(Map<String, MultiClusterK8sClient.ClientSet> cm, CustomResourceDefinition mupCrd) {
+        List<MixedOperation> result = new ArrayList<>();
+        cm.forEach((name, client) -> {
+            if (!StringUtils.isEmpty(name)) {
+            	result.add(new ClusterMixedOperation(name, (MixedOperation)client.originalK8sClient
+                    .customResources(mupCrd, MixerUrlPattern.class, MixerUrlPatternList.class, DoneableMixerUrlPattern.class)
+                    .inAnyNamespace()));
             }
         });
         return result;

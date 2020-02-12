@@ -70,7 +70,7 @@ message OutputMsg {
     string destination_project = 2;
     
     
-    string url_pattern = 3;
+    string url_path_pattern = 3;
     
 }
 
@@ -88,7 +88,7 @@ message InstanceMsg {
     string destination_uid = 2;
     
     
-    string url = 3;
+    string url_path = 3;
     
 }
 
@@ -109,7 +109,7 @@ message InstanceParam {
     string destination_uid = 2;
     
     
-    string url = 3;
+    string url_path = 3;
     // Attribute names to expression mapping. These expressions can use the fields from the output object
     // returned by the attribute producing adapters using $out.<fieldName> notation. For example:
     // source.ip : $out.source_pod_ip

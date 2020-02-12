@@ -63,5 +63,9 @@ public interface ResourceCache {
 
     List getPodListByService(String clusterId, String namespace, String name);
 
+    List<String> getUrlMetricPatterns(String clusterId, String namespace, String app);
+
+    String getAppNameByPod(String clusterId, String namespace, String name);
+
     List getEndPointByService(String clusterId, String namespace, String name);
 }
