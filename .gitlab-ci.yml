@@ -5,7 +5,7 @@ stages:
   - test
 
 before_script:
-  - export MAVEN_HOME=/usr/share/maven
+  - export MAVEN_HOME=//usr/local/bin/apache-maven-3.6.3/
 
 job_build:
   stage: build
