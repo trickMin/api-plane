@@ -15,7 +15,10 @@ import io.fabric8.kubernetes.api.model.ServicePort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -48,13 +51,17 @@ public class IstioHttpClient {
 
     private static final String GET_ENDPOINTZ_PATH = "/debug/endpointz?brief=true";
     private static final String GET_CONFIGZ_PATH = "/debug/configz";
-
+    private static final String HEALTH_CHECK_PATH = "/ready";
 
     @Value(value = "${istioHttpUrl:#{null}}")
     private String istioHttpUrl;
 
     @Autowired
     RestTemplate restTemplate;
+
+    @Autowired
+    @Qualifier("shortTimeoutRestTemplate")
+    RestTemplate shortTimeoutRestTemplate;
 
     @Autowired
     private KubernetesClient client;
@@ -182,6 +189,13 @@ public class IstioHttpClient {
         gateways.forEach(gateway -> temp.putIfAbsent(gateway.getGwCluster(), gateway));
         return new ArrayList<>(temp.values());
     }*/
+
+    public boolean isReady() {
+        ResponseEntity<String> resp = shortTimeoutRestTemplate.exchange(getIstioUrl() + HEALTH_CHECK_PATH,
+                HttpMethod.GET, null, String.class);
+        if (resp.getStatusCode() != HttpStatus.OK) return false;
+        return true;
+    }
 
     private <T> ResponseEntity getForEntity(String str, Class<T> clz) {
 
