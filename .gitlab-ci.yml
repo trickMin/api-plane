@@ -23,8 +23,7 @@ job_sonar_test:
     - $MAVEN_HOME/bin/mvn clean install -Dmaven.test.failure.ignore=true   -DsuiteXmlFile=src/main/resources/testng.xml  -D$.initIfNecessary=true -D $.destroyIfNecessary=true -DactiveEnv=wangguan -D$.envoyConfigDump=true -D$.virtualServiceDump=true -D$.waitPublishComplete=5000|tee -a result.txt
     - echo "now stage is code static analysise test..."
     - ci/sonar_analyze_show.sh
-
-tags:
+  tags:
     - gitlab-runner
 
 
