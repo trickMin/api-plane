@@ -1,4 +1,4 @@
-image: tomcat:8-jdk8
+image: hub.c.163.com/qingzhou/maven-tomcat:8-jdk8-2
 
 stages:
   - build
