@@ -1,19 +1,17 @@
-image: hub.c.163.com/qingzhou/maven-tomcat:8-jdk8-2
+image: hub.c.163.com/qingzhou/maven-tomcat:8-jdk8-3
 
 stages:
   - build
   - test
 
 before_script:
-  - export MAVEN_HOME=//usr/local/bin/apache-maven-3.6.3/
+  - export MAVEN_HOME=/usr/local/bin/apache-maven-3.3.9
 
 job_build:
   stage: build
   script:
     - $MAVEN_HOME/bin/mvn clean
     - echo "now stage is 1-build"  
-  only:
-    - merge_requests
   tags:
     - qz-gitlab-runner
 
