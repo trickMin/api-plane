@@ -15,7 +15,7 @@ job_build:
   only:
     - merge_requests
   tags:
-    - gitlab-runner
+    - qz-gitlab-runner
 
 job_sonar_test:
   stage: test
@@ -24,7 +24,7 @@ job_sonar_test:
     - echo "now stage is code static analysise test..."
     - ci/sonar_analyze_show.sh
   tags:
-    - gitlab-runner
+    - qz-gitlab-runner
 
 
 
