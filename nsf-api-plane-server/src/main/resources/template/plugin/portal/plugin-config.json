@@ -121,8 +121,20 @@
       "instructionForUse": "静态降级插件，当返回结果符合条时件对返回结果进行降级"
     },
     {
-      "name": "neTraceFileLog",
+      "name": "trace",
       "schema": "plugin/portal/trace.json",
+      "description": "",
+      "processor": "AggregateExtensionProcessor",
+      "author": "system",
+      "createTime": "",
+      "updateTime": "",
+      "pluginScope": "routeRule",
+      "pluginPriority": "4000",
+      "instructionForUse": "trace插件"
+    },
+    {
+      "name": "neTraceFileLog",
+      "schema": "plugin/portal/neTraceFileLog.json",
       "description": "",
       "processor": "",
       "author": "system",

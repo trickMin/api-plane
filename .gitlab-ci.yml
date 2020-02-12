@@ -1,0 +1,31 @@
+image: hub.c.163.com/qingzhou/maven-tomcat:8-jdk8-3
+
+stages:
+  - build
+  - test
+
+before_script:
+  - export MAVEN_HOME=/usr/local/bin/apache-maven-3.6.3
+
+job_build:
+  stage: build
+  script:
+    - $MAVEN_HOME/bin/mvn clean
+    - echo "now stage is 1-build"  
+  tags:
+    - qz-gitlab-runner
+
+job_sonar_test:
+  stage: test
+  script:
+    - $MAVEN_HOME/bin/mvn clean install -Dmaven.test.failure.ignore=true   -DsuiteXmlFile=src/main/resources/testng.xml  -D$.initIfNecessary=true -D $.destroyIfNecessary=true -DactiveEnv=wangguan -D$.envoyConfigDump=true -D$.virtualServiceDump=true -D$.waitPublishComplete=5000|tee -a result.txt
+    - echo "now stage is code static analysise test..."
+    - ci/sonar_analyze_show.sh
+  tags:
+    - qz-gitlab-runner
+
+
+
+
+
+
