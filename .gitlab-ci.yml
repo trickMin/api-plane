@@ -1,4 +1,4 @@
-image: maven:3-jdk-8
+image: tomcat:8-jdk8
 
 stages:
   - build
