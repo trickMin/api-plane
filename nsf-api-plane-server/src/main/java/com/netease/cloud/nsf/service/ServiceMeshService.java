@@ -19,6 +19,7 @@ public interface ServiceMeshService {
 
     void createSidecarVersionCRD(String clusterId, String namespace, String kind, String name, String expectedVersion);
 
-
     void createMissingCrd(List podList, String workLoadType, String workLoadName, String clusterId, String namespace);
+
+    boolean checkPilotHealth();
 }
