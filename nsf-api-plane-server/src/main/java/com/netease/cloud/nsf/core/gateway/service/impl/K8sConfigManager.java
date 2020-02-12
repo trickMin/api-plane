@@ -246,7 +246,7 @@ public class K8sConfigManager implements ConfigManager {
                 gatewayPlugin.setSpec(null);
                 return gatewayPlugin;
             } else if (r.getClass() == K8sResourceEnum.SharedConfig.mappingType()) {
-                //TODO
+                //TODO sharedConfig唯一标识未更新
                 ResourceGenerator gen = ResourceGenerator.newInstance(r, ResourceType.OBJECT);
                 gen.removeElement(PathExpressionEnum.REMOVE_SC_RATELIMITDESC_BY_CODE.translate(gp.getCode()));
                 return gen.object(SharedConfig.class);
@@ -261,7 +261,7 @@ public class K8sConfigManager implements ConfigManager {
         delete(resources, (i1,i2) -> 0, fun);
     }
 
-    private void delete(List<IstioResource> resources, Comparator<IstioResource> compare, Function<IstioResource, IstioResource> fun) {
+    private void delete(List<IstioResource> resources, Comparator<IstioResource> compartor, Function<IstioResource, IstioResource> fun) {
         if (CollectionUtils.isEmpty(resources)) return;
         List<IstioResource> existResources = new ArrayList<>();
         for (IstioResource resource : resources) {
@@ -271,7 +271,7 @@ public class K8sConfigManager implements ConfigManager {
             }
         }
         existResources.stream()
-                .sorted(compare)
+                .sorted(compartor)
                 .map(er -> fun.apply(er))
                 .filter(i -> i != null)
                 .forEach(r -> handle(r));

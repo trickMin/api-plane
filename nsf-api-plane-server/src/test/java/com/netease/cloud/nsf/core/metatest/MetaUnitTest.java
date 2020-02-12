@@ -1,4 +1,4 @@
-package com.netease.cloud.nsf.core.meta;
+package com.netease.cloud.nsf.core.metatest;
 import com.netease.cloud.nsf.core.BaseTest;
 import org.junit.Test;
 import org.reflections.Configuration;
@@ -28,8 +28,10 @@ public class MetaUnitTest extends BaseTest {
         Set<Class<?>> allClass = reflections.getSubTypesOf(Object.class);
         for (Class<?> clazz : allClass) {
             try {
-                ClassMethodExecutor executor = new ClassMethodExecutor(clazz);
-                executor.executeAllMethod();
+                if (clazz.getCanonicalName() != null && (clazz.getCanonicalName().contains(".meta."))) {
+                    ClassMethodExecutor executor = new ClassMethodExecutor(clazz);
+                    executor.executeAllMethod();
+                }
             }catch (Exception e){
                 continue;
             }

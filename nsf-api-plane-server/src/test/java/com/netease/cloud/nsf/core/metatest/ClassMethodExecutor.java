@@ -1,4 +1,4 @@
-package com.netease.cloud.nsf.core.meta;
+package com.netease.cloud.nsf.core.metatest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

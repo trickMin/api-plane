@@ -1,4 +1,4 @@
-package com.netease.cloud.nsf.core.meta;
+package com.netease.cloud.nsf.core.metatest;
 
 import com.alibaba.fastjson.JSON;
 
