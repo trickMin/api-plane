@@ -7,6 +7,7 @@ import com.google.common.cache.LoadingCache;
 import com.netease.cloud.nsf.cache.meta.PodDTO;
 import com.netease.cloud.nsf.cache.meta.WorkLoadDTO;
 import com.netease.cloud.nsf.configuration.ApiPlaneConfig;
+import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.k8s.MultiClusterK8sClient;
 import com.netease.cloud.nsf.meta.PodStatus;
@@ -25,6 +26,7 @@ import io.fabric8.kubernetes.api.model.apiextensions.CustomResourceDefinition;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import me.snowdrop.istio.api.networking.v1alpha3.DoneableMixerUrlPattern;
 import me.snowdrop.istio.api.networking.v1alpha3.MixerUrlPattern;
+import me.snowdrop.istio.api.networking.v1alpha3.MixerUrlPatternBuilder;
 import me.snowdrop.istio.api.networking.v1alpha3.MixerUrlPatternList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -435,7 +437,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     }
 
     @Override
-    public List<String> getUrlMetricPatterns(String clusterId, String namespace, String app) {
+    public List<String> getMixerPathPatterns(String clusterId, String namespace, String app) {
         OwnerReferenceSupportStore<MixerUrlPattern> store = ResourceStoreFactory.getResourceStore(clusterId);
         MixerUrlPattern mup = store.get(MixerUrlPattern.name(), namespace, app);
         if (mup == null || mup.getSpec() == null || mup.getSpec().getPatterns() == null) {
@@ -443,6 +445,27 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         } else {
             return mup.getSpec().getPatterns();
         }
+    }
+
+    @Override
+    public void deleteMixerPathPatterns(String clusterId, String namespace, String name) {
+        OwnerReferenceSupportStore<MixerUrlPattern> store = ResourceStoreFactory.getResourceStore(clusterId);
+        store.delete(MixerUrlPattern.name(), namespace, name);
+    }
+
+    @Override
+    public void updateMixerPathPatterns(String clusterId, String namespace, String name, List<String> urlPatterns) {
+        OwnerReferenceSupportStore<MixerUrlPattern> store = ResourceStoreFactory.getResourceStore(clusterId);
+        MixerUrlPattern mup = new MixerUrlPatternBuilder()
+            .withNewMetadata()
+            .withName(name)
+            .withNamespace(namespace)
+            .and()
+            .withNewSpec()
+            .withPatterns(urlPatterns)
+            .and()
+            .build();
+        multiClusterK8sClient.k8sClient(clusterId).createOrUpdate(mup, ResourceType.OBJECT);
     }
 
     @Override

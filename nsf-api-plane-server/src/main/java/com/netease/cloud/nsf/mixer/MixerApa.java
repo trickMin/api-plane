@@ -52,7 +52,7 @@ public class MixerApa extends HandleNsfmetaServiceGrpc.HandleNsfmetaServiceImplB
 	private AntPathMatcher matcher = new AntPathMatcher();
 
 	private String makeUrlPathPattern(String clusterId, PodInfo pod, String path) {
-		return resourceCache.getUrlMetricPatterns(clusterId, pod.namespace, pod.appName).stream()
+		return resourceCache.getMixerPathPatterns(clusterId, pod.namespace, pod.appName).stream()
 			.filter(pattern -> matcher.match(pattern, path))
 			.collect(Collectors.joining("|", "|", "|"));
 	}

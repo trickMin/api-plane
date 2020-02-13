@@ -63,7 +63,11 @@ public interface ResourceCache {
 
     List getPodListByService(String clusterId, String namespace, String name);
 
-    List<String> getUrlMetricPatterns(String clusterId, String namespace, String app);
+    List<String> getMixerPathPatterns(String clusterId, String namespace, String name);
+
+    void deleteMixerPathPatterns(String clusterId, String namespace, String name);
+
+    void updateMixerPathPatterns(String clusterId, String namespace, String name, List<String> urlPatterns);
 
     String getAppNameByPod(String clusterId, String namespace, String name);
 
