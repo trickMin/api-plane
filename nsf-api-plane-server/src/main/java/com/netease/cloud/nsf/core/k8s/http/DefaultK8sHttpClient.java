@@ -6,7 +6,6 @@ import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ResourceConflictException;
-import com.sun.javafx.binding.StringFormatter;
 import io.fabric8.kubernetes.api.model.Status;
 import io.fabric8.kubernetes.api.model.StatusBuilder;
 import io.fabric8.kubernetes.client.Config;
@@ -94,7 +93,7 @@ public class DefaultK8sHttpClient implements K8sHttpClient {
             }
             return null;
         } catch (IOException e) {
-            throw new ApiPlaneException(StringFormatter.format("K8s request failed : {}.", request.toString()).toString(), e);
+            throw new ApiPlaneException(String.format("K8s request failed : {}.", request.toString()).toString(), e);
         }
     }
 

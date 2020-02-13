@@ -2,7 +2,6 @@ package com.netease.cloud.nsf.core.k8s;
 
 
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
-import com.sun.javafx.binding.StringFormatter;
 import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.apps.*;
 import io.fabric8.kubernetes.client.utils.URLUtils;
@@ -59,7 +58,7 @@ public enum K8sResourceEnum {
     }
 
     public String selfLink(String namespace) {
-        return selfLink.contains("%s") ? StringFormatter.format(selfLink, namespace).getValue() : selfLink;
+        return selfLink.contains("%s") ? String.format(selfLink, namespace) : selfLink;
     }
 
     public String selfLink(String masterUrl, String namespace) {

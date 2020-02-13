@@ -9,7 +9,6 @@ import com.netease.cloud.nsf.core.k8s.KubernetesClient;
 import com.netease.cloud.nsf.core.template.TemplateTranslator;
 import com.netease.cloud.nsf.meta.WhiteList;
 import com.netease.cloud.nsf.service.WhiteListService;
-import com.sun.javafx.binding.StringFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,22 +74,22 @@ public class WhiteListServiceImpl implements WhiteListService {
     }
 
 	private String getVirtualServiceName(String service) {
-        return StringFormatter.format("%s", service).getValue();
+        return String.format("%s", service);
     }
 
     private String getDestinationRuleName(String service) {
-        return StringFormatter.format("%s", service).getValue();
+        return String.format("%s", service);
     }
 
     private String getServiceRoleName(String service) {
-        return StringFormatter.format("%s", service).getValue();
+        return String.format("%s", service);
     }
 
     private String getServiceRoleBindingName(String service) {
-        return StringFormatter.format("%s", service).getValue();
+        return String.format("%s", service);
     }
 
     private String getPolicyName(String service) {
-        return StringFormatter.format("%s", service).getValue();
+        return String.format("%s", service);
     }
 }
