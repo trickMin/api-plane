@@ -1,8 +1,16 @@
 image: hub.c.163.com/qingzhou/maven-tomcat:8-jdk8-3
+variables:
+  # Please edit to your GitLab project
+  CI_REGISTRY_IMAGE: ${CI_REGISTRY}/qingzhou/nsf-api-plane-server
+  DOCKER_TLS_CERTDIR: ''
+  DOCKER_HOST: tcp://docker:2375/
+  DOCKER_DRIVER: overlay2 
 
 stages:
   - build
   - test
+  - buildImage
+  
 
 before_script:
   - export MAVEN_HOME=/usr/local/bin/apache-maven-3.6.3
@@ -15,14 +23,37 @@ job_build:
   tags:
     - qz-gitlab-runner
 
-job_sonar_test:
+job_unit_test:
   stage: test
   script:
     - $MAVEN_HOME/bin/mvn clean install -Dmaven.test.failure.ignore=true   -DsuiteXmlFile=src/main/resources/testng.xml  -D$.initIfNecessary=true -D $.destroyIfNecessary=true -DactiveEnv=wangguan -D$.envoyConfigDump=true -D$.virtualServiceDump=true -D$.waitPublishComplete=5000|tee -a result.txt
-    - echo "now stage is code static analysise test..."
-    - ci/sonar_analyze_show.sh
+    - echo "now unit_test finished."
+  cache:
+    paths:
+      - /builds/qingzhou/yx-gateway-api-plane/nsf-api-plane-server
   tags:
     - qz-gitlab-runner
+    
+job_buildImage:
+    stage: buildImage
+    image: docker:stable
+    services:
+      - docker:dind
+    before_script:
+      - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
+    cache:
+     paths:
+      - /builds/qingzhou/yx-gateway-api-plane/nsf-api-plane-server
+
+    script:
+      - echo "Building image - hub.c.163.com/qingzhou/nsf-api-plane-server:latest"
+      - cd /builds/qingzhou/yx-gateway-api-plane/nsf-api-plane-server/
+      - docker image build --force-rm --no-cache -t $CI_REGISTRY_IMAGE:latest .
+      - docker image push $CI_REGISTRY_IMAGE:latest
+    only:
+      - release-1.1
+    tags:
+      - qz-gitlab-runner
 
 
 
