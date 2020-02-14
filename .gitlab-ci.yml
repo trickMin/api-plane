@@ -28,7 +28,8 @@ job_buildImage:
     services:
       - docker:dind
     before_script:
-      - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
+      - echo "Qingzhou4321"| docker login -u "staff.qingzhou@service.netease.com" --password-stdin hub.c.163.com
+    
     cache:
      paths:
       - /builds/qingzhou/yx-gateway-api-plane/nsf-api-plane-server
