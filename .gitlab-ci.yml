@@ -7,7 +7,6 @@ variables:
 
 stages:
   - build
-  - test
   - buildImage
   
 
@@ -22,17 +21,6 @@ job_build:
   tags:
     - qz-gitlab-runner
 
-job_unit_test:
-  stage: test
-  script:
-    - $MAVEN_HOME/bin/mvn clean install -Dmaven.test.failure.ignore=true   -DsuiteXmlFile=src/main/resources/testng.xml  -D$.initIfNecessary=true -D $.destroyIfNecessary=true -DactiveEnv=wangguan -D$.envoyConfigDump=true -D$.virtualServiceDump=true -D$.waitPublishComplete=5000|tee -a result.txt
-    - echo "now unit_test finished."
-  cache:
-    paths:
-      - /builds/qingzhou/yx-gateway-api-plane/nsf-api-plane-server
-  tags:
-    - qz-gitlab-runner
-    
 job_buildImage:
     stage: buildImage
     image: docker:stable
