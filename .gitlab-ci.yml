@@ -8,6 +8,7 @@ variables:
 
 stages:
   - build
+  - test
   - buildImage
   
 
@@ -22,14 +23,27 @@ job_build:
   tags:
     - qz-gitlab-runner
 
+job_unit_test:
+  stage: test
+  script:
+    - ret=`git log --shortstat -1 |grep insertion|awk  -F "," '{print $2}'|awk '{print $1}'`
+    - if [ $ret  != "" ]&&[ $ret -gt 10 ] ; then
+    - $MAVEN_HOME/bin/mvn clean install -Dmaven.test.failure.ignore=true   -DsuiteXmlFile=src/main/resources/testng.xml  -D$.initIfNecessary=true -D $.destroyIfNecessary=true -DactiveEnv=wangguan -D$.envoyConfigDump=true -D$.virtualServiceDump=true -D$.waitPublishComplete=5000|tee -a result.txt
+    - fi
+    - echo "now unit_test finished."
+  cache:
+    paths:
+      - /builds/qingzhou/yx-gateway-api-plane/nsf-api-plane-server
+  tags:
+    - qz-gitlab-runner    
+
 job_buildImage:
     stage: buildImage
     image: docker:stable
     services:
       - docker:dind
     before_script:
-      - echo "Qingzhou4321"| docker login -u "staff.qingzhou@service.netease.com" --password-stdin hub.c.163.com
-    
+      - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
     cache:
      paths:
       - /builds/qingzhou/yx-gateway-api-plane/nsf-api-plane-server
