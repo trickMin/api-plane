@@ -121,6 +121,16 @@ public class API extends CommonModel {
     private String apiName;
 
     /**
+     * 租户ID
+     */
+    private String tenantId;
+
+    /**
+     * 项目ID
+     */
+    private String projectId;
+
+    /**
      * 超时时间
      */
     private Long timeout;
@@ -355,6 +365,22 @@ public class API extends CommonModel {
 
     public void setApiName(String apiName) {
         this.apiName = apiName;
+    }
+
+    public String getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(String tenantId) {
+        this.tenantId = tenantId;
+    }
+
+    public String getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(String projectId) {
+        this.projectId = projectId;
     }
 
     public Long getTimeout() {
