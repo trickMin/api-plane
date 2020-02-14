@@ -9,6 +9,7 @@ variables:
 
 
 
+
 stages:
   - build
   - test
@@ -30,7 +31,7 @@ job_unit_test:
   stage: test
   script:
     - ret=`git log --shortstat -1 |grep insertion|awk  -F "," '{print $2}'|awk '{print $1}'`
-    - if [ $ret  != "" ]&&[ $ret -gt 10 ] ; then
+    - if [ $ret  != "" ]&&[ $ret -gt 50 ] ; then
     - $MAVEN_HOME/bin/mvn clean install -Dmaven.test.failure.ignore=true   -DsuiteXmlFile=src/main/resources/testng.xml  -D$.initIfNecessary=true -D $.destroyIfNecessary=true -DactiveEnv=wangguan -D$.envoyConfigDump=true -D$.virtualServiceDump=true -D$.waitPublishComplete=5000|tee -a result.txt
     - fi
     - echo "now unit_test finished."
@@ -54,9 +55,7 @@ job_buildImage:
     script:
       - echo "Building image - hub.c.163.com/qingzhou/nsf-api-plane-server:latest"
       - cd /builds/qingzhou/yx-gateway-api-plane/nsf-api-plane-server/
-      - REV_HASH=`git rev-parse HEAD`
-      - echo $REV_HASH
-      - HASH=${REV_HASH:0:8}
+      - HASH=${CI_COMMIT_SHA:0:8}
       - NOW=`date +%Y%m%d-%H%M%S`
       - IMAGE=${CI_REGISTRY_IMAGE}:${branch_url}-${NOW}-${HASH}
       - echo $IMAGE
