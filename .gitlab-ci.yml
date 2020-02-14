@@ -5,6 +5,9 @@ variables:
   DOCKER_TLS_CERTDIR: ''
   DOCKER_DRIVER: overlay2  
   DOCKER_HOST: tcp://docker:2375/
+  branch_url: $CI_PROJECT_URL/tree/$CI_COMMIT_REF_NAME
+
+
 
 stages:
   - build
@@ -51,8 +54,14 @@ job_buildImage:
     script:
       - echo "Building image - hub.c.163.com/qingzhou/nsf-api-plane-server:latest"
       - cd /builds/qingzhou/yx-gateway-api-plane/nsf-api-plane-server/
-      - docker image build --force-rm --no-cache -t $CI_REGISTRY_IMAGE:latest .
-      - docker image push $CI_REGISTRY_IMAGE:latest
+      - REV_HASH=`git rev-parse HEAD`
+      - echo $REV_HASH
+      - HASH=${REV_HASH:0:8}
+      - NOW=`date +%Y%m%d-%H%M%S`
+      - IMAGE=${CI_REGISTRY_IMAGE}:${branch_url}-${NOW}-${HASH}
+      - echo $IMAGE
+      - docker image build --force-rm --no-cache -t $IMAGE .
+      - docker image push $IMAGE
     only:
       - release-1.1
       
