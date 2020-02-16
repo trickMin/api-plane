@@ -110,14 +110,14 @@
     },
     {
       "name": "static-downgrade",
-      "schema": "plugin/portal/request-transformer-new.json",
+      "schema": "plugin/portal/static-downgrade.json",
       "description": "",
       "processor": "AggregateExtensionProcessor",
       "author": "system",
-      "createTime": "",
-      "updateTime": "",
-      "pluginScope": "routeRule",
-      "pluginPriority": "",
+      "createTime": "1572537600000",
+      "updateTime": "1572537600000",
+      "pluginScope": "routeRule,global",
+      "pluginPriority": "2200",
       "instructionForUse": "静态降级插件，当返回结果符合条时件对返回结果进行降级"
     },
     {
