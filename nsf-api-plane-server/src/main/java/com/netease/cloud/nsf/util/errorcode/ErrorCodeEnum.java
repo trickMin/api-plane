@@ -82,9 +82,23 @@ public enum ErrorCodeEnum {
     DataSyncError("DataSyncError","operation failed:%s","操作失败:%s",400),
     InstanceStillExistError("StillExistError", "Instance is still exist for this service,can not cancell it","该服务仍有实例运行，无法进行注销操作",400 ),
     ConfigAppExistError("ConfigAppExistError","App in config server is exist" ,"配置中心中appId已经存在，创建服务失败",400),
-    ServiceNotFound("ServiceNotFound", "Can't found service with Id %s", "找不到对应Id为%s的服务", 404);
+    ServiceNotFound("ServiceNotFound", "Can't found service with Id %s", "找不到对应Id为%s的服务", 404),
 
-
+    //负载均衡相关
+    InvalidLoadBanlanceType("InvalidLoadBanlanceType", "This load balance type is invalid", "服务负载均衡类型取值为Simple或ConsistentHash", 400),
+    InvalidSimpleLoadBanlanceType("InvalidSimpleLoadBanlanceType", "This simple load balance type is invalid", "Simple类型的负载均衡规则，仅包含ROUND_ROUBIN、LEAST_CONN、RANDOM", 400),
+    InvalidConsistentHashObject("InvalidConsistentHashObject", "Consistent hash object is invalid", "一致性哈希对象格式非法", 400),
+    InvalidConsistentHashType("InvalidConsistentHashType", "Consistent hash type is invalid", "一致性哈希对象类型为httpHeaderName、httpCookie、useSourceIp三者之一", 400),
+    InvalidConsistentHashHttpCookieObject("InvalidConsistentHashHttpCookieObject", "Http cookie is invalid", "一致性哈希对象使用cookie时，cookie对象不能为空", 400),
+    InvalidConsistentHashHttpCookieName("InvalidConsistentHashHttpCookieName", "Http cookie name is invalid", "一致性哈希对象使用cookie时，cookie名称不能为空", 400),
+    InvalidConsistentHashHttpCookieTtl("InvalidConsistentHashHttpCookieName", "Http cookie ttl is invalid", "一致性哈希对象使用cookie时，cookie ttl不能小于0", 400),
+    InvalidHttp1MaxPendingRequests("InvalidHttp1MaxPendingRequests", "http1MaxPendingRequests is invalid", "http1MaxPendingRequests不能小于0", 400),
+    InvalidHttp2MaxRequests("InvalidHttp2MaxRequests", "Http2MaxRequests is invalid", "http2MaxRequests不能小于0", 400),
+    InvalidIdleTimeout("InvalidIdleTimeout", "IdleTimeout is invalid", "idleTimeout不能小于0", 400),
+    InvalidMaxRequestsPerConnection("InvalidMaxRequestsPerConnection", "MaxRequestsPerConnection is invalid", "maxRequestsPerConnection不能小于0", 400),
+    InvalidMaxConnections("InvalidmaxConnections", "MaxConnections is invalid", "maxConnections不能小于0", 400),
+    InvalidConnectTimeout("InvalidConnectTimeout", "ConnectTimeout is invalid", "connectTimeout不能小于0", 400)
+    ;
 
     private String code;
     private String enMsg;

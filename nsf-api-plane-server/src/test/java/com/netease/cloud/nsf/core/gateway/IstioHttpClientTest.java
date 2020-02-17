@@ -24,7 +24,7 @@ public class IstioHttpClientTest extends BaseTest {
     @Autowired
     IstioHttpClient istioHttpClient;
 
-    @MockBean
+    @MockBean(name = "restTemplate")
     RestTemplate restTemplate;
 
     @MockBean

@@ -1,6 +1,14 @@
 package com.netease.cloud.nsf.util;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
+import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import com.netease.cloud.nsf.meta.Service;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 
 import java.util.HashMap;
@@ -13,6 +21,9 @@ import java.util.regex.Pattern;
  **/
 public class CommonUtil {
 
+    private static final Logger logger = LoggerFactory.getLogger(CommonUtil.class);
+
+    private static YAMLMapper yamlMapper;
     /**
      * match ip:port
      * 127.0.0.1:8080
@@ -61,5 +72,28 @@ public class CommonUtil {
         if (host.equals("*")) return ".*";
         return host.replace(".", "\\.")
                     .replace("*", ".+");
+    }
+
+    public static String obj2yaml(Object o) {
+
+        if (o == null) return null;
+        try {
+            return getYamlMapper().writeValueAsString(o);
+        } catch (JsonProcessingException e) {
+            logger.warn("obj {} to yaml failed", o, e);
+        }
+        return null;
+    }
+
+    private static YAMLMapper getYamlMapper() {
+        if (yamlMapper == null) {
+            YAMLMapper mapper = new YAMLMapper();
+            mapper.configure(YAMLGenerator.Feature.WRITE_DOC_START_MARKER, false);
+            mapper.configure(YAMLGenerator.Feature.MINIMIZE_QUOTES, true);
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+            yamlMapper = mapper;
+        }
+        return yamlMapper;
     }
 }

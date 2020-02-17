@@ -60,4 +60,13 @@ public interface Const {
     int VERSION_MANAGER_CRD_MISSING = 2;
     int VERSION_MANAGER_CRD_DEFAULT = 3;
 
+    // DestinationRule loadbalancer type
+
+    String LB_TYPE_ROUND_ROBIN = "ROUND_ROBIN";
+    String LB_TYPE_RANDOM = "RANDOM";
+    String LB_TYPE_LEAST_CONN = "LEAST_CONN";
+    String LB_TYPE_PASSTHROUGH = "PASSTHROUGH";
+    String LB_TYPE_CONSISTENT_HASH = "CONSISTENT_HASH";
+
+
 }

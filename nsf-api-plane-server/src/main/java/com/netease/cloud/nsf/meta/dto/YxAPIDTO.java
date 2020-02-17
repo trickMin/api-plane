@@ -202,7 +202,7 @@ public class YxAPIDTO {
         private List<PairMatchDTO> queryParams;
         private List<PairMatchDTO> headers;
 
-        private YxAPIDTOBuilder() {
+        public YxAPIDTOBuilder() {
         }
 
         public static YxAPIDTOBuilder anYxAPIDTO() {

@@ -44,6 +44,7 @@ public class ApiPlaneAutoConfiguration {
     private Environment environment;
 
     @Bean
+    @Primary
     RestTemplate restTemplate(RestTemplateBuilder restTemplateBuilder) {
         List<ClientHttpRequestInterceptor> interceptors = ImmutableList.of(new RestTemplateLogInterceptor());
 
@@ -53,6 +54,20 @@ public class ApiPlaneAutoConfiguration {
                         new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory()), interceptors))
                 .build();
     }
+
+    @Bean
+    @Qualifier("shortTimeoutRestTemplate")
+    RestTemplate shortTimeoutRestTemplate(RestTemplateBuilder restTemplateBuilder) {
+        List<ClientHttpRequestInterceptor> interceptors = ImmutableList.of(new RestTemplateLogInterceptor());
+
+        return restTemplateBuilder
+                .setConnectTimeout(2)
+                .interceptors(interceptors)
+                .requestFactory(new InterceptingClientHttpRequestFactory(
+                        new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory()), interceptors))
+                .build();
+    }
+
 
     @Bean
     @Qualifier("yaml")

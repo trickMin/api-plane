@@ -52,7 +52,7 @@
       "name": "cors",
       "schema": "plugin/portal/cors.json",
       "description": "",
-      "processor": "DefaultProcessor",
+      "processor": "AggregateExtensionProcessor",
       "author": "system",
       "createTime": "1572537600000",
       "updateTime": "1572537600000",

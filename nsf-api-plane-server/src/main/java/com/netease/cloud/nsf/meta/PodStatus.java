@@ -11,6 +11,9 @@ public class PodStatus {
     @JsonProperty(value = "CurrentVersion")
     private String currentVersion;
 
+    @JsonProperty(value = "ExpectedVersion")
+    private String expectedVersion;
+
     @JsonProperty(value = "LastUpdateTime")
     private String lastUpdateTime;
 
@@ -20,9 +23,10 @@ public class PodStatus {
     @JsonProperty(value = "StatusMessage")
     private String statusMessage;
 
-    public PodStatus(String podName, String currentVersion, String lastUpdateTime, Integer statusCode, String statusMessage) {
+    public PodStatus(String podName, String currentVersion, String expectedVersion ,String lastUpdateTime, Integer statusCode, String statusMessage) {
         this.podName = podName;
         this.currentVersion = currentVersion;
+        this.expectedVersion = expectedVersion;
         this.lastUpdateTime = lastUpdateTime;
         this.statusCode = statusCode;
         this.statusMessage = statusMessage;
@@ -71,4 +75,13 @@ public class PodStatus {
     public void setStatusMessage(String statusMessage) {
         this.statusMessage = statusMessage;
     }
+
+    public String getExpectedVersion() {
+        return expectedVersion;
+    }
+
+    public void setExpectedVersion(String expectedVersion) {
+        this.expectedVersion = expectedVersion;
+    }
+
 }

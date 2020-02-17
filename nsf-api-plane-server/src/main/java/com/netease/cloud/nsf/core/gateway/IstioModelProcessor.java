@@ -1,5 +1,6 @@
 package com.netease.cloud.nsf.core.gateway;
 
+import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import com.jayway.jsonpath.Criteria;
 import com.netease.cloud.nsf.core.editor.EditorContext;
 import com.netease.cloud.nsf.core.editor.ResourceGenerator;
@@ -24,7 +25,9 @@ import me.snowdrop.istio.api.IstioResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -40,9 +43,9 @@ import java.util.stream.Collectors;
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/7/17
  **/
 @Component
-public class GatewayModelOperator {
+public class IstioModelProcessor {
 
-    private static final Logger logger = LoggerFactory.getLogger(GatewayModelOperator.class);
+    private static final Logger logger = LoggerFactory.getLogger(IstioModelProcessor.class);
 
     @Autowired
     IntegratedResourceOperator operator;
@@ -184,7 +187,7 @@ public class GatewayModelOperator {
         return resources;
     }
 
-    public List<IstioResource> translate(GlobalPlugins gp) {
+    public List<IstioResource> translate(GlobalPlugin gp) {
 
         List<IstioResource> resources = new ArrayList<>();
         List<String> rawResources = new ArrayList<>();
