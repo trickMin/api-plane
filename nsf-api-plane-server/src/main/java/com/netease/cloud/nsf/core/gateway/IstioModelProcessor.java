@@ -16,6 +16,7 @@ import com.netease.cloud.nsf.core.plugin.FragmentHolder;
 import com.netease.cloud.nsf.core.template.TemplateTranslator;
 import com.netease.cloud.nsf.meta.API;
 import com.netease.cloud.nsf.meta.*;
+import com.netease.cloud.nsf.service.GatewayService;
 import com.netease.cloud.nsf.service.PluginService;
 import com.netease.cloud.nsf.util.Const;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
@@ -60,6 +61,9 @@ public class IstioModelProcessor {
 
     @Autowired
     PluginService pluginService;
+
+    @Autowired
+    GatewayService gatewayService;
 
     @Autowired
     RenderTwiceModelProcessor renderTwiceModelProcessor;
@@ -190,10 +194,11 @@ public class IstioModelProcessor {
         RawResourceContainer rawResourceContainer = new RawResourceContainer();
         List<FragmentHolder> plugins = pluginService.processGlobalPlugin(gp.getPlugins(), new ServiceInfo());
         rawResourceContainer.add(plugins);
+        List<Gateway> gateways = gatewayService.getGatewayList();
 
-        List<String> rawGatewayPlugins = defaultModelProcessor.process(gatewayPlugin, gp, new GatewayPluginDataHandler(rawResourceContainer.getGatewayPlugins()));
+        List<String> rawGatewayPlugins = defaultModelProcessor.process(gatewayPlugin, gp, new GatewayPluginDataHandler(rawResourceContainer.getGatewayPlugins(), gateways));
         //todo: shareConfig逻辑需要适配
-        List<String> rawSharedConfigs = renderTwiceModelProcessor.process(apiSharedConfig, gp, new GatewayPluginSharedConfigDataHandler(rawResourceContainer.getSharedConfigs()));
+        List<String> rawSharedConfigs = renderTwiceModelProcessor.process(apiSharedConfig, gp, new GatewayPluginSharedConfigDataHandler(rawResourceContainer.getSharedConfigs(), gateways));
         rawResources.addAll(rawGatewayPlugins);
         rawResources.addAll(rawSharedConfigs);
 

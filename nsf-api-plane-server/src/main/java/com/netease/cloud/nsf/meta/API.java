@@ -120,6 +120,27 @@ public class API extends CommonModel {
      */
     private String apiName;
 
+    /**
+     * 超时时间
+     */
+    private Long timeout;
+
+    /**
+     * 重试次数
+     */
+    private int attempts;
+
+    /**
+     * 重试超时时间
+     */
+    private long perTryTimeout;
+
+    /**
+     * 重试条件
+     */
+    private String retryOn;
+
+
     public List<String> getGateways() {
         return gateways;
     }
@@ -334,5 +355,38 @@ public class API extends CommonModel {
 
     public void setApiName(String apiName) {
         this.apiName = apiName;
+    }
+
+    public Long getTimeout() {
+        return timeout;
+    }
+
+    public void setTimeout(Long timeout) {
+        this.timeout = timeout;
+    }
+
+
+    public int getAttempts() {
+        return attempts;
+    }
+
+    public void setAttempts(int attempts) {
+        this.attempts = attempts;
+    }
+
+    public long getPerTryTimeout() {
+        return perTryTimeout;
+    }
+
+    public void setPerTryTimeout(long perTryTimeout) {
+        this.perTryTimeout = perTryTimeout;
+    }
+
+    public String getRetryOn() {
+        return retryOn;
+    }
+
+    public void setRetryOn(String retryOn) {
+        this.retryOn = retryOn;
     }
 }

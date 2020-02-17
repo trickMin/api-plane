@@ -2,6 +2,7 @@ package com.netease.cloud.nsf.core.gateway.handler;
 
 import com.netease.cloud.nsf.core.plugin.FragmentWrapper;
 import com.netease.cloud.nsf.core.template.TemplateParams;
+import com.netease.cloud.nsf.meta.Gateway;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Arrays;
@@ -16,8 +17,8 @@ import static com.netease.cloud.nsf.core.template.TemplateConst.SHARED_CONFIG_DE
 public class GatewayPluginSharedConfigDataHandler extends GatewayPluginDataHandler {
 
 
-    public GatewayPluginSharedConfigDataHandler(List<FragmentWrapper> fragments) {
-        super(fragments);
+    public GatewayPluginSharedConfigDataHandler(List<FragmentWrapper> fragments, List<Gateway> gateways) {
+        super(fragments, gateways);
     }
 
     @Override

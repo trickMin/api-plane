@@ -45,6 +45,7 @@ public interface TemplateConst {
     String VIRTUAL_SERVICE_ROUTE_YAML = "t_virtual_service_route_yaml";
     String VIRTUAL_SERVICE_EXTRA_YAML = "t_virtual_service_extra_yaml";
     String VIRTUAL_SERVICE_HOSTS_YAML = "t_virtual_service_hosts_yaml";
+    String VIRTUAL_SERVICE_HTTP_RETRY_YAML = "t_virtual_service_http_retry_yaml";
     String VIRTUAL_SERVICE_API_YAML = "t_virtual_service_api_yaml";
     String VIRTUAL_SERVICE_HOSTS = "t_virtual_service_hosts";
     String VIRTUAL_SERVICE_HOST_HEADERS = "t_virtual_service_host_headers";
@@ -53,6 +54,10 @@ public interface TemplateConst {
     String VIRTUAL_SERVICE_SERVICE_TAG = "t_virtual_service_service_tag";
     String VIRTUAL_SERVICE_API_ID = "t_virtual_service_api_id";
     String VIRTUAL_SERVICE_API_NAME = "t_virtual_service_api_name";
+    String VIRTUAL_SERVICE_TIME_OUT = "t_virtual_service_timeout";
+    String VIRTUAL_SERVICE_RETRY_ATTEMPTS = "t_http_retry_attempts";
+    String VIRTUAL_SERVICE_RETRY_PER_TIMEOUT = "t_http_retry_perTryTimeout";
+    String VIRTUAL_SERVICE_RETRY_RETRY_ON = "t_http_retry_retryOn";
 
     /**
      * MATCH级別插件
