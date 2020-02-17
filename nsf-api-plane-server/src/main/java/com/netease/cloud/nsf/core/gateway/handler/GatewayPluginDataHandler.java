@@ -57,7 +57,7 @@ public class GatewayPluginDataHandler implements DataHandler<GlobalPlugin> {
         return plugins;
     }
 
-    List<String> getGateways(GlobalPlugins gp) {
+    List<String> getGateways(GlobalPlugin gp) {
         if (gp.getGateway() == null) return Collections.emptyList();
         if (Pattern.compile("(.*?)/(.*?)").matcher(gp.getGateway()).find()) return Arrays.asList(gp.getGateway());
 
