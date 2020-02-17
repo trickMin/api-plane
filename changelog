@@ -22,6 +22,7 @@ release 1.1
 - 接口暴露subset
 - virtualservice的host改为具体host而不是*
 - 增加idletimeout 3s
+- 增加连接池、负载均衡
 
 ServiceMesh:
 - 创建、删除、查询资源接口
