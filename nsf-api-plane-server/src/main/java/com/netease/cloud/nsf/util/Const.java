@@ -51,10 +51,11 @@ public interface Const {
     String DOWNLOAD_DAEMONSET_PORT = "9050";
 
     String SIDECAR_CONTAINER = "istio-proxy";
-    String DEFAULT_SIDECAR_CONTAINER = "unknown";
-    String SIDECAR_CONTAINER_RUNNING = "running";
-    String SIDECAR_CONTAINER_TERMINATED = "terminated";
-    String SIDECAR_CONTAINER_WAITING = "waiting";
+    String SIDECAR_CONTAINER_ERROR = "1";
+    String SIDECAR_CONTAINER_SUCCESS = "0";
+
+
+
 
     int VERSION_MANAGER_CRD_EXIST = 1;
     int VERSION_MANAGER_CRD_MISSING = 2;

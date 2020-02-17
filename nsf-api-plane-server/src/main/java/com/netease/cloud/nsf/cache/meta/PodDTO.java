@@ -110,7 +110,6 @@ public class PodDTO<T extends HasMetadata> extends K8sResourceDTO {
             this.podIp = pod.getStatus().getPodIP();
             this.status = pod.getStatus().getPhase();
             this.isInjected = isInjected(pod);
-            this.sidecarContainerStatus = getSidecarContainerStatus(pod);
 
             Map<String, ContainerInfo> containerInfoMap = new HashMap<>();
             // 更新容器资源信息
@@ -251,22 +250,7 @@ public class PodDTO<T extends HasMetadata> extends K8sResourceDTO {
         return false;
     }
 
-    private String getSidecarContainerStatus(Pod pod){
-        if (pod.getStatus() == null){
-            return Const.DEFAULT_SIDECAR_CONTAINER;
-        }
-        if (pod.getStatus().getContainerStatuses() == null){
-            return Const.DEFAULT_SIDECAR_CONTAINER;
-        }
-        List<ContainerStatus> containerStatuses = pod.getStatus().getContainerStatuses();
-        for (ContainerStatus containerStatus : containerStatuses) {
-            if (Const.SIDECAR_CONTAINER.equals(containerStatus.getName())){
-                return getContainerStatus(containerStatus);
-            }
-        }
-        return Const.DEFAULT_SIDECAR_CONTAINER;
 
-    }
 
     private int getResourceValueIndex(String amount) {
         if (StringUtils.isEmpty(amount)) {
@@ -280,21 +264,6 @@ public class PodDTO<T extends HasMetadata> extends K8sResourceDTO {
         return -1;
     }
 
-    private String getContainerStatus(ContainerStatus containerStatus){
-        if (containerStatus == null){
-            return Const.DEFAULT_SIDECAR_CONTAINER;
-        }
-        if (containerStatus.getState().getRunning() !=null){
-            return Const.SIDECAR_CONTAINER_RUNNING;
-        }
-        if (containerStatus.getState().getTerminated()!=null){
-            return Const.SIDECAR_CONTAINER_TERMINATED;
-        }
-        if (containerStatus.getState().getWaiting() !=null){
-            return Const.SIDECAR_CONTAINER_WAITING;
-        }
-        return Const.DEFAULT_SIDECAR_CONTAINER;
-    }
 
 }
 
