@@ -57,7 +57,7 @@ job_buildImage:
       - cd /builds/qingzhou/yx-gateway-api-plane/nsf-api-plane-server/
       - HASH=${CI_COMMIT_SHA:0:8}
       - NOW=`date +%Y%m%d-%H%M%S`
-      - IMAGE=${CI_REGISTRY_IMAGE}:${branch_url}-${NOW}-${HASH}
+      - IMAGE=${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_NAME}-${NOW}-${HASH}
       - echo $IMAGE
       - docker image build --force-rm --no-cache -t $IMAGE .
       - docker image push $IMAGE
