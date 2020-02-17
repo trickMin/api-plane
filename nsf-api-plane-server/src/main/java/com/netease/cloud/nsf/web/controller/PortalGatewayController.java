@@ -5,6 +5,7 @@ import com.netease.cloud.nsf.meta.dto.*;
 import com.netease.cloud.nsf.service.GatewayService;
 import com.netease.cloud.nsf.util.errorcode.ApiPlaneErrorCode;
 import com.netease.cloud.nsf.util.errorcode.ErrorCode;
+import com.netease.cloud.nsf.util.errorcode.ErrorCodeEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -33,6 +34,12 @@ public class PortalGatewayController extends BaseController {
 
     @RequestMapping(value = "/portal", params = "Action=PublishService", method = RequestMethod.POST)
     public String publishPortalService(@RequestBody @Valid PortalServiceDTO service) {
+        //新增参数校验逻辑
+        ErrorCode errorCode = gatewayService.checkUpdateService(service);
+        if (!ErrorCodeEnum.Success.getCode().equals(errorCode.getCode())) {
+            return apiReturn(errorCode);
+        }
+
         gatewayService.updateService(service);
         return apiReturn(ApiPlaneErrorCode.Success);
     }
@@ -78,14 +85,14 @@ public class PortalGatewayController extends BaseController {
         return apiReturn(result);
     }
 
-    @RequestMapping(value = "/portal", params = "Action=PublishGlobalPlugins", method = RequestMethod.POST)
-    public String publishGlobalPlugins(@RequestBody @Valid GlobalPluginDTO globalPluginsDTO) {
+    @RequestMapping(value = "/portal", params = "Action=PublishGlobalPlugin", method = RequestMethod.POST)
+    public String publishGlobalPlugin(@RequestBody @Valid GlobalPluginsDTO globalPluginsDTO) {
         gatewayService.updateGlobalPlugins(globalPluginsDTO);
         return apiReturn(ApiPlaneErrorCode.Success);
     }
 
-    @RequestMapping(value = "/portal", params = "Action=DeleteGlobalPlugins", method = RequestMethod.POST)
-    public String deleteGlobalPlugins(@RequestBody @Valid GlobalPluginsDeleteDTO globalPluginsDeleteDTO) {
+    @RequestMapping(value = "/portal", params = "Action=DeleteGlobalPlugin", method = RequestMethod.POST)
+    public String deleteGlobalPlugin(@RequestBody @Valid GlobalPluginsDeleteDTO globalPluginsDeleteDTO) {
         gatewayService.deleteGlobalPlugins(globalPluginsDeleteDTO);
         return apiReturn(ApiPlaneErrorCode.Success);
     }

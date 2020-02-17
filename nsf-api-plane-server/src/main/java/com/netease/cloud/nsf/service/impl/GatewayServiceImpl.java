@@ -7,6 +7,9 @@ import com.netease.cloud.nsf.meta.dto.*;
 import com.netease.cloud.nsf.service.GatewayService;
 import com.netease.cloud.nsf.util.Const;
 import com.netease.cloud.nsf.util.Trans;
+import com.netease.cloud.nsf.util.errorcode.ApiPlaneErrorCode;
+import com.netease.cloud.nsf.util.errorcode.ErrorCode;
+import com.netease.cloud.nsf.util.errorcode.ErrorCodeEnum;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import me.snowdrop.istio.api.IstioResource;
 import me.snowdrop.istio.api.networking.v1alpha3.GatewaySpec;
@@ -32,6 +35,14 @@ import java.util.stream.Collectors;
 public class GatewayServiceImpl implements GatewayService {
 
     private static final String COLON = ":";
+    private static final String SERVICE_LOADBALANCER_SIMPLE = "Simple";
+    private static final String SERVICE_LOADBALANCER_SIMPLE_ROUND_ROBIN = "ROUND_ROBIN";
+    private static final String SERVICE_LOADBALANCER_SIMPLE_LEAST_CONN = "LEAST_CONN";
+    private static final String SERVICE_LOADBALANCER_SIMPLE_RANDOM = "RANDOM";
+    private static final String SERVICE_LOADBALANCER_HASH = "ConsistentHash";
+    private static final String SERVICE_LOADBALANCER_HASH_HTTPHEADERNAME = "HttpHeaderName";
+    private static final String SERVICE_LOADBALANCER_HASH_HTTPCOOKIE = "HttpCookie";
+    private static final String SERVICE_LOADBALANCER_HASH_USESOURCEIP = "UseSourceIp";
 
     @Autowired
     private ResourceManager resourceManager;
@@ -63,6 +74,109 @@ public class GatewayServiceImpl implements GatewayService {
     public void updateService(PortalServiceDTO service) {
         configManager.updateConfig(Trans.portalService2Service(service));
     }
+    /**
+     * 校验服务和版本负载均衡策略 & 连接池 且 根据Type字段将冗余字段置空不处理
+     *
+     * @param service
+     * @return
+     */
+    @Override
+    public ErrorCode checkUpdateService(PortalServiceDTO service) {
+        PortalTrafficPolicyDTO envoyServiceTrafficPolicyDto = service.getTrafficPolicy();
+        ErrorCode errorCode = checkTrafficPolicy(envoyServiceTrafficPolicyDto);
+        if (!ErrorCodeEnum.Success.getCode().equals(errorCode.getCode())) {
+            return errorCode;
+        }
+
+        List<ServiceSubsetDTO> envoySubsetDtoList = service.getSubsets();
+        if (envoySubsetDtoList != null) {
+            for (ServiceSubsetDTO envoySubsetDto : envoySubsetDtoList) {
+                errorCode = checkTrafficPolicy(envoySubsetDto.getTrafficPolicy());
+                if (!ErrorCodeEnum.Success.getCode().equals(errorCode.getCode())) {
+                    return errorCode;
+                }
+            }
+        }
+        return ApiPlaneErrorCode.Success;
+
+    }
+
+    /**
+     * 校验负载均衡策略 & 连接池 且 根据Type字段将冗余字段置空不处理
+     *
+     * @param portalTrafficPolicyDTO
+     * @return
+     */
+    private ErrorCode checkTrafficPolicy(PortalTrafficPolicyDTO portalTrafficPolicyDTO) {
+        if (portalTrafficPolicyDTO == null) {
+            return ApiPlaneErrorCode.Success;
+        }
+
+        PortalLoadBalancerDTO envoyServiceLoadBalancerDto = portalTrafficPolicyDTO.getLoadBalancer();
+        if (envoyServiceLoadBalancerDto != null) {
+            //Simple类型，包含ROUND_ROBIN|LEAST_CONN|RANDOM
+            final List<String> simpleList = new ArrayList<>();
+            simpleList.add(SERVICE_LOADBALANCER_SIMPLE_ROUND_ROBIN);
+            simpleList.add(SERVICE_LOADBALANCER_SIMPLE_LEAST_CONN);
+            simpleList.add(SERVICE_LOADBALANCER_SIMPLE_RANDOM);
+            if (StringUtils.isNotBlank(envoyServiceLoadBalancerDto.getSimple()) &&
+                    !simpleList.contains(envoyServiceLoadBalancerDto.getSimple())) {
+                return ApiPlaneErrorCode.InvalidSimpleLoadBanlanceType;
+            }
+
+            //一致性哈希
+            PortalLoadBalancerDTO.ConsistentHashDTO envoyServiceConsistentHashDto = envoyServiceLoadBalancerDto.getConsistentHashDTO();
+            if (envoyServiceConsistentHashDto != null) {
+                PortalLoadBalancerDTO.ConsistentHashDTO.HttpCookieDTO envoyServiceConsistentHashCookieDto =
+                        envoyServiceConsistentHashDto.getHttpCookie();
+                if (envoyServiceConsistentHashCookieDto != null) {
+                    String name = envoyServiceConsistentHashCookieDto.getName();
+                    if (StringUtils.isBlank(name)) {
+                        return ApiPlaneErrorCode.InvalidConsistentHashHttpCookieName;
+                    }
+                    Integer ttl = envoyServiceConsistentHashCookieDto.getTtl();
+                    if (ttl == null || ttl < 0) {
+                        return ApiPlaneErrorCode.InvalidConsistentHashHttpCookieTtl;
+                    }
+                }
+            }
+        }
+        PortalServiceConnectionPoolDTO envoyServiceConnectionPoolDto = portalTrafficPolicyDTO.getConnectionPool();
+        if (envoyServiceConnectionPoolDto != null) {
+            PortalServiceConnectionPoolDTO.PortalServiceHttpConnectionPoolDTO envoyServiceHttpConnectionPoolDto = envoyServiceConnectionPoolDto.getHttp();
+            PortalServiceConnectionPoolDTO.PortalServiceTcpConnectionPoolDTO envoyServiceTcpConnectionPoolDto = envoyServiceConnectionPoolDto.getTcp();
+            if (envoyServiceHttpConnectionPoolDto != null) {
+                Integer http1MaxPendingRequests = envoyServiceHttpConnectionPoolDto.getHttp1MaxPendingRequests();
+                Integer http2MaxRequests = envoyServiceHttpConnectionPoolDto.getHttp2MaxRequests();
+                Integer idleTimeout = envoyServiceHttpConnectionPoolDto.getIdleTimeout();
+                Integer maxRequestsPerConnection = envoyServiceHttpConnectionPoolDto.getMaxRequestsPerConnection();
+                if (http1MaxPendingRequests < 0) {
+                    return ApiPlaneErrorCode.InvalidHttp1MaxPendingRequests;
+                }
+                if (http2MaxRequests < 0) {
+                    return ApiPlaneErrorCode.InvalidHttp2MaxRequests;
+                }
+                if (idleTimeout < 0) {
+                    return ApiPlaneErrorCode.InvalidIdleTimeout;
+                }
+                if (maxRequestsPerConnection < 0) {
+                    return ApiPlaneErrorCode.InvalidMaxRequestsPerConnection;
+                }
+            }
+            if (envoyServiceTcpConnectionPoolDto != null) {
+                Integer maxConnections = envoyServiceTcpConnectionPoolDto.getMaxConnections();
+                Integer connectTimeout = envoyServiceTcpConnectionPoolDto.getConnectTimeout();
+                if (maxConnections < 0) {
+                    return ApiPlaneErrorCode.InvalidMaxConnections;
+                }
+                if (connectTimeout < 0) {
+                    return ApiPlaneErrorCode.InvalidConnectTimeout;
+                }
+            }
+        }
+        return ApiPlaneErrorCode.Success;
+    }
+
 
     @Override
     public void deleteService(PortalServiceDTO service) {

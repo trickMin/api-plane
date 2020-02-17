@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
 public class ServiceMeshController extends BaseController {
 
     @Autowired
-    private ServiceMeshService istioService;
+    private ServiceMeshService serviceMeshService;
 
     @Autowired
     private TopoService topoService;
@@ -32,13 +32,13 @@ public class ServiceMeshController extends BaseController {
 
     @RequestMapping(params = "Action=UpdateConfig", method = RequestMethod.POST)
     public String updateConfig(@RequestBody String resource) {
-        istioService.updateIstioResource(StringEscapeUtils.unescapeJava(resource));
+        serviceMeshService.updateIstioResource(StringEscapeUtils.unescapeJava(resource));
         return apiReturn(SUCCESS, "Success", null, null);
     }
 
     @RequestMapping(params = "Action=DeleteConfig", method = RequestMethod.POST)
     public String deleteConfig(@RequestBody String resource) {
-        istioService.deleteIstioResource(StringEscapeUtils.unescapeJava(resource));
+        serviceMeshService.deleteIstioResource(StringEscapeUtils.unescapeJava(resource));
         return apiReturn(SUCCESS, "Success", null, null);
     }
 
@@ -46,7 +46,7 @@ public class ServiceMeshController extends BaseController {
     public String deleteConfig(@RequestParam(name = "Name")String name,
                                @RequestParam(name = "Namespace")String namespace,
                                @RequestParam(name = "Kind")String kind) {
-        return apiReturn(ImmutableMap.of(RESULT, istioService.getIstioResource(name, namespace, kind)));
+        return apiReturn(ImmutableMap.of(RESULT, serviceMeshService.getIstioResource(name, namespace, kind)));
     }
 
     @RequestMapping(params = {"Action=InjectSidecar"}, method = RequestMethod.GET)
@@ -57,7 +57,7 @@ public class ServiceMeshController extends BaseController {
                                 @RequestParam(name = "Kind") String kind,
                                 @RequestParam(name = "ClusterId") String clusterId) {
 
-        ErrorCode code = istioService.sidecarInject(clusterId, kind, namespace, name, version, sidecarVersion);
+        ErrorCode code = serviceMeshService.sidecarInject(clusterId, kind, namespace, name, version, sidecarVersion);
         return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), null);
     }
 
@@ -85,9 +85,13 @@ public class ServiceMeshController extends BaseController {
     @RequestMapping(params = "Action=NotifySidecarEvent", method = RequestMethod.GET)
     public String notifySidecarDownload(@RequestParam(name = "SidecarVersion") String version,
                                         @RequestParam(name = "Type") String type){
-        istioService.notifySidecarFileEvent(version, type);
+        serviceMeshService.notifySidecarFileEvent(version, type);
         return apiReturn(SUCCESS, "Success", null, null);
     }
 
-
+    @RequestMapping(params = "Action=CheckPilotHealth", method = RequestMethod.GET)
+    public String checkPilotHealth() {
+        boolean isHealth = serviceMeshService.checkPilotHealth();
+        return apiReturn(ImmutableMap.of(RESULT, isHealth));
+    }
 }

@@ -22,6 +22,7 @@ public class GatewayPluginSharedConfigDataHandler extends GatewayPluginDataHandl
 
     @Override
     List<TemplateParams> doHandle(TemplateParams baseParams) {
+        if (CollectionUtils.isEmpty(fragments)) return Collections.emptyList();
         List<String> descriptors = extractFragments(fragments);
 
         if (CollectionUtils.isEmpty(descriptors)) return Collections.EMPTY_LIST;

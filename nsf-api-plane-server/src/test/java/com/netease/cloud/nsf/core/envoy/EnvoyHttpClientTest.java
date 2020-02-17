@@ -24,7 +24,7 @@ public class EnvoyHttpClientTest extends BaseTest {
     @Autowired
     EnvoyHttpClient envoyHttpClient;
 
-    @MockBean
+    @MockBean(name = "restTemplate")
     RestTemplate restTemplate;
 
     @MockBean

@@ -83,6 +83,18 @@
       "pluginScope": "routeRule",
       "pluginPriority": "3000",
       "instructionForUse": "body提取插件"
+    },
+    {
+      "name": "ianus-request-transformer",
+      "schema": "plugin/yx/ianus-request-transformer.json",
+      "description": "",
+      "processor": "AggregateExtensionProcessor",
+      "author": "system",
+      "createTime": "1572537600000",
+      "updateTime": "1572537600000",
+      "pluginScope": "routeRule",
+      "pluginPriority": "3000",
+      "instructionForUse": "请求转换插件"
     }
   ]
 }

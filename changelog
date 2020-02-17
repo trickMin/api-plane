@@ -4,11 +4,13 @@ release 1.1
 - 查询服务和查询实例接口优化
 - 实例健康状态查询接口
 - 增加gateway的http10字段支持
+- TransformProcessor支持Condition
 - 增加路由默认超时时间60s
 
 严选网关:
 - 多租户支持
 - route插件rewrite子插件增加condition,兼容严选旧用法
+- route插件rewrite子插件将渲染配置迁移到ext字段，使用插件别名为com.netease.rewrite
 
 轻舟网关：
 - vs元数据增加
@@ -26,7 +28,7 @@ ServiceMesh:
 - 拓扑功能，对接kiali
 - sidecar 自动注入及升级
 - k8s 资源监听管理
-
+- 增加pilot健康检查接口
 
 工程整体:
 - 增加全局Reqeust,Response日志打印

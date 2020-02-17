@@ -1,5 +1,6 @@
 package com.netease.cloud.nsf.util;
 
+import com.netease.cloud.nsf.meta.Service;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -44,5 +45,24 @@ public class CommonUtilTest {
         Assert.assertTrue(p2.matcher(add3).find());
         Assert.assertTrue(!p2.matcher(add4).find());
 
+    }
+
+    @Test
+    public void testObj2Yaml() {
+
+        Service.ServiceLoadBalancer lb = new Service.ServiceLoadBalancer();
+        lb.setSimple("RANDOM");
+        Service.ServiceLoadBalancer.ConsistentHash consistentHash = new Service.ServiceLoadBalancer.ConsistentHash();
+        consistentHash.setHttpHeaderName("thisisheader");
+        lb.setConsistentHash(consistentHash);
+
+        Service.ServiceLoadBalancer.ConsistentHash.HttpCookie cookie = new Service.ServiceLoadBalancer.ConsistentHash.HttpCookie();
+        cookie.setName("na");
+        cookie.setPath("path");
+        cookie.setTtl(30);
+
+        consistentHash.setHttpCookie(cookie);
+
+        System.out.println(CommonUtil.obj2yaml(lb));
     }
 }

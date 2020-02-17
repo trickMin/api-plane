@@ -1,5 +1,6 @@
 package com.netease.cloud.nsf.meta;
 
+import com.netease.cloud.nsf.meta.dto.PortalServiceConnectionPoolDTO;
 
 import java.util.List;
 
@@ -93,7 +94,7 @@ public class Service extends CommonModel {
     /**
      * 负载均衡
      */
-    private String loadBalancer;
+    private ServiceLoadBalancer loadBalancer;
 
     /**
      * 端口
@@ -106,6 +107,53 @@ public class Service extends CommonModel {
     private List<ServiceSubset> subsets;
 
     private String subset;
+
+    /**
+     * 连接池
+     */
+    private PortalServiceConnectionPoolDTO connectionPool;
+
+    /**
+     * tcp连接池
+     */
+    private PortalServiceConnectionPoolDTO.PortalServiceTcpConnectionPoolDTO tcpConnectionPool;
+
+    /**
+     * 最大连接数
+     */
+    private Integer maxConnections;
+
+    /**
+     * tcp连接超时时间
+     */
+    private String connectTimeout;
+
+    /**
+     * http连接池
+     */
+    private PortalServiceConnectionPoolDTO.PortalServiceHttpConnectionPoolDTO httpConnectionPool;
+
+    /**
+     * 最大等待HTTP请求数。默认值是1024，仅适用于HTTP/1.1的服务，因为HTTP/2协议的请求在到来时
+     * 会立即复用连接，不会在连接池等待
+     */
+    private Integer http1MaxPendingRequests;
+
+    /**
+     * 最大请求数。默认值是1024，仅使用于HTTP/2的服务。HTTP/1.1的服务使用maxConnections即可
+     */
+    private Integer http2MaxRequests;
+
+    /**
+     * 每个连接的最大请求数。HTTP/1.1和HTTP/2连接池都遵循此参数，如果没有设置则没有限制，如果设置
+     * 为1则表示禁用了keep-alive，0表示不限制最多处理的请求数为2^29
+     */
+    private Integer maxRequestsPerConnection;
+
+    /**
+     * 空闲超时，定义在多长时间内没有活动请求则关闭连接
+     */
+    private Integer idleTimeout;
 
     public String getCode() {
         return code;
@@ -243,11 +291,11 @@ public class Service extends CommonModel {
         this.serviceTag = serviceTag;
     }
 
-    public String getLoadBalancer() {
+    public ServiceLoadBalancer getLoadBalancer() {
         return loadBalancer;
     }
 
-    public void setLoadBalancer(String loadBalancer) {
+    public void setLoadBalancer(ServiceLoadBalancer loadBalancer) {
         this.loadBalancer = loadBalancer;
     }
 
@@ -273,5 +321,160 @@ public class Service extends CommonModel {
 
     public void setSubset(String subset) {
         this.subset = subset;
+    }
+
+    public PortalServiceConnectionPoolDTO getConnectionPool() {
+        return connectionPool;
+    }
+
+    public void setConnectionPool(PortalServiceConnectionPoolDTO connectionPool) {
+        this.connectionPool = connectionPool;
+    }
+
+    public PortalServiceConnectionPoolDTO.PortalServiceTcpConnectionPoolDTO getTcpConnectionPool() {
+        return tcpConnectionPool;
+    }
+
+    public void setTcpConnectionPool(PortalServiceConnectionPoolDTO.PortalServiceTcpConnectionPoolDTO tcpConnectionPool) {
+        this.tcpConnectionPool = tcpConnectionPool;
+    }
+
+    public Integer getMaxConnections() {
+        return maxConnections;
+    }
+
+    public void setMaxConnections(Integer maxConnections) {
+        this.maxConnections = maxConnections;
+    }
+
+    public String getConnectTimeout() {
+        return connectTimeout;
+    }
+
+    public void setConnectTimeout(String connectTimeout) {
+        this.connectTimeout = connectTimeout;
+    }
+
+    public PortalServiceConnectionPoolDTO.PortalServiceHttpConnectionPoolDTO getHttpConnectionPool() {
+        return httpConnectionPool;
+    }
+
+    public void setHttpConnectionPool(PortalServiceConnectionPoolDTO.PortalServiceHttpConnectionPoolDTO httpConnectionPool) {
+        this.httpConnectionPool = httpConnectionPool;
+    }
+
+    public Integer getHttp1MaxPendingRequests() {
+        return http1MaxPendingRequests;
+    }
+
+    public void setHttp1MaxPendingRequests(Integer http1MaxPendingRequests) {
+        this.http1MaxPendingRequests = http1MaxPendingRequests;
+    }
+
+    public Integer getHttp2MaxRequests() {
+        return http2MaxRequests;
+    }
+
+    public void setHttp2MaxRequests(Integer http2MaxRequests) {
+        this.http2MaxRequests = http2MaxRequests;
+    }
+
+    public Integer getMaxRequestsPerConnection() {
+        return maxRequestsPerConnection;
+    }
+
+    public void setMaxRequestsPerConnection(Integer maxRequestsPerConnection) {
+        this.maxRequestsPerConnection = maxRequestsPerConnection;
+    }
+
+    public Integer getIdleTimeout() {
+        return idleTimeout;
+    }
+
+    public void setIdleTimeout(Integer idleTimeout) {
+        this.idleTimeout = idleTimeout;
+    }
+
+    public static class ServiceLoadBalancer {
+        private String simple;
+        private ConsistentHash consistentHash;
+
+        public String getSimple() {
+            return simple;
+        }
+
+        public void setSimple(String simple) {
+            this.simple = simple;
+        }
+
+        public ConsistentHash getConsistentHash() {
+            return consistentHash;
+        }
+
+        public void setConsistentHash(ConsistentHash consistentHash) {
+            this.consistentHash = consistentHash;
+        }
+
+        public static class ConsistentHash {
+
+            private String httpHeaderName;
+            private Boolean useSourceIp;
+            private HttpCookie httpCookie;
+
+            public static class HttpCookie {
+                private String name;
+                private String path;
+                private Integer ttl;
+
+                public String getName() {
+                    return name;
+                }
+
+                public void setName(String name) {
+                    this.name = name;
+                }
+
+                public String getPath() {
+                    return path;
+                }
+
+                public void setPath(String path) {
+                    this.path = path;
+                }
+
+                public Integer getTtl() {
+                    return ttl;
+                }
+
+                public void setTtl(Integer ttl) {
+                    this.ttl = ttl;
+                }
+            }
+
+            public String getHttpHeaderName() {
+                return httpHeaderName;
+            }
+
+            public void setHttpHeaderName(String httpHeaderName) {
+                this.httpHeaderName = httpHeaderName;
+            }
+
+            public Boolean getUseSourceIp() {
+                return useSourceIp;
+            }
+
+            public void setUseSourceIp(Boolean useSourceIp) {
+                this.useSourceIp = useSourceIp;
+            }
+
+            public HttpCookie getHttpCookie() {
+                return httpCookie;
+            }
+
+            public void setHttpCookie(HttpCookie httpCookie) {
+                this.httpCookie = httpCookie;
+            }
+        }
+
     }
 }

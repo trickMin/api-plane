@@ -50,4 +50,19 @@ public interface Const {
     String DOWNLOAD_DAEMONSET_NAMESPACE = "gateway-system";
     String DOWNLOAD_DAEMONSET_PORT = "9050";
 
+    String SIDECAR_CONTAINER = "istio-proxy";
+
+    int VERSION_MANAGER_CRD_EXIST = 1;
+    int VERSION_MANAGER_CRD_MISSING = 2;
+    int VERSION_MANAGER_CRD_DEFAULT = 3;
+
+    // DestinationRule loadbalancer type
+
+    String LB_TYPE_ROUND_ROBIN = "ROUND_ROBIN";
+    String LB_TYPE_RANDOM = "RANDOM";
+    String LB_TYPE_LEAST_CONN = "LEAST_CONN";
+    String LB_TYPE_PASSTHROUGH = "PASSTHROUGH";
+    String LB_TYPE_CONSISTENT_HASH = "CONSISTENT_HASH";
+
+
 }

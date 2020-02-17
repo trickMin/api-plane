@@ -160,7 +160,8 @@ public class RouteProcessor extends AbstractSchemaProcessor implements SchemaPro
         ResourceGenerator ret = ResourceGenerator.newInstance("{}", ResourceType.JSON, editorContext);
         ret.createOrUpdateJson("$", "match", createMatch(rg, info, xUserId));
         ret.createOrUpdateJson("$", "priority", info.getPriority());
-        ret.createOrUpdateJson("$", "transformation", "{\"requestTransformations\":[{\"transformationTemplate\":{\"extractors\":{},\"headers\":{},\"parseBodyBehavior\":1}}]}");
+        ret.createOrUpdateJson("$", "ext", "[]");
+        ret.addJsonElement("$.ext", "{\"name\":\"com.netease.rewrite\",\"settings\":{\"request_transformations\":[{\"transformation_template\":{\"extractors\":{},\"headers\":{},\"parse_body_behavior\":\"DontParse\"}}]}}");
         String extractor = rg.getValue("$.action.rewrite_regex");
         String transformPath = rg.getValue("$.action.target", String.class);
         // 兼容旧的格式，例如rewrite_regex: /anything/{code} action.target:/anything/gg/{{code}}
@@ -172,9 +173,9 @@ public class RouteProcessor extends AbstractSchemaProcessor implements SchemaPro
             while (extract.find()) {
                 String key = extract.group(1);
                 String value = String.format("{\"header\":\":path\",\"regex\":\"%s\",\"subgroup\":%s}", path, regexCount++);
-                ret.createOrUpdateJson("$.transformation.requestTransformations[0].transformationTemplate.extractors", key, value);
+                ret.createOrUpdateJson("$.ext[0].settings.request_transformations[0].transformation_template.extractors", key, value);
             }
-            ret.createOrUpdateJson("$.transformation.requestTransformations[0].transformationTemplate.headers", ":path", String.format("{\"text\":\"%s\"}", transformPath));
+            ret.createOrUpdateJson("$.ext[0].settings.request_transformations[0].transformation_template.headers", ":path", String.format("{\"text\":\"%s\"}", transformPath));
         } else {
             // 新的使用方式
             // 例如rewrite_regex: /anything/(.*)/(.*) $.action.target:/$2/$1
@@ -188,9 +189,9 @@ public class RouteProcessor extends AbstractSchemaProcessor implements SchemaPro
             for (int i = 1; i <= regexCount; i++) {
                 String key = "$" + i;
                 String value = String.format("{\"header\":\":path\",\"regex\":\"%s\",\"subgroup\":%s}", original, i);
-                ret.createOrUpdateJson("$.transformation.requestTransformations[0].transformationTemplate.extractors", key, value);
+                ret.createOrUpdateJson("$.ext[0].settings.request_transformations[0].transformation_template.extractors", key, value);
             }
-            ret.createOrUpdateJson("$.transformation.requestTransformations[0].transformationTemplate.headers", ":path", String.format("{\"text\":\"%s\"}", target));
+            ret.createOrUpdateJson("$.ext[0].settings.request_transformations[0].transformation_template.headers", ":path", String.format("{\"text\":\"%s\"}", target));
         }
         return ret.jsonString();
     }

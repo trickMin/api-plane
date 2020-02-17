@@ -1,8 +1,11 @@
 package com.netease.cloud.nsf.meta.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.hibernate.validator.constraints.NotEmpty;
 
+import javax.validation.Valid;
 import java.util.Map;
 
 /**
@@ -16,6 +19,10 @@ public class ServiceSubsetDTO {
 
     @JsonProperty(value = "Labels")
     private Map<String, String> labels;
+
+    @Valid
+    @JsonProperty(value = "TrafficPolicy")
+    private PortalTrafficPolicyDTO trafficPolicy;
 
     public String getName() {
         return name;
@@ -31,5 +38,18 @@ public class ServiceSubsetDTO {
 
     public void setLabels(Map<String, String> labels) {
         this.labels = labels;
+    }
+
+    public PortalTrafficPolicyDTO getTrafficPolicy() {
+        return trafficPolicy;
+    }
+
+    public void setTrafficPolicy(PortalTrafficPolicyDTO trafficPolicy) {
+        this.trafficPolicy = trafficPolicy;
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
     }
 }
