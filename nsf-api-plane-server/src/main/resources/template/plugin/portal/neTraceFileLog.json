@@ -1,9 +1,10 @@
 {
   "formatter": {
-    "name": "neTraceFileLog",
+    "kind": "trace",
     "config": {
       "path": "/var/log/trace.log",
-      "app_name": "&appName"
+      "app_name": "&appName",
+      "sample_rate": "&sampleRate"
     }
   },
   "layouts": [
@@ -13,6 +14,17 @@
       "type": "input",
       "rules": [
         "Required"
+      ]
+    },
+    {
+      "key": "sampleRate",
+      "alias": "采样比例",
+      "help": "当网关为第一跳时，对 200 请求按比例采样，取值范围 (0, 1.0]，仅支持小数点后两位",
+      "type": "input",
+      "default": "0.1",
+      "rules": [
+        "Required",
+        "^0\\.([0-9]{1,2})|1.0"
       ]
     }
   ]
