@@ -38,7 +38,7 @@ public class StaticDowngradeProcessor extends AbstractSchemaProcessor implements
             headers.forEach(item -> {
                 String matchType = item.get("match_type");
                 String headerKey = item.get("headerKey");
-                String headerValue = item.get("headerValue");
+                String headerValue = item.get("value");
                 if ("safe_regex_match".equals(matchType)) {
                     builder.addJsonElement("$.downgrade_rqx.headers", String.format("{\"name\":\"%s\",\"regex_match\":\"%s\"}", headerKey, headerValue));
                 } else {
@@ -58,7 +58,7 @@ public class StaticDowngradeProcessor extends AbstractSchemaProcessor implements
         if (source.contain("$.condition.request.method")) {
             List<String> method = source.getValue("$.condition.request.method", List.class);
             if (method.size() == 1) {
-                builder.addJsonElement("$.downgrade_rqx.headers", String.format("{\"name\":\":method\",\"exact_match\":\"%s\"}", method));
+                builder.addJsonElement("$.downgrade_rqx.headers", String.format("{\"name\":\":method\",\"exact_match\":\"%s\"}", method.get(0)));
             } else if (method.size() > 1) {
                 builder.addJsonElement("$.downgrade_rqx.headers", String.format("{\"name\":\":method\",\"regex_match\":\"%s\"}", String.join("|", method)));
             }
@@ -77,10 +77,9 @@ public class StaticDowngradeProcessor extends AbstractSchemaProcessor implements
             headers.forEach(item -> {
                 String matchType = item.get("match_type");
                 String headerKey = item.get("headerKey");
-                String headerValue = item.get("headerValue");
+                String headerValue = item.get("value");
                 if ("safe_regex_match".equals(matchType)) {
                     builder.addJsonElement("$.downgrade_rpx.headers", String.format("{\"name\":\"%s\",\"regex_match\":\"%s\"}", headerKey, headerValue));
-                    System.out.println("yes");
                 } else {
                     builder.addJsonElement("$.downgrade_rpx.headers", String.format("{\"name\":\"%s\",\"exact_match\":\"%s\"}", headerKey, headerValue));
                 }
