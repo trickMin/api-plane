@@ -122,26 +122,14 @@
     },
     {
       "name": "trace",
-      "schema": "plugin/portal/trace.json",
-      "description": "",
-      "processor": "AggregateExtensionProcessor",
-      "author": "system",
-      "createTime": "",
-      "updateTime": "",
-      "pluginScope": "routeRule",
-      "pluginPriority": "4000",
-      "instructionForUse": "trace插件"
-    },
-    {
-      "name": "neTraceFileLog",
       "schema": "plugin/portal/neTraceFileLog.json",
       "description": "",
-      "processor": "",
+      "processor": "AggregateExtensionProcessor",
       "author": "system",
       "createTime": "1572537600000",
       "updateTime": "1572537600000",
       "pluginScope": "global",
-      "pluginPriority": "0",
+      "pluginPriority": "4000",
       "instructionForUse": "trace插件"
     }
   ]

@@ -4,7 +4,7 @@
     "condition": "&condition",
     "response": {
       "code": "&response.code",
-      "header": "@response.headers",
+      "headers": "@response.headers",
       "body": "&response.body"
     }
   },
