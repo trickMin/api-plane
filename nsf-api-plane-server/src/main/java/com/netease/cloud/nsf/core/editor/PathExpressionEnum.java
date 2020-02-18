@@ -2,7 +2,6 @@ package com.netease.cloud.nsf.core.editor;
 
 import com.jayway.jsonpath.Predicate;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
-import com.sun.javafx.binding.StringFormatter;
 
 import java.util.Arrays;
 import java.util.List;
@@ -56,9 +55,9 @@ public enum PathExpressionEnum {
 
     public String translate(String... param) {
         if (param.length != this.paramAmount) {
-            throw new ApiPlaneException(StringFormatter.format("Translate %d parameters are required", this.paramAmount).getValue());
+            throw new ApiPlaneException(String.format("Translate %d parameters are required", this.paramAmount));
         }
-        return StringFormatter.format(expression, param).getValue();
+        return String.format(expression, param);
     }
 
     public List<Predicate> filters() {

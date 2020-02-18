@@ -28,13 +28,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
-public class GatewayModelProcessorTest extends BaseTest {
+public class IstioModelProcessorTest extends BaseTest {
 
     @Autowired
-    GatewayModelOperator processor;
+    IstioModelProcessor processor;
 
     @Autowired
     EditorContext editorContext;
@@ -190,12 +192,12 @@ public class GatewayModelProcessorTest extends BaseTest {
         PluginManager pm1 = (PluginManager) res1.get(0);
         Assert.assertTrue(CollectionUtils.isEmpty(pm1.getSpec().getWorkloadLabels()));
         Assert.assertTrue(pm1.getMetadata().getName().equals("qz-global"));
-        Assert.assertEquals(2, pm1.getSpec().getPlugin().size());
-        Assert.assertEquals("p1", pm1.getSpec().getPlugin().get(0).getName());
-        Assert.assertEquals(false, pm1.getSpec().getPlugin().get(0).getEnable());
-        Assert.assertEquals("p2", pm1.getSpec().getPlugin().get(1).getName());
-        Assert.assertEquals(true, pm1.getSpec().getPlugin().get(1).getEnable());
-        Assert.assertEquals(ImmutableMap.of("key","good"), pm1.getSpec().getPlugin().get(1).getSettings());
+        assertEquals(2, pm1.getSpec().getPlugin().size());
+        assertEquals("p1", pm1.getSpec().getPlugin().get(0).getName());
+        assertEquals(false, pm1.getSpec().getPlugin().get(0).getEnable());
+        assertEquals("p2", pm1.getSpec().getPlugin().get(1).getName());
+        assertEquals(true, pm1.getSpec().getPlugin().get(1).getEnable());
+        assertEquals(ImmutableMap.of("key","good"), pm1.getSpec().getPlugin().get(1).getSettings());
     }
 
     @Test
@@ -362,4 +364,33 @@ public class GatewayModelProcessorTest extends BaseTest {
         return item;
     }
 
+    @Test
+    public void testTranslateGlobalPlugin() {
+
+        GlobalPlugin gp1 = getGlobalPlugin("code1", Collections.EMPTY_LIST,
+                "gw1", Arrays.asList("host1", "host2"));
+
+        List<IstioResource> resources = processor.translate(gp1);
+
+        assertEquals(1, resources.size());
+
+        GatewayPlugin gatewayPlugin = (GatewayPlugin) resources.get(0);
+        GatewayPluginSpec spec = gatewayPlugin.getSpec();
+        assertEquals(2, spec.getHost().size());
+        assertTrue(spec.getHost().containsAll(Arrays.asList("host1", "host2")));
+        assertEquals("code1", gatewayPlugin.getMetadata().getName());
+        assertEquals(1, spec.getGateway().size());
+        assertEquals("gw1", spec.getGateway().get(0));
+    }
+
+
+    private GlobalPlugin getGlobalPlugin(String code, List<String> plugins, String gateway, List<String> hosts) {
+
+        GlobalPlugin gp = new GlobalPlugin();
+        gp.setCode(code);
+        gp.setPlugins(plugins);
+        gp.setGateway(gateway);
+        gp.setHosts(hosts);
+        return gp;
+    }
 }

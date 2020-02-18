@@ -1,5 +1,7 @@
 package com.netease.cloud.nsf.core.template;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * 支持TemplateWrapper的regex expression
  *
@@ -51,6 +53,8 @@ public interface TemplateConst {
     String VIRTUAL_SERVICE_PLUGIN_MATCH_PRIORITY = "t_virtual_service_plugin_match_priority";
     String VIRTUAL_SERVICE_SERVICE_TAG = "t_virtual_service_service_tag";
     String VIRTUAL_SERVICE_API_ID = "t_virtual_service_api_id";
+    String VIRTUAL_SERVICE_TENANT_ID = "t_virtual_service_tenant_id";
+    String VIRTUAL_SERVICE_PROJECT_ID = "t_virtual_service_project_id";
     String VIRTUAL_SERVICE_API_NAME = "t_virtual_service_api_name";
     String VIRTUAL_SERVICE_TIME_OUT = "t_virtual_service_timeout";
     String VIRTUAL_SERVICE_RETRY_ATTEMPTS = "t_http_retry_attempts";
@@ -110,7 +114,38 @@ public interface TemplateConst {
     String DESTINATION_RULE_UNHEALTHY_INTERVAL = "t_destination_rule_unhealthy_interval";
     String DESTINATION_RULE_UNHEALTHY_THRESHOLD = "t_destination_rule_unhealthy_threshold";
     String DESTINATION_RULE_ALT_STAT_NAME = "t_destination_rule_alt_stat_name";
+
+    /**
+     * 负载均衡相关
+     */
     String DESTINATION_RULE_LOAD_BALANCER = "t_destination_rule_load_balancer";
+    String DESTINATION_RULE_LOAD_BALANCER_SIMPLE = "t_destination_rule_load_balancer_simple";
+    String DESTINATION_RULE_LOAD_BALANCER_CONSISTENT_HASH = "t_destination_rule_load_balancer_consistentHash";
+    String DESTINATION_RULE_LOAD_BALANCER_CONSISTENT_HASH_COOKIE = "t_destination_rule_load_balancer_consistentHash_cookie";
+    String DESTINATION_RULE_LOAD_BALANCER_CONSISTENT_HASH_COOKIE_NAME = "t_destination_rule_load_balancer_consistentHash_cookie_name";
+    String DESTINATION_RULE_LOAD_BALANCER_CONSISTENT_HASH_COOKIE_TTL = "t_destination_rule_load_balancer_consistentHash_cookie_ttl";
+    String DESTINATION_RULE_LOAD_BALANCER_CONSISTENT_HASH_COOKIE_PATH = "t_destination_rule_load_balancer_consistentHash_cookie_path";
+    String DESTINATION_RULE_LOAD_BALANCER_CONSISTENT_HASH_HEADER = "t_destination_rule_load_balancer_consistentHash_header";
+    String DESTINATION_RULE_LOAD_BALANCER_CONSISTENT_SOURCEIP = "t_destination_rule_load_balancer_consistentHash_useSourceIp";
+
+
+    /**
+     * 连接池相关
+     */
+    String DESTINATION_RULE_CONNECTION_POOL = "t_destination_rule_connection_pool";
+    String DESTINATION_RULE_HTTP_CONNECTION_POOL = "t_destination_rule_http_connection_pool";
+    String DESTINATION_RULE_HTTP_CONNECTION_POOL_HTTP1MAXPENDINGREQUESTS = "t_destination_rule_http_connection_pool_http1MaxPendingRequests";
+    String DESTINATION_RULE_HTTP_CONNECTION_POOL_HTTP2MAXREQUESTS = "t_destination_rule_http_connection_pool_http2MaxRequests";
+    String DESTINATION_RULE_HTTP_CONNECTION_POOL_MAXREQUESTSPERCONNECTION = "t_destination_rule_http_connection_pool_maxRequestsPerConnection";
+    String DESTINATION_RULE_HTTP_CONNECTION_POOL_IDLETIMEOUT = "t_destination_rule_http_connection_pool_idleTimeout";
+
+    String DESTINATION_RULE_TCP_CONNECTION_POOL = "t_destination_rule_tcp_connection_pool";
+    String DESTINATION_RULE_TCP_CONNECTION_POOL_MAX_CONNECTIONS = "t_destination_rule_tcp_connection_pool_max_connections";
+    String DESTINATION_RULE_TCP_CONNECTION_POOL_CONNECT_TIMEOUT = "t_destination_rule_tcp_connection_pool_connect_timeout";
+
+    /**
+     * subset相关
+     */
     String DESTINATION_RULE_EXTRA_SUBSETS = "t_destination_rule_extra_subsets";
 
     String API_GATEWAYS = "t_api_gateways";

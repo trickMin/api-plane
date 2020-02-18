@@ -6,6 +6,7 @@ import com.netease.cloud.nsf.cache.meta.PodDTO;
 import com.netease.cloud.nsf.configuration.ApiPlaneConfig;
 import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.gateway.service.ConfigStore;
+import com.netease.cloud.nsf.core.istio.IstioHttpClient;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.k8s.K8sResourceGenerator;
 import com.netease.cloud.nsf.core.k8s.KubernetesClient;
@@ -67,6 +68,9 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
 
     @Autowired
     ApiPlaneConfig apiPlaneConfig;
+
+    @Autowired
+    IstioHttpClient istioHttpClient;
 
     @Override
     public void updateIstioResource(String json) {
@@ -277,9 +281,15 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
         }
         if (createCrd) {
             taskPool.execute(() -> {
+                logger.info("auto create VersionManager for workload[{}]", workLoadName);
                 createSidecarVersionCRD(clusterId, namespace, workLoadType, workLoadName, null);
             });
         }
+    }
+
+    @Override
+    public boolean checkPilotHealth() {
+        return istioHttpClient.isReady();
     }
 
 }

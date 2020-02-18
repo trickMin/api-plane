@@ -62,6 +62,8 @@ public class Trans {
         api.setServiceTag(portalAPI.getServiceTag());
         api.setApiId(portalAPI.getRouteId());
         api.setApiName(portalAPI.getRouteName());
+        api.setTenantId(portalAPI.getTenantId());
+        api.setProjectId(portalAPI.getProjectId());
         //timeout 默认60000ms
         if (api.getTimeout() == null) api.setTimeout(60000L);
         if (portalAPI.getHttpRetry() != null && portalAPI.getHttpRetry() instanceof HttpRetryDTO
@@ -128,24 +130,70 @@ public class Trans {
             s.setGateway(portalService.getGateway().toLowerCase());
         }
         s.setProtocol(portalService.getProtocol());
-        s.setConsecutiveErrors(portalService.getConsecutiveErrors());
-        s.setBaseEjectionTime(portalService.getBaseEjectionTime());
-        s.setMaxEjectionPercent(portalService.getMaxEjectionPercent());
-        s.setServiceTag(portalService.getServiceTag());
-        if (portalService.getHealthCheck() != null) {
-            HealthCheckDTO healthCheck = portalService.getHealthCheck();
-            s.setPath(healthCheck.getPath());
-            s.setTimeout(healthCheck.getTimeout());
-            s.setExpectedStatuses(healthCheck.getExpectedStatuses());
-            s.setHealthyInterval(healthCheck.getHealthyInterval());
-            s.setHealthyThreshold(healthCheck.getHealthyThreshold());
-            s.setUnhealthyInterval(healthCheck.getUnhealthyInterval());
-            s.setUnhealthyThreshold(healthCheck.getUnhealthyThreshold());
-        }
-        s.setLoadBalancer(portalService.getLoadBalancer());
-        s.setSubsets(subsetDTO2Subset(portalService.getSubsets()));
+        if (portalService.getTrafficPolicy() != null) {
+            PortalTrafficPolicyDTO trafficPolicy = portalService.getTrafficPolicy();
+            PortalOutlierDetectionDTO outlierDetection = trafficPolicy.getOutlierDetection();
+            PortalHealthCheckDTO healthCheck = trafficPolicy.getHealthCheck();
+            PortalLoadBalancerDTO loadBalancer = trafficPolicy.getLoadBalancer();
+            PortalServiceConnectionPoolDTO serviceConnectionPool = trafficPolicy.getConnectionPool();
 
+            if (outlierDetection != null) {
+                s.setConsecutiveErrors(outlierDetection.getConsecutiveErrors());
+                s.setBaseEjectionTime(outlierDetection.getBaseEjectionTime());
+                s.setMaxEjectionPercent(outlierDetection.getMaxEjectionPercent());
+            }
+
+            if (healthCheck != null) {
+                s.setPath(healthCheck.getPath());
+                s.setTimeout(healthCheck.getTimeout());
+                s.setExpectedStatuses(healthCheck.getExpectedStatuses());
+                s.setHealthyInterval(healthCheck.getHealthyInterval());
+                s.setHealthyThreshold(healthCheck.getHealthyThreshold());
+                s.setUnhealthyInterval(healthCheck.getUnhealthyInterval());
+                s.setUnhealthyThreshold(healthCheck.getUnhealthyThreshold());
+            }
+
+            if (loadBalancer != null) {
+                s.setLoadBalancer(serviceLBDTO2ServiceLB(loadBalancer));
+            }
+
+            if (serviceConnectionPool != null) {
+                s.setConnectionPool(serviceConnectionPool);
+            }
+        }
+
+        s.setServiceTag(portalService.getServiceTag());
+        s.setSubsets(subsetDTO2Subset(portalService.getSubsets()));
         return s;
+    }
+
+    private static Service.ServiceLoadBalancer serviceLBDTO2ServiceLB(PortalLoadBalancerDTO loadBalancerDTO) {
+
+        if (loadBalancerDTO == null) return null;
+        Service.ServiceLoadBalancer serviceLoadBalancer = new Service.ServiceLoadBalancer();
+
+        if (!StringUtils.isEmpty(loadBalancerDTO.getSimple())) {
+            // round robin, random, least conn
+            serviceLoadBalancer.setSimple(loadBalancerDTO.getSimple());
+        } else if (loadBalancerDTO.getConsistentHashDTO() != null){
+            // consistent hash
+            PortalLoadBalancerDTO.ConsistentHashDTO consistentHashDTO = loadBalancerDTO.getConsistentHashDTO();
+            Service.ServiceLoadBalancer.ConsistentHash consistentHash = new Service.ServiceLoadBalancer.ConsistentHash();
+            if (consistentHashDTO.getUseSourceIp() != null) {
+                consistentHash.setUseSourceIp(consistentHashDTO.getUseSourceIp());
+            } else if (!StringUtils.isEmpty(consistentHashDTO.getHttpHeaderName())) {
+                consistentHash.setHttpHeaderName(consistentHashDTO.getHttpHeaderName());
+            } else if (consistentHashDTO.getHttpCookie() != null) {
+                PortalLoadBalancerDTO.ConsistentHashDTO.HttpCookieDTO httpCookieDTO = consistentHashDTO.getHttpCookie();
+                Service.ServiceLoadBalancer.ConsistentHash.HttpCookie httpCookie = new Service.ServiceLoadBalancer.ConsistentHash.HttpCookie();
+                httpCookie.setName(httpCookieDTO.getName());
+                httpCookie.setPath(httpCookieDTO.getPath());
+                httpCookie.setTtl(httpCookieDTO.getTtl());
+                consistentHash.setHttpCookie(httpCookie);
+            }
+            serviceLoadBalancer.setConsistentHash(consistentHash);
+        }
+        return serviceLoadBalancer;
     }
 
     private static List<ServiceSubset> subsetDTO2Subset(List<ServiceSubsetDTO> subsets) {
@@ -155,9 +203,30 @@ public class Trans {
                         ServiceSubset ss = new ServiceSubset();
                         ss.setLabels(sd.getLabels());
                         ss.setName(sd.getName());
+                        ss.setTrafficPolicy(subsetTrafficPolicyDtoTosubsetTrafficPolicy(sd.getTrafficPolicy()));
                         return ss;
                     })
                     .collect(Collectors.toList());
+    }
+
+    /**
+     * 主要是将subset中的ServiceLoadBalancer生成出来
+     *
+     * @param portalTrafficPolicyDTO
+     * @return
+     */
+    private static ServiceSubset.TrafficPolicy subsetTrafficPolicyDtoTosubsetTrafficPolicy
+            (PortalTrafficPolicyDTO portalTrafficPolicyDTO) {
+        if (portalTrafficPolicyDTO == null) {
+            return null;
+        }
+
+        ServiceSubset.TrafficPolicy trafficPolicy = new ServiceSubset.TrafficPolicy();
+        trafficPolicy.setHealthCheck(portalTrafficPolicyDTO.getHealthCheck());
+        trafficPolicy.setOutlierDetection(portalTrafficPolicyDTO.getOutlierDetection());
+        trafficPolicy.setLoadBalancer(serviceLBDTO2ServiceLB(portalTrafficPolicyDTO.getLoadBalancer()));
+        trafficPolicy.setConnectionPool(portalTrafficPolicyDTO.getConnectionPool());
+        return trafficPolicy;
     }
 
     public static PluginOrder pluginOrderDTO2PluginOrder(PluginOrderDTO pluginOrderDTO) {
@@ -204,9 +273,9 @@ public class Trans {
         return api;
     }
 
-    public static GlobalPlugins globalPluginsDTO2GlobalPlugins(GlobalPluginsDTO globalPluginsDTO) {
+    public static GlobalPlugin globalPluginsDTO2GlobalPlugins(GlobalPluginDTO globalPluginsDTO) {
 
-        GlobalPlugins gp = new GlobalPlugins();
+        GlobalPlugin gp = new GlobalPlugin();
         gp.setCode(globalPluginsDTO.getCode());
         gp.setGateway(globalPluginsDTO.getGateway());
         gp.setHosts(globalPluginsDTO.getHosts());
@@ -214,9 +283,9 @@ public class Trans {
         return gp;
     }
 
-    public static GlobalPlugins globalPluginsDeleteDTO2GlobalPlugins(GlobalPluginsDeleteDTO globalPluginsDeleteDTO) {
+    public static GlobalPlugin globalPluginsDeleteDTO2GlobalPlugins(GlobalPluginsDeleteDTO globalPluginsDeleteDTO) {
 
-        GlobalPlugins gp = new GlobalPlugins();
+        GlobalPlugin gp = new GlobalPlugin();
         gp.setCode(globalPluginsDeleteDTO.getCode());
         gp.setPlugins(globalPluginsDeleteDTO.getPlugins());
         return gp;

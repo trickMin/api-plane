@@ -73,9 +73,11 @@ public class VersionManagerOperator implements IstioResourceOperator<VersionMana
                     resultList.add(
                             new PodStatus(had.getPodName(),
                             had.getCurrentVersion(),
+                            had.getExpectedVersion(),
                             had.getLastUpdateTime(),
                             had.getStatusCode(),
                             had.getStatusMessage()));
+                    break;
                 }
             }
         }

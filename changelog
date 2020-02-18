@@ -22,13 +22,14 @@ release 1.1
 - 接口暴露subset
 - virtualservice的host改为具体host而不是*
 - 增加idletimeout 3s
+- 增加连接池、负载均衡
 
 ServiceMesh:
 - 创建、删除、查询资源接口
 - 拓扑功能，对接kiali
 - sidecar 自动注入及升级
 - k8s 资源监听管理
-
+- 增加pilot健康检查接口
 
 工程整体:
 - 增加全局Reqeust,Response日志打印

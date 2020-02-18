@@ -51,42 +51,13 @@ public class PortalServiceDTO {
     @Pattern(regexp = "(http|https)", message = "protocol")
     private String protocol = "http";
 
-    /**
-     * 连续错误数
-     */
-    @JsonProperty(value = "ConsecutiveErrors")
-    @Min(value = 0, message = "consecutive errors")
-    private Integer consecutiveErrors;
-
-    /**
-     * 基础驱逐时间
-     */
-    @JsonProperty(value = "BaseEjectionTime")
-    @Min(value = 0, message = "base ejection time")
-    private Long baseEjectionTime;
-
-    /**
-     * 最大驱逐比例
-     */
-    @JsonProperty(value = "MaxEjectionPercent")
-    @Min(value = 0, message = "maxEjectionPercent")
-    @Max(value = 100, message = "maxEjectionPercent")
-    private Integer maxEjectionPercent;
-
-    /**
-     * 健康检查
-     */
-    @JsonProperty(value = "HealthCheck")
+    @JsonProperty(value = "TrafficPolicy")
     @Valid
-    private HealthCheckDTO healthCheck;
+    private PortalTrafficPolicyDTO trafficPolicy;
 
     @NotEmpty(message = "service tag")
     @JsonProperty(value = "ServiceTag")
     private String serviceTag;
-
-    @JsonProperty(value = "LoadBalancer")
-    @Pattern(regexp = "(ROUND_ROBIN|LEAST_CONN|RANDOM)", message = "load balancer")
-    private String loadBalancer;
 
     @JsonProperty(value = "Subsets")
     @Valid
@@ -140,38 +111,6 @@ public class PortalServiceDTO {
         this.protocol = protocol;
     }
 
-    public Integer getConsecutiveErrors() {
-        return consecutiveErrors;
-    }
-
-    public void setConsecutiveErrors(Integer consecutiveErrors) {
-        this.consecutiveErrors = consecutiveErrors;
-    }
-
-    public Long getBaseEjectionTime() {
-        return baseEjectionTime;
-    }
-
-    public void setBaseEjectionTime(Long baseEjectionTime) {
-        this.baseEjectionTime = baseEjectionTime;
-    }
-
-    public Integer getMaxEjectionPercent() {
-        return maxEjectionPercent;
-    }
-
-    public void setMaxEjectionPercent(Integer maxEjectionPercent) {
-        this.maxEjectionPercent = maxEjectionPercent;
-    }
-
-    public HealthCheckDTO getHealthCheck() {
-        return healthCheck;
-    }
-
-    public void setHealthCheck(HealthCheckDTO healthCheck) {
-        this.healthCheck = healthCheck;
-    }
-
     public String getServiceTag() {
         return serviceTag;
     }
@@ -180,19 +119,19 @@ public class PortalServiceDTO {
         this.serviceTag = serviceTag;
     }
 
-    public String getLoadBalancer() {
-        return loadBalancer;
-    }
-
-    public void setLoadBalancer(String loadBalancer) {
-        this.loadBalancer = loadBalancer;
-    }
-
     public List<ServiceSubsetDTO> getSubsets() {
         return subsets;
     }
 
     public void setSubsets(List<ServiceSubsetDTO> subsets) {
         this.subsets = subsets;
+    }
+
+    public PortalTrafficPolicyDTO getTrafficPolicy() {
+        return trafficPolicy;
+    }
+
+    public void setTrafficPolicy(PortalTrafficPolicyDTO trafficPolicy) {
+        this.trafficPolicy = trafficPolicy;
     }
 }

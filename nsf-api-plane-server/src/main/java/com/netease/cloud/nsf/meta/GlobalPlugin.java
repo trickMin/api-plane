@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2020/1/13
  **/
-public class GlobalPlugins {
+public class GlobalPlugin {
 
     private String code;
 

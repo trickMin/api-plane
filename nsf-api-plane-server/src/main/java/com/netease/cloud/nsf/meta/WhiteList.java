@@ -1,7 +1,5 @@
 package com.netease.cloud.nsf.meta;
 
-import com.sun.javafx.binding.StringFormatter;
-
 /**
  * @auther wupenghuai@corp.netease.com
  * @date 2019/7/25
@@ -20,7 +18,7 @@ public class WhiteList {
     }
 
     public String getFullService() {
-        return StringFormatter.format("%s.%s.svc.cluster.local", service, namespace).getValue();
+        return String.format("%s.%s.svc.cluster.local", service, namespace);
     }
 
     public String getNamespace() {
