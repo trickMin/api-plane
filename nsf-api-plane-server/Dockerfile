@@ -3,8 +3,11 @@ FROM tomcat:8-jdk8
 ENV TZ=Asia/Shanghai LANG=C.UTF-8 LANGUAGE=C.UTF-8 LC_ALL=C.UTF-8
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 WORKDIR /usr/local/tomcat
-RUN rm -rf webapps/*
 COPY setenv.sh $CATALINA_HOME/bin/
 COPY ./target/*.war webapps/
+RUN cd /usr/local/tomcat/webapps && \
+    mv nsf*.war ROOT.war && \
+    rm -rf ROOT
+
 
 ENTRYPOINT ["catalina.sh", "run"]
