@@ -6,8 +6,6 @@ WORKDIR /usr/local/tomcat
 COPY setenv.sh $CATALINA_HOME/bin/
 COPY ./target/*.war webapps/
 RUN cd /usr/local/tomcat/webapps && \
-    mv nsf*.war ROOT.war && \
-    rm -rf ROOT
-
+    mv nsf*.war ROOT.war
 
 ENTRYPOINT ["catalina.sh", "run"]
