@@ -95,7 +95,7 @@ public class YxVersionManagerController extends BaseController {
         podVersion.setNamespace(podDTOList.get(0).getNamespace());
 
         List<PodStatus> list =  gatewayService.queryByPodNameList(podVersion);
-        if (list.size() != nameList.size()) {
+        if (CollectionUtils.isEmpty(list)) {
             return false;
         }
         return true;
