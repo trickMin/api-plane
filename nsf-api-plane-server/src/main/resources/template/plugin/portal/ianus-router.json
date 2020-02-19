@@ -87,7 +87,10 @@
         {
           "key": "body",
           "alias": "响应内容",
-          "type": "input"
+          "type": "input",
+          "rules":[
+            "Required"
+          ]
         }
       ]
     }
