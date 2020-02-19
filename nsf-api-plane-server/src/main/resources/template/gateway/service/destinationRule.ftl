@@ -35,8 +35,8 @@ spec:
           <#if ss.trafficPolicy.loadBalancer.consistentHash.httpHeaderName?has_content>
           httpHeaderName: ${ss.trafficPolicy.loadBalancer.consistentHash.httpHeaderName}
           </#if>
-          <#if ss.trafficPolicy.loadBalancer.consistentHash.useSourceIp?has_content>
-          useSourceIp: ${ss.trafficPolicy.loadBalancer.consistentHash.useSourceIp}
+          <#if ss.trafficPolicy.loadBalancer.consistentHash.useSourceIp??>
+          useSourceIp: ${ss.trafficPolicy.loadBalancer.consistentHash.useSourceIp?string}
           </#if>
           <#if ss.trafficPolicy.loadBalancer.consistentHash.httpCookie?has_content>
           httpCookie:
