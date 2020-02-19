@@ -55,7 +55,7 @@ public abstract class APIDataHandler implements DataHandler<API> {
                 .put(VIRTUAL_SERVICE_RETRY_ATTEMPTS, api.getAttempts())
                 .put(VIRTUAL_SERVICE_RETRY_PER_TIMEOUT, api.getPerTryTimeout())
                 .put(VIRTUAL_SERVICE_RETRY_RETRY_ON, api.getRetryOn())
-                .put(SERVICE_INFO_API_NAME, api.getApiName())
+                .put(SERVICE_INFO_API_NAME, api.getName())
                 .put(SERVICE_INFO_API_SERVICE, getOrDefault(api.getService(), "NoneService"))
                 .put(SERVICE_INFO_API_METHODS, getOrDefault(methods, ".*"))
                 .put(SERVICE_INFO_API_REQUEST_URIS, getOrDefault(uris, ".*"))
