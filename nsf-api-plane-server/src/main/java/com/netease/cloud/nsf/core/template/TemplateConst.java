@@ -62,6 +62,17 @@ public interface TemplateConst {
     String VIRTUAL_SERVICE_RETRY_RETRY_ON = "t_http_retry_retryOn";
 
     /**
+     * ServiceInfo
+     **/
+    String SERVICE_INFO_API_NAME = "t_service_info_api_name";
+    String SERVICE_INFO_API_SERVICE = "t_service_info_api_service";
+    String SERVICE_INFO_API_METHODS = "t_service_info_api_methods";
+    String SERVICE_INFO_API_REQUEST_URIS = "t_service_info_api_request_uris";
+    String SERVICE_INFO_VIRTUAL_SERVICE_SUBSET_NAME = "t_service_info_virtual_service_subset_name";
+    String SERVICE_INFO_VIRTUAL_SERVICE_HOST_HEADERS = "t_service_info_virtual_service_host_headers";
+    String SERVICE_INFO_VIRTUAL_SERVICE_PLUGIN_MATCH_PRIORITY = "t_service_info_virtual_service_plugin_match_priority";
+
+    /**
      * MATCH级別插件
      */
     String API_MATCH_PLUGINS = "t_api_match_plugins";
