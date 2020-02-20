@@ -2,7 +2,7 @@
   "formatter": {
     "kind": "trace",
     "config": {
-      "path": "/var/log/trace.log",
+      "cluster_name": "&clusterName",
       "app_name": "&appName",
       "sample_rate": "&sampleRate"
     }
@@ -25,6 +25,14 @@
       "rules": [
         "Required",
         "^0\\.([0-9]{1,2})|1.0"
+      ]
+    },
+    {
+      "key": "clusterName",
+      "alias": "网关clusterName",
+      "type": "input",
+      "rules": [
+        "Required"
       ]
     }
   ]
