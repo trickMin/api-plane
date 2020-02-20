@@ -64,9 +64,17 @@ public interface ConfigManager {
      */
     List<PodStatus> querySVMConfig(PodVersion podVersion);
 
-    void updateConfig(GlobalPlugins gp);
+    /**
+     * 更新全局插件
+     * @param gp
+     */
+    void updateConfig(GlobalPlugin gp);
 
-    void deleteConfig(GlobalPlugins gp);
+    /**
+     * 删除全局插件
+     * @param gp
+s     */
+    void deleteConfig(GlobalPlugin gp);
 
     /**
      * 查询网关

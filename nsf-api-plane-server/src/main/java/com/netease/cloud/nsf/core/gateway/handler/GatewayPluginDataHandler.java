@@ -3,8 +3,8 @@ package com.netease.cloud.nsf.core.gateway.handler;
 import com.netease.cloud.nsf.core.plugin.FragmentWrapper;
 import com.netease.cloud.nsf.core.template.TemplateParams;
 import com.netease.cloud.nsf.meta.Gateway;
-import com.netease.cloud.nsf.meta.GlobalPlugins;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
+import com.netease.cloud.nsf.meta.GlobalPlugin;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Arrays;
@@ -20,7 +20,7 @@ import static com.netease.cloud.nsf.core.template.TemplateConst.*;
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2020/1/13
  **/
-public class GatewayPluginDataHandler implements DataHandler<GlobalPlugins> {
+public class GatewayPluginDataHandler implements DataHandler<GlobalPlugin> {
 
     List<FragmentWrapper> fragments;
     List<Gateway> gateways;
@@ -31,7 +31,7 @@ public class GatewayPluginDataHandler implements DataHandler<GlobalPlugins> {
     }
 
     @Override
-    public List<TemplateParams> handle(GlobalPlugins gp) {
+    public List<TemplateParams> handle(GlobalPlugin gp) {
 
         List<String> plugins = extractFragments(fragments);
         TemplateParams pmParams = TemplateParams.instance()
@@ -57,7 +57,7 @@ public class GatewayPluginDataHandler implements DataHandler<GlobalPlugins> {
         return plugins;
     }
 
-    List<String> getGateways(GlobalPlugins gp) {
+    List<String> getGateways(GlobalPlugin gp) {
         if (gp.getGateway() == null) return Collections.emptyList();
         if (Pattern.compile("(.*?)/(.*?)").matcher(gp.getGateway()).find()) return Arrays.asList(gp.getGateway());
 

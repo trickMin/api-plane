@@ -532,15 +532,26 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         queryVersion.setPodNames(Arrays.asList(podDTO.getName()));
         List<PodStatus> podStatuses = gatewayService.queryByPodNameList(queryVersion);
         if (CollectionUtils.isEmpty(podStatuses)) {
+            podDTO.setSidecarContainerStatus(Const.SIDECAR_CONTAINER_ERROR);
             if (podDTO.isInjected()){
                 podDTO.setVersionManagerCrdStatus(Const.VERSION_MANAGER_CRD_MISSING);
+                log.info("no sidecar status for pod[{}] and pod is injected",podDTO.getName());
             }else {
                 podDTO.setVersionManagerCrdStatus(Const.VERSION_MANAGER_CRD_DEFAULT);
+                log.info("no sidecar status for pod[{}] and pod is not injected",podDTO.getName());
             }
             return podDTO;
         }
         podDTO.setVersionManagerCrdStatus(Const.VERSION_MANAGER_CRD_EXIST);
         PodStatus status = podStatuses.get(0);
+        if (StringUtils.isEmpty(status.getExpectedVersion())
+                ||StringUtils.isEmpty(status.getCurrentVersion())
+                ||!status.getCurrentVersion().equals(status.getExpectedVersion())
+        ) {
+            podDTO.setSidecarContainerStatus(Const.SIDECAR_CONTAINER_ERROR);
+        }else {
+            podDTO.setSidecarContainerStatus(Const.SIDECAR_CONTAINER_SUCCESS);
+        }
         podDTO.setSidecarStatus(status.getCurrentVersion());
         return podDTO;
     }

@@ -5,6 +5,7 @@ import com.netease.cloud.nsf.meta.API;
 import com.netease.cloud.nsf.meta.UriMatch;
 import com.netease.cloud.nsf.util.CommonUtil;
 import com.netease.cloud.nsf.util.PriorityUtil;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,14 +48,24 @@ public abstract class APIDataHandler implements DataHandler<API> {
                 .put(VIRTUAL_SERVICE_SERVICE_TAG, api.getServiceTag())
                 .put(VIRTUAL_SERVICE_API_ID, api.getApiId())
                 .put(VIRTUAL_SERVICE_API_NAME, api.getApiName())
+                .put(VIRTUAL_SERVICE_TENANT_ID, api.getTenantId())
+                .put(VIRTUAL_SERVICE_PROJECT_ID, api.getProjectId())
                 .put(VIRTUAL_SERVICE_HOST_HEADERS, hostHeaders)
                 .put(VIRTUAL_SERVICE_TIME_OUT, api.getTimeout())
                 .put(VIRTUAL_SERVICE_RETRY_ATTEMPTS, api.getAttempts())
                 .put(VIRTUAL_SERVICE_RETRY_PER_TIMEOUT, api.getPerTryTimeout())
                 .put(VIRTUAL_SERVICE_RETRY_RETRY_ON, api.getRetryOn())
-                ;
+                .put(SERVICE_INFO_API_NAME, api.getName())
+                .put(SERVICE_INFO_API_SERVICE, getOrDefault(api.getService(), "NoneService"))
+                .put(SERVICE_INFO_API_METHODS, getOrDefault(methods, ".*"))
+                .put(SERVICE_INFO_API_REQUEST_URIS, getOrDefault(uris, ".*"))
+                .put(SERVICE_INFO_VIRTUAL_SERVICE_HOST_HEADERS, getOrDefault(hostHeaders, ".*"));
 
         return doHandle(tp, api);
+    }
+
+    protected String getOrDefault(String value, String defaultValue) {
+        return StringUtils.isEmpty(value) ? defaultValue : value;
     }
 
     private String getMethods(API api) {
