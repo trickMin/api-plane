@@ -124,7 +124,7 @@ public class K8sResourceController extends BaseController {
     }
 
     @RequestMapping(params = "Action=GetPathPatterns", method = RequestMethod.GET)
-    public String getPathPatterns(@RequestParam(name = "ClusterId") String clusterId,
+    public String getPathPatterns(@RequestParam(name = "ClusterId", required = false, defaultValue = "default") String clusterId,
                                   @RequestParam(name = "Namespace") String namespace,
                                   @RequestParam(name = "Name") String name) {
         List<String> pathPatterns = resourceCache.getMixerPathPatterns(clusterId, namespace, name);
@@ -132,7 +132,7 @@ public class K8sResourceController extends BaseController {
     }
 
     @RequestMapping(params = "Action=DeletePathPatterns", method = RequestMethod.GET)
-    public String deletePathPatterns(@RequestParam(name = "ClusterId") String clusterId,
+    public String deletePathPatterns(@RequestParam(name = "ClusterId", required = false, defaultValue = "default") String clusterId,
                                      @RequestParam(name = "Namespace") String namespace,
                                      @RequestParam(name = "Name") String name) {
         resourceCache.deleteMixerPathPatterns(clusterId, namespace, name);
@@ -140,7 +140,7 @@ public class K8sResourceController extends BaseController {
     }
 
     @RequestMapping(params = "Action=UpdatePathPatterns", method = RequestMethod.POST)
-    public String updatePathPatterns(@RequestParam(name = "ClusterId") String clusterId,
+    public String updatePathPatterns(@RequestParam(name = "ClusterId", required = false, defaultValue = "default") String clusterId,
                                      @RequestParam(name = "Namespace") String namespace,
                                      @RequestParam(name = "Name") String name,
                                      @RequestBody List<String> urlPatterns) {
