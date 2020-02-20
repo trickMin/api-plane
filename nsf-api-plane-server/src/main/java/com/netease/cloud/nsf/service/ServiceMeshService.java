@@ -1,6 +1,7 @@
 package com.netease.cloud.nsf.service;
 
 import com.netease.cloud.nsf.util.errorcode.ErrorCode;
+import io.fabric8.kubernetes.api.model.HasMetadata;
 import me.snowdrop.istio.api.IstioResource;
 
 import java.util.List;
@@ -11,7 +12,7 @@ public interface ServiceMeshService {
 
     void deleteIstioResource(String json);
 
-    IstioResource getIstioResource(String name, String namespace, String kind);
+    HasMetadata getIstioResource(String name, String namespace, String kind);
 
     ErrorCode sidecarInject(String clusterId, String kind, String namespace, String name, String version, String expectedVersion);
 

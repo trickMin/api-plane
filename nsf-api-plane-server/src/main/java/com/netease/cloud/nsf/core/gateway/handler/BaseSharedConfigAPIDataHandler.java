@@ -23,7 +23,6 @@ public class BaseSharedConfigAPIDataHandler extends APIDataHandler {
         this.fragments = fragments;
     }
 
-
     @Override
     List<TemplateParams> doHandle(TemplateParams baseParams, API api) {
         if (CollectionUtils.isEmpty(fragments)) return Collections.emptyList();

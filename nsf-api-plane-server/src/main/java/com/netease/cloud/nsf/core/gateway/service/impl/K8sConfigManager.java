@@ -7,12 +7,14 @@ import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.gateway.IstioModelProcessor;
 import com.netease.cloud.nsf.core.gateway.service.ConfigManager;
 import com.netease.cloud.nsf.core.gateway.service.ConfigStore;
-import com.netease.cloud.nsf.core.istio.operator.IstioResourceOperator;
-import com.netease.cloud.nsf.core.istio.operator.VersionManagerOperator;
+import com.netease.cloud.nsf.core.k8s.K8sResourcePack;
+import com.netease.cloud.nsf.core.k8s.operator.k8sResourceOperator;
+import com.netease.cloud.nsf.core.k8s.operator.VersionManagerOperator;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.meta.*;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
+import com.netease.cloud.nsf.util.function.Subtracter;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import me.snowdrop.istio.api.IstioResource;
@@ -34,7 +36,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -57,21 +58,21 @@ public class K8sConfigManager implements ConfigManager {
     private MultiK8sConfigStore multiK8sConfigStore;
 
     @Autowired
-    private List<IstioResourceOperator> operators;
+    private List<k8sResourceOperator> operators;
 
     @Override
     public void updateConfig(API api) {
-        List<IstioResource> resources = modelProcessor.translate(api);
+        List<K8sResourcePack> resources = modelProcessor.translate(api);
         update(resources);
     }
 
     @Override
     public void updateConfig(Service service) {
-        List<IstioResource> resources = modelProcessor.translate(service);
+        List<K8sResourcePack> resources = modelProcessor.translate(service);
         update(resources);
     }
 
-    private void update(List<IstioResource> resources) {
+    private void update(List<K8sResourcePack> resources) {
         update(resources, null);
     }
 
@@ -80,27 +81,34 @@ public class K8sConfigManager implements ConfigManager {
         return false;
     }
 
-    private void update(ConfigStore configStore, List<IstioResource> resources) {
+    private void update(ConfigStore configStore, List<K8sResourcePack> resources) {
         if (CollectionUtils.isEmpty(resources)) return;
 
-        for (IstioResource latest : resources) {
-            IstioResource old = configStore.get(latest);
+        for (K8sResourcePack pack : resources) {
+            HasMetadata latest = pack.getResource();
+            HasMetadata old = configStore.get(latest);
             if (old != null) {
                 if (old.equals(latest)) continue;
-                configStore.update(modelProcessor.merge(old, latest));
+                HasMetadata merged;
+                if (pack.hasMerger()) {
+                    merged = pack.getMerger().merge(old, latest);
+                } else {
+                    merged = modelProcessor.merge(old, latest);
+                }
+                configStore.update(merged);
                 continue;
             }
             configStore.update(latest);
         }
     }
 
-    private void update(List<IstioResource> resources, String clusterId) {
+    private void update(List<K8sResourcePack> resources, String clusterId) {
         update(isDefault(clusterId) ? configStore : multiK8sConfigStore, resources);
     }
 
     @Override
     public void deleteConfig(API api) {
-        List<IstioResource> resources = modelProcessor.translate(api, true);
+        List<K8sResourcePack> resources = modelProcessor.translate(api, true);
 
         ImmutableMap<String, String> toBeDeletedMap = ImmutableMap
                 .of(K8sResourceEnum.VirtualService.name(), api.getName(),
@@ -113,14 +121,14 @@ public class K8sConfigManager implements ConfigManager {
     @Override
     public void deleteConfig(Service service) {
         if (StringUtils.isEmpty(service.getGateway())) return;
-        List<IstioResource> resources = modelProcessor.translate(service);
+        List<K8sResourcePack> resources = modelProcessor.translate(service);
         Class<? extends HasMetadata> drClz = K8sResourceEnum.DestinationRule.mappingType();
 
         //move dr to head
-        Comparator<IstioResource> compareFun = (o1, o2) -> {
-            if (o1.getClass() == drClz) {
+        Comparator<K8sResourcePack> compareFun = (p1, p2) -> {
+            if (p1.getResource().getClass() == drClz) {
                 return -1;
-            } else if (o2.getClass() == drClz) {
+            } else if (p2.getResource().getClass() == drClz) {
                 return 1;
             }
             return 0;
@@ -130,11 +138,11 @@ public class K8sConfigManager implements ConfigManager {
         if (!CollectionUtils.isEmpty(service.getSubsets())) {
             subsets.addAll(service.getSubsets().stream().map(s -> s.getName()).collect(Collectors.toSet()));
         }
-        Function<IstioResource, IstioResource> deleteFun = new Function<IstioResource, IstioResource>() {
+        Subtracter<HasMetadata> deleteFun = new Subtracter<HasMetadata>() {
             //dr若不存在subset，则全部删除相关资源
             boolean noSubsets = false;
             @Override
-            public IstioResource apply(IstioResource r) {
+            public HasMetadata subtract(HasMetadata r) {
                 if (r.getClass() == drClz){
                     ResourceGenerator gen = ResourceGenerator.newInstance(r, ResourceType.OBJECT);
                     // 如果没有传入subset，则删除默认subset
@@ -158,34 +166,34 @@ public class K8sConfigManager implements ConfigManager {
     }
 
     @Override
-    public IstioResource getConfig(PluginOrder pluginOrder) {
-        List<IstioResource> resources = modelProcessor.translate(pluginOrder);
+    public HasMetadata getConfig(PluginOrder pluginOrder) {
+        List<K8sResourcePack> resources = modelProcessor.translate(pluginOrder);
         if (CollectionUtils.isEmpty(resources) || resources.size() != 1) throw new ApiPlaneException();
-        return configStore.get(resources.get(0));
+        return configStore.get(resources.get(0).getResource());
     }
 
     @Override
     public void updateConfig(PluginOrder pluginOrder) {
-        List<IstioResource> resources = modelProcessor.translate(pluginOrder);
+        List<K8sResourcePack> resources = modelProcessor.translate(pluginOrder);
         update(resources);
     }
 
     @Override
     public void deleteConfig(PluginOrder pluginOrder) {
-        List<IstioResource> resources = modelProcessor.translate(pluginOrder);
+        List<K8sResourcePack> resources = modelProcessor.translate(pluginOrder);
         delete(resources, clearResource());
     }
 
     @Override
     public void updateConfig(SidecarVersionManagement svm) {
-        List<IstioResource> resources = modelProcessor.translate(svm);
+        List<K8sResourcePack> resources = modelProcessor.translate(svm);
         update(resources, svm.getClusterId());
     }
 
     @Override
     public List<PodStatus> querySVMConfig(PodVersion podVersion) {
         String clusterId = podVersion.getClusterId();
-        IstioResource versionmanager = multiK8sConfigStore.get(K8sResourceEnum.VersionManager.name(), podVersion.getNamespace(), VM_RESOURCE_NAME, clusterId);
+        HasMetadata versionmanager = multiK8sConfigStore.get(K8sResourceEnum.VersionManager.name(), podVersion.getNamespace(), VM_RESOURCE_NAME, clusterId);
         if(versionmanager == null) {
             return null;
         }
@@ -194,7 +202,7 @@ public class K8sConfigManager implements ConfigManager {
     }
 
     @Override
-    public IstioResource getConfig(IstioGateway istioGateway) {
+    public HasMetadata getConfig(IstioGateway istioGateway) {
         if (StringUtils.isEmpty(istioGateway.getGwCluster())){
             return null;
         }
@@ -204,10 +212,11 @@ public class K8sConfigManager implements ConfigManager {
         configStore.supply(gwt);
         ObjectMeta metadata = gwt.getMetadata();
         //获取所有Gateway资源
-        List<IstioResource> istioResources = configStore.get(gwt.getKind(), metadata.getNamespace());
-        Optional<IstioResource> first = istioResources.stream().filter(g ->
+        List<HasMetadata> istioResources = configStore.get(gwt.getKind(), metadata.getNamespace());
+        Optional<HasMetadata> first = istioResources.stream().filter(g ->
         {
-            GatewaySpec spec = (GatewaySpec) g.getSpec();
+            IstioResource ir = (IstioResource) g;
+            GatewaySpec spec = (GatewaySpec) ir.getSpec();
             if (spec == null){
                 return false;
             }
@@ -225,21 +234,21 @@ public class K8sConfigManager implements ConfigManager {
 
     @Override
     public void updateConfig(IstioGateway istioGateway) {
-        List<IstioResource> resources = modelProcessor.translate(istioGateway);
+        List<K8sResourcePack> resources = modelProcessor.translate(istioGateway);
         update(resources);
     }
 
     @Override
     public void updateConfig(GlobalPlugin gp) {
-        List<IstioResource> resources = modelProcessor.translate(gp);
+        List<K8sResourcePack> resources = modelProcessor.translate(gp);
         update(resources);
     }
 
     @Override
     public void deleteConfig(GlobalPlugin gp) {
-        List<IstioResource> resources = modelProcessor.translate(gp);
+        List<K8sResourcePack> resources = modelProcessor.translate(gp);
 
-        Function<IstioResource, IstioResource> deleteFun = r -> {
+        Subtracter<HasMetadata> deleteFun = r -> {
 
             if (r.getClass() == K8sResourceEnum.GatewayPlugin.mappingType()) {
                 GatewayPlugin gatewayPlugin = (GatewayPlugin) r;
@@ -257,27 +266,33 @@ public class K8sConfigManager implements ConfigManager {
         delete(resources, deleteFun);
     }
 
-    private void delete(List<IstioResource> resources, Function<IstioResource, IstioResource> fun) {
+    private void delete(List<K8sResourcePack> resources, Subtracter<HasMetadata> fun) {
         delete(resources, (i1,i2) -> 0, fun);
     }
 
-    private void delete(List<IstioResource> resources, Comparator<IstioResource> compartor, Function<IstioResource, IstioResource> fun) {
-        if (CollectionUtils.isEmpty(resources)) return;
-        List<IstioResource> existResources = new ArrayList<>();
-        for (IstioResource resource : resources) {
-            IstioResource exist = configStore.get(resource);
+    private void delete(List<K8sResourcePack> packs, Comparator<K8sResourcePack> compartor, Subtracter<HasMetadata> fun) {
+        if (CollectionUtils.isEmpty(packs)) return;
+        List<HasMetadata> existResources = new ArrayList<>();
+        for (K8sResourcePack pack : packs) {
+            HasMetadata resource = pack.getResource();
+            HasMetadata exist = configStore.get(resource);
             if (exist != null) {
-                existResources.add(exist);
+                pack.setResource(exist);
             }
         }
-        existResources.stream()
+        packs.stream()
                 .sorted(compartor)
-                .map(er -> fun.apply(er))
+                .map(p -> {
+                    HasMetadata resource = p.getResource();
+                    if (p.hasSubtracter()) {
+                        return p.getSubtracter().subtract(resource);
+                    }
+                    return fun.subtract(resource);})
                 .filter(i -> i != null)
                 .forEach(r -> handle(r));
     }
 
-    private void handle(IstioResource i) {
+    private void handle(HasMetadata i) {
         if (modelProcessor.isUseless(i)) {
             configStore.delete(i);
         } else {
@@ -285,15 +300,15 @@ public class K8sConfigManager implements ConfigManager {
         }
     }
 
-    private Function<IstioResource, IstioResource> clearResource() {
+    private Subtracter<HasMetadata> clearResource() {
         return resource -> {
             resource.setApiVersion(null);
             return resource;
         };
     }
 
-    private IstioResourceOperator resolve(IstioResource i) {
-        for (IstioResourceOperator op : operators) {
+    private k8sResourceOperator resolve(HasMetadata i) {
+        for (k8sResourceOperator op : operators) {
             if (op.adapt(i.getKind())) {
                 return op;
             }

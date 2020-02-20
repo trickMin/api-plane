@@ -1,4 +1,4 @@
-package com.netease.cloud.nsf.core.istio.operator;
+package com.netease.cloud.nsf.core.k8s.operator;
 
 import com.netease.cloud.nsf.core.editor.PathExpressionEnum;
 import com.netease.cloud.nsf.core.editor.ResourceGenerator;
@@ -19,7 +19,7 @@ import java.util.Objects;
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/7/30
  **/
 @Component
-public class DestinationRuleOperator implements IstioResourceOperator<DestinationRule> {
+public class DestinationRuleOperator implements k8sResourceOperator<DestinationRule> {
 
     @Override
     public DestinationRule merge(DestinationRule old, DestinationRule fresh) {

@@ -1,4 +1,4 @@
-package com.netease.cloud.nsf.core.istio.operator;
+package com.netease.cloud.nsf.core.k8s.operator;
 
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.util.function.Equals;
@@ -16,7 +16,7 @@ import java.util.Objects;
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/9/26
  **/
 @Component
-public class PluginManagerOperator implements IstioResourceOperator<PluginManager> {
+public class PluginManagerOperator implements k8sResourceOperator<PluginManager> {
 
     @Override
     public PluginManager merge(PluginManager old, PluginManager fresh) {

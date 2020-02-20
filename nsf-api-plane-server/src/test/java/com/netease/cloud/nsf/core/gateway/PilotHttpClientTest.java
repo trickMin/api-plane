@@ -1,7 +1,7 @@
 package com.netease.cloud.nsf.core.gateway;
 
 import com.netease.cloud.nsf.core.BaseTest;
-import com.netease.cloud.nsf.core.istio.IstioHttpClient;
+import com.netease.cloud.nsf.core.istio.PilotHttpClient;
 import com.netease.cloud.nsf.core.k8s.KubernetesClient;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodStatus;
@@ -19,10 +19,10 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
 
-public class IstioHttpClientTest extends BaseTest {
+public class PilotHttpClientTest extends BaseTest {
 
     @Autowired
-    IstioHttpClient istioHttpClient;
+    PilotHttpClient istioHttpClient;
 
     @MockBean(name = "restTemplate")
     RestTemplate restTemplate;

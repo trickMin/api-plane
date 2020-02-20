@@ -1,4 +1,4 @@
-package com.netease.cloud.nsf.core.istio.operator;
+package com.netease.cloud.nsf.core.k8s.operator;
 
 import com.netease.cloud.nsf.core.editor.PathExpressionEnum;
 import com.netease.cloud.nsf.core.editor.ResourceGenerator;
@@ -16,8 +16,7 @@ import java.util.Objects;
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/8/28
  **/
-@Component
-public class SharedConfigOperator implements IstioResourceOperator<SharedConfig> {
+public class SharedConfigOperator implements k8sResourceOperator<SharedConfig> {
 
     @Override
     public SharedConfig merge(SharedConfig old, SharedConfig fresh) {

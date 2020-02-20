@@ -1,4 +1,4 @@
-package com.netease.cloud.nsf.core.istio.operator;
+package com.netease.cloud.nsf.core.k8s.operator;
 
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import me.snowdrop.istio.api.networking.v1alpha3.*;
@@ -12,7 +12,7 @@ import java.util.List;
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2020/1/13
  **/
 @Component
-public class GatewayPluginOperator implements IstioResourceOperator<GatewayPlugin> {
+public class GatewayPluginOperator implements k8sResourceOperator<GatewayPlugin> {
 
     @Override
     public GatewayPlugin merge(GatewayPlugin old, GatewayPlugin fresh) {

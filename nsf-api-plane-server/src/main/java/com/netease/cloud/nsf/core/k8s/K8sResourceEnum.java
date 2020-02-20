@@ -38,7 +38,8 @@ public enum K8sResourceEnum {
     ReplicaSet(ReplicaSet.class, ReplicaSetList.class, "/apis/extensions/v1beta1/namespaces/%s/replicasets/"),
     VersionManager(VersionManager.class, VersionManagerList.class, "/apis/networking.istio.io/v1alpha3/namespaces/%s/versionmanagers"),
     NameSpace(Namespace.class, NamespaceList.class, "/api/v1/namespaces/%s"),
-    GatewayPlugin(GatewayPlugin.class, GatewayPluginList.class, "/apis/networking.istio.io/v1alpha3/namespaces/%s/gatewayplugins")
+    GatewayPlugin(GatewayPlugin.class, GatewayPluginList.class, "/apis/networking.istio.io/v1alpha3/namespaces/%s/gatewayplugins"),
+    ConfigMap(ConfigMap.class, ConfigMapList.class, "/api/v1/namespaces/%s/configmaps"),
     ;
 
     private Class<? extends HasMetadata> mappingType;

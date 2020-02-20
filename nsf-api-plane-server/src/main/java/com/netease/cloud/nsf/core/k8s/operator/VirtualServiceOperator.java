@@ -1,4 +1,4 @@
-package com.netease.cloud.nsf.core.istio.operator;
+package com.netease.cloud.nsf.core.k8s.operator;
 
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.util.function.Equals;
@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/7/30
  **/
 @Component
-public class VirtualServiceOperator implements IstioResourceOperator<VirtualService> {
+public class VirtualServiceOperator implements k8sResourceOperator<VirtualService> {
 
     @Override
     public VirtualService merge(VirtualService old, VirtualService fresh) {

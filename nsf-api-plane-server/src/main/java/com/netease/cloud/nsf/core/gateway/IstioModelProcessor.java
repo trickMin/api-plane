@@ -1,6 +1,5 @@
 package com.netease.cloud.nsf.core.gateway;
 
-import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import com.jayway.jsonpath.Criteria;
 import com.netease.cloud.nsf.core.editor.EditorContext;
 import com.netease.cloud.nsf.core.editor.ResourceGenerator;
@@ -9,7 +8,9 @@ import com.netease.cloud.nsf.core.gateway.handler.*;
 import com.netease.cloud.nsf.core.gateway.processor.DefaultModelProcessor;
 import com.netease.cloud.nsf.core.gateway.processor.RenderTwiceModelProcessor;
 import com.netease.cloud.nsf.core.gateway.service.ResourceManager;
-import com.netease.cloud.nsf.core.istio.operator.IntegratedResourceOperator;
+import com.netease.cloud.nsf.core.k8s.K8sResourcePack;
+import com.netease.cloud.nsf.core.k8s.merger.RateLimitConfigMapMerger;
+import com.netease.cloud.nsf.core.k8s.operator.IntegratedResourceOperator;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.k8s.K8sResourceGenerator;
 import com.netease.cloud.nsf.core.plugin.FragmentHolder;
@@ -21,21 +22,20 @@ import com.netease.cloud.nsf.service.PluginService;
 import com.netease.cloud.nsf.util.Const;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
-import me.snowdrop.istio.api.IstioResource;
+import com.netease.cloud.nsf.util.function.Merger;
+import com.netease.cloud.nsf.util.function.Subtracter;
+import io.fabric8.kubernetes.api.model.ConfigMap;
+import io.fabric8.kubernetes.api.model.HasMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 
@@ -77,7 +77,7 @@ public class IstioModelProcessor {
     private static final String apiGateway = "gateway/api/gateway";
     private static final String apiVirtualService = "gateway/api/virtualService";
     private static final String apiDestinationRule = "gateway/api/destinationRule";
-    private static final String apiSharedConfig = "gateway/api/sharedConfig";
+    private static final String apiSharedConfigConfigMap = "gateway/api/sharedConfigConfigMap";
 
     private static final String serviceDestinationRule = "gateway/service/destinationRule";
     private static final String pluginManager = "gateway/pluginManager";
@@ -86,7 +86,7 @@ public class IstioModelProcessor {
 
     private static final String versionManager = "sidecarVersionManagement";
 
-    public List<IstioResource> translate(API api) {
+    public List<K8sResourcePack> translate(API api) {
         return translate(api, false);
     }
 
@@ -97,27 +97,25 @@ public class IstioModelProcessor {
      * @param simple 是否为简单模式，部分字段不渲染，主要用于删除
      * @return
      */
-    public List<IstioResource> translate(API api, boolean simple) {
+    public List<K8sResourcePack> translate(API api, boolean simple) {
 
         List<Endpoint> endpoints = resourceManager.getEndpointList();
 
-        List<IstioResource> resources = new ArrayList<>();
+        List<K8sResourcePack> resourcePacks = new ArrayList<>();
 
         RawResourceContainer rawResourceContainer = new RawResourceContainer();
         rawResourceContainer.add(renderPlugins(api));
 
         List<String> extraDestination = CollectionUtils.isEmpty(api.getPlugins()) ?
                 Collections.emptyList() : pluginService.extractService(api.getPlugins());
-
         BaseVirtualServiceAPIDataHandler vsHandler;
-        List<String> rawResources = new ArrayList<>();
 
         if (CollectionUtils.isEmpty(api.getProxyServices())) {
             //yx
             vsHandler = new YxVirtualServiceAPIDataHandler(
                     defaultModelProcessor, rawResourceContainer.getVirtualServices(), endpoints, simple);
             List<String> rawGateways = defaultModelProcessor.process(apiGateway, api, new BaseGatewayAPIDataHandler(enableHttp10));
-            rawResources.addAll(rawGateways);
+            resourcePacks.addAll(generateK8sPack(rawGateways));
         } else {
             //gportal
             vsHandler = new PortalVirtualServiceAPIDataHandler(
@@ -126,28 +124,26 @@ public class IstioModelProcessor {
 
         List<String> rawVirtualServices = renderTwiceModelProcessor.process(apiVirtualService, api, vsHandler);
         List<String> rawDestinationRules = defaultModelProcessor.process(apiDestinationRule, api, new BaseDestinationRuleAPIDataHandler(extraDestination));
-        List<String> rawSharedConfigs = renderTwiceModelProcessor.process(apiSharedConfig, api, new BaseSharedConfigAPIDataHandler(rawResourceContainer.getSharedConfigs()));
+        List<String> rawSharedConfigs = renderTwiceModelProcessor.process(apiSharedConfigConfigMap, api, new BaseSharedConfigAPIDataHandler(rawResourceContainer.getSharedConfigs()));
 
-        rawResources.addAll(rawVirtualServices.stream().map(vs -> adjustVs(vs)).collect(Collectors.toList()));
-        rawResources.addAll(rawDestinationRules);
-        rawResources.addAll(rawSharedConfigs);
+        resourcePacks.addAll(generateK8sPack(rawVirtualServices, vs -> adjustVs(vs)));
+        resourcePacks.addAll(generateK8sPack(rawDestinationRules));
+        resourcePacks.addAll(generateK8sPack(rawSharedConfigs, new RateLimitConfigMapMerger()));
 
-        rawResources.stream()
-                .forEach(r -> resources.add(str2IstioResource(r)));
-
-        return resources;
+        return resourcePacks;
     }
 
-    public List<IstioResource> translate(Service service) {
 
-        List<IstioResource> resources = new ArrayList<>();
+
+    public List<K8sResourcePack> translate(Service service) {
+
+        List<K8sResourcePack> resources = new ArrayList<>();
         List<String> destinations = defaultModelProcessor.process(serviceDestinationRule, service, new PortalDestinationRuleServiceDataHandler());
+        resources.addAll(generateK8sPack(destinations));
         if (Const.PROXY_SERVICE_TYPE_STATIC.equals(service.getType())) {
-            destinations.addAll(defaultModelProcessor.process(serviceServiceEntry, service, new PortalServiceEntryServiceDataHandler()));
+            List<String> serviceEntries = defaultModelProcessor.process(serviceServiceEntry, service, new PortalServiceEntryServiceDataHandler());
+            resources.addAll(generateK8sPack(serviceEntries));
         }
-        destinations.stream()
-                .forEach(ds -> resources.add(str2IstioResource(ds)));
-
         return resources;
     }
 
@@ -157,40 +153,32 @@ public class IstioModelProcessor {
      * @param istioGateway
      * @return
      */
-    public List<IstioResource> translate(IstioGateway istioGateway) {
-        List<IstioResource> resources = new ArrayList<>();
-
+    public List<K8sResourcePack> translate(IstioGateway istioGateway) {
+        List<K8sResourcePack> resources = new ArrayList<>();
         List<String> rawGateways = defaultModelProcessor.process(apiGateway, istioGateway, new PortalGatewayDatahandler());
-        List<String> rawResources = new ArrayList<>();
-        rawResources.addAll(rawGateways);
-
-        rawResources.stream()
-                .forEach(r -> resources.add(str2IstioResource(r)));
-
+        resources.addAll(generateK8sPack(rawGateways));
         return resources;
     }
 
-    public List<IstioResource> translate(PluginOrder po) {
+    public List<K8sResourcePack> translate(PluginOrder po) {
 
-        List<IstioResource> resources = new ArrayList<>();
+        List<K8sResourcePack> resources = new ArrayList<>();
         List<String> pluginManagers = defaultModelProcessor.process(pluginManager, po, new PluginOrderDataHandler());
-        pluginManagers.stream()
-                .forEach(ds -> resources.add(str2IstioResource(ds)));
+        resources.addAll(generateK8sPack(pluginManagers));
         return resources;
     }
 
-    public List<IstioResource> translate(SidecarVersionManagement svm) {
+    public List<K8sResourcePack> translate(SidecarVersionManagement svm) {
 
-        List<IstioResource> resources = new ArrayList<>();
+        List<K8sResourcePack> resources = new ArrayList<>();
         List<String> versionManagers = defaultModelProcessor.process(versionManager, svm, new VersionManagersDataHandler());
-        resources.add(str2IstioResource(versionManagers.get(0)));
+        resources.addAll(generateK8sPack(Arrays.asList(versionManagers.get(0))));
         return resources;
     }
 
-    public List<IstioResource> translate(GlobalPlugin gp) {
+    public List<K8sResourcePack> translate(GlobalPlugin gp) {
 
-        List<IstioResource> resources = new ArrayList<>();
-        List<String> rawResources = new ArrayList<>();
+        List<K8sResourcePack> resources = new ArrayList<>();
         RawResourceContainer rawResourceContainer = new RawResourceContainer();
         List<FragmentHolder> plugins = pluginService.processGlobalPlugin(gp.getPlugins(), new ServiceInfo());
         rawResourceContainer.add(plugins);
@@ -198,12 +186,10 @@ public class IstioModelProcessor {
 
         List<String> rawGatewayPlugins = defaultModelProcessor.process(gatewayPlugin, gp, new GatewayPluginDataHandler(rawResourceContainer.getGatewayPlugins(), gateways));
         //todo: shareConfig逻辑需要适配
-        List<String> rawSharedConfigs = renderTwiceModelProcessor.process(apiSharedConfig, gp, new GatewayPluginSharedConfigDataHandler(rawResourceContainer.getSharedConfigs(), gateways));
-        rawResources.addAll(rawGatewayPlugins);
-        rawResources.addAll(rawSharedConfigs);
+        List<String> rawSharedConfigs = renderTwiceModelProcessor.process(apiSharedConfigConfigMap, gp, new GatewayPluginSharedConfigDataHandler(rawResourceContainer.getSharedConfigs(), gateways));
+        resources.addAll(generateK8sPack(rawGatewayPlugins));
+        resources.addAll(generateK8sPack(rawSharedConfigs));
 
-        rawResources.stream()
-                .forEach(rs -> resources.add(str2IstioResource(rs)));
         return resources;
     }
 
@@ -214,7 +200,7 @@ public class IstioModelProcessor {
      * @param fresh
      * @return
      */
-    public IstioResource merge(IstioResource old, IstioResource fresh) {
+    public HasMetadata merge(HasMetadata old, HasMetadata fresh) {
 
         if (fresh == null) return old;
         if (old == null) throw new ApiPlaneException(ExceptionConst.RESOURCE_NON_EXIST);
@@ -224,11 +210,11 @@ public class IstioModelProcessor {
     /**
      * 在已有的istio crd中删去对应api部分
      */
-    public IstioResource subtract(IstioResource old, Map<String, String> values) {
+    public HasMetadata subtract(HasMetadata old, Map<String, String> values) {
         return operator.subtract(old, values.get(old.getKind()));
     }
 
-    public boolean isUseless(IstioResource i) {
+    public boolean isUseless(HasMetadata i) {
         return operator.isUseless(i);
     }
 
@@ -251,12 +237,34 @@ public class IstioModelProcessor {
         return pluginService.processPlugin(plugins, new ServiceInfo());
     }
 
-    private IstioResource str2IstioResource(String str) {
+    private HasMetadata str2HasMetadata(String str) {
 
         logger.info("raw resource: " + str);
         K8sResourceGenerator gen = K8sResourceGenerator.newInstance(str, ResourceType.YAML);
         K8sResourceEnum resourceEnum = K8sResourceEnum.get(gen.getKind());
-        IstioResource ir = (IstioResource) gen.object(resourceEnum.mappingType());
-        return ir;
+        HasMetadata hmd = gen.object(resourceEnum.mappingType());
+        return hmd;
+    }
+
+    private List<K8sResourcePack> generateK8sPack(List<String> raws) {
+        return generateK8sPack(raws, null, null, r -> r);
+    }
+
+    private List<K8sResourcePack> generateK8sPack(List<String> raws, Merger merger) {
+        return generateK8sPack(raws, merger, null, r -> r);
+    }
+
+    private List<K8sResourcePack> generateK8sPack(List<String> raws, Function<String, String> preFun) {
+        return generateK8sPack(raws, null, null, preFun);
+    }
+
+    private List<K8sResourcePack> generateK8sPack(List<String> raws, Merger merger, Subtracter subtracter,
+                                                  Function<String, String> preFun) {
+        if (CollectionUtils.isEmpty(raws)) return Collections.EMPTY_LIST;
+
+        return raws.stream().map(r -> preFun.apply(r))
+                .map(r -> str2HasMetadata(r))
+                .map(hsm -> new K8sResourcePack(hsm, merger, subtracter))
+                .collect(Collectors.toList());
     }
 }

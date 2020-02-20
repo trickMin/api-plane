@@ -1,4 +1,4 @@
-package com.netease.cloud.nsf.core.istio.operator;
+package com.netease.cloud.nsf.core.k8s.operator;
 
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.meta.PodStatus;
@@ -15,7 +15,7 @@ import java.util.Objects;
 
 
 @Component
-public class VersionManagerOperator implements IstioResourceOperator<VersionManager> {
+public class VersionManagerOperator implements k8sResourceOperator<VersionManager> {
     @Override
     public VersionManager merge(VersionManager old, VersionManager fresh) {
         VersionManager versionManager = new VersionManagerBuilder(old).build();

@@ -1,6 +1,6 @@
 package com.netease.cloud.nsf.core.operator;
 
-import com.netease.cloud.nsf.core.istio.operator.VirtualServiceOperator;
+import com.netease.cloud.nsf.core.k8s.operator.VirtualServiceOperator;
 import me.snowdrop.istio.api.networking.v1alpha3.*;
 import org.junit.Assert;
 import org.junit.Before;

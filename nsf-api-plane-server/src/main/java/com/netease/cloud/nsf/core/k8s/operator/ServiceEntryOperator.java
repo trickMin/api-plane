@@ -1,4 +1,4 @@
-package com.netease.cloud.nsf.core.istio.operator;
+package com.netease.cloud.nsf.core.k8s.operator;
 
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import me.snowdrop.istio.api.networking.v1alpha3.ServiceEntry;
@@ -10,7 +10,7 @@ import org.springframework.util.StringUtils;
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/9/19
  **/
 @Component
-public class ServiceEntryOperator implements IstioResourceOperator<ServiceEntry> {
+public class ServiceEntryOperator implements k8sResourceOperator<ServiceEntry> {
 
     @Override
     public ServiceEntry merge(ServiceEntry old, ServiceEntry fresh) {

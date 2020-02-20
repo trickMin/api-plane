@@ -1,6 +1,7 @@
 package com.netease.cloud.nsf.core.gateway.service;
 
 
+import io.fabric8.kubernetes.api.model.HasMetadata;
 import me.snowdrop.istio.api.IstioResource;
 
 import java.util.List;
@@ -11,19 +12,16 @@ import java.util.Map;
  */
 public interface ConfigStore {
 
-    void create(IstioResource t);
+    void delete(HasMetadata t);
 
-    void delete(IstioResource t);
+    void update(HasMetadata t);
 
-    void update(IstioResource t);
+    HasMetadata get(HasMetadata t);
 
-    IstioResource get(IstioResource t);
+    HasMetadata get(String kind, String namespace, String name);
 
-    IstioResource get(String kind, String namespace, String name);
+    List<HasMetadata> get(String kind, String namespace);
 
-    List<IstioResource> get(String kind, String namespace);
+    List<HasMetadata> get(String kind, String namespace, Map<String, String> labels);
 
-    List<IstioResource> get(String kind, String namespace, Map<String, String> labels);
-
-    boolean exist(IstioResource t);
 }

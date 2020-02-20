@@ -1,7 +1,7 @@
 package com.netease.cloud.nsf.core.operator;
 
 
-import com.netease.cloud.nsf.core.istio.operator.GatewayOperator;
+import com.netease.cloud.nsf.core.k8s.operator.GatewayOperator;
 import me.snowdrop.istio.api.networking.v1alpha3.Gateway;
 import me.snowdrop.istio.api.networking.v1alpha3.GatewaySpec;
 import me.snowdrop.istio.api.networking.v1alpha3.Server;
