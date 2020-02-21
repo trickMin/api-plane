@@ -1,7 +1,5 @@
 package com.netease.cloud.nsf.core.template;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 /**
  * 支持TemplateWrapper的regex expression
  *
@@ -176,6 +174,9 @@ public interface TemplateConst {
      * SharedConfig
      **/
     String SHARED_CONFIG_DESCRIPTOR = "t_shared_config_descriptor";
+
+    String SHARED_CONFIG_NAME = "t_shared_config_name";
+    String SHARED_CONFIG_NAMESPACE = "t_shared_config_namespace";
 
     /**
      * PluginManager

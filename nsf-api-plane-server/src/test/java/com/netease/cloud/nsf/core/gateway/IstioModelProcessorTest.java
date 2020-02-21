@@ -373,7 +373,7 @@ public class IstioModelProcessorTest extends BaseTest {
     public void testTranslateGlobalPlugin() {
 
         GlobalPlugin gp1 = getGlobalPlugin("code1", Collections.EMPTY_LIST,
-                "gw1", Arrays.asList("host1", "host2"));
+                "gateway-system/gw1", Arrays.asList("host1", "host2"));
 
         List<K8sResourcePack> resources = processor.translate(gp1);
 
@@ -385,7 +385,7 @@ public class IstioModelProcessorTest extends BaseTest {
         assertTrue(spec.getHost().containsAll(Arrays.asList("host1", "host2")));
         assertEquals("code1", gatewayPlugin.getMetadata().getName());
         assertEquals(1, spec.getGateway().size());
-        assertEquals("gw1", spec.getGateway().get(0));
+        assertEquals("gateway-system/gw1", spec.getGateway().get(0));
     }
 
 

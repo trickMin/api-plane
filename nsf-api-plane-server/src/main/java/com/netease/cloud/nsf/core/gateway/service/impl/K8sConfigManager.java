@@ -7,10 +7,10 @@ import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.gateway.IstioModelProcessor;
 import com.netease.cloud.nsf.core.gateway.service.ConfigManager;
 import com.netease.cloud.nsf.core.gateway.service.ConfigStore;
-import com.netease.cloud.nsf.core.k8s.K8sResourcePack;
-import com.netease.cloud.nsf.core.k8s.operator.k8sResourceOperator;
-import com.netease.cloud.nsf.core.k8s.operator.VersionManagerOperator;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
+import com.netease.cloud.nsf.core.k8s.K8sResourcePack;
+import com.netease.cloud.nsf.core.k8s.operator.VersionManagerOperator;
+import com.netease.cloud.nsf.core.k8s.operator.k8sResourceOperator;
 import com.netease.cloud.nsf.meta.*;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
@@ -18,12 +18,8 @@ import com.netease.cloud.nsf.util.function.Subtracter;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import me.snowdrop.istio.api.IstioResource;
-import me.snowdrop.istio.api.networking.v1alpha3.DestinationRule;
 import me.snowdrop.istio.api.networking.v1alpha3.Gateway;
-import me.snowdrop.istio.api.networking.v1alpha3.GatewaySpec;
-import me.snowdrop.istio.api.networking.v1alpha3.GatewayPlugin;
-import me.snowdrop.istio.api.networking.v1alpha3.SharedConfig;
-import me.snowdrop.istio.api.networking.v1alpha3.VersionManager;
+import me.snowdrop.istio.api.networking.v1alpha3.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,10 +27,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -112,8 +104,7 @@ public class K8sConfigManager implements ConfigManager {
 
         ImmutableMap<String, String> toBeDeletedMap = ImmutableMap
                 .of(K8sResourceEnum.VirtualService.name(), api.getName(),
-                        K8sResourceEnum.DestinationRule.name(), String.format("%s-%s", api.getService(), api.getName(),
-                                K8sResourceEnum.SharedConfig.name(), String.format("%s-%s", api.getService(), api.getName())));
+                        K8sResourceEnum.DestinationRule.name(), String.format("%s-%s", api.getService(), api.getName()));
 
         delete(resources, resource -> modelProcessor.subtract(resource, toBeDeletedMap));
     }
@@ -294,7 +285,12 @@ public class K8sConfigManager implements ConfigManager {
 
     private void handle(HasMetadata i) {
         if (modelProcessor.isUseless(i)) {
-            configStore.delete(i);
+            try {
+                configStore.delete(i);
+            } catch (Exception e) {
+                //ignore error
+                logger.warn("", e);
+            }
         } else {
             configStore.update(i);
         }

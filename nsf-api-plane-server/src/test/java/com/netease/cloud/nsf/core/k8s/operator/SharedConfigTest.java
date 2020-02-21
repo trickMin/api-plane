@@ -1,6 +1,7 @@
-package com.netease.cloud.nsf.core.operator;
+package com.netease.cloud.nsf.core.k8s.operator;
 
 import com.netease.cloud.nsf.core.k8s.operator.SharedConfigOperator;
+import com.netease.cloud.nsf.util.CommonUtil;
 import me.snowdrop.istio.api.networking.v1alpha3.*;
 import org.junit.Assert;
 import org.junit.Before;
@@ -31,6 +32,39 @@ public class SharedConfigTest {
                                 getSharedConfigRateLimit(10, null)),
                         getRateLimitDescriptor("sa-api2",
                                 getSharedConfigRateLimit(2, null))));
+
+        String ya = CommonUtil.obj2yaml(Arrays.asList(config1));
+        RateLimitConfig[] rateLimitConfigs = CommonUtil.yaml2Obj("- descriptors:\n" +
+                "  - api: auto-test1\n" +
+                "    key: header_match\n" +
+                "    rateLimit:\n" +
+                "      requestsPerUnit: 1\n" +
+                "      unit: HOUR\n" +
+                "    value: auto-test1\n" +
+                "  - api: auto-test4\n" +
+                "    key: header_match\n" +
+                "    rateLimit:\n" +
+                "      requestsPerUnit: 1\n" +
+                "      unit: HOUR\n" +
+                "    value: auto-test4\n" +
+                "  - api: auto-test3\n" +
+                "    key: header_match\n" +
+                "    rateLimit:\n" +
+                "      requestsPerUnit: 1\n" +
+                "      unit: HOUR\n" +
+                "    value: auto-test3\n" +
+                "  domain: qingzhou\n" +
+                "- descriptors:\n" +
+                "  - api: auto-test1\n" +
+                "    key: header_match\n" +
+                "    rateLimit:\n" +
+                "      requestsPerUnit: 1\n" +
+                "      unit: HOUR\n" +
+                "    value: Service[autotest]-User[none]-Api[auto-test1]-Id[36dfa223-0258-44ec-b838-56177132f590]\n" +
+                "  domain: qingzhou1", RateLimitConfig[].class);
+
+
+
         RateLimitConfig config2 = getRateLimitConfig("qz1",
                 Arrays.asList(
                         getRateLimitDescriptor("sa-api5",

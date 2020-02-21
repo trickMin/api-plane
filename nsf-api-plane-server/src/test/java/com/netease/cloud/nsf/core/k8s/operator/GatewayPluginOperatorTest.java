@@ -1,4 +1,4 @@
-package com.netease.cloud.nsf.core.operator;
+package com.netease.cloud.nsf.core.k8s.operator;
 
 import com.netease.cloud.nsf.core.k8s.operator.GatewayPluginOperator;
 import me.snowdrop.istio.api.networking.v1alpha3.GatewayPlugin;

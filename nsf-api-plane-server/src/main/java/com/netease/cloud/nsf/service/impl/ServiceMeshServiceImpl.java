@@ -70,7 +70,7 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
     ApiPlaneConfig apiPlaneConfig;
 
     @Autowired
-    PilotHttpClient istioHttpClient;
+    PilotHttpClient pilotHttpClient;
 
     @Override
     public void updateIstioResource(String json) {
@@ -288,7 +288,7 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
 
     @Override
     public boolean checkPilotHealth() {
-        return istioHttpClient.isReady();
+        return pilotHttpClient.isReady();
     }
 
 }

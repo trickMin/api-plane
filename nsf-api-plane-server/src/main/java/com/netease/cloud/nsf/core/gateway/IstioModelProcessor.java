@@ -8,14 +8,14 @@ import com.netease.cloud.nsf.core.gateway.handler.*;
 import com.netease.cloud.nsf.core.gateway.processor.DefaultModelProcessor;
 import com.netease.cloud.nsf.core.gateway.processor.RenderTwiceModelProcessor;
 import com.netease.cloud.nsf.core.gateway.service.ResourceManager;
+import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
+import com.netease.cloud.nsf.core.k8s.K8sResourceGenerator;
 import com.netease.cloud.nsf.core.k8s.K8sResourcePack;
 import com.netease.cloud.nsf.core.k8s.merger.RateLimitConfigMapMerger;
 import com.netease.cloud.nsf.core.k8s.operator.IntegratedResourceOperator;
-import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
-import com.netease.cloud.nsf.core.k8s.K8sResourceGenerator;
+import com.netease.cloud.nsf.core.k8s.subtracter.RateLimitConfigMapSubtracter;
 import com.netease.cloud.nsf.core.plugin.FragmentHolder;
 import com.netease.cloud.nsf.core.template.TemplateTranslator;
-import com.netease.cloud.nsf.meta.API;
 import com.netease.cloud.nsf.meta.*;
 import com.netease.cloud.nsf.service.GatewayService;
 import com.netease.cloud.nsf.service.PluginService;
@@ -24,7 +24,6 @@ import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
 import com.netease.cloud.nsf.util.function.Merger;
 import com.netease.cloud.nsf.util.function.Subtracter;
-import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,6 +73,9 @@ public class IstioModelProcessor {
     @Value(value = "${http10:#{null}}")
     Boolean enableHttp10;
 
+    @Value(value = "${sharedConfigName:rate-limit-config}")
+    String sharedConfigName;
+
     private static final String apiGateway = "gateway/api/gateway";
     private static final String apiVirtualService = "gateway/api/virtualService";
     private static final String apiDestinationRule = "gateway/api/destinationRule";
@@ -116,6 +118,8 @@ public class IstioModelProcessor {
                     defaultModelProcessor, rawResourceContainer.getVirtualServices(), endpoints, simple);
             List<String> rawGateways = defaultModelProcessor.process(apiGateway, api, new BaseGatewayAPIDataHandler(enableHttp10));
             resourcePacks.addAll(generateK8sPack(rawGateways));
+            List<String> rawDestinationRules = defaultModelProcessor.process(apiDestinationRule, api, new BaseDestinationRuleAPIDataHandler(extraDestination));
+            resourcePacks.addAll(generateK8sPack(rawDestinationRules));
         } else {
             //gportal
             vsHandler = new PortalVirtualServiceAPIDataHandler(
@@ -123,17 +127,14 @@ public class IstioModelProcessor {
         }
 
         List<String> rawVirtualServices = renderTwiceModelProcessor.process(apiVirtualService, api, vsHandler);
-        List<String> rawDestinationRules = defaultModelProcessor.process(apiDestinationRule, api, new BaseDestinationRuleAPIDataHandler(extraDestination));
-        List<String> rawSharedConfigs = renderTwiceModelProcessor.process(apiSharedConfigConfigMap, api, new BaseSharedConfigAPIDataHandler(rawResourceContainer.getSharedConfigs()));
+        List<String> rawSharedConfigs = renderTwiceModelProcessor.process(apiSharedConfigConfigMap, api, new BaseSharedConfigAPIDataHandler(rawResourceContainer.getSharedConfigs(), sharedConfigName));
 
         resourcePacks.addAll(generateK8sPack(rawVirtualServices, vs -> adjustVs(vs)));
-        resourcePacks.addAll(generateK8sPack(rawDestinationRules));
-        resourcePacks.addAll(generateK8sPack(rawSharedConfigs, new RateLimitConfigMapMerger()));
+        resourcePacks.addAll(generateK8sPack(rawSharedConfigs,
+                new RateLimitConfigMapMerger(), new RateLimitConfigMapSubtracter(api.getName())));
 
         return resourcePacks;
     }
-
-
 
     public List<K8sResourcePack> translate(Service service) {
 
@@ -186,9 +187,11 @@ public class IstioModelProcessor {
 
         List<String> rawGatewayPlugins = defaultModelProcessor.process(gatewayPlugin, gp, new GatewayPluginDataHandler(rawResourceContainer.getGatewayPlugins(), gateways));
         //todo: shareConfig逻辑需要适配
-        List<String> rawSharedConfigs = renderTwiceModelProcessor.process(apiSharedConfigConfigMap, gp, new GatewayPluginSharedConfigDataHandler(rawResourceContainer.getSharedConfigs(), gateways));
+        List<String> rawSharedConfigs = renderTwiceModelProcessor.process(apiSharedConfigConfigMap, gp,
+                new GatewayPluginSharedConfigDataHandler(rawResourceContainer.getSharedConfigs(), gateways, sharedConfigName));
         resources.addAll(generateK8sPack(rawGatewayPlugins));
-        resources.addAll(generateK8sPack(rawSharedConfigs));
+        resources.addAll(generateK8sPack(rawSharedConfigs,
+                new RateLimitConfigMapMerger(), new RateLimitConfigMapSubtracter(gp.getCode())));
 
         return resources;
     }
@@ -250,8 +253,8 @@ public class IstioModelProcessor {
         return generateK8sPack(raws, null, null, r -> r);
     }
 
-    private List<K8sResourcePack> generateK8sPack(List<String> raws, Merger merger) {
-        return generateK8sPack(raws, merger, null, r -> r);
+    private List<K8sResourcePack> generateK8sPack(List<String> raws, Merger merger, Subtracter subtracter) {
+        return generateK8sPack(raws, merger, subtracter, r -> r);
     }
 
     private List<K8sResourcePack> generateK8sPack(List<String> raws, Function<String, String> preFun) {

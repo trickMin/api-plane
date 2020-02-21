@@ -127,7 +127,6 @@ public class KubernetesClient extends DefaultK8sHttpClient {
     public void createOrUpdate(Object obj, ResourceType resourceType) {
         K8sResourceGenerator gen = K8sResourceGenerator.newInstance(obj, resourceType);
         String url = getUrl(gen.getKind(), gen.getNamespace(), gen.getName());
-
         String oldResource = getWithNull(url);
 
         if (oldResource != null) {
@@ -136,7 +135,7 @@ public class KubernetesClient extends DefaultK8sHttpClient {
             put(url, gen.jsonString());
             return;
         }
-        post(url, gen.jsonString());
+        post(getUrl(gen.getKind(), gen.getNamespace()), gen.jsonString());
     }
 
     /**

@@ -46,7 +46,6 @@ public enum K8sResourceEnum {
     private Class<? extends KubernetesResourceList> mappingListType;
     private String selfLink;
 
-
     K8sResourceEnum(Class<? extends HasMetadata> mappingType, Class<? extends KubernetesResourceList> mappingListType, String selfLink) {
         this.mappingType = mappingType;
         this.mappingListType = mappingListType;

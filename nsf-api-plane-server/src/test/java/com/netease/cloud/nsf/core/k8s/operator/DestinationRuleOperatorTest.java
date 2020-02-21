@@ -1,4 +1,4 @@
-package com.netease.cloud.nsf.core.operator;
+package com.netease.cloud.nsf.core.k8s.operator;
 
 
 import com.google.common.collect.ImmutableMap;
