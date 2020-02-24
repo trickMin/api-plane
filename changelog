@@ -6,6 +6,7 @@ release 1.1
 - 增加gateway的http10字段支持
 - TransformProcessor支持Condition
 - 增加路由默认超时时间60s
+- ratelimit插件配置由SharedConfig转移到ConfigMap
 
 严选网关:
 - 多租户支持
