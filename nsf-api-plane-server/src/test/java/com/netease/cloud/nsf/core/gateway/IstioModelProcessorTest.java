@@ -5,9 +5,10 @@ import com.google.common.collect.ImmutableMap;
 import com.netease.cloud.nsf.core.BaseTest;
 import com.netease.cloud.nsf.core.editor.EditorContext;
 import com.netease.cloud.nsf.core.editor.ResourceType;
-import com.netease.cloud.nsf.core.istio.IstioHttpClient;
+import com.netease.cloud.nsf.core.istio.PilotHttpClient;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.k8s.K8sResourceGenerator;
+import com.netease.cloud.nsf.core.k8s.K8sResourcePack;
 import com.netease.cloud.nsf.core.k8s.KubernetesClient;
 import com.netease.cloud.nsf.meta.*;
 import com.netease.cloud.nsf.meta.Endpoint;
@@ -45,7 +46,7 @@ public class IstioModelProcessorTest extends BaseTest {
     KubernetesClient kubernetesClient;
 
     @MockBean
-    IstioHttpClient istioHttpClient;
+    PilotHttpClient istioHttpClient;
 
     private Endpoint getEndpoint(String hostname, int port) {
         Endpoint ep = new Endpoint();
@@ -107,11 +108,12 @@ public class IstioModelProcessorTest extends BaseTest {
                 ImmutableList.of(getPairMatch("k1", "v1", "exact"), getPairMatch("k2", "v2", "regex")),
                 ImmutableList.of(getPairMatch("k3", "v3", "prefix"), getPairMatch("k4", "v4", "regex")));
 
-        List<IstioResource> resources = processor.translate(api);
+        List<K8sResourcePack> resources = processor.translate(api);
 
         Assert.assertTrue(resources.size() == 6);
 
         resources.stream()
+                .map(r -> r.getResource())
                 .forEach(r -> {
                     if (r.getKind().equals(VirtualService.class.getSimpleName())) {
                         VirtualService vs = (VirtualService) r;
@@ -147,9 +149,10 @@ public class IstioModelProcessorTest extends BaseTest {
                 34, "STATIC_2", null, "https","static1");
         api1.setProxyServices(Arrays.asList(s1, s2, s3));
 
-        List<IstioResource> resources1 = processor.translate(api1);
+        List<K8sResourcePack> resources1 = processor.translate(api1);
 
         resources1.stream()
+                .map(r -> r.getResource())
                 .forEach(r -> {
                     Assert.assertFalse(r.getKind().equals(K8sResourceEnum.DestinationRule.name()));
                     if (r.getKind().equals(VirtualService.class.getSimpleName())) {
@@ -171,11 +174,11 @@ public class IstioModelProcessorTest extends BaseTest {
                 getPlugin("p2", false, null),
                 getPlugin("p3", true, ImmutableMap.of("key","good"))));
 
-        List<IstioResource> res = processor.translate(Trans.pluginOrderDTO2PluginOrder(po));
+        List<K8sResourcePack> res = processor.translate(Trans.pluginOrderDTO2PluginOrder(po));
 
         Assert.assertTrue(res.size() == 1);
 
-        PluginManager pm = (PluginManager) res.get(0);
+        PluginManager pm = (PluginManager) res.get(0).getResource();
 
         Assert.assertTrue(pm.getSpec().getWorkloadLabels().size() == 2);
         Assert.assertTrue(pm.getSpec().getPlugin().size() == 3);
@@ -185,11 +188,11 @@ public class IstioModelProcessorTest extends BaseTest {
                 getPlugin("p1", false, null),
                 getPlugin("p2", true, ImmutableMap.of("key","good"))));
 
-        List<IstioResource> res1 = processor.translate(Trans.pluginOrderDTO2PluginOrder(po1));
+        List<K8sResourcePack> res1 = processor.translate(Trans.pluginOrderDTO2PluginOrder(po1));
 
         Assert.assertTrue(res1.size() == 1);
 
-        PluginManager pm1 = (PluginManager) res1.get(0);
+        PluginManager pm1 = (PluginManager) res1.get(0).getResource();
         Assert.assertTrue(CollectionUtils.isEmpty(pm1.getSpec().getWorkloadLabels()));
         Assert.assertTrue(pm1.getMetadata().getName().equals("qz-global"));
         assertEquals(2, pm1.getSpec().getPlugin().size());
@@ -205,30 +208,32 @@ public class IstioModelProcessorTest extends BaseTest {
 
         Service service = getService(Const.PROXY_SERVICE_TYPE_DYNAMIC, "a.svc.cluster", 100, "a", "gw1", "http", "asvc");
 
-        List<IstioResource> istioResources = processor.translate(service);
+        List<K8sResourcePack> istioResources = processor.translate(service);
 
         Assert.assertTrue(istioResources.size() == 1);
-        DestinationRule ds = (DestinationRule) istioResources.get(0);
+        DestinationRule ds = (DestinationRule) istioResources.get(0).getResource();
         DestinationRuleSpec spec = ds.getSpec();
         Assert.assertTrue(spec.getHost().equals(service.getBackendService()));
 
         Service service1 = getService(Const.PROXY_SERVICE_TYPE_STATIC, "10.10.10.10:1024,10.10.10.9:1025", 100, "b", "gw2", "https", "static-1");
 
-        List<IstioResource> istioResources1 = processor.translate(service1);
+        List<K8sResourcePack> istioResources1 = processor.translate(service1);
         Assert.assertTrue(istioResources1.size() == 2);
-        istioResources1.forEach(ir -> {
-            if (ir.getKind().equals(K8sResourceEnum.DestinationRule.name())) {
-                DestinationRule ds1 = (DestinationRule) istioResources.get(0);
-                Assert.assertTrue(ds1.getSpec().getHost().equals(service.getBackendService()));
-                Assert.assertTrue(ds1.getSpec().getAltStatName().equals(service.getServiceTag()));
-            } else if (ir.getKind().equals(K8sResourceEnum.ServiceEntry.name())) {
-                ServiceEntry se = (ServiceEntry) ir;
-                Assert.assertTrue(se.getSpec().getEndpoints().size() == 2);
-                Assert.assertTrue(se.getSpec().getHosts().get(0).equals(decorateHost(service1.getCode())));
-            } else {
-                Assert.fail();
-            }
-        });
+        istioResources1.stream()
+                .map(r -> r.getResource())
+                .forEach(ir -> {
+                    if (ir.getKind().equals(K8sResourceEnum.DestinationRule.name())) {
+                        DestinationRule ds1 = (DestinationRule) istioResources.get(0).getResource();
+                        Assert.assertTrue(ds1.getSpec().getHost().equals(service.getBackendService()));
+                        Assert.assertTrue(ds1.getSpec().getAltStatName().equals(service.getServiceTag()));
+                    } else if (ir.getKind().equals(K8sResourceEnum.ServiceEntry.name())) {
+                        ServiceEntry se = (ServiceEntry) ir;
+                        Assert.assertTrue(se.getSpec().getEndpoints().size() == 2);
+                        Assert.assertTrue(se.getSpec().getHosts().get(0).equals(decorateHost(service1.getCode())));
+                    } else {
+                        Assert.fail();
+                    }
+                });
 
     }
 
@@ -368,19 +373,19 @@ public class IstioModelProcessorTest extends BaseTest {
     public void testTranslateGlobalPlugin() {
 
         GlobalPlugin gp1 = getGlobalPlugin("code1", Collections.EMPTY_LIST,
-                "gw1", Arrays.asList("host1", "host2"));
+                "gateway-system/gw1", Arrays.asList("host1", "host2"));
 
-        List<IstioResource> resources = processor.translate(gp1);
+        List<K8sResourcePack> resources = processor.translate(gp1);
 
         assertEquals(1, resources.size());
 
-        GatewayPlugin gatewayPlugin = (GatewayPlugin) resources.get(0);
+        GatewayPlugin gatewayPlugin = (GatewayPlugin) resources.get(0).getResource();
         GatewayPluginSpec spec = gatewayPlugin.getSpec();
         assertEquals(2, spec.getHost().size());
         assertTrue(spec.getHost().containsAll(Arrays.asList("host1", "host2")));
         assertEquals("code1", gatewayPlugin.getMetadata().getName());
         assertEquals(1, spec.getGateway().size());
-        assertEquals("gw1", spec.getGateway().get(0));
+        assertEquals("gateway-system/gw1", spec.getGateway().get(0));
     }
 
 

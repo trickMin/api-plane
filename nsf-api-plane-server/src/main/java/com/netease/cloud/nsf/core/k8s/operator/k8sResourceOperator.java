@@ -1,6 +1,7 @@
-package com.netease.cloud.nsf.core.istio.operator;
+package com.netease.cloud.nsf.core.k8s.operator;
 
 import com.netease.cloud.nsf.util.function.Equals;
+import io.fabric8.kubernetes.api.model.HasMetadata;
 import me.snowdrop.istio.api.IstioResource;
 import org.springframework.util.CollectionUtils;
 
@@ -12,7 +13,7 @@ import java.util.Map;
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/7/30
  **/
-public interface IstioResourceOperator<T extends IstioResource> {
+public interface k8sResourceOperator<T extends HasMetadata> {
 
     T merge(T old, T fresh);
 

@@ -1,4 +1,4 @@
-package com.netease.cloud.nsf.core.istio.operator;
+package com.netease.cloud.nsf.core.k8s.operator;
 
 import com.netease.cloud.nsf.core.editor.PathExpressionEnum;
 import com.netease.cloud.nsf.core.editor.ResourceGenerator;
@@ -6,18 +6,18 @@ import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.util.function.Equals;
 import me.snowdrop.istio.api.networking.v1alpha3.*;
-import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/8/28
  **/
-@Component
-public class SharedConfigOperator implements IstioResourceOperator<SharedConfig> {
+public class SharedConfigOperator implements k8sResourceOperator<SharedConfig> {
 
     @Override
     public SharedConfig merge(SharedConfig old, SharedConfig fresh) {
@@ -58,7 +58,19 @@ public class SharedConfigOperator implements IstioResourceOperator<SharedConfig>
     private class RateLimitDescriptorEquals implements Equals<RateLimitDescriptor> {
         @Override
         public boolean apply(RateLimitDescriptor or, RateLimitDescriptor nr) {
-            return Objects.equals(or.getApi(), nr.getApi());
+
+            String oldVal = or.getValue();
+            String newVal = nr.getValue();
+
+            //eg. Service[httpbin]-User[none]-Api[httpbin]-Id[08638e47-48db-43bc-9c21-07ef892b5494]
+            // 当Api[]中的值相等时，才认为两者相当
+            Pattern pattern = Pattern.compile("(Service.*)-(User.*)-(Api.*)-(Id.*)");
+            Matcher oldMatcher = pattern.matcher(oldVal);
+            Matcher newMatcher = pattern.matcher(newVal);
+            if (oldMatcher.find() && newMatcher.find()) {
+                return Objects.equals(oldMatcher.group(3), newMatcher.group(3));
+            }
+            return false;
         }
     }
 

@@ -1,4 +1,4 @@
-package com.netease.cloud.nsf.core.istio.operator;
+package com.netease.cloud.nsf.core.k8s.operator;
 
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
@@ -20,7 +20,7 @@ import java.util.Objects;
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/7/31
  **/
 @Component
-public class GatewayOperator implements IstioResourceOperator<Gateway> {
+public class GatewayOperator implements k8sResourceOperator<Gateway> {
 
     @Override
     public Gateway merge(Gateway old, Gateway fresh) {

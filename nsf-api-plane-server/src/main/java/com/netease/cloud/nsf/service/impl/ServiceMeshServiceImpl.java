@@ -6,7 +6,7 @@ import com.netease.cloud.nsf.cache.meta.PodDTO;
 import com.netease.cloud.nsf.configuration.ApiPlaneConfig;
 import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.gateway.service.ConfigStore;
-import com.netease.cloud.nsf.core.istio.IstioHttpClient;
+import com.netease.cloud.nsf.core.istio.PilotHttpClient;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.k8s.K8sResourceGenerator;
 import com.netease.cloud.nsf.core.k8s.KubernetesClient;
@@ -70,7 +70,7 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
     ApiPlaneConfig apiPlaneConfig;
 
     @Autowired
-    IstioHttpClient istioHttpClient;
+    PilotHttpClient pilotHttpClient;
 
     @Override
     public void updateIstioResource(String json) {
@@ -87,9 +87,9 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
     }
 
     @Override
-    public IstioResource getIstioResource(String name, String namespace, String kind) {
+    public HasMetadata getIstioResource(String name, String namespace, String kind) {
 
-        IstioResource istioResource = configStore.get(kind, namespace, name);
+        HasMetadata istioResource = configStore.get(kind, namespace, name);
         if (istioResource == null) {
             throw new ApiPlaneException(ExceptionConst.RESOURCE_NON_EXIST, 404);
         }
@@ -289,7 +289,7 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
 
     @Override
     public boolean checkPilotHealth() {
-        return istioHttpClient.isReady();
+        return pilotHttpClient.isReady();
     }
 
 }

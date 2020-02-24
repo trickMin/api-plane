@@ -36,7 +36,6 @@ public class AutoRemoveDirective implements TemplateDirectiveModel {
     @Override
     public void execute(Environment env, Map params, TemplateModel[] loopVars, TemplateDirectiveBody body) throws TemplateException, IOException {
 
-        StringBuilder sb = new StringBuilder();
         final StringWriter writer = new StringWriter();
         body.render(writer);
         final String string = writer.toString();

@@ -1,7 +1,7 @@
-package com.netease.cloud.nsf.core.operator;
+package com.netease.cloud.nsf.core.k8s.operator;
 
 import com.google.common.collect.ImmutableMap;
-import com.netease.cloud.nsf.core.istio.operator.PluginManagerOperator;
+import com.netease.cloud.nsf.core.k8s.operator.PluginManagerOperator;
 import me.snowdrop.istio.api.networking.v1alpha3.Plugin;
 import me.snowdrop.istio.api.networking.v1alpha3.PluginManager;
 import me.snowdrop.istio.api.networking.v1alpha3.PluginManagerSpec;

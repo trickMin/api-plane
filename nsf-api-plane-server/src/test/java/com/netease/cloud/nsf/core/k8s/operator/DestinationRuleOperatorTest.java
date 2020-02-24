@@ -1,8 +1,8 @@
-package com.netease.cloud.nsf.core.operator;
+package com.netease.cloud.nsf.core.k8s.operator;
 
 
 import com.google.common.collect.ImmutableMap;
-import com.netease.cloud.nsf.core.istio.operator.DestinationRuleOperator;
+import com.netease.cloud.nsf.core.k8s.operator.DestinationRuleOperator;
 import me.snowdrop.istio.api.networking.v1alpha3.DestinationRule;
 import me.snowdrop.istio.api.networking.v1alpha3.DestinationRuleSpec;
 import me.snowdrop.istio.api.networking.v1alpha3.Subset;

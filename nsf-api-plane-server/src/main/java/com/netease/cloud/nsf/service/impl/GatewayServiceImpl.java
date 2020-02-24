@@ -11,6 +11,7 @@ import com.netease.cloud.nsf.util.errorcode.ApiPlaneErrorCode;
 import com.netease.cloud.nsf.util.errorcode.ErrorCode;
 import com.netease.cloud.nsf.util.errorcode.ErrorCodeEnum;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
+import io.fabric8.kubernetes.api.model.HasMetadata;
 import me.snowdrop.istio.api.IstioResource;
 import me.snowdrop.istio.api.networking.v1alpha3.GatewaySpec;
 import me.snowdrop.istio.api.networking.v1alpha3.Plugin;
@@ -188,7 +189,7 @@ public class GatewayServiceImpl implements GatewayService {
         pluginOrderDto.setPlugins(new ArrayList<>());
         PluginOrderDTO dto = new PluginOrderDTO();
         PluginOrder pluginOrder = Trans.pluginOrderDTO2PluginOrder(pluginOrderDto);
-        IstioResource config = configManager.getConfig(pluginOrder);
+        HasMetadata config = configManager.getConfig(pluginOrder);
         if (Objects.isNull(config)) throw new ApiPlaneException("plugin manager config can not found.");
         PluginManager pm = (PluginManager) config;
         dto.setGatewayLabels(pm.getSpec().getWorkloadLabels());
@@ -287,11 +288,10 @@ public class GatewayServiceImpl implements GatewayService {
     public PortalIstioGatewayDTO getIstioGateway(String clusterName) {
         IstioGateway istioGateway = new IstioGateway();
         istioGateway.setGwCluster(clusterName);
-        IstioResource config = configManager.getConfig(istioGateway);
+        IstioResource config = (IstioResource) configManager.getConfig(istioGateway);
         if (config == null) {
             return null;
         }
-
         GatewaySpec spec = (GatewaySpec) config.getSpec();
         final String gwCluster = "gw_cluster";
         Map<String, String> selector = spec.getSelector();

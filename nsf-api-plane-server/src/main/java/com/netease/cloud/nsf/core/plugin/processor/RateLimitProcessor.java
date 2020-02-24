@@ -137,8 +137,7 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
                     duration
             ));
         } else {
-            shareConfig = ResourceGenerator.newInstance(String.format("{\"api\":\"%s\",\"key\":\"header_match\",\"value\":\"%s\",\"rateLimit\":{\"unit\":\"%s\",\"requestsPerUnit\":%d}}",
-                    getApiName(serviceInfo),
+            shareConfig = ResourceGenerator.newInstance(String.format("{\"key\":\"header_match\",\"value\":\"%s\",\"rateLimit\":{\"unit\":\"%s\",\"requestsPerUnit\":%d}}",
                     headerDescriptor,
                     unit,
                     duration

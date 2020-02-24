@@ -1,6 +1,7 @@
 package com.netease.cloud.nsf.core.gateway.service;
 
 import com.netease.cloud.nsf.meta.*;
+import io.fabric8.kubernetes.api.model.HasMetadata;
 import me.snowdrop.istio.api.IstioResource;
 
 import java.util.List;
@@ -38,7 +39,7 @@ public interface ConfigManager {
      * @param pluginOrder
      * @return
      */
-    IstioResource getConfig(PluginOrder pluginOrder);
+    HasMetadata getConfig(PluginOrder pluginOrder);
 
     /**
      * 更新插件优先级
@@ -81,7 +82,7 @@ s     */
      * @param istioGateway
      * @return
      */
-    IstioResource getConfig(IstioGateway istioGateway);
+    HasMetadata getConfig(IstioGateway istioGateway);
 
     /**
      * 更新网关

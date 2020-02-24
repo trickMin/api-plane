@@ -39,9 +39,9 @@ import java.util.stream.Collectors;
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/7/25
  **/
 @Component
-public class IstioHttpClient {
+public class PilotHttpClient {
 
-    private static final Logger logger = LoggerFactory.getLogger(IstioHttpClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(PilotHttpClient.class);
 
     @Value(value = "${istioNamespace:gateway-system}")
     private String NAMESPACE;

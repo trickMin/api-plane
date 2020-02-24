@@ -8,27 +8,40 @@ import org.springframework.util.CollectionUtils;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.netease.cloud.nsf.core.template.TemplateConst.SHARED_CONFIG_DESCRIPTOR;
+import static com.netease.cloud.nsf.core.template.TemplateConst.SHARED_CONFIG_NAME;
 
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2020/1/14
  **/
 public class GatewayPluginSharedConfigDataHandler extends GatewayPluginDataHandler {
 
+    private String sharedConfigName;
 
-    public GatewayPluginSharedConfigDataHandler(List<FragmentWrapper> fragments, List<Gateway> gateways) {
+    public GatewayPluginSharedConfigDataHandler(List<FragmentWrapper> fragments, List<Gateway> gateways, String sharedConfigName) {
         super(fragments, gateways);
+        this.sharedConfigName = sharedConfigName;
     }
 
     @Override
     List<TemplateParams> doHandle(TemplateParams baseParams) {
         if (CollectionUtils.isEmpty(fragments)) return Collections.emptyList();
-        List<String> descriptors = extractFragments(fragments);
+        List<String> descriptors = fragments.stream()
+                .filter(f -> f != null)
+                // 因配置迁移，模型有变，不再为数组
+                .map(f -> {
+                    String content = f.getContent();
+                    if (content.startsWith("-")) content = content.replaceFirst("-", " ");
+                    return content;
+                })
+                .collect(Collectors.toList());
 
         if (CollectionUtils.isEmpty(descriptors)) return Collections.EMPTY_LIST;
         return Arrays.asList(TemplateParams.instance()
                 .setParent(baseParams)
+                .put(SHARED_CONFIG_NAME, sharedConfigName)
                 .put(SHARED_CONFIG_DESCRIPTOR, descriptors));
 
     }

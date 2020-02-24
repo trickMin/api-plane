@@ -2,7 +2,7 @@ package com.netease.cloud.nsf.core.gateway.service.impl;
 
 import com.netease.cloud.nsf.core.envoy.EnvoyHttpClient;
 import com.netease.cloud.nsf.core.gateway.service.ResourceManager;
-import com.netease.cloud.nsf.core.istio.IstioHttpClient;
+import com.netease.cloud.nsf.core.istio.PilotHttpClient;
 import com.netease.cloud.nsf.meta.Endpoint;
 import com.netease.cloud.nsf.meta.Gateway;
 import com.netease.cloud.nsf.meta.ServiceAndPort;
@@ -30,7 +30,7 @@ public class DefaultResourceManager implements ResourceManager {
     private static final Logger logger = LoggerFactory.getLogger(DefaultResourceManager.class);
 
     @Autowired
-    private IstioHttpClient istioHttpClient;
+    private PilotHttpClient istioHttpClient;
 
     @Autowired
     private EnvoyHttpClient envoyHttpClient;
