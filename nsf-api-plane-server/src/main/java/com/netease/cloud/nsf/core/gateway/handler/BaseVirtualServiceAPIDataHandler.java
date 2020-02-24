@@ -66,7 +66,8 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
                 .put(API_API_PLUGINS, apiPlugins)
                 .put(API_HOST_PLUGINS, hostPlugins)
                 .put(VIRTUAL_SERVICE_HTTP_RETRY_YAML, httpRetryYaml)
-                .put(VIRTUAL_SERVICE_PLUGIN_MATCH_PRIORITY, pluginPriority);
+                .put(VIRTUAL_SERVICE_PLUGIN_MATCH_PRIORITY, pluginPriority)
+                .put(SERVICE_INFO_VIRTUAL_SERVICE_PLUGIN_MATCH_PRIORITY, pluginPriority);
 
         List<TemplateParams> collect = api.getGateways().stream()
                 .map(gw -> {
@@ -79,7 +80,8 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
                             .put(VIRTUAL_SERVICE_NAME, buildVirtualServiceName(api.getService(), api.getName(), gw))
                             .put(VIRTUAL_SERVICE_SUBSET_NAME, subset)
                             .put(VIRTUAL_SERVICE_ROUTE_YAML, route)
-                            .put(VIRTUAL_SERVICE_EXTRA_YAML, productExtra(vsParams));
+                            .put(VIRTUAL_SERVICE_EXTRA_YAML, productExtra(vsParams))
+                            .put(SERVICE_INFO_VIRTUAL_SERVICE_SUBSET_NAME, subset);
                 })
                 .collect(Collectors.toList());
 

@@ -51,11 +51,24 @@ public interface TemplateConst {
     String VIRTUAL_SERVICE_PLUGIN_MATCH_PRIORITY = "t_virtual_service_plugin_match_priority";
     String VIRTUAL_SERVICE_SERVICE_TAG = "t_virtual_service_service_tag";
     String VIRTUAL_SERVICE_API_ID = "t_virtual_service_api_id";
+    String VIRTUAL_SERVICE_TENANT_ID = "t_virtual_service_tenant_id";
+    String VIRTUAL_SERVICE_PROJECT_ID = "t_virtual_service_project_id";
     String VIRTUAL_SERVICE_API_NAME = "t_virtual_service_api_name";
     String VIRTUAL_SERVICE_TIME_OUT = "t_virtual_service_timeout";
     String VIRTUAL_SERVICE_RETRY_ATTEMPTS = "t_http_retry_attempts";
     String VIRTUAL_SERVICE_RETRY_PER_TIMEOUT = "t_http_retry_perTryTimeout";
     String VIRTUAL_SERVICE_RETRY_RETRY_ON = "t_http_retry_retryOn";
+
+    /**
+     * ServiceInfo
+     **/
+    String SERVICE_INFO_API_NAME = "t_service_info_api_name";
+    String SERVICE_INFO_API_SERVICE = "t_service_info_api_service";
+    String SERVICE_INFO_API_METHODS = "t_service_info_api_methods";
+    String SERVICE_INFO_API_REQUEST_URIS = "t_service_info_api_request_uris";
+    String SERVICE_INFO_VIRTUAL_SERVICE_SUBSET_NAME = "t_service_info_virtual_service_subset_name";
+    String SERVICE_INFO_VIRTUAL_SERVICE_HOST_HEADERS = "t_service_info_virtual_service_host_headers";
+    String SERVICE_INFO_VIRTUAL_SERVICE_PLUGIN_MATCH_PRIORITY = "t_service_info_virtual_service_plugin_match_priority";
 
     /**
      * MATCH级別插件

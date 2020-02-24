@@ -73,9 +73,11 @@ public class VersionManagerOperator implements k8sResourceOperator<VersionManage
                     resultList.add(
                             new PodStatus(had.getPodName(),
                             had.getCurrentVersion(),
+                            had.getExpectedVersion(),
                             had.getLastUpdateTime(),
                             had.getStatusCode(),
                             had.getStatusMessage()));
+                    break;
                 }
             }
         }

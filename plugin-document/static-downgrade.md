@@ -1,52 +1,99 @@
-| 字段             | 含义         | 范围               | 备注           |    |
-|:---------------|:-----------|:-----------------|:-------------|:---|
-| kind           | 插件类型       | static-downgrade |              |    |
-| condition      | 降级生效的条件    |                  |              |    |
-| condition.code | 降级生效的返回状态码 |                  |              |    |
+| 字段             | 含义         | 范围               | 备注           |
+|:---------------|:-----------|:-----------------|:-------------|
+| kind           | 插件类型       | static-downgrade |              |
+| condition      | 降级生效的条件    |                  |              |
+| condition.request | 降级生效的条件-请求 |                  | 可以不填写             |
+| condition.request.method | 降级生效的条件-请求method | GET、POST、PUT、DELETE、OPTIONS、TRACE、HEAD、CONNECT、PATCH | 传入数组 |
+| condition.request.host   | 降级生效的条件-请求域名   |   | 支持正则、精确匹配 |
+| condition.request.path   | 降级生效的条件-请求path   |   | 支持正则、精确匹配 |
+| condition.request.headers | 降级生效的条件-请求headers |  | 数组，单个头也支持正则、精确匹配 |
+| condition.response.code | 降级生效的条件-响应状态码 | 200~599 | 支持正则、精确匹配 |
+| condition.response.headers | 降级生效的条件-响应headers |  | 数组，单个头也支持正则、精确匹配 |
 | response       | 降级返回       |                  |              |    |
 | header         | 降级返回header |                  | 存在则覆盖，不存在则增加 |    |
 | body           | 降级返回body   |                  |              |    |
 ```
 {
-  "kind":"static-downgrade",
-  "condition":{
-    "code":{
-      "regex":"(2..)"
+  "condition": {
+    "request": {
+      "requestSwitch": true,
+      "path": {
+        "match_type": "safe_regex_match",
+        "value": "/anything/anythin."
+      },
+      "host": {
+        "match_type": "safe_regex_match",
+        "value": "103.196.65.17."
+      },
+      "headers": [
+        {
+          "headerKey": "key",
+          "match_type": "exact_match",
+          "value": "va"
+        }
+      ],
+      "method": [
+        "GET"
+      ]
+    },
+    "response": {
+      "code": {
+        "match_type": "exact_match",
+        "value": "200"
+      },
+      "headers": [
+        
+      ]
     }
   },
-  "response":{
-    "code":200,
-    "header":{
-      "Content-Type":"application/json"
-    },
-    "body":"{}"
+  "kind": "static-downgrade",
+  "response": {
+    "code": "200",
+    "body": "{\"ba\":\"ba\"}"
   }
 }
+
 ```
 转换后crd
 ```
-{
-  "downgrade_rpx": {
-    "status": "(2..)"
+"com.netease.staticdowngrade": {
+ "downgrade_rpx": {
+  "headers": [
+   {
+    "regex_match": "200|",
+    "name": ":status"
+   }
+  ]
+ },
+ "static_response": {
+  "body": {
+   "inline_string": "{\"ba\":\"ba\"}"
   },
-  "static_response": {
-    "http_status": 299,
-    "headers": [
-    {
-      "key": "buhao",
-      "value": "buhao"
-    },
-    {
-      "key": "buhao",
-      "value": "buhao"
-    }
-    ],
-    "body": {
-      "inline_string": "hohohohohoh"
-    }
-  }
+  "http_status": 200
+ },
+ "downgrade_rqx": {
+  "headers": [
+   {
+    "name": "key",
+    "exact_match": "va"
+   },
+   {
+    "name": ":authority",
+    "regex_match": "103.196.65.17."
+   },
+   {
+    "exact_match": "GET",
+    "name": ":method"
+   },
+   {
+    "regex_match": "/anything/anythin.",
+    "name": ":path"
+   }
+  ]
+ }
 }
+
 ```
 
-- condition降级的条件，目前仅支持code，既返回的状态码，匹配条件也仅支持regex
+- 只有当condition满足降级条件后才能降级，且其中condition.response.code必填
 - response降级的返回，code会返回状态码，header为返回附带的header,body既返回的body

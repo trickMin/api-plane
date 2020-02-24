@@ -11,24 +11,24 @@ import static com.netease.cloud.nsf.core.template.TemplateConst.*;
 public class ServiceInfo {
     // 提供apiName占位符，例如${t_api_name},后续GatewayModelProcessor会进行渲染
     // 也可直接从API中获得apiName
-    private String apiName = wrap(API_NAME);
+    private String apiName = wrap(SERVICE_INFO_API_NAME);
 
-    private String serviceName = wrap(API_SERVICE);
+    private String serviceName = wrap(SERVICE_INFO_API_SERVICE);
 
     // 提供method占位符，例如${t_api_methods},后续GatewayModelProcessor会进行渲染
     // 也可直接从API中获得method
-    private String method = wrap(API_METHODS);
+    private String method = wrap(SERVICE_INFO_API_METHODS);
 
     // 提供uri占位符，例如${t_api_request_uris},后续GatewayModelProcessor会进行渲染
     // 也可直接从API中获得uri
-    private String uri = wrap(API_REQUEST_URIS);
+    private String uri = wrap(SERVICE_INFO_API_REQUEST_URIS);
 
     // 提供subset占位符，例如${t_virtual_service_subset_name},后续GatewayModelProcessor会进行渲染，不能从API中获得
-    private String subset = wrap(VIRTUAL_SERVICE_SUBSET_NAME);
+    private String subset = wrap(SERVICE_INFO_VIRTUAL_SERVICE_SUBSET_NAME);
 
-    private String hosts = wrap(VIRTUAL_SERVICE_HOST_HEADERS);
+    private String hosts = wrap(SERVICE_INFO_VIRTUAL_SERVICE_HOST_HEADERS);
 
-    private String priority = wrap(VIRTUAL_SERVICE_PLUGIN_MATCH_PRIORITY);
+    private String priority = wrap(SERVICE_INFO_VIRTUAL_SERVICE_PLUGIN_MATCH_PRIORITY);
 
     public String getApiName() {
         return apiName;

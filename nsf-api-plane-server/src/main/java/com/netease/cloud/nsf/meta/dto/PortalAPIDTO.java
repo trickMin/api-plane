@@ -111,6 +111,20 @@ public class PortalAPIDTO {
     @JsonProperty(value = "HttpRetry")
     private HttpRetryDTO httpRetry;
 
+    /**
+     * 租户ID
+     */
+    @JsonProperty(value = "TenantId")
+    private String tenantId;
+
+    /**
+     * 项目ID
+     */
+    @JsonProperty(value = "ProjectId")
+    @NotNull(message = "ProjectId")
+    private String projectId;
+
+
     public String getGateway() {
         return gateway;
     }
@@ -237,5 +251,21 @@ public class PortalAPIDTO {
 
     public void setHttpRetry(HttpRetryDTO httpRetry) {
         this.httpRetry = httpRetry;
+    }
+
+    public String getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(String tenantId) {
+        this.tenantId = tenantId;
+    }
+
+    public String getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(String projectId) {
+        this.projectId = projectId;
     }
 }
