@@ -28,7 +28,7 @@ public class RateLimitConfigMapSubtracter implements Subtracter<ConfigMap> {
         if (!firstEntry.isPresent()) return configMap;
         RateLimitConfig rateLimitConfig = CommonUtil.yaml2Obj(firstEntry.get().getValue(), RateLimitConfig.class);
         ResourceGenerator gen = ResourceGenerator.newInstance(rateLimitConfig, ResourceType.OBJECT);
-        gen.removeElement(PathExpressionEnum.REMOVE_RATELIMIT_CONFIGMAP_BY_API.translate(keyword));
+        gen.removeElement(PathExpressionEnum.REMOVE_RATELIMIT_CONFIGMAP_BY_VALUE.translate(keyword));
         firstEntry.get().setValue(gen.yamlString());
         return configMap;
     }
