@@ -39,8 +39,8 @@ public interface Const {
     String OPTION_ENABLED = "enabled";
     String OPTION_DISABLED = "disabled";
 
-    public static final String DEFAULT_NOS_SECRET_KEY = "b0bf90a8bead4b71a0027590360136d2";
-    public static final String DEFAULT_NOS_ACCESS_KEY = "304263b6badc4c6b8ead2830a84e48e1";
+    public static final String DEFAULT_NOS_SECRET_KEY = "a71dcfba804f4c9f9da5cdea6c351e57";
+    public static final String DEFAULT_NOS_ACCESS_KEY = "f31536d3bc404c83b8997525e7f99b5a";
     public static final String DEFAULT_NOS_BUCKETNAME = "qingzhou-gitops";
     public static final String DEFAULT_NOS_NOSENDPOINT = "nos-eastchina1.126.net";
     public static final String DEFAULT_NOS_NOS_FILE_PATH = "nsf_envoy";
