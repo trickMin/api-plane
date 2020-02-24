@@ -36,6 +36,7 @@ public class OwnerReferenceSupportStore<T extends HasMetadata> implements Store<
         resourceLock.putIfAbsent(Service.name(),new ReentrantLock());
         resourceLock.putIfAbsent(Endpoints.name(),new ReentrantLock());
         resourceLock.putIfAbsent(DaemonSet.name(),new ReentrantLock());
+        resourceLock.putIfAbsent(MixerUrlPattern.name(),new ReentrantLock());
         this.resourceStore = resourceStore;
     }
 

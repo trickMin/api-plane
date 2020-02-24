@@ -1,5 +1,6 @@
 package com.netease.cloud.nsf.web.controller;
 
+import com.google.common.collect.ImmutableMap;
 import com.netease.cloud.nsf.cache.ResourceCache;
 import com.netease.cloud.nsf.cache.ResourceStoreFactory;
 import com.netease.cloud.nsf.service.ServiceMeshService;
@@ -9,6 +10,7 @@ import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -121,7 +123,29 @@ public class K8sResourceController extends BaseController {
         }
     }
 
+    @RequestMapping(params = "Action=GetPathPatterns", method = RequestMethod.GET)
+    public String getPathPatterns(@RequestParam(name = "ClusterId", required = false, defaultValue = "default") String clusterId,
+                                  @RequestParam(name = "Namespace") String namespace,
+                                  @RequestParam(name = "Name") String name) {
+        List<String> pathPatterns = resourceCache.getMixerPathPatterns(clusterId, namespace, name);
+        return apiReturn(ImmutableMap.of(RESULT, pathPatterns));
+    }
 
+    @RequestMapping(params = "Action=DeletePathPatterns", method = RequestMethod.GET)
+    public String deletePathPatterns(@RequestParam(name = "ClusterId", required = false, defaultValue = "default") String clusterId,
+                                     @RequestParam(name = "Namespace") String namespace,
+                                     @RequestParam(name = "Name") String name) {
+        resourceCache.deleteMixerPathPatterns(clusterId, namespace, name);
+        return apiReturn(ApiPlaneErrorCode.Success);
+    }
 
+    @RequestMapping(params = "Action=UpdatePathPatterns", method = RequestMethod.POST)
+    public String updatePathPatterns(@RequestParam(name = "ClusterId", required = false, defaultValue = "default") String clusterId,
+                                     @RequestParam(name = "Namespace") String namespace,
+                                     @RequestParam(name = "Name") String name,
+                                     @RequestBody List<String> urlPatterns) {
+        resourceCache.updateMixerPathPatterns(clusterId, namespace, name, urlPatterns);
+        return apiReturn(ApiPlaneErrorCode.Success);
+    }
 
 }
