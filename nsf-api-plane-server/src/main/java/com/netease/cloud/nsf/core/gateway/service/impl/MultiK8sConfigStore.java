@@ -3,11 +3,11 @@ package com.netease.cloud.nsf.core.gateway.service.impl;
 import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.k8s.KubernetesClient;
 import com.netease.cloud.nsf.core.k8s.MultiClusterK8sClient;
-import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.api.model.HasMetadata;
-import me.snowdrop.istio.api.IstioResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/12/5
@@ -25,6 +25,10 @@ public class MultiK8sConfigStore extends K8sConfigStore {
 
     public HasMetadata get(String kind, String namespace, String name, String clusterId) {
         return resolve(clusterId).getObject(kind, namespace, name);
+    }
+
+    public List<HasMetadata> getList(String kind, String namespace, String clusterId) {
+        return resolve(clusterId).getObjectList(kind, namespace);
     }
 
     private KubernetesClient resolve(String clusterId) {

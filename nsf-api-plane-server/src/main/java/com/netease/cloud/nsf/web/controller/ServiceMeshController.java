@@ -43,10 +43,16 @@ public class ServiceMeshController extends BaseController {
     }
 
     @RequestMapping(params = "Action=GetConfig", method = RequestMethod.GET)
-    public String deleteConfig(@RequestParam(name = "Name")String name,
+    public String getConfig(@RequestParam(name = "Name")String name,
                                @RequestParam(name = "Namespace")String namespace,
                                @RequestParam(name = "Kind")String kind) {
         return apiReturn(ImmutableMap.of(RESULT, serviceMeshService.getIstioResource(name, namespace, kind)));
+    }
+
+    @RequestMapping(params = "Action=GetConfigsByNamespaces", method = RequestMethod.GET)
+    public String getConfigsByNamespaces(@RequestParam(name = "Namespaces") String namespaces,
+                               @RequestParam(name = "Kind")String kind) {
+        return apiReturn(ImmutableMap.of(RESULT_LIST, serviceMeshService.getIstioResourceList(namespaces, kind)));
     }
 
     @RequestMapping(params = {"Action=InjectSidecar"}, method = RequestMethod.GET)
