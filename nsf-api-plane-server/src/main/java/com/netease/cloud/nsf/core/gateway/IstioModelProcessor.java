@@ -156,7 +156,7 @@ public class IstioModelProcessor {
      */
     public List<K8sResourcePack> translate(IstioGateway istioGateway) {
         List<K8sResourcePack> resources = new ArrayList<>();
-        List<String> rawGateways = defaultModelProcessor.process(apiGateway, istioGateway, new PortalGatewayDatahandler());
+        List<String> rawGateways = defaultModelProcessor.process(apiGateway, istioGateway, new PortalGatewayDataHandler(enableHttp10));
         resources.addAll(generateK8sPack(rawGateways));
         return resources;
     }
