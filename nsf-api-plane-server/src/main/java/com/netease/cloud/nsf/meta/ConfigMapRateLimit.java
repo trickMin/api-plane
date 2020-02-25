@@ -1,0 +1,105 @@
+package com.netease.cloud.nsf.meta;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * ratelimit configmap中的模型
+ */
+public class ConfigMapRateLimit {
+
+    @JsonProperty("descriptors")
+    private List<ConfigMapRateLimitDescriptor> descriptors = new ArrayList();
+
+    @JsonProperty("domain")
+    private String domain;
+
+    public static class ConfigMapRateLimitDescriptor {
+
+        @JsonProperty("descriptors")
+        private List<ConfigMapRateLimitDescriptor> descriptors = new ArrayList();
+
+        @JsonProperty("key")
+        private String key;
+
+        @JsonProperty("rate_limit")
+        private ConfigMapRateLimitInner rateLimit;
+
+        @JsonProperty("value")
+        private String value;
+
+        public List<ConfigMapRateLimitDescriptor> getDescriptors() {
+            return descriptors;
+        }
+
+        public void setDescriptors(List<ConfigMapRateLimitDescriptor> descriptors) {
+            this.descriptors = descriptors;
+        }
+
+        public String getKey() {
+            return key;
+        }
+
+        public void setKey(String key) {
+            this.key = key;
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+        public void setValue(String value) {
+            this.value = value;
+        }
+
+        public ConfigMapRateLimitInner getRateLimit() {
+            return rateLimit;
+        }
+
+        public void setRateLimit(ConfigMapRateLimitInner rateLimit) {
+            this.rateLimit = rateLimit;
+        }
+    }
+
+    public static class ConfigMapRateLimitInner {
+        @JsonProperty("requestsPerUnit")
+        private Integer requestsPerUnit;
+
+        @JsonProperty("unit")
+        private Object unit;
+
+        public Integer getRequestsPerUnit() {
+            return requestsPerUnit;
+        }
+
+        public void setRequestsPerUnit(Integer requestsPerUnit) {
+            this.requestsPerUnit = requestsPerUnit;
+        }
+
+        public Object getUnit() {
+            return unit;
+        }
+
+        public void setUnit(Object unit) {
+            this.unit = unit;
+        }
+    }
+
+    public List<ConfigMapRateLimitDescriptor> getDescriptors() {
+        return descriptors;
+    }
+
+    public void setDescriptors(List<ConfigMapRateLimitDescriptor> descriptors) {
+        this.descriptors = descriptors;
+    }
+
+    public String getDomain() {
+        return domain;
+    }
+
+    public void setDomain(String domain) {
+        this.domain = domain;
+    }
+}
