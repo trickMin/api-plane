@@ -5,13 +5,15 @@ import com.netease.cloud.nsf.cache.ResourceStoreFactory;
 import com.netease.cloud.nsf.cache.meta.PodDTO;
 import com.netease.cloud.nsf.configuration.ApiPlaneConfig;
 import com.netease.cloud.nsf.core.editor.ResourceType;
-import com.netease.cloud.nsf.core.gateway.service.ConfigStore;
+import com.netease.cloud.nsf.core.gateway.service.impl.MultiK8sConfigStore;
 import com.netease.cloud.nsf.core.istio.PilotHttpClient;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.k8s.K8sResourceGenerator;
 import com.netease.cloud.nsf.core.k8s.KubernetesClient;
+import com.netease.cloud.nsf.core.k8s.MultiClusterK8sClient;
 import com.netease.cloud.nsf.meta.SVMSpec;
 import com.netease.cloud.nsf.meta.SidecarVersionManagement;
+import com.netease.cloud.nsf.meta.dto.ResourceWrapperDTO;
 import com.netease.cloud.nsf.service.GatewayService;
 import com.netease.cloud.nsf.service.ServiceMeshService;
 import com.netease.cloud.nsf.util.Const;
@@ -50,9 +52,8 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
     private static final String DEFAULT_SIDECAR_VERSION = "envoy";
     private ExecutorService taskPool = Executors.newCachedThreadPool();
 
-
     @Autowired
-    ConfigStore configStore;
+    MultiK8sConfigStore configStore;
 
     @Autowired
     K8sResourceCache k8sResource;
@@ -72,6 +73,9 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
     @Autowired
     PilotHttpClient pilotHttpClient;
 
+    @Autowired
+    private MultiClusterK8sClient multiClusterK8sClient;
+
     @Override
     public void updateIstioResource(String json) {
 
@@ -87,13 +91,37 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
     }
 
     @Override
+    public List<ResourceWrapperDTO> getIstioResourceList(String namespaces, String kind) {
+
+        if (StringUtils.isEmpty(namespaces)) throw new ApiPlaneException(ExceptionConst.RESOURCE_NON_EXIST, 404);
+        List<ResourceWrapperDTO> wrapperDTOS = new ArrayList<>();
+        String defaultClusterId = getDefaultClusterId();
+
+        for (String ns : namespaces.split(",")) {
+            if (StringUtils.isEmpty(ns)) continue;
+            List<HasMetadata> resources;
+            try {
+                resources = configStore.getList(kind, ns, defaultClusterId);
+            } catch (Exception e) {
+                logger.warn("find resources failed", e);
+                continue;
+            }
+            for (HasMetadata r : resources) {
+                wrapperDTOS.add(new ResourceWrapperDTO(r, defaultClusterId));
+            }
+        }
+        return wrapperDTOS;
+    }
+
+    @Override
     public HasMetadata getIstioResource(String name, String namespace, String kind) {
 
-        HasMetadata istioResource = configStore.get(kind, namespace, name);
-        if (istioResource == null) {
+        String defaultClusterId = getDefaultClusterId();
+        HasMetadata resource = configStore.get(name, kind, namespace, defaultClusterId);
+        if (resource == null) {
             throw new ApiPlaneException(ExceptionConst.RESOURCE_NON_EXIST, 404);
         }
-        return configStore.get(kind, namespace, name);
+        return resource;
     }
 
     @Override
@@ -292,4 +320,11 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
         return pilotHttpClient.isReady();
     }
 
+
+    private String getDefaultClusterId() {
+        Map<String, MultiClusterK8sClient.ClientSet> allClients = multiClusterK8sClient.getAllClients();
+//        allClients.
+        //TODO 待multiClusterClient暴露默认集群字段，目前使用hack方式
+        return "default";
+    }
 }
