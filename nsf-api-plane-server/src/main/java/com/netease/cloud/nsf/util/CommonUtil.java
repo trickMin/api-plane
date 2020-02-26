@@ -5,12 +5,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import com.netease.cloud.nsf.util.function.Equals;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -106,5 +108,26 @@ public class CommonUtil {
             yamlMapper = mapper;
         }
         return yamlMapper;
+    }
+
+
+     public static List mergeList(List oldL, List newL, Equals eq) {
+        List result = null;
+        if (!CollectionUtils.isEmpty(newL)) {
+            if (CollectionUtils.isEmpty(oldL)) {
+                return newL;
+            } else {
+                result = new ArrayList(oldL);
+                for (Object no : newL) {
+                    for (Object oo : oldL) {
+                        if (eq.apply(no, oo)) {
+                            result.remove(oo);
+                        }
+                    }
+                }
+                result.addAll(newL);
+            }
+        }
+        return result;
     }
 }

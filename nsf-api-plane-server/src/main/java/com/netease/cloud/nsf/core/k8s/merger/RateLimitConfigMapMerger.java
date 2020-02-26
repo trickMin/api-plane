@@ -1,20 +1,20 @@
 package com.netease.cloud.nsf.core.k8s.merger;
 
-import com.netease.cloud.nsf.core.k8s.operator.SharedConfigOperator;
+import com.netease.cloud.nsf.meta.ConfigMapRateLimit;
 import com.netease.cloud.nsf.util.CommonUtil;
+import com.netease.cloud.nsf.util.function.Equals;
 import com.netease.cloud.nsf.util.function.Merger;
 import io.fabric8.kubernetes.api.model.ConfigMap;
-import me.snowdrop.istio.api.networking.v1alpha3.RateLimitConfig;
-import me.snowdrop.istio.api.networking.v1alpha3.SharedConfig;
-import me.snowdrop.istio.api.networking.v1alpha3.SharedConfigSpec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 /**
@@ -34,36 +34,59 @@ public class RateLimitConfigMapMerger implements Merger<ConfigMap> {
         Map.Entry<String, String> latestConfig = latest.getData().entrySet().stream().findFirst().get();
 
         // k8s上的非数组，本地渲染的为数组
-        RateLimitConfig oldRl = str2RateLimitConfig(oldConfig.getValue());
-        RateLimitConfig latestRl = str2RateLimitConfig(latestConfig.getValue());
+        ConfigMapRateLimit oldCmrl = str2RateLimitConfig(oldConfig.getValue());
+        ConfigMapRateLimit latestCmrl = str2RateLimitConfig(latestConfig.getValue());
 
-        if (latestRl == null) return old;
-        if (oldRl == null) return latest;
+        if (oldCmrl == null) return old;
+        if (latestCmrl == null) return latest;
 
-        SharedConfig oldSc = buildSharedConfig(Arrays.asList(oldRl));
-        SharedConfig latestSc = buildSharedConfig(Arrays.asList(latestRl));
+        List mergedDescriptors = CommonUtil.mergeList(
+                oldCmrl.getDescriptors(), latestCmrl.getDescriptors(), new RateLimitDescriptorEquals());
 
-        SharedConfig mergedSc = new SharedConfigOperator().merge(oldSc, latestSc);
-        String finalConfig = limitConfig2Str(mergedSc.getSpec().getRateLimitConfigs().get(0));
+        //仅对descriptors进行覆盖
+        oldCmrl.setDescriptors(mergedDescriptors);
+
+        String finalConfig = limitConfig2Str(oldCmrl);
         if (!StringUtils.isEmpty(finalConfig)) {
             oldConfig.setValue(finalConfig);
         }
         return old;
     }
 
-    private String limitConfig2Str(RateLimitConfig rlc) {
-        return CommonUtil.obj2yaml(rlc);
+
+    private class RateLimitDescriptorEquals implements Equals<ConfigMapRateLimit.ConfigMapRateLimitDescriptor> {
+        @Override
+        public boolean apply(ConfigMapRateLimit.ConfigMapRateLimitDescriptor or, ConfigMapRateLimit.ConfigMapRateLimitDescriptor nr) {
+
+            String oldVal = or.getValue();
+            String newVal = nr.getValue();
+
+            //eg. Service[httpbin]-User[none]-Api[httpbin]-Id[08638e47-48db-43bc-9c21-07ef892b5494]
+            // 当Api[]中的值相等时，才认为两者相当
+            Pattern pattern = Pattern.compile("(Service.*)-(User.*)-(Api.*)-(Id.*)");
+            Matcher oldMatcher = pattern.matcher(oldVal);
+            Matcher newMatcher = pattern.matcher(newVal);
+            if (oldMatcher.find() && newMatcher.find()) {
+                return Objects.equals(oldMatcher.group(3), newMatcher.group(3));
+            }
+            return false;
+        }
     }
 
-    private SharedConfig buildSharedConfig(List<RateLimitConfig> rateLimitConfigs) {
-        SharedConfig sharedConfig = new SharedConfig();
-        SharedConfigSpec spec = new SharedConfigSpec();
-        spec.setRateLimitConfigs(rateLimitConfigs);
-        sharedConfig.setSpec(spec);
-        return sharedConfig;
+    private ConfigMapRateLimit buildConfigMapRateLimit(String domain,
+                                                       List<ConfigMapRateLimit.ConfigMapRateLimitDescriptor> descriptors) {
+        ConfigMapRateLimit cmrl = new ConfigMapRateLimit();
+        cmrl.setDomain(domain);
+        cmrl.setDescriptors(descriptors);
+        return cmrl;
     }
 
-    private RateLimitConfig str2RateLimitConfig(String str) {
-        return CommonUtil.yaml2Obj(str, RateLimitConfig.class);
+    private String limitConfig2Str(ConfigMapRateLimit cmrl) {
+        return CommonUtil.obj2yaml(cmrl);
+    }
+
+
+    private ConfigMapRateLimit str2RateLimitConfig(String str) {
+        return CommonUtil.yaml2Obj(str, ConfigMapRateLimit.class);
     }
 }

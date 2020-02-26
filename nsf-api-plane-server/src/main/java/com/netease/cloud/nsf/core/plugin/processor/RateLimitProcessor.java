@@ -129,7 +129,7 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
         if (length == 0 && rg.contain("$.identifier_extractor") && !StringUtils.isEmpty(rg.getValue("$.identifier_extractor", String.class))) {
             String matchHeader = getMatchHeader(rg);
             String descriptorKey = String.format("WithoutValueHeader[%s]", matchHeader);
-            shareConfig = ResourceGenerator.newInstance(String.format("{\"api\":\"%s\",\"key\":\"header_match\",\"value\":\"%s\",\"descriptors\":[{\"key\":\"%s\",\"rateLimit\":{\"unit\":\"%s\",\"requestsPerUnit\":\"%d\"}}]}",
+            shareConfig = ResourceGenerator.newInstance(String.format("{\"api\":\"%s\",\"key\":\"header_match\",\"value\":\"%s\",\"descriptors\":[{\"key\":\"%s\",\"rate_limit\":{\"unit\":\"%s\",\"requests_per_unit\":\"%d\"}}]}",
                     getApiName(serviceInfo),
                     headerDescriptor,
                     descriptorKey,
@@ -137,7 +137,7 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
                     duration
             ));
         } else {
-            shareConfig = ResourceGenerator.newInstance(String.format("{\"key\":\"header_match\",\"value\":\"%s\",\"rateLimit\":{\"unit\":\"%s\",\"requestsPerUnit\":%d}}",
+            shareConfig = ResourceGenerator.newInstance(String.format("{\"key\":\"header_match\",\"value\":\"%s\",\"rate_limit\":{\"unit\":\"%s\",\"requests_per_unit\":%d}}",
                     headerDescriptor,
                     unit,
                     duration
