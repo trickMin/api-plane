@@ -82,6 +82,10 @@ public class AggregateExtensionProcessor extends AbstractSchemaProcessor impleme
                 holder = getProcessor("CorsProcessor").process(plugin, serviceInfo);
                 coverToExtensionPlugin(holder, "envoy.cors");
                 break;
+            case "cache":
+                holder = getProcessor("Cache").process(plugin, serviceInfo);
+                coverToExtensionPlugin(holder, "com.netease.supercache");
+                break;
             case "request-transformer":
             default:
                 holder = getProcessor("DefaultProcessor").process(plugin, serviceInfo);

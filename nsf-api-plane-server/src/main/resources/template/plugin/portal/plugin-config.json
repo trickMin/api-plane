@@ -88,11 +88,11 @@
       "name": "cache",
       "schema": "plugin/portal/cache.json",
       "description": "",
-      "processor": "DefaultProcessor",
+      "processor": "AggregateExtensionProcessor",
       "author": "system",
       "createTime": "1572537600000",
       "updateTime": "1572537600000",
-      "pluginScope": "routeRule",
+      "pluginScope": "routeRule,global",
       "pluginPriority": "3000",
       "instructionForUse": "缓存插件"
     },
