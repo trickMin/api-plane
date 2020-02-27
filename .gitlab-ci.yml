@@ -6,12 +6,12 @@ variables:
   DOCKER_DRIVER: overlay2  
   DOCKER_HOST: tcp://docker:2375/
   branch_url: $CI_PROJECT_URL/tree/$CI_COMMIT_REF_NAME
+  GIT_CLONE_PATH: $CI_BUILDS_DIR/qingzhou
 
 
 
 
 stages:
-  - build
   - test
   - buildImage
   
@@ -30,6 +30,7 @@ job_build:
 job_unit_test:
   stage: test
   script:
+    - pwd
     - $MAVEN_HOME/bin/mvn clean install -Dmaven.test.failure.ignore=true   -DsuiteXmlFile=src/main/resources/testng.xml  -D$.initIfNecessary=true -D $.destroyIfNecessary=true -DactiveEnv=wangguan -D$.envoyConfigDump=true -D$.virtualServiceDump=true -D$.waitPublishComplete=5000|tee -a result.txt
     - echo "now unit_test finished."
   tags:
