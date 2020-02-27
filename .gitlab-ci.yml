@@ -6,7 +6,7 @@ variables:
   DOCKER_DRIVER: overlay2  
   DOCKER_HOST: tcp://docker:2375/
   branch_url: $CI_PROJECT_URL/tree/$CI_COMMIT_REF_NAME
-  GIT_CLONE_PATH: $CI_BUILDS_DIR/qingzhou
+  GIT_CLONE_PATH: $CI_BUILDS_DIR
 
 
 
