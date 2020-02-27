@@ -19,14 +19,6 @@ stages:
 before_script:
   - export MAVEN_HOME=/usr/local/bin/apache-maven-3.6.3
 
-job_build:
-  stage: build
-  script:
-    - $MAVEN_HOME/bin/mvn clean
-    - echo "now stage is 1-build"  
-  tags:
-    - qz-gitlab-runner
-
 job_unit_test:
   stage: test
   script:
