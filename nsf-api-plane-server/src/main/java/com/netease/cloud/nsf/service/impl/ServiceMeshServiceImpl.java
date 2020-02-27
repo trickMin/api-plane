@@ -129,7 +129,7 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
     }
 
     @Override
-    public ErrorCode sidecarInject(String clusterId, String kind, String namespace, String name, String version, String expectedVersion) {
+    public ErrorCode sidecarInject(String clusterId, String kind, String namespace, String name, String version, String expectedVersion, String appName) {
         if (!K8sResourceEnum.StatefulSet.name().equals(kind) && !K8sResourceEnum.Deployment.name().equals(kind)) {
             return ApiPlaneErrorCode.MissingParamsError("resource kind");
         }
@@ -140,11 +140,12 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
         if (!checkEnable(namespace)) {
             return ApiPlaneErrorCode.sidecarInjectPolicyError;
         }
-        Map<String, String> versionLabel = new HashMap<>(1);
+        Map<String, String> labels = new HashMap<>(1);
         Map<String, String> injectAnnotation = new HashMap<>(1);
-        versionLabel.put(meshConfig.getVersionKey(), version);
+        labels.put(meshConfig.getVersionKey(), version);
+        labels.put(meshConfig.getAppKey(),appName);
         injectAnnotation.put(Const.ISTIO_INJECT_ANNOTATION, "true");
-        T injectedWorkLoad = appendLabel(appendAnnotationToPod(resourceToInject, injectAnnotation), versionLabel);
+        T injectedWorkLoad = appendLabel(appendAnnotationToPod(resourceToInject, injectAnnotation), labels);
         updateSidecarStatus(injectedWorkLoad);
         createSidecarVersionCRD(clusterId, namespace, kind, name, expectedVersion);
         return ApiPlaneErrorCode.Success;

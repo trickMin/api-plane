@@ -16,7 +16,7 @@ public interface ServiceMeshService {
 
     List<ResourceWrapperDTO> getIstioResourceList(String namespaces, String kind);
 
-    ErrorCode sidecarInject(String clusterId, String kind, String namespace, String name, String version, String expectedVersion);
+    ErrorCode sidecarInject(String clusterId, String kind, String namespace, String name, String version, String expectedVersion, String appName);
 
     void notifySidecarFileEvent(String sidecarVersion, String type);
 

@@ -61,9 +61,10 @@ public class ServiceMeshController extends BaseController {
                                 @RequestParam(name = "ServiceVersion") String version,
                                 @RequestParam(name = "SidecarVersion") String sidecarVersion,
                                 @RequestParam(name = "Kind") String kind,
-                                @RequestParam(name = "ClusterId") String clusterId) {
+                                @RequestParam(name = "ClusterId") String clusterId,
+                                @RequestParam(name = "AppName",required = false) String appName) {
 
-        ErrorCode code = serviceMeshService.sidecarInject(clusterId, kind, namespace, name, version, sidecarVersion);
+        ErrorCode code = serviceMeshService.sidecarInject(clusterId, kind, namespace, name, version, sidecarVersion, appName);
         return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), null);
     }
 

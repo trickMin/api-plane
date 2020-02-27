@@ -607,7 +607,22 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                 map(podStatus -> podStatus.getCurrentVersion())
                 .collect(Collectors.toSet());
         workLoadDTO.setSidecarVersion(new ArrayList<>(versionSet));
+        if (StringUtils.isEmpty(getLabelValueFromWorkLoad(workLoadDTO,meshConfig.getAppKey()))
+            ||StringUtils.isEmpty(getLabelValueFromWorkLoad(workLoadDTO,meshConfig.getVersionKey()))
+            ||CollectionUtils.isEmpty(workLoadDTO.getSidecarVersion())){
+            workLoadDTO.setInMesh(false);
+        }else {
+            workLoadDTO.setInMesh(true);
+        }
+
         return workLoadDTO;
+    }
+
+    private String getLabelValueFromWorkLoad(WorkLoadDTO obj,String key){
+        if (obj.getLabels() == null){
+            return null;
+        }
+        return  (obj.getLabels().get(key) == null)?null:String.valueOf(obj.getLabels().get(key));
     }
 
     private List<T> getWorkLoadByIndex(String clusterId, String namespace, String name) {
