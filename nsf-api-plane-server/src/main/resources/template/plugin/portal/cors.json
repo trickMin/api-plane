@@ -16,11 +16,12 @@
     {
       "key": "allowOrigin",
       "alias": "Access-Control-Allow-Origin",
-      "help": "指示请求的资源能共享给哪些域，可以是具体的域名或者*表示所有域",
+      "help": "指示请求的资源能共享给哪些域",
       "type": "multi_input",
       "rules": [
         "MaxLength(200)",
-        "Required"
+        "Required",
+        "[^\\*]"
       ]
     },
     {
