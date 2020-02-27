@@ -1,5 +1,7 @@
 package com.netease.cloud.nsf.cache;
 
+import com.netease.cloud.nsf.cache.meta.ServiceDto;
+
 import java.util.List;
 
 /**
@@ -72,4 +74,6 @@ public interface ResourceCache {
     String getAppNameByPod(String clusterId, String namespace, String name);
 
     List getEndPointByService(String clusterId, String namespace, String name);
+
+    List<ServiceDto> getServiceByProjectCode(String projectCode, String clusterId);
 }

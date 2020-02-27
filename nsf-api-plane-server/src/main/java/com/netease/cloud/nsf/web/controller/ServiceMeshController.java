@@ -100,4 +100,14 @@ public class ServiceMeshController extends BaseController {
         boolean isHealth = serviceMeshService.checkPilotHealth();
         return apiReturn(ImmutableMap.of(RESULT, isHealth));
     }
+
+    @RequestMapping(params = {"Action=RemoveSidecar"}, method = RequestMethod.GET)
+    public String injectSidecar(@RequestParam(name = "Name") String name,
+                                @RequestParam(name = "Namespace") String namespace,
+                                @RequestParam(name = "Kind") String kind,
+                                @RequestParam(name = "ClusterId") String clusterId) {
+
+        ErrorCode code = serviceMeshService.removeInject(clusterId, kind, namespace, name);
+        return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), null);
+    }
 }

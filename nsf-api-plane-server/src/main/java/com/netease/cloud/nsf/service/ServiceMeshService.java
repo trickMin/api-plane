@@ -25,4 +25,6 @@ public interface ServiceMeshService {
     void createMissingCrd(List podList, String workLoadType, String workLoadName, String clusterId, String namespace);
 
     boolean checkPilotHealth();
+
+    ErrorCode removeInject(String clusterId, String kind, String namespace, String name);
 }

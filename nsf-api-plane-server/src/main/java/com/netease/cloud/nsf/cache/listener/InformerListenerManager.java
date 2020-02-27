@@ -4,6 +4,7 @@ package com.netease.cloud.nsf.cache.listener;
 import com.netease.cloud.nsf.cache.ResourceUpdateEvent;
 import com.netease.cloud.nsf.cache.ResourceUpdatedListener;
 import com.netease.cloud.nsf.configuration.ApiPlaneConfig;
+import com.netease.cloud.nsf.configuration.MeshConfig;
 import com.netease.cloud.nsf.util.Const;
 import com.netease.cloud.nsf.util.RestTemplateClient;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
@@ -32,6 +33,9 @@ public class InformerListenerManager {
     @Autowired
     ApiPlaneConfig config;
 
+    @Autowired
+    MeshConfig meshConfig;
+
     private ServiceAutoImportListener serviceAutoImportListener;
 
     @PostConstruct
@@ -49,7 +53,7 @@ public class InformerListenerManager {
 
             HasMetadata service = e.getResourceObject();
             Map<String, String> serviceLabels = e.getResourceObject().getMetadata().getLabels();
-            String projectCode = serviceLabels.get(Const.LABEL_NSF_PROJECT_ID);
+            String projectCode = serviceLabels.get(meshConfig.getProjectKey());
             String envName = serviceLabels.get(Const.LABEL_NSF_ENV);
             String namespace = service.getMetadata().getNamespace();
             String name = service.getMetadata().getName();

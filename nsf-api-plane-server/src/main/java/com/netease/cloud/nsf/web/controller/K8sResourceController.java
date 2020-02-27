@@ -3,6 +3,7 @@ package com.netease.cloud.nsf.web.controller;
 import com.google.common.collect.ImmutableMap;
 import com.netease.cloud.nsf.cache.ResourceCache;
 import com.netease.cloud.nsf.cache.ResourceStoreFactory;
+import com.netease.cloud.nsf.cache.meta.ServiceDto;
 import com.netease.cloud.nsf.service.ServiceMeshService;
 import com.netease.cloud.nsf.util.errorcode.ApiPlaneErrorCode;
 import com.netease.cloud.nsf.util.errorcode.ErrorCode;
@@ -113,6 +114,18 @@ public class K8sResourceController extends BaseController {
         List<String> clusterIdList = ResourceStoreFactory.listClusterId();
         Map<String, Object> result = new HashMap<>();
         result.put("Result", clusterIdList);
+        ErrorCode code = ApiPlaneErrorCode.Success;
+        return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), result);
+    }
+
+    @RequestMapping(params = {"Action=GetServiceByProject"}, method = RequestMethod.GET)
+    public String getServiceByProject(@RequestParam(name = "ClusterId", required = false) String clusterId,
+                                      @RequestParam(name = "ProjectCode") String projectCode) {
+
+
+        List<ServiceDto> serviceDtoList = resourceCache.getServiceByProjectCode(projectCode, clusterId);
+        Map<String, Object> result = new HashMap<>();
+        result.put("Result", serviceDtoList);
         ErrorCode code = ApiPlaneErrorCode.Success;
         return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), result);
     }

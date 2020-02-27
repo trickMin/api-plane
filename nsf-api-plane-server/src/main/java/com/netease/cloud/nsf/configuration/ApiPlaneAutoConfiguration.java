@@ -17,6 +17,7 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.http.client.BufferingClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
@@ -32,6 +33,7 @@ import java.util.List;
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/7/18
  **/
 @Configuration
+@PropertySource(value = {"classpath:mesh-config.properties"})
 public class ApiPlaneAutoConfiguration {
 
     @Autowired
@@ -120,6 +122,11 @@ public class ApiPlaneAutoConfiguration {
             apiPlaneConfig.setDaemonSetPort(environment.getProperty("daemonSetPort"));
         }
         return apiPlaneConfig;
+    }
+
+    @Bean
+    MeshConfig meshConfig(){
+        return new MeshConfig();
     }
 
 }
