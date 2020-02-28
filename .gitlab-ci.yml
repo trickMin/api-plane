@@ -11,7 +11,6 @@ variables:
 
 
 stages:
-  - build
   - test
   - buildImage
   
@@ -19,22 +18,14 @@ stages:
 before_script:
   - export MAVEN_HOME=/usr/local/bin/apache-maven-3.6.3
 
-job_build:
-  stage: build
-  script:
-    - $MAVEN_HOME/bin/mvn clean
-    - echo "now stage is 1-build"  
-  tags:
-    - qz-gitlab-runner
-
 job_unit_test:
   stage: test
   script:
-    - $MAVEN_HOME/bin/mvn clean install -Dmaven.test.failure.ignore=true   -DsuiteXmlFile=src/main/resources/testng.xml  -D$.initIfNecessary=true -D $.destroyIfNecessary=true -DactiveEnv=wangguan -D$.envoyConfigDump=true -D$.virtualServiceDump=true -D$.waitPublishComplete=5000|tee -a result.txt
+    - pwd
+    - git status
+    - $MAVEN_HOME/bin/mvn clean test  -Dmaven.test.failure.ignore=true  
+    - git status
     - echo "now unit_test finished."
-  cache:
-    paths:
-      - /builds/qingzhou/yx-gateway-api-plane/nsf-api-plane-server
   tags:
     - qz-gitlab-runner    
 
@@ -45,9 +36,6 @@ job_buildImage:
       - docker:dind
     before_script:
       - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
-    cache:
-     paths:
-      - /builds/qingzhou/yx-gateway-api-plane/nsf-api-plane-server
 
     script:
       - echo "Building image - hub.c.163.com/qingzhou/nsf-api-plane-server:latest"
