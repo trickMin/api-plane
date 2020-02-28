@@ -1,6 +1,7 @@
 package com.netease.cloud.nsf.service.impl;
 
 import com.netease.cloud.nsf.cache.K8sResourceCache;
+import com.netease.cloud.nsf.cache.OwnerReferenceSupportStore;
 import com.netease.cloud.nsf.cache.ResourceStoreFactory;
 import com.netease.cloud.nsf.cache.meta.PodDTO;
 import com.netease.cloud.nsf.configuration.ApiPlaneConfig;
@@ -146,7 +147,7 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
         labels.put(meshConfig.getAppKey(),appName);
         injectAnnotation.put(Const.ISTIO_INJECT_ANNOTATION, "true");
         T injectedWorkLoad = appendLabel(appendAnnotationToPod(resourceToInject, injectAnnotation), labels);
-        updateSidecarStatus(injectedWorkLoad);
+        updateResource(injectedWorkLoad);
         createSidecarVersionCRD(clusterId, namespace, kind, name, expectedVersion);
         return ApiPlaneErrorCode.Success;
     }
@@ -326,11 +327,32 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
         Map<String, String> injectAnnotation = new HashMap<>(1);
         injectAnnotation.put(Const.ISTIO_INJECT_ANNOTATION, "false");
         T injectedWorkLoad = appendAnnotationToPod(resourceToInject, injectAnnotation);
-        updateSidecarStatus(injectedWorkLoad);
+        updateResource(injectedWorkLoad);
         return ApiPlaneErrorCode.Success;
     }
 
-    private void updateSidecarStatus(T injectedWorkLoad){
+    @Override
+    public ErrorCode createAppOnService(String clusterId, String namespace, String name, String appName) {
+        if (StringUtils.isEmpty(clusterId)){
+            for (String cluster : ResourceStoreFactory.listClusterId()) {
+                createAppOnServiceByClusterId(cluster,namespace,name,appName);
+            }
+        }else {
+            createAppOnServiceByClusterId(clusterId,namespace,name,appName);
+        }
+        return ApiPlaneErrorCode.Success;
+    }
+
+    private void createAppOnServiceByClusterId(String clusterId, String namespace, String name, String appName){
+        T service = (T) k8sResource.getResource(clusterId, K8sResourceEnum.Service.name(), namespace, name);
+        if (service.getMetadata().getLabels() == null){
+            service.getMetadata().setLabels(new HashMap<>());
+        }
+        service.getMetadata().getLabels().put(meshConfig.getAppKey(),appName);
+        updateResource(service);
+    }
+
+    private void updateResource(T injectedWorkLoad){
         try {
             httpClient.createOrUpdate(injectedWorkLoad, OBJECT);
         } catch (ApiPlaneException e) {

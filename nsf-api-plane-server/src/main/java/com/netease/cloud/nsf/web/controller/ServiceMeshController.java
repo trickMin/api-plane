@@ -68,6 +68,16 @@ public class ServiceMeshController extends BaseController {
         return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), null);
     }
 
+    @RequestMapping(params = {"Action=CreateAppOnService"}, method = RequestMethod.GET)
+    public String createAppOnService(@RequestParam(name = "Name") String name,
+                                @RequestParam(name = "Namespace") String namespace,
+                                @RequestParam(name = "ClusterId",required = false) String clusterId,
+                                @RequestParam(name = "AppName") String appName) {
+
+        ErrorCode code = serviceMeshService.createAppOnService(clusterId, namespace, name, appName);
+        return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), null);
+    }
+
     @RequestMapping(params = "Action=GetTopo", method = RequestMethod.GET)
     public String getTopo(@RequestParam(name = "Namespaces") String namespaces,
                           @RequestParam(name = "GraphType") String graphType,
