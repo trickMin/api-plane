@@ -166,14 +166,18 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
 
         CustomResourceDefinition mupCrd = allClients.get("default").originalK8sClient.customResourceDefinitions().withName("mixerurlpatterns.networking.istio.io").get();
 
-        K8sResourceInformer<HasMetadata> mupInformer = new K8sResourceInformer
-            .Builder()
-            .addResourceKind(MixerUrlPattern)
-            .addMixedOperation(getMixerUrlPatternMixedOperationList(allClients, mupCrd))
-            .addHttpK8sClient(multiClusterK8sClient)
-            .build();
+        if (mupCrd != null) {
+            K8sResourceInformer<HasMetadata> mupInformer = new K8sResourceInformer
+                .Builder()
+                .addResourceKind(MixerUrlPattern)
+                .addMixedOperation(getMixerUrlPatternMixedOperationList(allClients, mupCrd))
+                .addHttpK8sClient(multiClusterK8sClient)
+                .build();
 
-        resourceInformerMap.put(MixerUrlPattern, mupInformer);
+            resourceInformerMap.put(MixerUrlPattern, mupInformer);
+        } else {
+            log.warn("CRD mixer url pattern not found.");
+        }
 
     }
 
