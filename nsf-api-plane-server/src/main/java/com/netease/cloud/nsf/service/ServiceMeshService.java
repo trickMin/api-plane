@@ -16,7 +16,7 @@ public interface ServiceMeshService {
 
     List<ResourceWrapperDTO> getIstioResourceList(String namespaces, String kind);
 
-    ErrorCode sidecarInject(String clusterId, String kind, String namespace, String name, String version, String expectedVersion);
+    ErrorCode sidecarInject(String clusterId, String kind, String namespace, String name, String version, String expectedVersion, String appName);
 
     void notifySidecarFileEvent(String sidecarVersion, String type);
 
@@ -25,4 +25,8 @@ public interface ServiceMeshService {
     void createMissingCrd(List podList, String workLoadType, String workLoadName, String clusterId, String namespace);
 
     boolean checkPilotHealth();
+
+    ErrorCode removeInject(String clusterId, String kind, String namespace, String name);
+
+    ErrorCode createAppOnService(String clusterId, String namespace, String name, String appName);
 }

@@ -24,6 +24,10 @@ public class WorkLoadDTO<T extends HasMetadata> extends K8sResourceDTO {
 
     private String envName;
 
+    private boolean isInMesh;
+
+    private Map<String,String> labels;
+
     private Map<String, String> statusInfo = new HashMap<>();
 
 
@@ -51,6 +55,25 @@ public class WorkLoadDTO<T extends HasMetadata> extends K8sResourceDTO {
         if (StringUtils.isEmpty(envName)){
             this.setEnvName(this.getNamespace());
         }
+        if (obj.getMetadata()!=null){
+            this.labels = obj.getMetadata().getLabels();
+        }
+    }
+
+    public boolean isInMesh() {
+        return isInMesh;
+    }
+
+    public void setInMesh(boolean inMesh) {
+        isInMesh = inMesh;
+    }
+
+    public Map<String, String> getLabels() {
+        return labels;
+    }
+
+    public void setLabels(Map<String, String> labels) {
+        this.labels = labels;
     }
 
     public List<String> getSidecarVersion() {

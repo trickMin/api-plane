@@ -61,9 +61,20 @@ public class ServiceMeshController extends BaseController {
                                 @RequestParam(name = "ServiceVersion") String version,
                                 @RequestParam(name = "SidecarVersion") String sidecarVersion,
                                 @RequestParam(name = "Kind") String kind,
-                                @RequestParam(name = "ClusterId") String clusterId) {
+                                @RequestParam(name = "ClusterId") String clusterId,
+                                @RequestParam(name = "AppName",required = false) String appName) {
 
-        ErrorCode code = serviceMeshService.sidecarInject(clusterId, kind, namespace, name, version, sidecarVersion);
+        ErrorCode code = serviceMeshService.sidecarInject(clusterId, kind, namespace, name, version, sidecarVersion, appName);
+        return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), null);
+    }
+
+    @RequestMapping(params = {"Action=CreateAppOnService"}, method = RequestMethod.GET)
+    public String createAppOnService(@RequestParam(name = "Name") String name,
+                                @RequestParam(name = "Namespace") String namespace,
+                                @RequestParam(name = "ClusterId",required = false) String clusterId,
+                                @RequestParam(name = "AppName") String appName) {
+
+        ErrorCode code = serviceMeshService.createAppOnService(clusterId, namespace, name, appName);
         return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), null);
     }
 
@@ -99,5 +110,15 @@ public class ServiceMeshController extends BaseController {
     public String checkPilotHealth() {
         boolean isHealth = serviceMeshService.checkPilotHealth();
         return apiReturn(ImmutableMap.of(RESULT, isHealth));
+    }
+
+    @RequestMapping(params = {"Action=RemoveSidecar"}, method = RequestMethod.GET)
+    public String injectSidecar(@RequestParam(name = "Name") String name,
+                                @RequestParam(name = "Namespace") String namespace,
+                                @RequestParam(name = "Kind") String kind,
+                                @RequestParam(name = "ClusterId") String clusterId) {
+
+        ErrorCode code = serviceMeshService.removeInject(clusterId, kind, namespace, name);
+        return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), null);
     }
 }

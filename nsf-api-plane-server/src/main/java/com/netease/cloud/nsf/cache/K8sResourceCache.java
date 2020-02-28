@@ -5,8 +5,10 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.netease.cloud.nsf.cache.meta.PodDTO;
+import com.netease.cloud.nsf.cache.meta.ServiceDto;
 import com.netease.cloud.nsf.cache.meta.WorkLoadDTO;
 import com.netease.cloud.nsf.configuration.ApiPlaneConfig;
+import com.netease.cloud.nsf.configuration.MeshConfig;
 import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.k8s.MultiClusterK8sClient;
@@ -72,6 +74,8 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     @Autowired
     ServiceMeshService serviceMeshService;
 
+    @Autowired
+    private MeshConfig meshConfig;
 
     @Autowired
     private MultiClusterK8sClient multiClusterK8sClient;
@@ -305,8 +309,8 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
             if (service.getMetadata().getLabels() == null || service.getMetadata().getLabels().isEmpty()) {
                 continue;
             }
-            if (service.getMetadata().getLabels().get(Const.LABEL_NSF_PROJECT_ID) != null &&
-                    service.getMetadata().getLabels().get(Const.LABEL_NSF_PROJECT_ID).equals(projectId) &&
+            if (service.getMetadata().getLabels().get(meshConfig.getProjectKey()) != null &&
+                    service.getMetadata().getLabels().get(meshConfig.getProjectKey()).equals(projectId) &&
                     service.getMetadata().getName().equals(serviceName) &&
                     service.getMetadata().getNamespace().equals(namespace)) {
                 return getWorkLoadByIndex(clusterId,
@@ -362,7 +366,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         if (!StringUtils.isEmpty(projectId)) {
             serviceList = serviceList.stream()
                     .filter(s -> s.getMetadata().getLabels() != null
-                            && projectId.equals(s.getMetadata().getLabels().get(Const.LABEL_NSF_PROJECT_ID)))
+                            && projectId.equals(s.getMetadata().getLabels().get(meshConfig.getProjectKey())))
                     .collect(Collectors.toList());
 
         }
@@ -380,7 +384,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         if (service.getMetadata().getLabels() == null) {
             return null;
         }
-        return service.getMetadata().getLabels().get(Const.LABEL_NSF_PROJECT_ID);
+        return service.getMetadata().getLabels().get(meshConfig.getProjectKey());
     }
 
     private String getEnvNameFromService(T service) {
@@ -527,6 +531,34 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         return result;
     }
 
+    @Override
+    public List<ServiceDto> getServiceByProjectCode(String projectCode, String clusterId) {
+        List<ServiceDto> serviceDtoList = new ArrayList<>();
+        if (StringUtils.isEmpty(clusterId)){
+            for (String cluster : ResourceStoreFactory.listClusterId()) {
+                serviceDtoList.addAll(getServiceByProjectCodeAndClusterId(projectCode,cluster));
+            }
+        }else {
+            serviceDtoList = getServiceByProjectCodeAndClusterId(projectCode, clusterId);
+        }
+        return serviceDtoList;
+    }
+
+    private List<ServiceDto> getServiceByProjectCodeAndClusterId(String projectCode, String clusterId) {
+        OwnerReferenceSupportStore store = ResourceStoreFactory.getResourceStore(clusterId);
+        return  ((List<T>)store.listByKind(Service.name()))
+                .stream()
+                .filter(s->s.getMetadata().getLabels()!=null&&!s.getMetadata().getLabels().isEmpty()
+                        &&s.getMetadata().getLabels().get(meshConfig.getProjectKey())!=null
+                        &&s.getMetadata().getLabels().get(meshConfig.getProjectKey()).equals(projectCode))
+                .map(s->{
+                    ServiceDto<T> tServiceDto = new ServiceDto<>(s, clusterId);
+                    tServiceDto.setAppName(tServiceDto.getLabels().get(meshConfig.getAppKey()));
+                    return tServiceDto;
+                })
+                .collect(Collectors.toList());
+    }
+
     private Endpoints getEndPointByServiceAndClusterId(String clusterId, String namespace, String name) {
         OwnerReferenceSupportStore store = ResourceStoreFactory.getResourceStore(clusterId);
         return (Endpoints) store.get(Endpoints.name(), namespace, name);
@@ -583,7 +615,22 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                 map(podStatus -> podStatus.getCurrentVersion())
                 .collect(Collectors.toSet());
         workLoadDTO.setSidecarVersion(new ArrayList<>(versionSet));
+        if (StringUtils.isEmpty(getLabelValueFromWorkLoad(workLoadDTO,meshConfig.getAppKey()))
+            ||StringUtils.isEmpty(getLabelValueFromWorkLoad(workLoadDTO,meshConfig.getVersionKey()))
+            ||CollectionUtils.isEmpty(workLoadDTO.getSidecarVersion())){
+            workLoadDTO.setInMesh(false);
+        }else {
+            workLoadDTO.setInMesh(true);
+        }
+
         return workLoadDTO;
+    }
+
+    private String getLabelValueFromWorkLoad(WorkLoadDTO obj,String key){
+        if (obj.getLabels() == null){
+            return null;
+        }
+        return  (obj.getLabels().get(key) == null)?null:String.valueOf(obj.getLabels().get(key));
     }
 
     private List<T> getWorkLoadByIndex(String clusterId, String namespace, String name) {
@@ -758,8 +805,8 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
             String serviceName = serviceToUpdate.getMetadata().getName() + "."
                     + serviceToUpdate.getMetadata().getNamespace();
 
-            String projectId = serviceToUpdate.getMetadata().getLabels().get(Const.LABEL_NSF_PROJECT_ID);
-            String version = obj.getMetadata().getLabels().get(Const.LABEL_NSF_VERSION);
+            String projectId = serviceToUpdate.getMetadata().getLabels().get(meshConfig.getProjectKey());
+            String version = obj.getMetadata().getLabels().get(meshConfig.getVersionKey());
             String envName = obj.getMetadata().getLabels().get(Const.LABEL_NSF_ENV);
             updateVersion(serviceName, projectId, version, envName);
 

@@ -1,9 +1,11 @@
 package com.netease.cloud.nsf.service.impl;
 
 import com.netease.cloud.nsf.cache.K8sResourceCache;
+import com.netease.cloud.nsf.cache.OwnerReferenceSupportStore;
 import com.netease.cloud.nsf.cache.ResourceStoreFactory;
 import com.netease.cloud.nsf.cache.meta.PodDTO;
 import com.netease.cloud.nsf.configuration.ApiPlaneConfig;
+import com.netease.cloud.nsf.configuration.MeshConfig;
 import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.gateway.service.impl.MultiK8sConfigStore;
 import com.netease.cloud.nsf.core.istio.PilotHttpClient;
@@ -76,6 +78,9 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
     @Autowired
     private MultiClusterK8sClient multiClusterK8sClient;
 
+    @Autowired
+    MeshConfig meshConfig;
+
     @Override
     public void updateIstioResource(String json) {
 
@@ -125,7 +130,7 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
     }
 
     @Override
-    public ErrorCode sidecarInject(String clusterId, String kind, String namespace, String name, String version, String expectedVersion) {
+    public ErrorCode sidecarInject(String clusterId, String kind, String namespace, String name, String version, String expectedVersion, String appName) {
         if (!K8sResourceEnum.StatefulSet.name().equals(kind) && !K8sResourceEnum.Deployment.name().equals(kind)) {
             return ApiPlaneErrorCode.MissingParamsError("resource kind");
         }
@@ -136,23 +141,13 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
         if (!checkEnable(namespace)) {
             return ApiPlaneErrorCode.sidecarInjectPolicyError;
         }
-        Map<String, String> versionLabel = new HashMap<>(1);
+        Map<String, String> labels = new HashMap<>(1);
         Map<String, String> injectAnnotation = new HashMap<>(1);
-        versionLabel.put(Const.LABEL_NSF_VERSION, version);
+        labels.put(meshConfig.getVersionKey(), version);
+        labels.put(meshConfig.getAppKey(),appName);
         injectAnnotation.put(Const.ISTIO_INJECT_ANNOTATION, "true");
-        T injectedWorkLoad = appendLabel(appendAnnotationToPod(resourceToInject, injectAnnotation), versionLabel);
-        try {
-            httpClient.createOrUpdate(injectedWorkLoad, OBJECT);
-        } catch (ApiPlaneException e) {
-            // 对新老版本k8s apiVersion 不一致的情况进行适配
-            if (isInvalidApiVersion(e.getMessage())) {
-                logger.warn(e.getMessage());
-                injectedWorkLoad.setApiVersion("extensions/v1beta1");
-                httpClient.createOrUpdate(injectedWorkLoad, OBJECT);
-            } else {
-                logger.error("sidecar inject error", e);
-            }
-        }
+        T injectedWorkLoad = appendLabel(appendAnnotationToPod(resourceToInject, injectAnnotation), labels);
+        updateResource(injectedWorkLoad);
         createSidecarVersionCRD(clusterId, namespace, kind, name, expectedVersion);
         return ApiPlaneErrorCode.Success;
     }
@@ -319,6 +314,59 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
     public boolean checkPilotHealth() {
         return pilotHttpClient.isReady();
     }
+
+    @Override
+    public ErrorCode removeInject(String clusterId, String kind, String namespace, String name) {
+        if (!K8sResourceEnum.StatefulSet.name().equals(kind) && !K8sResourceEnum.Deployment.name().equals(kind)) {
+            return ApiPlaneErrorCode.MissingParamsError("resource kind");
+        }
+        T resourceToInject = (T) k8sResource.getResource(clusterId, kind, namespace, name);
+        if (resourceToInject == null) {
+            return ApiPlaneErrorCode.workLoadNotFound;
+        }
+        Map<String, String> injectAnnotation = new HashMap<>(1);
+        injectAnnotation.put(Const.ISTIO_INJECT_ANNOTATION, "false");
+        T injectedWorkLoad = appendAnnotationToPod(resourceToInject, injectAnnotation);
+        updateResource(injectedWorkLoad);
+        return ApiPlaneErrorCode.Success;
+    }
+
+    @Override
+    public ErrorCode createAppOnService(String clusterId, String namespace, String name, String appName) {
+        if (StringUtils.isEmpty(clusterId)){
+            for (String cluster : ResourceStoreFactory.listClusterId()) {
+                createAppOnServiceByClusterId(cluster,namespace,name,appName);
+            }
+        }else {
+            createAppOnServiceByClusterId(clusterId,namespace,name,appName);
+        }
+        return ApiPlaneErrorCode.Success;
+    }
+
+    private void createAppOnServiceByClusterId(String clusterId, String namespace, String name, String appName){
+        T service = (T) k8sResource.getResource(clusterId, K8sResourceEnum.Service.name(), namespace, name);
+        if (service.getMetadata().getLabels() == null){
+            service.getMetadata().setLabels(new HashMap<>());
+        }
+        service.getMetadata().getLabels().put(meshConfig.getAppKey(),appName);
+        updateResource(service);
+    }
+
+    private void updateResource(T injectedWorkLoad){
+        try {
+            httpClient.createOrUpdate(injectedWorkLoad, OBJECT);
+        } catch (ApiPlaneException e) {
+            // 对新老版本k8s apiVersion 不一致的情况进行适配
+            if (isInvalidApiVersion(e.getMessage())) {
+                logger.warn(e.getMessage());
+                injectedWorkLoad.setApiVersion("extensions/v1beta1");
+                httpClient.createOrUpdate(injectedWorkLoad, OBJECT);
+            } else {
+                logger.error("sidecar inject error", e);
+            }
+        }
+    }
+
 
 
     private String getDefaultClusterId() {

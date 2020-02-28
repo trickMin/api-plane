@@ -8,8 +8,8 @@ public interface Const {
 
 
     // 负载标签类型
-    String LABEL_NSF_PROJECT_ID = "nsf-project";
-    String LABEL_NSF_VERSION = "version";
+//    String LABEL_NSF_PROJECT_ID = "nsf-project";
+//    String LABEL_NSF_VERSION = "version";
     String LABEL_NSF_ENV = "nsf-env";
     String LABEL_NAMESPACE_INJECTION = "istio-injection";
 
