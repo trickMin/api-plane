@@ -1,6 +1,5 @@
 package com.netease.cloud.nsf.core.k8s.operator;
 
-import com.netease.cloud.nsf.core.k8s.operator.SharedConfigOperator;
 import com.netease.cloud.nsf.util.CommonUtil;
 import me.snowdrop.istio.api.networking.v1alpha3.*;
 import org.junit.Assert;
@@ -29,9 +28,9 @@ public class SharedConfigTest {
         RateLimitConfig config1 = getRateLimitConfig("qz",
                 Arrays.asList(
                         getRateLimitDescriptor("sa-api1",
-                                getSharedConfigRateLimit(10, null)),
+                                getSharedConfigRateLimit(10, null), "Service[autotest]-User[none]-Api[sa-api1]-Id[36dfa"),
                         getRateLimitDescriptor("sa-api2",
-                                getSharedConfigRateLimit(2, null))));
+                                getSharedConfigRateLimit(2, null),  "Service[autotest]-User[none]-Api[sa-api2]-Id[36dfa")));
 
         String ya = CommonUtil.obj2yaml(Arrays.asList(config1));
         RateLimitConfig[] rateLimitConfigs = CommonUtil.yaml2Obj("- descriptors:\n" +
@@ -40,19 +39,19 @@ public class SharedConfigTest {
                 "    rateLimit:\n" +
                 "      requestsPerUnit: 1\n" +
                 "      unit: HOUR\n" +
-                "    value: auto-test1\n" +
+                "    value: Service[autotest]-User[none]-Api[auto-test1]-Id[36dfa223-0258-44ec-b838-56177132f\n" +
                 "  - api: auto-test4\n" +
                 "    key: header_match\n" +
                 "    rateLimit:\n" +
                 "      requestsPerUnit: 1\n" +
                 "      unit: HOUR\n" +
-                "    value: auto-test4\n" +
+                "    value: Service[autotest]-User[none]-Api[auto-test4]-Id[36dfa223-0258-44ec-b8132f590]\n" +
                 "  - api: auto-test3\n" +
                 "    key: header_match\n" +
                 "    rateLimit:\n" +
                 "      requestsPerUnit: 1\n" +
                 "      unit: HOUR\n" +
-                "    value: auto-test3\n" +
+                "    value: Service[autotest]-User[none]-Api[auto-test3]-Id[36dfa223-08-56177132f590]\n" +
                 "  domain: qingzhou\n" +
                 "- descriptors:\n" +
                 "  - api: auto-test1\n" +
@@ -60,7 +59,7 @@ public class SharedConfigTest {
                 "    rateLimit:\n" +
                 "      requestsPerUnit: 1\n" +
                 "      unit: HOUR\n" +
-                "    value: Service[autotest]-User[none]-Api[auto-test1]-Id[36dfa223-0258-44ec-b838-56177132f590]\n" +
+                "    value: Service[autotest]-User[none]-Api[auto-test1]-Id[36dfa24ec-b838-56177132f590]\n" +
                 "  domain: qingzhou1", RateLimitConfig[].class);
 
 
@@ -68,17 +67,17 @@ public class SharedConfigTest {
         RateLimitConfig config2 = getRateLimitConfig("qz1",
                 Arrays.asList(
                         getRateLimitDescriptor("sa-api5",
-                                getSharedConfigRateLimit(0, null))));
+                                getSharedConfigRateLimit(0, null), "Service[autotest]-User[none]-Api[sa-api5]-Id[36dfa")));
         SharedConfig sc = getSharedConfig(getSharedConfigSpec(Arrays.asList(config1, config2)));
 
 
         RateLimitConfig config1_1 = getRateLimitConfig("qz", Arrays.asList(
-                getRateLimitDescriptor("sa-api1", getSharedConfigRateLimit(5, null)),
-                getRateLimitDescriptor("sa-api3", getSharedConfigRateLimit(1, null))));
+                getRateLimitDescriptor("sa-api1", getSharedConfigRateLimit(5, null), "Service[autotest]-User[none]-Api[sa-api1]-Id[36dfa"),
+                getRateLimitDescriptor("sa-api3", getSharedConfigRateLimit(1, null), "Service[autotest]-User[none]-Api[sa-api3]-Id[36dfa")));
         RateLimitConfig config1_2 = getRateLimitConfig("qz1", Arrays.asList(
-                getRateLimitDescriptor("sb-api3", getSharedConfigRateLimit(2, null))));
+                getRateLimitDescriptor("sb-api3", getSharedConfigRateLimit(2, null),"Service[autotest]-User[none]-Api[sb-api3]-Id[36dfa")));
         RateLimitConfig config1_3 = getRateLimitConfig("qz2", Arrays.asList(
-                getRateLimitDescriptor("sb-api3", getSharedConfigRateLimit(3, null))));
+                getRateLimitDescriptor("sb-api3", getSharedConfigRateLimit(3, null),"Service[autotest]-User[none]-Api[sb-api3]-Id[36dfa")));
         SharedConfig sc1 = getSharedConfig(getSharedConfigSpec(Arrays.asList(config1_1, config1_2, config1_3)));
 
         SharedConfig result = operator.merge(sc, sc1);
@@ -100,8 +99,8 @@ public class SharedConfigTest {
             }
         }
 
-        RateLimitDescriptor d3_1 = getRateLimitDescriptor("sa-api1", getSharedConfigRateLimit(10, "MINUTE"));
-        RateLimitDescriptor d3_2 = getRateLimitDescriptor("sa-api1", getSharedConfigRateLimit(5, "HOUR"));
+        RateLimitDescriptor d3_1 = getRateLimitDescriptor("sa-api1", getSharedConfigRateLimit(10, "MINUTE"), "Service[autotest]-User[none]-Api[sa-api1]-Id[36dfa");
+        RateLimitDescriptor d3_2 = getRateLimitDescriptor("sa-api1", getSharedConfigRateLimit(5, "HOUR"), "Service[autotest]-User[none]-Api[sa-api1]-Id[36dfa");
         RateLimitConfig config3 = getRateLimitConfig("qz", Arrays.asList(d3_1, d3_2));
         SharedConfig sc3 = getSharedConfig(getSharedConfigSpec(Arrays.asList(config3)));
 
@@ -111,7 +110,7 @@ public class SharedConfigTest {
         descriptors.get(0).getRateLimit().setRequestsPerUnit(1);
         descriptors.get(1).getRateLimit().setUnit("MINUTE");
         descriptors.get(1).getRateLimit().setRequestsPerUnit(100);
-        RateLimitDescriptor nd3 = getRateLimitDescriptor("sa", getSharedConfigRateLimit(99, "OOO"));
+        RateLimitDescriptor nd3 = getRateLimitDescriptor("sa", getSharedConfigRateLimit(99, "OOO"), "Service[autotest]-User[none]-Api[sa]-Id[36dfa");
         descriptors.add(0, nd3);
 
         RateLimitConfig nc3 = getRateLimitConfig("q1z", Collections.emptyList());
@@ -134,16 +133,16 @@ public class SharedConfigTest {
         RateLimitConfig config1 = getRateLimitConfig("qz",
                 Arrays.asList(
                         getRateLimitDescriptor("sa-api1",
-                                getSharedConfigRateLimit(1, null)),
+                                getSharedConfigRateLimit(1, null), "Service[autotest]-User[none]-Api[sa-api1]-Id[36dfa"),
                         getRateLimitDescriptor("sa-api2",
-                                getSharedConfigRateLimit(2, null))));
+                                getSharedConfigRateLimit(2, null), "Service[autotest]-User[none]-Api[sa-api2]-Id[36dfa")));
 
         RateLimitConfig config2 = getRateLimitConfig("qz1",
                 Arrays.asList(
                         getRateLimitDescriptor("sb-api1",
-                                getSharedConfigRateLimit(3, null)),
+                                getSharedConfigRateLimit(3, null), "Service[autotest]-User[none]-Api[sb-api1]-Id[36dfa"),
                         getRateLimitDescriptor("sa-api1",
-                                getSharedConfigRateLimit(4, null))));
+                                getSharedConfigRateLimit(4, null), "Service[autotest]-User[none]-Api[sa-api1]-Id[36dfa")));
 
         SharedConfig sc = getSharedConfig(getSharedConfigSpec(Arrays.asList(config1, config2)));
 
@@ -159,10 +158,11 @@ public class SharedConfigTest {
         return l;
     }
 
-    private static RateLimitDescriptor getRateLimitDescriptor(String api, SharedConfigRateLimit ratelimit) {
+    private static RateLimitDescriptor getRateLimitDescriptor(String api, SharedConfigRateLimit ratelimit, String value) {
         RateLimitDescriptor d = new RateLimitDescriptor();
         d.setApi(api);
         d.setRateLimit(ratelimit);
+        d.setValue(value);
         return d;
     }
 
