@@ -29,4 +29,6 @@ public interface ServiceMeshService {
     ErrorCode removeInject(String clusterId, String kind, String namespace, String name);
 
     ErrorCode createAppOnService(String clusterId, String namespace, String name, String appName);
+
+    String getProjectCodeByApp(String namespace, String appName, String clusterId);
 }

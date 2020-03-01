@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
@@ -120,5 +122,17 @@ public class ServiceMeshController extends BaseController {
 
         ErrorCode code = serviceMeshService.removeInject(clusterId, kind, namespace, name);
         return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), null);
+    }
+
+    @RequestMapping(params = {"Action=GetProjectCodeByApp"}, method = RequestMethod.GET)
+    public String getProjectCodeByApp(@RequestParam(name = "AppName") String name,
+                                @RequestParam(name = "Namespace") String namespace,
+                                @RequestParam(name = "ClusterId",required = false) String clusterId) {
+
+        String projectCode = serviceMeshService.getProjectCodeByApp(namespace, name, clusterId);
+        Map<String, Object> result = new HashMap<>();
+        result.put("Result", projectCode);
+        ErrorCode code = ApiPlaneErrorCode.Success;
+        return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), result);
     }
 }
