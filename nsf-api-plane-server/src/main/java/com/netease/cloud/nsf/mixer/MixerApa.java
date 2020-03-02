@@ -1,6 +1,7 @@
 package com.netease.cloud.nsf.mixer;
 
 import com.netease.cloud.nsf.cache.ResourceCache;
+import com.netease.cloud.nsf.service.ServiceMeshService;
 import io.grpc.stub.StreamObserver;
 import net.devh.springboot.autoconfigure.grpc.server.GrpcService;
 import nsfmeta.HandleNsfmetaServiceGrpc;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 public class MixerApa extends HandleNsfmetaServiceGrpc.HandleNsfmetaServiceImplBase {
 
 	@Autowired private ResourceCache resourceCache;
+	@Autowired private ServiceMeshService serviceMeshService;
 
 	@Override
 	public void handleNsfmeta(TemplateHandlerService.HandleNsfmetaRequest request, StreamObserver<TemplateHandlerService.OutputMsg> responseObserver) {
@@ -27,8 +29,8 @@ public class MixerApa extends HandleNsfmetaServiceGrpc.HandleNsfmetaServiceImplB
 		PodInfo sourcePod = new PodInfo(clusterId, instance.getSourceUid());
 		String urlPath = instance.getUrlPath();
 
-		String destProject = testGetProjectId(destPod);
-		String sourceProject = testGetProjectId(sourcePod);
+		String destProject = getProjectId(destPod);
+		String sourceProject = getProjectId(sourcePod);
 		String patternsStr = makeUrlPathPattern(clusterId, destPod, urlPath);
 		TemplateHandlerService.OutputMsg output = TemplateHandlerService.OutputMsg.newBuilder()
 			.setDestinationProject(destProject)
@@ -41,12 +43,8 @@ public class MixerApa extends HandleNsfmetaServiceGrpc.HandleNsfmetaServiceImplB
 		responseObserver.onCompleted();
 	}
 
-	private String testGetProjectId(PodInfo pod) {
-		if (pod.podName.hashCode() % 2 == 0) {
-			return "test";
-		} else {
-			return "project1";
-		}
+	private String getProjectId(PodInfo pod) {
+		return serviceMeshService.getProjectCodeByApp(pod.namespace, pod.appName, pod.clusterId);
 	}
 
 	private AntPathMatcher matcher = new AntPathMatcher();
@@ -58,6 +56,7 @@ public class MixerApa extends HandleNsfmetaServiceGrpc.HandleNsfmetaServiceImplB
 	}
 
 	private class PodInfo {
+		private String clusterId;
 		private String namespace;
 		private String appName;
 		private String podName;
@@ -67,6 +66,7 @@ public class MixerApa extends HandleNsfmetaServiceGrpc.HandleNsfmetaServiceImplB
 			String fullPodName = uid.split("://")[1];
 			int lastDot = fullPodName.lastIndexOf(".");
 
+			this.clusterId = clusterId;
 			podName = fullPodName.substring(0, lastDot);
 			namespace = fullPodName.substring(lastDot + 1);
 			appName = resourceCache.getAppNameByPod(clusterId, namespace, podName);
