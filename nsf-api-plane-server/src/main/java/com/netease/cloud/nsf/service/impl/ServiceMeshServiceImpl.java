@@ -1,7 +1,9 @@
 package com.netease.cloud.nsf.service.impl;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.netease.cloud.nsf.cache.K8sResourceCache;
-import com.netease.cloud.nsf.cache.OwnerReferenceSupportStore;
 import com.netease.cloud.nsf.cache.ResourceStoreFactory;
 import com.netease.cloud.nsf.cache.meta.PodDTO;
 import com.netease.cloud.nsf.configuration.ApiPlaneConfig;
@@ -40,6 +42,7 @@ import org.springframework.util.StringUtils;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import static com.netease.cloud.nsf.core.editor.ResourceType.OBJECT;
 import static com.netease.cloud.nsf.core.k8s.K8sResourceEnum.DaemonSet;
@@ -52,7 +55,19 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
 
     private static final Logger logger = LoggerFactory.getLogger(ServiceMeshServiceImpl.class);
     private static final String DEFAULT_SIDECAR_VERSION = "envoy";
+    private static final long PROJECT_CACHE_MAX_SIZE = 200;
+    private static final long PROJECT_CACHE_REFRESH_DURATION = 3;
     private ExecutorService taskPool = Executors.newCachedThreadPool();
+    private LoadingCache<App2ProjectIndex, String> app2ProjectCache = CacheBuilder.newBuilder()
+            .maximumSize(PROJECT_CACHE_MAX_SIZE)
+            .refreshAfterWrite(PROJECT_CACHE_REFRESH_DURATION, TimeUnit.SECONDS)
+            .build(new CacheLoader<App2ProjectIndex, String>() {
+                @Override
+                public String load(App2ProjectIndex index) {
+                    return doGetProjectCodeByApp(index.getNamespace(),index.getAppName(),index.getClusterId());
+                }
+
+            });
 
     @Autowired
     MultiK8sConfigStore configStore;
@@ -343,6 +358,38 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
         return ApiPlaneErrorCode.Success;
     }
 
+    @Override
+    public String getProjectCodeByApp(String namespace, String appName, String clusterId) {
+
+        try {
+            return app2ProjectCache.getUnchecked(new App2ProjectIndex(appName,namespace,clusterId));
+        } catch (CacheLoader.InvalidCacheLoadException e) {
+            logger.warn("can`t find projectCode by app[{}] and namespace[{}]",appName,namespace);
+            return null;
+        }
+
+    }
+
+    private String doGetProjectCodeByApp(String namespace, String appName ,String clusterId){
+        String projectCode = null;
+        List<T> serviceList = k8sResource.getServiceByClusterAndNamespace(clusterId, namespace);
+        if (CollectionUtils.isEmpty(serviceList)||StringUtils.isEmpty(appName)){
+            return null;
+        }
+        for (T s : serviceList) {
+            if (s.getMetadata().getLabels()!=null
+                    &&appName.equals(s.getMetadata().getLabels().get(meshConfig.getAppKey()))
+                    &&s.getMetadata().getLabels().get(meshConfig.getProjectKey())!=null){
+                projectCode = s.getMetadata().getLabels().get(meshConfig.getProjectKey());
+                break;
+            }
+
+        }
+        return projectCode;
+
+    }
+
+
     private void createAppOnServiceByClusterId(String clusterId, String namespace, String name, String appName){
         T service = (T) k8sResource.getResource(clusterId, K8sResourceEnum.Service.name(), namespace, name);
         if (service.getMetadata().getLabels() == null){
@@ -374,5 +421,58 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
 //        allClients.
         //TODO 待multiClusterClient暴露默认集群字段，目前使用hack方式
         return "default";
+    }
+
+
+    class App2ProjectIndex {
+
+        private String appName;
+        private String namespace;
+        private String clusterId;
+
+        public App2ProjectIndex(String appName, String namespace, String clusterId) {
+            this.appName = appName;
+            this.namespace = namespace;
+            this.clusterId = clusterId;
+        }
+
+        public String getClusterId() {
+            return clusterId;
+        }
+
+        public void setClusterId(String clusterId) {
+            this.clusterId = clusterId;
+        }
+
+        public String getAppName() {
+            return appName;
+        }
+
+        public void setAppName(String appName) {
+            this.appName = appName;
+        }
+
+        public String getNamespace() {
+            return namespace;
+        }
+
+        public void setNamespace(String namespace) {
+            this.namespace = namespace;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            App2ProjectIndex that = (App2ProjectIndex) o;
+            return Objects.equals(appName, that.appName) &&
+                    Objects.equals(namespace, that.namespace) &&
+                    Objects.equals(clusterId, that.clusterId);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(appName, namespace, clusterId);
+        }
     }
 }

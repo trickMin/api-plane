@@ -19,6 +19,7 @@ import com.netease.cloud.nsf.service.ServiceMeshService;
 import com.netease.cloud.nsf.util.Const;
 import com.netease.cloud.nsf.util.RestTemplateClient;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
+import com.sun.org.apache.regexp.internal.RE;
 import io.fabric8.kubernetes.api.model.EndpointAddress;
 import io.fabric8.kubernetes.api.model.Endpoints;
 import io.fabric8.kubernetes.api.model.HasMetadata;
@@ -41,15 +42,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -624,6 +617,19 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         }
 
         return workLoadDTO;
+    }
+
+    public List<T> getServiceByClusterAndNamespace(String clusterId,String namespace){
+        List<T> serviceList = new ArrayList<>();
+        if (StringUtils.isEmpty(clusterId)){
+            for (String c : ResourceStoreFactory.listClusterId()) {
+                OwnerReferenceSupportStore resourceStore = ResourceStoreFactory.getResourceStore(c);
+                serviceList.addAll(resourceStore.listByKindAndNamespace(Service.name(),namespace));
+            }
+        }else {
+            serviceList = ResourceStoreFactory.getResourceStore(clusterId).listByKindAndNamespace(Service.name(),namespace);
+        }
+        return serviceList;
     }
 
     private String getLabelValueFromWorkLoad(WorkLoadDTO obj,String key){
