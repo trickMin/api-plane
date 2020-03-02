@@ -50,6 +50,9 @@ public class MixerApa extends HandleNsfmetaServiceGrpc.HandleNsfmetaServiceImplB
 	}
 
 	private String getProjectId(PodInfo pod) {
+		if (pod.appName.equals("")) {
+			return "";
+		}
 		return Strings.nullToEmpty(serviceMeshService.getProjectCodeByApp(pod.namespace, pod.appName, pod.clusterId));
 	}
 
