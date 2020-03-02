@@ -18,9 +18,6 @@ public class ConfigMapRateLimit {
 
     public static class ConfigMapRateLimitDescriptor {
 
-        @JsonProperty("descriptors")
-        private List<ConfigMapRateLimitDescriptor> descriptors = new ArrayList();
-
         @JsonProperty("key")
         private String key;
 
@@ -29,14 +26,6 @@ public class ConfigMapRateLimit {
 
         @JsonProperty("value")
         private String value;
-
-        public List<ConfigMapRateLimitDescriptor> getDescriptors() {
-            return descriptors;
-        }
-
-        public void setDescriptors(List<ConfigMapRateLimitDescriptor> descriptors) {
-            this.descriptors = descriptors;
-        }
 
         public String getKey() {
             return key;
@@ -64,7 +53,7 @@ public class ConfigMapRateLimit {
     }
 
     public static class ConfigMapRateLimitInner {
-        @JsonProperty("requestsPerUnit")
+        @JsonProperty("requests_per_unit")
         private Integer requestsPerUnit;
 
         @JsonProperty("unit")

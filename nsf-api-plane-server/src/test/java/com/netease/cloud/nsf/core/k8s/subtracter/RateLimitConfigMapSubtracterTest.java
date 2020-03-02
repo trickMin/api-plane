@@ -18,17 +18,17 @@ public class RateLimitConfigMapSubtracterTest {
                 "  descriptors:\n" +
                         "  - key: auto-test1\n" +
                         "    rate_limit:\n" +
-                        "      requestsPerUnit: 1\n" +
+                        "      requests_per_unit: 1\n" +
                         "      unit: HOUR\n" +
                         "    value: Service[httpbin]-User[none]-Api[test1]-Id[08638e47-48db\n" +
                         "  - key: auto-test1\n" +
                         "    rate_limit:\n" +
-                        "      requestsPerUnit: 1\n" +
+                        "      requests_per_unit: 1\n" +
                         "      unit: MINUTE\n" +
                         "    value: Service[httpbin]-User[none]-Api[test1]-Id[08638e47-\n" +
                         "  - key: auto-test3\n" +
                         "    rate_limit:\n" +
-                        "      requestsPerUnit: 1\n" +
+                        "      requests_per_unit: 1\n" +
                         "      unit: HOUR\n" +
                         "    value: Service[httpbin]-User[none]-Api[test3]-Id[08638e47-48db\n" +
                         "  domain: qingzhou");
