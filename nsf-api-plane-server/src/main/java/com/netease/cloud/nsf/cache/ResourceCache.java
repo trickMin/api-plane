@@ -61,7 +61,7 @@ public interface ResourceCache {
 
     List getWorkLoadListWithSidecarVersion(List workLoadDTOList);
 
-    List getPodListWithSidecarVersion(List podDTOList);
+    List getPodListWithSidecarVersion(List podDTOList, String expectedVersion);
 
     List getPodListByService(String clusterId, String namespace, String name);
 

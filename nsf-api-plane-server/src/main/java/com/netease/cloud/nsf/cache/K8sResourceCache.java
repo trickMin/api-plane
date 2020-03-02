@@ -19,7 +19,6 @@ import com.netease.cloud.nsf.service.ServiceMeshService;
 import com.netease.cloud.nsf.util.Const;
 import com.netease.cloud.nsf.util.RestTemplateClient;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
-import com.sun.org.apache.regexp.internal.RE;
 import io.fabric8.kubernetes.api.model.EndpointAddress;
 import io.fabric8.kubernetes.api.model.Endpoints;
 import io.fabric8.kubernetes.api.model.HasMetadata;
@@ -415,11 +414,11 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     }
 
     @Override
-    public List<PodDTO<T>> getPodListWithSidecarVersion(List podDTOList) {
+    public List<PodDTO<T>> getPodListWithSidecarVersion(List podDTOList, String expectedVersion) {
         if (CollectionUtils.isEmpty(podDTOList)) {
             return new ArrayList<>();
         }
-        podDTOList.forEach(podDTO -> addSidecarVersionOnPod((PodDTO<T>) podDTO));
+        podDTOList.forEach(podDTO -> addSidecarVersionOnPod((PodDTO<T>) podDTO, expectedVersion));
         return podDTOList;
     }
 
@@ -558,7 +557,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     }
 
 
-    private PodDTO<T> addSidecarVersionOnPod(PodDTO<T> podDTO) {
+    private PodDTO<T> addSidecarVersionOnPod(PodDTO<T> podDTO, String expectedVersion) {
         PodVersion queryVersion = new PodVersion();
         queryVersion.setClusterId(podDTO.getClusterId());
         queryVersion.setNamespace(podDTO.getNamespace());
@@ -580,7 +579,9 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         if (StringUtils.isEmpty(status.getExpectedVersion())
                 ||StringUtils.isEmpty(status.getCurrentVersion())
                 ||!status.getCurrentVersion().equals(status.getExpectedVersion())
-        ) {
+                ||StringUtils.isEmpty(expectedVersion)
+                ||!expectedVersion.equals(status.getExpectedVersion()))
+        {
             podDTO.setSidecarContainerStatus(Const.SIDECAR_CONTAINER_ERROR);
         }else {
             podDTO.setSidecarContainerStatus(Const.SIDECAR_CONTAINER_SUCCESS);
