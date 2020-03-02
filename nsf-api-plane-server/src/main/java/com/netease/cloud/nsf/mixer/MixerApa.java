@@ -1,14 +1,19 @@
 package com.netease.cloud.nsf.mixer;
 
+import com.google.common.base.Strings;
 import com.netease.cloud.nsf.cache.ResourceCache;
 import com.netease.cloud.nsf.service.ServiceMeshService;
 import io.grpc.stub.StreamObserver;
 import net.devh.springboot.autoconfigure.grpc.server.GrpcService;
 import nsfmeta.HandleNsfmetaServiceGrpc;
 import nsfmeta.TemplateHandlerService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.AntPathMatcher;
+import org.springframework.util.StringUtils;
 
+import javax.validation.constraints.NotNull;
 import java.util.stream.Collectors;
 
 
@@ -20,6 +25,7 @@ public class MixerApa extends HandleNsfmetaServiceGrpc.HandleNsfmetaServiceImplB
 
 	@Autowired private ResourceCache resourceCache;
 	@Autowired private ServiceMeshService serviceMeshService;
+	private static final Logger logger = LoggerFactory.getLogger(MixerApa.class);
 
 	@Override
 	public void handleNsfmeta(TemplateHandlerService.HandleNsfmetaRequest request, StreamObserver<TemplateHandlerService.OutputMsg> responseObserver) {
@@ -44,7 +50,7 @@ public class MixerApa extends HandleNsfmetaServiceGrpc.HandleNsfmetaServiceImplB
 	}
 
 	private String getProjectId(PodInfo pod) {
-		return serviceMeshService.getProjectCodeByApp(pod.namespace, pod.appName, pod.clusterId);
+		return Strings.nullToEmpty(serviceMeshService.getProjectCodeByApp(pod.namespace, pod.appName, pod.clusterId));
 	}
 
 	private AntPathMatcher matcher = new AntPathMatcher();
@@ -56,20 +62,29 @@ public class MixerApa extends HandleNsfmetaServiceGrpc.HandleNsfmetaServiceImplB
 	}
 
 	private class PodInfo {
-		private String clusterId;
-		private String namespace;
-		private String appName;
-		private String podName;
+		@NotNull private final String clusterId;
+		@NotNull private final String namespace;
+		@NotNull private final String appName;
+		@NotNull private final String podName;
 
 		// kubernetes://a-686ff98446-hcdlm.powerful-v13
 		public PodInfo(String clusterId, String uid) {
-			String fullPodName = uid.split("://")[1];
-			int lastDot = fullPodName.lastIndexOf(".");
-
+			if (clusterId == null) {
+				throw new IllegalArgumentException("cluster id can't be null");
+			}
 			this.clusterId = clusterId;
-			podName = fullPodName.substring(0, lastDot);
-			namespace = fullPodName.substring(lastDot + 1);
-			appName = resourceCache.getAppNameByPod(clusterId, namespace, podName);
+			if (!StringUtils.isEmpty(uid) && uid.contains("://") && uid.contains(".")) {
+				String fullPodName = uid.split("://")[1];
+				int lastDot = fullPodName.lastIndexOf(".");
+				podName = fullPodName.substring(0, lastDot);
+				namespace = fullPodName.substring(lastDot + 1);
+				appName = resourceCache.getAppNameByPod(clusterId, namespace, podName);
+			} else {
+				namespace = appName = podName = "";
+				if (!StringUtils.isEmpty(uid)) {
+					logger.error("invalid uid: {}", uid);
+				}
+			}
 		}
 	}
 }
