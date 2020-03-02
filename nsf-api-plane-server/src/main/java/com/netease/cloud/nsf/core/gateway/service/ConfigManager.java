@@ -66,6 +66,13 @@ public interface ConfigManager {
     List<PodStatus> querySVMConfig(PodVersion podVersion);
 
     /**
+     * 查询负载的期望版本
+     * @param workLoadType
+     * @param workLoadName
+     */
+    String querySVMExpectedVersion(String clusterId, String namespace, String workLoadType, String workLoadName);
+
+    /**
      * 更新全局插件
      * @param gp
      */

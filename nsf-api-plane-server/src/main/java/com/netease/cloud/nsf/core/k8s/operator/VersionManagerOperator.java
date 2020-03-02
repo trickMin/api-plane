@@ -83,4 +83,49 @@ public class VersionManagerOperator implements k8sResourceOperator<VersionManage
         }
         return resultList;
     }
+
+    public String getExpectedVersion (VersionManager versionmanager, String workLoadType, String workLoadName ) {
+
+        List<SidecarVersionSpec> specList = versionmanager.getSpec().getSidecarVersionSpec();
+        SidecarVersionSpec.Selector target;
+        switch (workLoadType) {
+            case "Deployment" :
+                ViaDeployment deploy = new ViaDeployment();
+                deploy.setName(workLoadName);
+                ViaDeploymentSelector deploySelector = new ViaDeploymentSelector();
+                deploySelector.setViaDeployment(deploy);
+                target = deploySelector;
+                break;
+            case "StatefulSet" :
+                ViaStatefulSet statefulSet = new ViaStatefulSet();
+                statefulSet.setName(workLoadName);
+                ViaStatefulSetSelector statefulSetSelector = new ViaStatefulSetSelector();
+                statefulSetSelector.setViaStatefulSet(statefulSet);
+                target = statefulSetSelector;
+                break;
+            case "Service" :
+                ViaService service = new ViaService();
+                service.setName(workLoadName);
+                ViaServiceSelector serviceSelector = new ViaServiceSelector();
+                serviceSelector.setViaService(service);
+                target = serviceSelector;
+                break;
+            case "Labelselector" :
+                System.out.println("查询类型暂时不支持");
+                return null;
+            default :
+                System.out.println("查询类型不存在");
+                return null;
+
+        }
+
+        for (SidecarVersionSpec spec : specList) {
+            SidecarVersionSpec.Selector selector = spec.getSelector();
+            if (selector.equals(target)) {
+                return spec.getExpectedVersion();
+            }
+        }
+
+        return null;
+    }
 }
