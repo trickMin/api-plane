@@ -34,10 +34,10 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
-public class IstioModelProcessorTest extends BaseTest {
+public class IstioModelEngineTest extends BaseTest {
 
     @Autowired
-    IstioModelProcessor processor;
+    IstioModelEngine processor;
 
     @Autowired
     EditorContext editorContext;
