@@ -90,7 +90,7 @@ public class CacheProcessor extends AbstractSchemaProcessor implements SchemaPro
                 }
             });
         }
-        if (source.contain("$.condition.response.code")) {
+        if (source.contain("$.condition.response.code.value")) {
             String code = source.getValue("$.condition.response.code.value", String.class);
             builder.addJsonElement("$.enable_rpx.headers", String.format("{\"name\":\":status\",\"regex_match\":\"%s|\"}", code));
         }

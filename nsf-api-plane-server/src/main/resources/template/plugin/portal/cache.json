@@ -228,8 +228,12 @@
                       "value": "safe_regex_match"
                     },
                     {
-                      "text": "参数不存在则匹配",
+                      "text": "参数存在则匹配",
                       "value": "present_match"
+                    },
+                    {
+                      "text": "参数不存在则匹配",
+                      "value": "present_match_invert"
                     }
                   ]
                 },
