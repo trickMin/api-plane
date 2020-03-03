@@ -41,36 +41,8 @@
                   "value": "GET"
                 },
                 {
-                  "text": "POST",
-                  "value": "POST"
-                },
-                {
-                  "text": "PUT",
-                  "value": "PUT"
-                },
-                {
-                  "text": "DELETE",
-                  "value": "DELETE"
-                },
-                {
-                  "text": "OPTIONS",
-                  "value": "OPTIONS"
-                },
-                {
                   "text": "HEAD",
                   "value": "HEAD"
-                },
-                {
-                  "text": "TRACE",
-                  "value": "TRACE"
-                },
-                {
-                  "text": "CONNECT",
-                  "value": "CONNECT"
-                },
-                {
-                  "text": "PATCH",
-                  "value": "PATCH"
                 }
               ]
             },
@@ -164,8 +136,12 @@
                       "value": "safe_regex_match"
                     },
                     {
-                      "text": "参数不存在则匹配",
+                      "text": "参数存在则匹配",
                       "value": "present_match"
+                    },
+                    {
+                      "text": "参数不存在则匹配",
+                      "value": "present_match_invert"
                     }
                   ]
                 },
@@ -174,7 +150,8 @@
                   "type": "input",
                   "alias": "取值",
                   "invisible": {
-                    "this.match_type": "present_match"
+                    "present_match": ["this", "match_type"],
+                    "present_match_invert": ["this", "match_type"]
                   }
                 }
               ]
@@ -219,13 +196,7 @@
                 {
                   "key": "value",
                   "alias": "取值",
-                  "type": "input",
-                  "rules": [
-                    "Required",
-                    "Number",
-                    "MinNumber(200)",
-                    "MaxNumber(599)"
-                  ]
+                  "type": "input"
                 }
               ]
             },
@@ -267,7 +238,8 @@
                   "type": "input",
                   "alias": "取值",
                   "invisible": {
-                    "this.match_type": "present_match"
+                    "present_match": ["this", "match_type"],
+                    "present_match_invert": ["this", "match_type"]
                   }
                 }
               ]
@@ -282,8 +254,8 @@
       "type": "layouts",
       "layouts": [
         {
-          "key": "redis",
-          "alias": "Redis缓存ttl",
+          "key": "local",
+          "alias": "本地缓存ttl",
           "type": "layouts",
           "layouts": [
             {
@@ -329,8 +301,8 @@
           ]
         },
         {
-          "key": "local",
-          "alias": "本地缓存ttl",
+          "key": "redis",
+          "alias": "Redis缓存ttl",
           "type": "layouts",
           "layouts": [
             {
@@ -380,20 +352,20 @@
     {
       "key": "keyMaker",
       "alias": "缓存key配置",
-      "help": "默认情况下使用host + path（不带querystring参数）作为缓存的key",
+      "help": "默认情况下使用method + host + path（不带querystring参数）作为缓存的key",
       "type": "layouts",
       "layouts": [
         {
           "key": "excludeHost",
           "alias": "host不参与key计算",
           "type": "switch",
-          "default": "false"
+          "default": false
         },
         {
           "key": "ignoreCase",
           "alias": "key忽略大小写",
           "type": "switch",
-          "default": "true"
+          "default": true
         },
         {
           "key": "queryString",
@@ -412,7 +384,7 @@
       "alias": "次级缓存填充",
       "help": "当在高级别缓存中命中时，将数据写入到低级别缓存中",
       "type": "switch",
-      "default": "true"
+      "default": true
     }
   ]
 }

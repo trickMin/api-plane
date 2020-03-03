@@ -36,6 +36,8 @@ public class CacheProcessor extends AbstractSchemaProcessor implements SchemaPro
                     builder.addJsonElement("$.enable_rqx.headers", String.format("{\"name\":\"%s\",\"regex_match\":\"%s\"}", headerKey, headerValue));
                 } else if ("present_match".equals(matchType)) {
                     builder.addJsonElement("$.enable_rqx.headers", String.format("{\"name\":\"%s\",\"present_match\":true}", headerKey));
+                } else if ("present_match_invert".equals(matchType)) {
+                    builder.addJsonElement("$.enable_rqx.headers", String.format("{\"name\":\"%s\", \"present_match\":true, \"invert_match\":true}", headerKey));
                 } else {
                     builder.addJsonElement("$.enable_rqx.headers", String.format("{\"name\":\"%s\",\"exact_match\":\"%s\"}", headerKey, headerValue));
                 }
@@ -81,7 +83,9 @@ public class CacheProcessor extends AbstractSchemaProcessor implements SchemaPro
                     builder.addJsonElement("$.enable_rpx.headers", String.format("{\"name\":\"%s\",\"regex_match\":\"%s\"}", headerKey, headerValue));
                 } else if ("present_match".equals(matchType)) {
                     builder.addJsonElement("$.enable_rpx.headers", String.format("{\"name\":\"%s\",\"present_match\":true}", headerKey));
-                }  else {
+                } else if ("present_match_invert".equals(matchType)) {
+                    builder.addJsonElement("$.enable_rpx.headers", String.format("{\"name\":\"%s\", \"present_match\":true, \"invert_match\":true}", headerKey));
+                } else {
                     builder.addJsonElement("$.enable_rpx.headers", String.format("{\"name\":\"%s\",\"exact_match\":\"%s\"}", headerKey, headerValue));
                 }
             });

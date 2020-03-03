@@ -94,7 +94,7 @@
       "updateTime": "1572537600000",
       "pluginScope": "routeRule,global",
       "pluginPriority": "3000",
-      "instructionForUse": "缓存插件"
+      "instructionForUse": "缓存插件，仅对GET、HEAD方法生效"
     },
     {
       "name": "transformer",
