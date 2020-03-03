@@ -119,6 +119,18 @@
       "pluginScope": "routeRule",
       "pluginPriority": "3000",
       "instructionForUse": "缓存插件"
+    },
+    {
+      "name": "super-auth",
+      "schema": "plugin/portal/superAuth.json",
+      "description": "",
+      "processor": "AggregateGlobalProcessor",
+      "author": "system",
+      "createTime": "1572537600000",
+      "updateTime": "1572537600000",
+      "pluginScope": "routeRule,global",
+      "pluginPriority": "1700",
+      "instructionForUse": "缓存插件"
     }
   ]
 }
