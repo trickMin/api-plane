@@ -200,6 +200,16 @@ public class K8sConfigManager implements ConfigManager {
     }
 
     @Override
+    public String querySVMExpectedVersion(String clusterId, String namespace, String workLoadType, String workLoadName) {
+        HasMetadata versionmanager = multiK8sConfigStore.get(K8sResourceEnum.VersionManager.name(), namespace, VM_RESOURCE_NAME, clusterId);
+        if(versionmanager == null) {
+            return null;
+        }
+        VersionManagerOperator ir = (VersionManagerOperator)resolve(versionmanager);
+        return ir.getExpectedVersion((VersionManager)versionmanager, workLoadType, workLoadName);
+    }
+
+    @Override
     public HasMetadata getConfig(IstioGateway istioGateway) {
         if (StringUtils.isEmpty(istioGateway.getGwCluster())){
             return null;

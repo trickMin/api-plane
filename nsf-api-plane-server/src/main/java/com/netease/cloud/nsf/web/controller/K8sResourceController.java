@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.netease.cloud.nsf.cache.ResourceCache;
 import com.netease.cloud.nsf.cache.ResourceStoreFactory;
 import com.netease.cloud.nsf.cache.meta.ServiceDto;
+import com.netease.cloud.nsf.core.gateway.service.ConfigManager;
 import com.netease.cloud.nsf.service.ServiceMeshService;
 import com.netease.cloud.nsf.util.errorcode.ApiPlaneErrorCode;
 import com.netease.cloud.nsf.util.errorcode.ErrorCode;
@@ -34,6 +35,9 @@ public class K8sResourceController extends BaseController {
 
     @Autowired
     private ServiceMeshService serviceMeshService;
+
+    @Autowired
+    private ConfigManager configManager;
 
 
     @RequestMapping(params = {"Action=GetWorkLoadByServiceInfo"}, method = RequestMethod.GET)
@@ -70,7 +74,8 @@ public class K8sResourceController extends BaseController {
         }
         List podList = resourceCache.getPodDtoByWorkLoadInfo(clusterId, kind, namespace, name);
         checkResult(podList);
-        podList = resourceCache.getPodListWithSidecarVersion(podList);
+        String svmExpectedVersion = configManager.querySVMExpectedVersion(clusterId, namespace, kind, name);
+        podList = resourceCache.getPodListWithSidecarVersion(podList, svmExpectedVersion);
         serviceMeshService.createMissingCrd(podList, kind, name, clusterId, namespace);
         Map<String, Object> result = new HashMap<>();
         result.put("Result", podList);
@@ -159,6 +164,28 @@ public class K8sResourceController extends BaseController {
                                      @RequestBody List<String> urlPatterns) {
         resourceCache.updateMixerPathPatterns(clusterId, namespace, name, urlPatterns);
         return apiReturn(ApiPlaneErrorCode.Success);
+    }
+
+    @RequestMapping(params = {"Action=GetWorkLoadByApp"}, method = RequestMethod.GET)
+    public String getWorkLoadByApp(@RequestParam(name = "AppName") String appName,
+                                           @RequestParam(name = "Namespace") String namespace,
+                                           @RequestParam(name = "ClusterId", required = false) String clusterId) {
+
+        List workLoadByServiceInfo;
+        if (!StringUtils.isEmpty(clusterId)) {
+            if (!ResourceStoreFactory.listClusterId().contains(clusterId)) {
+                throw new ApiPlaneException("ClusterId not found", 404);
+            }
+            workLoadByServiceInfo = resourceCache.getWorkLoadByApp( namespace, appName, clusterId);
+        } else {
+            workLoadByServiceInfo = resourceCache.getWorkLoadByAppAllClusterId(namespace, appName);
+        }
+        workLoadByServiceInfo = resourceCache.getWorkLoadListWithSidecarVersion(workLoadByServiceInfo);
+        checkResult(workLoadByServiceInfo);
+        Map<String, Object> result = new HashMap<>();
+        result.put("Result", workLoadByServiceInfo);
+        ErrorCode code = ApiPlaneErrorCode.Success;
+        return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), result);
     }
 
 }

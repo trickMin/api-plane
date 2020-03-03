@@ -1,6 +1,7 @@
 package com.netease.cloud.nsf.cache;
 
 import com.netease.cloud.nsf.cache.meta.ServiceDto;
+import com.netease.cloud.nsf.cache.meta.WorkLoadDTO;
 
 import java.util.List;
 
@@ -61,7 +62,7 @@ public interface ResourceCache {
 
     List getWorkLoadListWithSidecarVersion(List workLoadDTOList);
 
-    List getPodListWithSidecarVersion(List podDTOList);
+    List getPodListWithSidecarVersion(List podDTOList, String expectedVersion);
 
     List getPodListByService(String clusterId, String namespace, String name);
 
@@ -76,4 +77,8 @@ public interface ResourceCache {
     List getEndPointByService(String clusterId, String namespace, String name);
 
     List<ServiceDto> getServiceByProjectCode(String projectCode, String clusterId);
+
+    List<WorkLoadDTO> getWorkLoadByApp(String namespace, String appName, String clusterId);
+
+    List<WorkLoadDTO> getWorkLoadByAppAllClusterId(String namespace, String appName);
 }

@@ -19,7 +19,6 @@ import com.netease.cloud.nsf.service.ServiceMeshService;
 import com.netease.cloud.nsf.util.Const;
 import com.netease.cloud.nsf.util.RestTemplateClient;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
-import com.sun.org.apache.regexp.internal.RE;
 import io.fabric8.kubernetes.api.model.EndpointAddress;
 import io.fabric8.kubernetes.api.model.Endpoints;
 import io.fabric8.kubernetes.api.model.HasMetadata;
@@ -297,18 +296,20 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     @Override
     public List<WorkLoadDTO<T>> getWorkLoadByServiceInfo(String projectId, String namespace, String serviceName, String clusterId) {
         OwnerReferenceSupportStore store = ResourceStoreFactory.getResourceStore(clusterId);
-        List<T> serviceList = store.listByKind(Service.name());
+        List<T> serviceList = store.listByKindAndNamespace(Service.name(), namespace);
         for (T service : serviceList) {
             if (service.getMetadata().getLabels() == null || service.getMetadata().getLabels().isEmpty()) {
                 continue;
             }
             if (service.getMetadata().getLabels().get(meshConfig.getProjectKey()) != null &&
                     service.getMetadata().getLabels().get(meshConfig.getProjectKey()).equals(projectId) &&
-                    service.getMetadata().getName().equals(serviceName) &&
-                    service.getMetadata().getNamespace().equals(namespace)) {
+                    service.getMetadata().getName().equals(serviceName)) {
+
+                String appName = service.getMetadata().getLabels().get(meshConfig.getAppKey());
+
                 return getWorkLoadByIndex(clusterId,
                         service.getMetadata().getNamespace(),
-                        service.getMetadata().getName()).stream()
+                        appName).stream()
                         .map(obj -> new WorkLoadDTO<>(obj, getServiceName(service), clusterId,
                                 getProjectCodeFromService(service), getEnvNameFromService(service)))
                         .collect(Collectors.toList());
@@ -365,7 +366,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         }
         serviceList.forEach(service -> workLoadList.addAll(getWorkLoadByIndex(clusterId,
                 service.getMetadata().getNamespace(),
-                service.getMetadata().getName()).stream()
+                service.getMetadata().getLabels().get(meshConfig.getAppKey())).stream()
                 .map(obj -> new WorkLoadDTO<>(obj, getServiceName(service), clusterId,
                         getProjectCodeFromService(service), getEnvNameFromService(service)))
                 .collect(Collectors.toList())
@@ -415,11 +416,11 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     }
 
     @Override
-    public List<PodDTO<T>> getPodListWithSidecarVersion(List podDTOList) {
+    public List<PodDTO<T>> getPodListWithSidecarVersion(List podDTOList, String expectedVersion) {
         if (CollectionUtils.isEmpty(podDTOList)) {
             return new ArrayList<>();
         }
-        podDTOList.forEach(podDTO -> addSidecarVersionOnPod((PodDTO<T>) podDTO));
+        podDTOList.forEach(podDTO -> addSidecarVersionOnPod((PodDTO<T>) podDTO, expectedVersion));
         return podDTOList;
     }
 
@@ -537,6 +538,26 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         return serviceDtoList;
     }
 
+    @Override
+    public List<WorkLoadDTO> getWorkLoadByApp(String namespace, String appName, String clusterId) {
+        String serviceName = appName + "." + namespace;
+        return getWorkLoadByIndex(clusterId, namespace, appName)
+                .stream().map(obj -> new WorkLoadDTO<>(obj, serviceName, clusterId,
+                        null, null))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<WorkLoadDTO> getWorkLoadByAppAllClusterId(String namespace, String appName) {
+        List<WorkLoadDTO> workLoadDTOList = new ArrayList<>();
+
+        for (String cluster : ResourceStoreFactory.listClusterId()) {
+            workLoadDTOList.addAll(getWorkLoadByApp(namespace, appName, cluster));
+        }
+
+        return workLoadDTOList;
+    }
+
     private List<ServiceDto> getServiceByProjectCodeAndClusterId(String projectCode, String clusterId) {
         OwnerReferenceSupportStore store = ResourceStoreFactory.getResourceStore(clusterId);
         return  ((List<T>)store.listByKind(Service.name()))
@@ -558,7 +579,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     }
 
 
-    private PodDTO<T> addSidecarVersionOnPod(PodDTO<T> podDTO) {
+    private PodDTO<T> addSidecarVersionOnPod(PodDTO<T> podDTO, String expectedVersion) {
         PodVersion queryVersion = new PodVersion();
         queryVersion.setClusterId(podDTO.getClusterId());
         queryVersion.setNamespace(podDTO.getNamespace());
@@ -580,7 +601,9 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         if (StringUtils.isEmpty(status.getExpectedVersion())
                 ||StringUtils.isEmpty(status.getCurrentVersion())
                 ||!status.getCurrentVersion().equals(status.getExpectedVersion())
-        ) {
+                ||StringUtils.isEmpty(expectedVersion)
+                ||!expectedVersion.equals(status.getExpectedVersion()))
+        {
             podDTO.setSidecarContainerStatus(Const.SIDECAR_CONTAINER_ERROR);
         }else {
             podDTO.setSidecarContainerStatus(Const.SIDECAR_CONTAINER_SUCCESS);
@@ -643,32 +666,43 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         return workLoadByServiceCache.getUnchecked(new WorkLoadIndex(clusterId, namespace, name));
     }
 
-    private List<T> doGetWorkLoadList(String clusterId, String namespace, String serviceName) {
+    private List<T> doGetWorkLoadList(String clusterId, String namespace, String appName) {
         OwnerReferenceSupportStore store = ResourceStoreFactory.getResourceStore(clusterId);
-        Endpoints endpointsByService = (Endpoints) store.get(Endpoints.name(), namespace, serviceName);
-        if (endpointsByService == null) {
-            return new ArrayList<>();
+        List<T> workLoadList = new ArrayList<>();
+        workLoadList.addAll(store.listByKindAndNamespace(Deployment.name(), namespace));
+        workLoadList.addAll(store.listByKindAndNamespace(StatefulSet.name(), namespace));
+        if (CollectionUtils.isEmpty(workLoadList) || StringUtils.isEmpty(appName)) {
+            return workLoadList;
         }
-        //从endpoints信息中解析出关联的pod列表
-        List<ObjectReference> podReferences = endpointsByService.getSubsets()
-                .stream()
-                .flatMap(sub -> sub.getAddresses().stream())
-                .map(EndpointAddress::getTargetRef)
-                .filter(Objects::nonNull)
-                .filter(ref -> Pod.name().equals(ref.getKind()))
+        workLoadList = workLoadList.stream()
+                .filter(w -> w.getMetadata().getLabels() != null
+                        && appName.equals(w.getMetadata().getLabels().get(meshConfig.getAppKey())))
                 .collect(Collectors.toList());
 
-        Set<T> workLoadList = new HashSet<>();
-        // 通过pod信息查询全部的负载资源
-        if (!CollectionUtils.isEmpty(podReferences)) {
-            podReferences.forEach(podRef -> {
-                T pod = (T) store.get(Pod.name(), podRef.getNamespace(), podRef.getName());
-                if (pod != null) {
-                    workLoadList.addAll(store.listLoadByPod(pod));
-                }
-            });
-        }
-        return new ArrayList<>(workLoadList);
+//        Endpoints endpointsByService = (Endpoints) store.get(Endpoints.name(), namespace, serviceName);
+//        if (endpointsByService == null) {
+//            return new ArrayList<>();
+//        }
+//        //从endpoints信息中解析出关联的pod列表
+//        List<ObjectReference> podReferences = endpointsByService.getSubsets()
+//                .stream()
+//                .flatMap(sub -> sub.getAddresses().stream())
+//                .map(EndpointAddress::getTargetRef)
+//                .filter(Objects::nonNull)
+//                .filter(ref -> Pod.name().equals(ref.getKind()))
+//                .collect(Collectors.toList());
+//
+//        Set<T> workLoadList = new HashSet<>();
+//        // 通过pod信息查询全部的负载资源
+//        if (!CollectionUtils.isEmpty(podReferences)) {
+//            podReferences.forEach(podRef -> {
+//                T pod = (T) store.get(Pod.name(), podRef.getNamespace(), podRef.getName());
+//                if (pod != null) {
+//                    workLoadList.addAll(store.listLoadByPod(pod));
+//                }
+//            });
+//        }
+        return workLoadList;
     }
 
 
