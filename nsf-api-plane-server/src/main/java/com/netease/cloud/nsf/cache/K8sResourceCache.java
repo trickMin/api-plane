@@ -19,7 +19,6 @@ import com.netease.cloud.nsf.service.ServiceMeshService;
 import com.netease.cloud.nsf.util.Const;
 import com.netease.cloud.nsf.util.RestTemplateClient;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
-import com.sun.org.apache.regexp.internal.RE;
 import io.fabric8.kubernetes.api.model.EndpointAddress;
 import io.fabric8.kubernetes.api.model.Endpoints;
 import io.fabric8.kubernetes.api.model.HasMetadata;
@@ -169,11 +168,11 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
 
         if (mupCrd != null) {
             K8sResourceInformer<HasMetadata> mupInformer = new K8sResourceInformer
-                    .Builder()
-                    .addResourceKind(MixerUrlPattern)
-                    .addMixedOperation(getMixerUrlPatternMixedOperationList(allClients, mupCrd))
-                    .addHttpK8sClient(multiClusterK8sClient)
-                    .build();
+                .Builder()
+                .addResourceKind(MixerUrlPattern)
+                .addMixedOperation(getMixerUrlPatternMixedOperationList(allClients, mupCrd))
+                .addHttpK8sClient(multiClusterK8sClient)
+                .build();
 
             resourceInformerMap.put(MixerUrlPattern, mupInformer);
         } else {
@@ -417,11 +416,11 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     }
 
     @Override
-    public List<PodDTO<T>> getPodListWithSidecarVersion(List podDTOList) {
+    public List<PodDTO<T>> getPodListWithSidecarVersion(List podDTOList, String expectedVersion) {
         if (CollectionUtils.isEmpty(podDTOList)) {
             return new ArrayList<>();
         }
-        podDTOList.forEach(podDTO -> addSidecarVersionOnPod((PodDTO<T>) podDTO));
+        podDTOList.forEach(podDTO -> addSidecarVersionOnPod((PodDTO<T>) podDTO, expectedVersion));
         return podDTOList;
     }
 
@@ -464,14 +463,14 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     public void updateMixerPathPatterns(String clusterId, String namespace, String name, List<String> urlPatterns) {
         OwnerReferenceSupportStore<MixerUrlPattern> store = ResourceStoreFactory.getResourceStore(clusterId);
         MixerUrlPattern mup = new MixerUrlPatternBuilder()
-                .withNewMetadata()
-                .withName(name)
-                .withNamespace(namespace)
-                .and()
-                .withNewSpec()
-                .withPatterns(urlPatterns)
-                .and()
-                .build();
+            .withNewMetadata()
+            .withName(name)
+            .withNamespace(namespace)
+            .and()
+            .withNewSpec()
+            .withPatterns(urlPatterns)
+            .and()
+            .build();
         multiClusterK8sClient.k8sClient(clusterId).createOrUpdate(mup, ResourceType.OBJECT);
     }
 
@@ -529,11 +528,11 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     @Override
     public List<ServiceDto> getServiceByProjectCode(String projectCode, String clusterId) {
         List<ServiceDto> serviceDtoList = new ArrayList<>();
-        if (StringUtils.isEmpty(clusterId)) {
+        if (StringUtils.isEmpty(clusterId)){
             for (String cluster : ResourceStoreFactory.listClusterId()) {
-                serviceDtoList.addAll(getServiceByProjectCodeAndClusterId(projectCode, cluster));
+                serviceDtoList.addAll(getServiceByProjectCodeAndClusterId(projectCode,cluster));
             }
-        } else {
+        }else {
             serviceDtoList = getServiceByProjectCodeAndClusterId(projectCode, clusterId);
         }
         return serviceDtoList;
@@ -561,12 +560,12 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
 
     private List<ServiceDto> getServiceByProjectCodeAndClusterId(String projectCode, String clusterId) {
         OwnerReferenceSupportStore store = ResourceStoreFactory.getResourceStore(clusterId);
-        return ((List<T>) store.listByKind(Service.name()))
+        return  ((List<T>)store.listByKind(Service.name()))
                 .stream()
-                .filter(s -> s.getMetadata().getLabels() != null && !s.getMetadata().getLabels().isEmpty()
-                        && s.getMetadata().getLabels().get(meshConfig.getProjectKey()) != null
-                        && s.getMetadata().getLabels().get(meshConfig.getProjectKey()).equals(projectCode))
-                .map(s -> {
+                .filter(s->s.getMetadata().getLabels()!=null&&!s.getMetadata().getLabels().isEmpty()
+                        &&s.getMetadata().getLabels().get(meshConfig.getProjectKey())!=null
+                        &&s.getMetadata().getLabels().get(meshConfig.getProjectKey()).equals(projectCode))
+                .map(s->{
                     ServiceDto<T> tServiceDto = new ServiceDto<>(s, clusterId);
                     tServiceDto.setAppName(tServiceDto.getLabels().get(meshConfig.getAppKey()));
                     return tServiceDto;
@@ -580,7 +579,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     }
 
 
-    private PodDTO<T> addSidecarVersionOnPod(PodDTO<T> podDTO) {
+    private PodDTO<T> addSidecarVersionOnPod(PodDTO<T> podDTO, String expectedVersion) {
         PodVersion queryVersion = new PodVersion();
         queryVersion.setClusterId(podDTO.getClusterId());
         queryVersion.setNamespace(podDTO.getNamespace());
@@ -588,23 +587,25 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         List<PodStatus> podStatuses = gatewayService.queryByPodNameList(queryVersion);
         if (CollectionUtils.isEmpty(podStatuses)) {
             podDTO.setSidecarContainerStatus(Const.SIDECAR_CONTAINER_ERROR);
-            if (podDTO.isInjected()) {
+            if (podDTO.isInjected()){
                 podDTO.setVersionManagerCrdStatus(Const.VERSION_MANAGER_CRD_MISSING);
-                log.info("no sidecar status for pod[{}] and pod is injected", podDTO.getName());
-            } else {
+                log.info("no sidecar status for pod[{}] and pod is injected",podDTO.getName());
+            }else {
                 podDTO.setVersionManagerCrdStatus(Const.VERSION_MANAGER_CRD_DEFAULT);
-                log.info("no sidecar status for pod[{}] and pod is not injected", podDTO.getName());
+                log.info("no sidecar status for pod[{}] and pod is not injected",podDTO.getName());
             }
             return podDTO;
         }
         podDTO.setVersionManagerCrdStatus(Const.VERSION_MANAGER_CRD_EXIST);
         PodStatus status = podStatuses.get(0);
         if (StringUtils.isEmpty(status.getExpectedVersion())
-                || StringUtils.isEmpty(status.getCurrentVersion())
-                || !status.getCurrentVersion().equals(status.getExpectedVersion())
-        ) {
+                ||StringUtils.isEmpty(status.getCurrentVersion())
+                ||!status.getCurrentVersion().equals(status.getExpectedVersion())
+                ||StringUtils.isEmpty(expectedVersion)
+                ||!expectedVersion.equals(status.getExpectedVersion()))
+        {
             podDTO.setSidecarContainerStatus(Const.SIDECAR_CONTAINER_ERROR);
-        } else {
+        }else {
             podDTO.setSidecarContainerStatus(Const.SIDECAR_CONTAINER_SUCCESS);
         }
         podDTO.setSidecarStatus(status.getCurrentVersion());
@@ -630,35 +631,35 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                 map(podStatus -> podStatus.getCurrentVersion())
                 .collect(Collectors.toSet());
         workLoadDTO.setSidecarVersion(new ArrayList<>(versionSet));
-        if (StringUtils.isEmpty(getLabelValueFromWorkLoad(workLoadDTO, meshConfig.getAppKey()))
-                || StringUtils.isEmpty(getLabelValueFromWorkLoad(workLoadDTO, meshConfig.getVersionKey()))
-                || CollectionUtils.isEmpty(workLoadDTO.getSidecarVersion())) {
+        if (StringUtils.isEmpty(getLabelValueFromWorkLoad(workLoadDTO,meshConfig.getAppKey()))
+            ||StringUtils.isEmpty(getLabelValueFromWorkLoad(workLoadDTO,meshConfig.getVersionKey()))
+            ||CollectionUtils.isEmpty(workLoadDTO.getSidecarVersion())){
             workLoadDTO.setInMesh(false);
-        } else {
+        }else {
             workLoadDTO.setInMesh(true);
         }
 
         return workLoadDTO;
     }
 
-    public List<T> getServiceByClusterAndNamespace(String clusterId, String namespace) {
+    public List<T> getServiceByClusterAndNamespace(String clusterId,String namespace){
         List<T> serviceList = new ArrayList<>();
-        if (StringUtils.isEmpty(clusterId)) {
+        if (StringUtils.isEmpty(clusterId)){
             for (String c : ResourceStoreFactory.listClusterId()) {
                 OwnerReferenceSupportStore resourceStore = ResourceStoreFactory.getResourceStore(c);
-                serviceList.addAll(resourceStore.listByKindAndNamespace(Service.name(), namespace));
+                serviceList.addAll(resourceStore.listByKindAndNamespace(Service.name(),namespace));
             }
-        } else {
-            serviceList = ResourceStoreFactory.getResourceStore(clusterId).listByKindAndNamespace(Service.name(), namespace);
+        }else {
+            serviceList = ResourceStoreFactory.getResourceStore(clusterId).listByKindAndNamespace(Service.name(),namespace);
         }
         return serviceList;
     }
 
-    private String getLabelValueFromWorkLoad(WorkLoadDTO obj, String key) {
-        if (obj.getLabels() == null) {
+    private String getLabelValueFromWorkLoad(WorkLoadDTO obj,String key){
+        if (obj.getLabels() == null){
             return null;
         }
-        return (obj.getLabels().get(key) == null) ? null : String.valueOf(obj.getLabels().get(key));
+        return  (obj.getLabels().get(key) == null)?null:String.valueOf(obj.getLabels().get(key));
     }
 
     private List<T> getWorkLoadByIndex(String clusterId, String namespace, String name) {
@@ -756,9 +757,9 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         List<MixedOperation> result = new ArrayList<>();
         cm.forEach((name, client) -> {
             if (!StringUtils.isEmpty(name)) {
-                result.add(new ClusterMixedOperation(name, (MixedOperation) client.originalK8sClient
-                        .customResources(mupCrd, MixerUrlPattern.class, MixerUrlPatternList.class, DoneableMixerUrlPattern.class)
-                        .inAnyNamespace()));
+            	result.add(new ClusterMixedOperation(name, (MixedOperation)client.originalK8sClient
+                    .customResources(mupCrd, MixerUrlPattern.class, MixerUrlPatternList.class, DoneableMixerUrlPattern.class)
+                    .inAnyNamespace()));
             }
         });
         return result;
