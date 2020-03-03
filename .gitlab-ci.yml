@@ -23,9 +23,12 @@ job_unit_test:
   script:
     - pwd
     - git status
-    - $MAVEN_HOME/bin/mvn clean test  -Dmaven.test.failure.ignore=true  
+    - $MAVEN_HOME/bin/mvn clean package -U -Dmaven.test.failure.ignore=true
     - git status
     - echo "now unit_test finished."
+  artifacts:
+    paths:
+      - /builds/qingzhou/yx-gateway-api-plane/nsf-api-plane-server
   tags:
     - qz-gitlab-runner    
 
@@ -36,7 +39,9 @@ job_buildImage:
       - docker:dind
     before_script:
       - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
-
+    artifacts:
+     paths:
+      - /builds/qingzhou/yx-gateway-api-plane/nsf-api-plane-server
     script:
       - echo "Building image - hub.c.163.com/qingzhou/nsf-api-plane-server:latest"
       - cd /builds/qingzhou/yx-gateway-api-plane/nsf-api-plane-server/

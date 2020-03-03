@@ -66,6 +66,7 @@ public class PortalServiceEntryServiceDataHandler extends ServiceDataHandler {
             params.put(SERVICE_ENTRY_PROTOCOL, protocol);
             params.put(SERVICE_ENTRY_PROTOCOL_NAME, protocolName);
             params.put(SERVICE_ENTRY_PROTOCOL_PORT, protocolPort);
+            params.put(GATEWAY_GW_CLUSTER, service.getGateway());
 
             params.put("endpoints", endpoints)
                     .put(SERVICE_ENTRY_NAME, service.getCode().toLowerCase())

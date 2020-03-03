@@ -217,7 +217,7 @@ public class CommonExceptionHandler extends ResponseEntityExceptionHandler {
                 .message(msg)
                 .code(code)
                 .build();
-        logger.warn("Common exception handler catch :", exception);
+        logger.warn("Request Id: {}, Common exception handler catch :", LogTraceUUIDHolder.getUUIDId(), exception);
 
         return new ResponseEntity<>(returnEntity, HttpStatus.valueOf(statusCode));
     }

@@ -4,13 +4,14 @@ import com.google.common.collect.ImmutableMap;
 import com.netease.cloud.nsf.core.editor.PathExpressionEnum;
 import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
-import com.netease.cloud.nsf.core.gateway.IstioModelProcessor;
+import com.netease.cloud.nsf.core.gateway.IstioModelEngine;
 import com.netease.cloud.nsf.core.gateway.service.ConfigManager;
 import com.netease.cloud.nsf.core.gateway.service.ConfigStore;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.k8s.K8sResourcePack;
 import com.netease.cloud.nsf.core.k8s.operator.VersionManagerOperator;
 import com.netease.cloud.nsf.core.k8s.operator.k8sResourceOperator;
+import com.netease.cloud.nsf.core.k8s.subtracter.ServiceEntryEndpointsSubtracter;
 import com.netease.cloud.nsf.meta.*;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
@@ -41,7 +42,7 @@ public class K8sConfigManager implements ConfigManager {
     private static final String VM_RESOURCE_NAME = "version-manager";
 
     @Autowired
-    private IstioModelProcessor modelProcessor;
+    private IstioModelEngine modelProcessor;
 
     @Autowired
     private K8sConfigStore configStore;
@@ -114,6 +115,7 @@ public class K8sConfigManager implements ConfigManager {
         if (StringUtils.isEmpty(service.getGateway())) return;
         List<K8sResourcePack> resources = modelProcessor.translate(service);
         Class<? extends HasMetadata> drClz = K8sResourceEnum.DestinationRule.mappingType();
+        Class<? extends HasMetadata> seClz = K8sResourceEnum.ServiceEntry.mappingType();
 
         //move dr to head
         Comparator<K8sResourcePack> compareFun = (p1, p2) -> {
@@ -144,11 +146,16 @@ public class K8sConfigManager implements ConfigManager {
                     DestinationRule dr = gen.object(DestinationRule.class);
                     if (CollectionUtils.isEmpty(dr.getSpec().getSubsets())) noSubsets = true;
                     return dr;
-                } else {
-                    // 若没有subset，则删除所有关联资源
+                } else if (r.getClass() == seClz){
+                    // 若没有subset，则删除整个se
                     if (noSubsets) {
                         r.setApiVersion(null);
+                    } else {
+                        ServiceEntryEndpointsSubtracter sub = new ServiceEntryEndpointsSubtracter(service.getGateway());
+                        return sub.subtract((ServiceEntry) r);
                     }
+                } else {
+                    if (noSubsets) r.setApiVersion(null);
                 }
                 return r;
             }

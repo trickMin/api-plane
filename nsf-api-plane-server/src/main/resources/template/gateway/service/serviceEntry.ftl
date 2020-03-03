@@ -6,6 +6,8 @@ spec:
   endpoints:
 <#list endpoints as e>
   - address: ${e.address}
+    labels:
+      gw_cluster: ${t_api_gateway}
 <#if e.port ??>
     ports:
       ${t_service_entry_protocol_name}: ${e.port?c}
