@@ -121,6 +121,18 @@
       "instructionForUse": "静态降级插件，当返回结果符合条时件对返回结果进行降级"
     },
     {
+      "name": "dynamic-downgrade",
+      "schema": "plugin/portal/dynamic-downgrade.json",
+      "description": "",
+      "processor": "AggregateExtensionProcessor",
+      "author": "system",
+      "createTime": "1572537600000",
+      "updateTime": "1572537600000",
+      "pluginScope": "routeRule,global",
+      "pluginPriority": "2100",
+      "instructionForUse": "动态降级插件，当后端响应503/404等错误响应码时，envoy将缓存的最近一次请求作为响应返回给用户"
+    },
+    {
       "name": "trace",
       "schema": "plugin/portal/neTraceFileLog.json",
       "description": "",

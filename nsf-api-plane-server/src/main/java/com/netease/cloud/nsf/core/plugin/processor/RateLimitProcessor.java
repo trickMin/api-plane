@@ -45,7 +45,13 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
             ResourceGenerator rg = ResourceGenerator.newInstance(limit, ResourceType.OBJECT, editorContext);
             // 频控计算的不同维度，例如second, minute, hour, day(month, year暂时不支持)
             getUnits(rg).forEach((unit, duration) -> {
-                String headerDescriptor = getHeaderDescriptor(serviceInfo, xUserId);
+                String descriptorId;
+                if (rg.contain("$.limit_id")) {
+                    descriptorId = rg.getValue("$.limit_id", String.class);
+                } else {
+                    descriptorId = UUID.randomUUID().toString();
+                }
+                String headerDescriptor = getHeaderDescriptor(serviceInfo, xUserId, descriptorId);
                 rateLimitGen.addJsonElement("$.ratelimit.rateLimits", createRateLimits(rg, serviceInfo, headerDescriptor, null));
                 shareConfigGen.addJsonElement("$[0].descriptors", createShareConfig(rg, serviceInfo, headerDescriptor, unit, duration));
             });
@@ -90,26 +96,41 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
             for (int i = 0; i < length; i++) {
                 String operator = rg.getValue(String.format("$.pre_condition[%d].operator", i));
                 String rightValue = rg.getValue(String.format("$.pre_condition[%d].right_value", i));
-                String regex;
+                boolean invertMatch = false;
+                if ("true".equalsIgnoreCase(rg.getValue(String.format("$.pre_condition[%d].invert", i), String.class))) {
+                    invertMatch = true;
+                }
+
+                String expression;
                 switch (operator) {
                     case "≈":
-                        regex = escapeBackSlash(rightValue);
+                        expression = escapeBackSlash(rightValue);
+                        vs.addJsonElement("$.actions[0].headerValueMatch.headers",
+                                String.format("{\"name\":\"%s\",\"regexMatch\":\"%s\",\"invertMatch\":\"%s\"}", matchHeader, expression, invertMatch));
                         break;
                     case "!≈":
-                        regex = String.format("((?!%s).)*", escapeBackSlash(rightValue));
+                        expression = String.format("((?!%s).)*", escapeBackSlash(rightValue));
+                        vs.addJsonElement("$.actions[0].headerValueMatch.headers",
+                                String.format("{\"name\":\"%s\",\"regexMatch\":\"%s\",\"invertMatch\":\"%s\"}", matchHeader, expression, invertMatch));
                         break;
                     case "=":
-                        regex = String.format("%s", escapeExprSpecialWord(rightValue));
+                        expression = String.format("%s", escapeExprSpecialWord(rightValue));
+                        vs.addJsonElement("$.actions[0].headerValueMatch.headers",
+                                String.format("{\"name\":\"%s\",\"regexMatch\":\"%s\",\"invertMatch\":\"%s\"}", matchHeader, expression, invertMatch));
                         break;
                     case "!=":
-                        regex = String.format("((?!%s).)*", escapeExprSpecialWord(rightValue));
+                        expression = String.format("((?!%s).)*", escapeExprSpecialWord(rightValue));
+                        vs.addJsonElement("$.actions[0].headerValueMatch.headers",
+                                String.format("{\"name\":\"%s\",\"regexMatch\":\"%s\",\"invertMatch\":\"%s\"}", matchHeader, expression, invertMatch));
+                        break;
+                    case "present":
+                        //todo: envoy bug: presentMatch always true. Use invertMatch if need not present.
+                        vs.addJsonElement("$.actions[0].headerValueMatch.headers",
+                                String.format("{\"name\":\"%s\",\"presentMatch\":true,\"invertMatch\":\"%s\"}", matchHeader, invertMatch));
                         break;
                     default:
                         throw new ApiPlaneException(String.format("Unsupported $.config.limit_by_list.pre_condition.operator: %s", operator));
                 }
-
-                vs.addJsonElement("$.actions[0].headerValueMatch.headers",
-                        String.format("{\"name\":\"%s\",\"regexMatch\":\"%s\"}", matchHeader, regex));
             }
         }
         if (length == 0 && rg.contain("$.identifier_extractor") && !StringUtils.isEmpty(rg.getValue("$.identifier_extractor", String.class))) {
@@ -176,10 +197,10 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
         return ret;
     }
 
-    private String getHeaderDescriptor(ServiceInfo serviceInfo, String user) {
+    private String getHeaderDescriptor(ServiceInfo serviceInfo, String user, String id) {
         if (StringUtils.isBlank(user)) {
             user = "none";
         }
-        return String.format("Service[%s]-User[%s]-Api[%s]-Id[%s]", getServiceName(serviceInfo), user, getApiName(serviceInfo), UUID.randomUUID().toString());
+        return String.format("Service[%s]-User[%s]-Api[%s]-Id[%s]", getServiceName(serviceInfo), user, getApiName(serviceInfo), id);
     }
 }
