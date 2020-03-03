@@ -161,4 +161,26 @@ public class K8sResourceController extends BaseController {
         return apiReturn(ApiPlaneErrorCode.Success);
     }
 
+    @RequestMapping(params = {"Action=GetWorkLoadByApp"}, method = RequestMethod.GET)
+    public String getWorkLoadByApp(@RequestParam(name = "AppName") String appName,
+                                           @RequestParam(name = "Namespace") String namespace,
+                                           @RequestParam(name = "ClusterId", required = false) String clusterId) {
+
+        List workLoadByServiceInfo;
+        if (!StringUtils.isEmpty(clusterId)) {
+            if (!ResourceStoreFactory.listClusterId().contains(clusterId)) {
+                throw new ApiPlaneException("ClusterId not found", 404);
+            }
+            workLoadByServiceInfo = resourceCache.getWorkLoadByApp( namespace, appName, clusterId);
+        } else {
+            workLoadByServiceInfo = resourceCache.getWorkLoadByAppAllClusterId(namespace, appName);
+        }
+        workLoadByServiceInfo = resourceCache.getWorkLoadListWithSidecarVersion(workLoadByServiceInfo);
+        checkResult(workLoadByServiceInfo);
+        Map<String, Object> result = new HashMap<>();
+        result.put("Result", workLoadByServiceInfo);
+        ErrorCode code = ApiPlaneErrorCode.Success;
+        return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), result);
+    }
+
 }
