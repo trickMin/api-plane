@@ -42,9 +42,9 @@ import java.util.stream.Collectors;
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/7/17
  **/
 @Component
-public class IstioModelProcessor {
+public class IstioModelEngine {
 
-    private static final Logger logger = LoggerFactory.getLogger(IstioModelProcessor.class);
+    private static final Logger logger = LoggerFactory.getLogger(IstioModelEngine.class);
 
     @Autowired
     IntegratedResourceOperator operator;

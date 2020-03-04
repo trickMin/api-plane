@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
@@ -43,10 +45,16 @@ public class ServiceMeshController extends BaseController {
     }
 
     @RequestMapping(params = "Action=GetConfig", method = RequestMethod.GET)
-    public String deleteConfig(@RequestParam(name = "Name")String name,
+    public String getConfig(@RequestParam(name = "Name")String name,
                                @RequestParam(name = "Namespace")String namespace,
                                @RequestParam(name = "Kind")String kind) {
         return apiReturn(ImmutableMap.of(RESULT, serviceMeshService.getIstioResource(name, namespace, kind)));
+    }
+
+    @RequestMapping(params = "Action=GetConfigsByNamespaces", method = RequestMethod.GET)
+    public String getConfigsByNamespaces(@RequestParam(name = "Namespaces") String namespaces,
+                               @RequestParam(name = "Kind")String kind) {
+        return apiReturn(ImmutableMap.of(RESULT_LIST, serviceMeshService.getIstioResourceList(namespaces, kind)));
     }
 
     @RequestMapping(params = {"Action=InjectSidecar"}, method = RequestMethod.GET)
@@ -55,9 +63,20 @@ public class ServiceMeshController extends BaseController {
                                 @RequestParam(name = "ServiceVersion") String version,
                                 @RequestParam(name = "SidecarVersion") String sidecarVersion,
                                 @RequestParam(name = "Kind") String kind,
-                                @RequestParam(name = "ClusterId") String clusterId) {
+                                @RequestParam(name = "ClusterId") String clusterId,
+                                @RequestParam(name = "AppName",required = false) String appName) {
 
-        ErrorCode code = serviceMeshService.sidecarInject(clusterId, kind, namespace, name, version, sidecarVersion);
+        ErrorCode code = serviceMeshService.sidecarInject(clusterId, kind, namespace, name, version, sidecarVersion, appName);
+        return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), null);
+    }
+
+    @RequestMapping(params = {"Action=CreateAppOnService"}, method = RequestMethod.GET)
+    public String createAppOnService(@RequestParam(name = "Name") String name,
+                                @RequestParam(name = "Namespace") String namespace,
+                                @RequestParam(name = "ClusterId",required = false) String clusterId,
+                                @RequestParam(name = "AppName") String appName) {
+
+        ErrorCode code = serviceMeshService.createAppOnService(clusterId, namespace, name, appName);
         return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), null);
     }
 
@@ -93,5 +112,27 @@ public class ServiceMeshController extends BaseController {
     public String checkPilotHealth() {
         boolean isHealth = serviceMeshService.checkPilotHealth();
         return apiReturn(ImmutableMap.of(RESULT, isHealth));
+    }
+
+    @RequestMapping(params = {"Action=RemoveSidecar"}, method = RequestMethod.GET)
+    public String injectSidecar(@RequestParam(name = "Name") String name,
+                                @RequestParam(name = "Namespace") String namespace,
+                                @RequestParam(name = "Kind") String kind,
+                                @RequestParam(name = "ClusterId") String clusterId) {
+
+        ErrorCode code = serviceMeshService.removeInject(clusterId, kind, namespace, name);
+        return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), null);
+    }
+
+    @RequestMapping(params = {"Action=GetProjectCodeByApp"}, method = RequestMethod.GET)
+    public String getProjectCodeByApp(@RequestParam(name = "AppName") String name,
+                                @RequestParam(name = "Namespace") String namespace,
+                                @RequestParam(name = "ClusterId",required = false) String clusterId) {
+
+        String projectCode = serviceMeshService.getProjectCodeByApp(namespace, name, clusterId);
+        Map<String, Object> result = new HashMap<>();
+        result.put("Result", projectCode);
+        ErrorCode code = ApiPlaneErrorCode.Success;
+        return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), result);
     }
 }

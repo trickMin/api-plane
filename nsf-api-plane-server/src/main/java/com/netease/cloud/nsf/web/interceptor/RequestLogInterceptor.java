@@ -23,6 +23,7 @@ public class RequestLogInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
         String uri = request.getRequestURI();
+        if (uri.endsWith("api/health")) return true;
         String method = request.getMethod();
         String queryString = request.getQueryString();
         String body = StreamUtils.copyToString(request.getInputStream(), Charset.forName("UTF-8"));
@@ -30,7 +31,6 @@ public class RequestLogInterceptor implements HandlerInterceptor {
         if (!StringUtils.isEmpty(body)) {
             logger.info("Request Body:{}", body);
         }
-
         return true;
     }
 

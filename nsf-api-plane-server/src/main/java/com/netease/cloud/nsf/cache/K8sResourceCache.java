@@ -5,8 +5,10 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.netease.cloud.nsf.cache.meta.PodDTO;
+import com.netease.cloud.nsf.cache.meta.ServiceDto;
 import com.netease.cloud.nsf.cache.meta.WorkLoadDTO;
 import com.netease.cloud.nsf.configuration.ApiPlaneConfig;
+import com.netease.cloud.nsf.configuration.MeshConfig;
 import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.k8s.MultiClusterK8sClient;
@@ -39,15 +41,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -72,6 +66,8 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     @Autowired
     ServiceMeshService serviceMeshService;
 
+    @Autowired
+    private MeshConfig meshConfig;
 
     @Autowired
     private MultiClusterK8sClient multiClusterK8sClient;
@@ -164,16 +160,24 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                 .build();
         resourceInformerMap.put(DaemonSet, daemonSetInformer);
 
-        CustomResourceDefinition mupCrd = allClients.get("default").originalK8sClient.customResourceDefinitions().withName("mixerurlpatterns.networking.istio.io").get();
+        CustomResourceDefinition mupCrd = null;
+        try {
+            mupCrd = allClients.get("default").originalK8sClient.customResourceDefinitions().withName("mixerurlpatterns.networking.istio.io").get();
+        } catch (Exception ignored) {
+        }
 
-        K8sResourceInformer<HasMetadata> mupInformer = new K8sResourceInformer
-            .Builder()
-            .addResourceKind(MixerUrlPattern)
-            .addMixedOperation(getMixerUrlPatternMixedOperationList(allClients, mupCrd))
-            .addHttpK8sClient(multiClusterK8sClient)
-            .build();
+        if (mupCrd != null) {
+            K8sResourceInformer<HasMetadata> mupInformer = new K8sResourceInformer
+                .Builder()
+                .addResourceKind(MixerUrlPattern)
+                .addMixedOperation(getMixerUrlPatternMixedOperationList(allClients, mupCrd))
+                .addHttpK8sClient(multiClusterK8sClient)
+                .build();
 
-        resourceInformerMap.put(MixerUrlPattern, mupInformer);
+            resourceInformerMap.put(MixerUrlPattern, mupInformer);
+        } else {
+            log.warn("CRD mixer url pattern not found.");
+        }
 
     }
 
@@ -292,18 +296,20 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     @Override
     public List<WorkLoadDTO<T>> getWorkLoadByServiceInfo(String projectId, String namespace, String serviceName, String clusterId) {
         OwnerReferenceSupportStore store = ResourceStoreFactory.getResourceStore(clusterId);
-        List<T> serviceList = store.listByKind(Service.name());
+        List<T> serviceList = store.listByKindAndNamespace(Service.name(), namespace);
         for (T service : serviceList) {
             if (service.getMetadata().getLabels() == null || service.getMetadata().getLabels().isEmpty()) {
                 continue;
             }
-            if (service.getMetadata().getLabels().get(Const.LABEL_NSF_PROJECT_ID) != null &&
-                    service.getMetadata().getLabels().get(Const.LABEL_NSF_PROJECT_ID).equals(projectId) &&
-                    service.getMetadata().getName().equals(serviceName) &&
-                    service.getMetadata().getNamespace().equals(namespace)) {
+            if (service.getMetadata().getLabels().get(meshConfig.getProjectKey()) != null &&
+                    service.getMetadata().getLabels().get(meshConfig.getProjectKey()).equals(projectId) &&
+                    service.getMetadata().getName().equals(serviceName)) {
+
+                String appName = service.getMetadata().getLabels().get(meshConfig.getAppKey());
+
                 return getWorkLoadByIndex(clusterId,
                         service.getMetadata().getNamespace(),
-                        service.getMetadata().getName()).stream()
+                        appName).stream()
                         .map(obj -> new WorkLoadDTO<>(obj, getServiceName(service), clusterId,
                                 getProjectCodeFromService(service), getEnvNameFromService(service)))
                         .collect(Collectors.toList());
@@ -354,13 +360,13 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         if (!StringUtils.isEmpty(projectId)) {
             serviceList = serviceList.stream()
                     .filter(s -> s.getMetadata().getLabels() != null
-                            && projectId.equals(s.getMetadata().getLabels().get(Const.LABEL_NSF_PROJECT_ID)))
+                            && projectId.equals(s.getMetadata().getLabels().get(meshConfig.getProjectKey())))
                     .collect(Collectors.toList());
 
         }
         serviceList.forEach(service -> workLoadList.addAll(getWorkLoadByIndex(clusterId,
                 service.getMetadata().getNamespace(),
-                service.getMetadata().getName()).stream()
+                service.getMetadata().getLabels().get(meshConfig.getAppKey())).stream()
                 .map(obj -> new WorkLoadDTO<>(obj, getServiceName(service), clusterId,
                         getProjectCodeFromService(service), getEnvNameFromService(service)))
                 .collect(Collectors.toList())
@@ -372,7 +378,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         if (service.getMetadata().getLabels() == null) {
             return null;
         }
-        return service.getMetadata().getLabels().get(Const.LABEL_NSF_PROJECT_ID);
+        return service.getMetadata().getLabels().get(meshConfig.getProjectKey());
     }
 
     private String getEnvNameFromService(T service) {
@@ -410,11 +416,11 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     }
 
     @Override
-    public List<PodDTO<T>> getPodListWithSidecarVersion(List podDTOList) {
+    public List<PodDTO<T>> getPodListWithSidecarVersion(List podDTOList, String expectedVersion) {
         if (CollectionUtils.isEmpty(podDTOList)) {
             return new ArrayList<>();
         }
-        podDTOList.forEach(podDTO -> addSidecarVersionOnPod((PodDTO<T>) podDTO));
+        podDTOList.forEach(podDTO -> addSidecarVersionOnPod((PodDTO<T>) podDTO, expectedVersion));
         return podDTOList;
     }
 
@@ -519,13 +525,61 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         return result;
     }
 
+    @Override
+    public List<ServiceDto> getServiceByProjectCode(String projectCode, String clusterId) {
+        List<ServiceDto> serviceDtoList = new ArrayList<>();
+        if (StringUtils.isEmpty(clusterId)){
+            for (String cluster : ResourceStoreFactory.listClusterId()) {
+                serviceDtoList.addAll(getServiceByProjectCodeAndClusterId(projectCode,cluster));
+            }
+        }else {
+            serviceDtoList = getServiceByProjectCodeAndClusterId(projectCode, clusterId);
+        }
+        return serviceDtoList;
+    }
+
+    @Override
+    public List<WorkLoadDTO> getWorkLoadByApp(String namespace, String appName, String clusterId) {
+        String serviceName = appName + "." + namespace;
+        return getWorkLoadByIndex(clusterId, namespace, appName)
+                .stream().map(obj -> new WorkLoadDTO<>(obj, serviceName, clusterId,
+                        null, null))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<WorkLoadDTO> getWorkLoadByAppAllClusterId(String namespace, String appName) {
+        List<WorkLoadDTO> workLoadDTOList = new ArrayList<>();
+
+        for (String cluster : ResourceStoreFactory.listClusterId()) {
+            workLoadDTOList.addAll(getWorkLoadByApp(namespace, appName, cluster));
+        }
+
+        return workLoadDTOList;
+    }
+
+    private List<ServiceDto> getServiceByProjectCodeAndClusterId(String projectCode, String clusterId) {
+        OwnerReferenceSupportStore store = ResourceStoreFactory.getResourceStore(clusterId);
+        return  ((List<T>)store.listByKind(Service.name()))
+                .stream()
+                .filter(s->s.getMetadata().getLabels()!=null&&!s.getMetadata().getLabels().isEmpty()
+                        &&s.getMetadata().getLabels().get(meshConfig.getProjectKey())!=null
+                        &&s.getMetadata().getLabels().get(meshConfig.getProjectKey()).equals(projectCode))
+                .map(s->{
+                    ServiceDto<T> tServiceDto = new ServiceDto<>(s, clusterId);
+                    tServiceDto.setAppName(tServiceDto.getLabels().get(meshConfig.getAppKey()));
+                    return tServiceDto;
+                })
+                .collect(Collectors.toList());
+    }
+
     private Endpoints getEndPointByServiceAndClusterId(String clusterId, String namespace, String name) {
         OwnerReferenceSupportStore store = ResourceStoreFactory.getResourceStore(clusterId);
         return (Endpoints) store.get(Endpoints.name(), namespace, name);
     }
 
 
-    private PodDTO<T> addSidecarVersionOnPod(PodDTO<T> podDTO) {
+    private PodDTO<T> addSidecarVersionOnPod(PodDTO<T> podDTO, String expectedVersion) {
         PodVersion queryVersion = new PodVersion();
         queryVersion.setClusterId(podDTO.getClusterId());
         queryVersion.setNamespace(podDTO.getNamespace());
@@ -547,7 +601,9 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         if (StringUtils.isEmpty(status.getExpectedVersion())
                 ||StringUtils.isEmpty(status.getCurrentVersion())
                 ||!status.getCurrentVersion().equals(status.getExpectedVersion())
-        ) {
+                ||StringUtils.isEmpty(expectedVersion)
+                ||!expectedVersion.equals(status.getExpectedVersion()))
+        {
             podDTO.setSidecarContainerStatus(Const.SIDECAR_CONTAINER_ERROR);
         }else {
             podDTO.setSidecarContainerStatus(Const.SIDECAR_CONTAINER_SUCCESS);
@@ -575,39 +631,78 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                 map(podStatus -> podStatus.getCurrentVersion())
                 .collect(Collectors.toSet());
         workLoadDTO.setSidecarVersion(new ArrayList<>(versionSet));
+        if (StringUtils.isEmpty(getLabelValueFromWorkLoad(workLoadDTO,meshConfig.getAppKey()))
+            ||StringUtils.isEmpty(getLabelValueFromWorkLoad(workLoadDTO,meshConfig.getVersionKey()))
+            ||CollectionUtils.isEmpty(workLoadDTO.getSidecarVersion())){
+            workLoadDTO.setInMesh(false);
+        }else {
+            workLoadDTO.setInMesh(true);
+        }
+
         return workLoadDTO;
+    }
+
+    public List<T> getServiceByClusterAndNamespace(String clusterId,String namespace){
+        List<T> serviceList = new ArrayList<>();
+        if (StringUtils.isEmpty(clusterId)){
+            for (String c : ResourceStoreFactory.listClusterId()) {
+                OwnerReferenceSupportStore resourceStore = ResourceStoreFactory.getResourceStore(c);
+                serviceList.addAll(resourceStore.listByKindAndNamespace(Service.name(),namespace));
+            }
+        }else {
+            serviceList = ResourceStoreFactory.getResourceStore(clusterId).listByKindAndNamespace(Service.name(),namespace);
+        }
+        return serviceList;
+    }
+
+    private String getLabelValueFromWorkLoad(WorkLoadDTO obj,String key){
+        if (obj.getLabels() == null){
+            return null;
+        }
+        return  (obj.getLabels().get(key) == null)?null:String.valueOf(obj.getLabels().get(key));
     }
 
     private List<T> getWorkLoadByIndex(String clusterId, String namespace, String name) {
         return workLoadByServiceCache.getUnchecked(new WorkLoadIndex(clusterId, namespace, name));
     }
 
-    private List<T> doGetWorkLoadList(String clusterId, String namespace, String serviceName) {
+    private List<T> doGetWorkLoadList(String clusterId, String namespace, String appName) {
         OwnerReferenceSupportStore store = ResourceStoreFactory.getResourceStore(clusterId);
-        Endpoints endpointsByService = (Endpoints) store.get(Endpoints.name(), namespace, serviceName);
-        if (endpointsByService == null) {
-            return new ArrayList<>();
+        List<T> workLoadList = new ArrayList<>();
+        workLoadList.addAll(store.listByKindAndNamespace(Deployment.name(), namespace));
+        workLoadList.addAll(store.listByKindAndNamespace(StatefulSet.name(), namespace));
+        if (CollectionUtils.isEmpty(workLoadList) || StringUtils.isEmpty(appName)) {
+            return workLoadList;
         }
-        //从endpoints信息中解析出关联的pod列表
-        List<ObjectReference> podReferences = endpointsByService.getSubsets()
-                .stream()
-                .flatMap(sub -> sub.getAddresses().stream())
-                .map(EndpointAddress::getTargetRef)
-                .filter(Objects::nonNull)
-                .filter(ref -> Pod.name().equals(ref.getKind()))
+        workLoadList = workLoadList.stream()
+                .filter(w -> w.getMetadata().getLabels() != null
+                        && appName.equals(w.getMetadata().getLabels().get(meshConfig.getAppKey())))
                 .collect(Collectors.toList());
 
-        Set<T> workLoadList = new HashSet<>();
-        // 通过pod信息查询全部的负载资源
-        if (!CollectionUtils.isEmpty(podReferences)) {
-            podReferences.forEach(podRef -> {
-                T pod = (T) store.get(Pod.name(), podRef.getNamespace(), podRef.getName());
-                if (pod != null) {
-                    workLoadList.addAll(store.listLoadByPod(pod));
-                }
-            });
-        }
-        return new ArrayList<>(workLoadList);
+//        Endpoints endpointsByService = (Endpoints) store.get(Endpoints.name(), namespace, serviceName);
+//        if (endpointsByService == null) {
+//            return new ArrayList<>();
+//        }
+//        //从endpoints信息中解析出关联的pod列表
+//        List<ObjectReference> podReferences = endpointsByService.getSubsets()
+//                .stream()
+//                .flatMap(sub -> sub.getAddresses().stream())
+//                .map(EndpointAddress::getTargetRef)
+//                .filter(Objects::nonNull)
+//                .filter(ref -> Pod.name().equals(ref.getKind()))
+//                .collect(Collectors.toList());
+//
+//        Set<T> workLoadList = new HashSet<>();
+//        // 通过pod信息查询全部的负载资源
+//        if (!CollectionUtils.isEmpty(podReferences)) {
+//            podReferences.forEach(podRef -> {
+//                T pod = (T) store.get(Pod.name(), podRef.getNamespace(), podRef.getName());
+//                if (pod != null) {
+//                    workLoadList.addAll(store.listLoadByPod(pod));
+//                }
+//            });
+//        }
+        return workLoadList;
     }
 
 
@@ -750,8 +845,8 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
             String serviceName = serviceToUpdate.getMetadata().getName() + "."
                     + serviceToUpdate.getMetadata().getNamespace();
 
-            String projectId = serviceToUpdate.getMetadata().getLabels().get(Const.LABEL_NSF_PROJECT_ID);
-            String version = obj.getMetadata().getLabels().get(Const.LABEL_NSF_VERSION);
+            String projectId = serviceToUpdate.getMetadata().getLabels().get(meshConfig.getProjectKey());
+            String version = obj.getMetadata().getLabels().get(meshConfig.getVersionKey());
             String envName = obj.getMetadata().getLabels().get(Const.LABEL_NSF_ENV);
             updateVersion(serviceName, projectId, version, envName);
 

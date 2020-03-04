@@ -1,8 +1,8 @@
 {
   "inject": {
     "kind": "rewrite",
-    "regex": "/(.*)",
-    "variable": "/$1"
+    "regex": "(.*)",
+    "variable": "$1"
   },
   "formatter": {
     "kind": "rewrite",

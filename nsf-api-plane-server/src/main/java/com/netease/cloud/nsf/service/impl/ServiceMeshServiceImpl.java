@@ -1,17 +1,23 @@
 package com.netease.cloud.nsf.service.impl;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.netease.cloud.nsf.cache.K8sResourceCache;
 import com.netease.cloud.nsf.cache.ResourceStoreFactory;
 import com.netease.cloud.nsf.cache.meta.PodDTO;
 import com.netease.cloud.nsf.configuration.ApiPlaneConfig;
+import com.netease.cloud.nsf.configuration.MeshConfig;
 import com.netease.cloud.nsf.core.editor.ResourceType;
-import com.netease.cloud.nsf.core.gateway.service.ConfigStore;
+import com.netease.cloud.nsf.core.gateway.service.impl.MultiK8sConfigStore;
 import com.netease.cloud.nsf.core.istio.PilotHttpClient;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.k8s.K8sResourceGenerator;
 import com.netease.cloud.nsf.core.k8s.KubernetesClient;
+import com.netease.cloud.nsf.core.k8s.MultiClusterK8sClient;
 import com.netease.cloud.nsf.meta.SVMSpec;
 import com.netease.cloud.nsf.meta.SidecarVersionManagement;
+import com.netease.cloud.nsf.meta.dto.ResourceWrapperDTO;
 import com.netease.cloud.nsf.service.GatewayService;
 import com.netease.cloud.nsf.service.ServiceMeshService;
 import com.netease.cloud.nsf.util.Const;
@@ -36,6 +42,7 @@ import org.springframework.util.StringUtils;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import static com.netease.cloud.nsf.core.editor.ResourceType.OBJECT;
 import static com.netease.cloud.nsf.core.k8s.K8sResourceEnum.DaemonSet;
@@ -48,11 +55,22 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
 
     private static final Logger logger = LoggerFactory.getLogger(ServiceMeshServiceImpl.class);
     private static final String DEFAULT_SIDECAR_VERSION = "envoy";
+    private static final long PROJECT_CACHE_MAX_SIZE = 200;
+    private static final long PROJECT_CACHE_REFRESH_DURATION = 3;
     private ExecutorService taskPool = Executors.newCachedThreadPool();
+    private LoadingCache<App2ProjectIndex, String> app2ProjectCache = CacheBuilder.newBuilder()
+            .maximumSize(PROJECT_CACHE_MAX_SIZE)
+            .refreshAfterWrite(PROJECT_CACHE_REFRESH_DURATION, TimeUnit.SECONDS)
+            .build(new CacheLoader<App2ProjectIndex, String>() {
+                @Override
+                public String load(App2ProjectIndex index) {
+                    return doGetProjectCodeByApp(index.getNamespace(),index.getAppName(),index.getClusterId());
+                }
 
+            });
 
     @Autowired
-    ConfigStore configStore;
+    MultiK8sConfigStore configStore;
 
     @Autowired
     K8sResourceCache k8sResource;
@@ -72,6 +90,12 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
     @Autowired
     PilotHttpClient pilotHttpClient;
 
+    @Autowired
+    private MultiClusterK8sClient multiClusterK8sClient;
+
+    @Autowired
+    MeshConfig meshConfig;
+
     @Override
     public void updateIstioResource(String json) {
 
@@ -87,17 +111,41 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
     }
 
     @Override
-    public HasMetadata getIstioResource(String name, String namespace, String kind) {
+    public List<ResourceWrapperDTO> getIstioResourceList(String namespaces, String kind) {
 
-        HasMetadata istioResource = configStore.get(kind, namespace, name);
-        if (istioResource == null) {
-            throw new ApiPlaneException(ExceptionConst.RESOURCE_NON_EXIST, 404);
+        if (StringUtils.isEmpty(namespaces)) throw new ApiPlaneException(ExceptionConst.RESOURCE_NON_EXIST, 404);
+        List<ResourceWrapperDTO> wrapperDTOS = new ArrayList<>();
+        String defaultClusterId = getDefaultClusterId();
+
+        for (String ns : namespaces.split(",")) {
+            if (StringUtils.isEmpty(ns)) continue;
+            List<HasMetadata> resources;
+            try {
+                resources = configStore.getList(kind, ns, defaultClusterId);
+            } catch (Exception e) {
+                logger.warn("find resources failed", e);
+                continue;
+            }
+            for (HasMetadata r : resources) {
+                wrapperDTOS.add(new ResourceWrapperDTO(r, defaultClusterId));
+            }
         }
-        return configStore.get(kind, namespace, name);
+        return wrapperDTOS;
     }
 
     @Override
-    public ErrorCode sidecarInject(String clusterId, String kind, String namespace, String name, String version, String expectedVersion) {
+    public HasMetadata getIstioResource(String name, String namespace, String kind) {
+
+        String defaultClusterId = getDefaultClusterId();
+        HasMetadata resource = configStore.get(name, kind, namespace, defaultClusterId);
+        if (resource == null) {
+            throw new ApiPlaneException(ExceptionConst.RESOURCE_NON_EXIST, 404);
+        }
+        return resource;
+    }
+
+    @Override
+    public ErrorCode sidecarInject(String clusterId, String kind, String namespace, String name, String version, String expectedVersion, String appName) {
         if (!K8sResourceEnum.StatefulSet.name().equals(kind) && !K8sResourceEnum.Deployment.name().equals(kind)) {
             return ApiPlaneErrorCode.MissingParamsError("resource kind");
         }
@@ -108,23 +156,13 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
         if (!checkEnable(namespace)) {
             return ApiPlaneErrorCode.sidecarInjectPolicyError;
         }
-        Map<String, String> versionLabel = new HashMap<>(1);
+        Map<String, String> labels = new HashMap<>(1);
         Map<String, String> injectAnnotation = new HashMap<>(1);
-        versionLabel.put(Const.LABEL_NSF_VERSION, version);
+        labels.put(meshConfig.getVersionKey(), version);
+        labels.put(meshConfig.getAppKey(),appName);
         injectAnnotation.put(Const.ISTIO_INJECT_ANNOTATION, "true");
-        T injectedWorkLoad = appendLabel(appendAnnotationToPod(resourceToInject, injectAnnotation), versionLabel);
-        try {
-            httpClient.createOrUpdate(injectedWorkLoad, OBJECT);
-        } catch (ApiPlaneException e) {
-            // 对新老版本k8s apiVersion 不一致的情况进行适配
-            if (isInvalidApiVersion(e.getMessage())) {
-                logger.warn(e.getMessage());
-                injectedWorkLoad.setApiVersion("extensions/v1beta1");
-                httpClient.createOrUpdate(injectedWorkLoad, OBJECT);
-            } else {
-                logger.error("sidecar inject error", e);
-            }
-        }
+        T injectedWorkLoad = appendLabel(appendAnnotationToPod(resourceToInject, injectAnnotation), labels);
+        updateResource(injectedWorkLoad);
         createSidecarVersionCRD(clusterId, namespace, kind, name, expectedVersion);
         return ApiPlaneErrorCode.Success;
     }
@@ -292,4 +330,155 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
         return pilotHttpClient.isReady();
     }
 
+    @Override
+    public ErrorCode removeInject(String clusterId, String kind, String namespace, String name) {
+        if (!K8sResourceEnum.StatefulSet.name().equals(kind) && !K8sResourceEnum.Deployment.name().equals(kind)) {
+            return ApiPlaneErrorCode.MissingParamsError("resource kind");
+        }
+        T resourceToInject = (T) k8sResource.getResource(clusterId, kind, namespace, name);
+        if (resourceToInject == null) {
+            return ApiPlaneErrorCode.workLoadNotFound;
+        }
+        Map<String, String> injectAnnotation = new HashMap<>(1);
+        injectAnnotation.put(Const.ISTIO_INJECT_ANNOTATION, "false");
+        T injectedWorkLoad = appendAnnotationToPod(resourceToInject, injectAnnotation);
+        updateResource(injectedWorkLoad);
+        return ApiPlaneErrorCode.Success;
+    }
+
+    @Override
+    public ErrorCode createAppOnService(String clusterId, String namespace, String name, String appName) {
+        if (StringUtils.isEmpty(clusterId)){
+            for (String cluster : ResourceStoreFactory.listClusterId()) {
+                createAppOnServiceByClusterId(cluster,namespace,name,appName);
+            }
+        }else {
+            createAppOnServiceByClusterId(clusterId,namespace,name,appName);
+        }
+        return ApiPlaneErrorCode.Success;
+    }
+
+    @Override
+    public String getProjectCodeByApp(String namespace, String appName, String clusterId) {
+
+        try {
+            return app2ProjectCache.getUnchecked(new App2ProjectIndex(appName,namespace,clusterId));
+        } catch (CacheLoader.InvalidCacheLoadException e) {
+            logger.warn("can`t find projectCode by app[{}] and namespace[{}]",appName,namespace);
+            return null;
+        }
+
+    }
+
+    private String doGetProjectCodeByApp(String namespace, String appName ,String clusterId){
+        String projectCode = null;
+        List<T> serviceList = k8sResource.getServiceByClusterAndNamespace(clusterId, namespace);
+        if (CollectionUtils.isEmpty(serviceList)||StringUtils.isEmpty(appName)){
+            return null;
+        }
+        for (T s : serviceList) {
+            if (s.getMetadata().getLabels()!=null
+                    &&appName.equals(s.getMetadata().getLabels().get(meshConfig.getAppKey()))
+                    &&s.getMetadata().getLabels().get(meshConfig.getProjectKey())!=null){
+                projectCode = s.getMetadata().getLabels().get(meshConfig.getProjectKey());
+                break;
+            }
+
+        }
+        return projectCode;
+
+    }
+
+
+    private void createAppOnServiceByClusterId(String clusterId, String namespace, String name, String appName){
+        T service = (T) k8sResource.getResource(clusterId, K8sResourceEnum.Service.name(), namespace, name);
+        if (service == null){
+            throw new ApiPlaneException(ExceptionConst.K8S_SERVICE_NON_EXIST, 404);
+        }
+        if (service.getMetadata().getLabels() == null){
+            service.getMetadata().setLabels(new HashMap<>());
+        }
+        if (!StringUtils.isEmpty(appName) && appName.equals(service.getMetadata().getLabels().get(meshConfig.getAppKey()))){
+            return;
+        }
+        service.getMetadata().getLabels().put(meshConfig.getAppKey(),appName);
+        updateResource(service);
+    }
+
+    private void updateResource(T injectedWorkLoad){
+        try {
+            httpClient.createOrUpdate(injectedWorkLoad, OBJECT);
+        } catch (ApiPlaneException e) {
+            // 对新老版本k8s apiVersion 不一致的情况进行适配
+            if (isInvalidApiVersion(e.getMessage())) {
+                logger.warn(e.getMessage());
+                injectedWorkLoad.setApiVersion("extensions/v1beta1");
+                httpClient.createOrUpdate(injectedWorkLoad, OBJECT);
+            } else {
+                logger.error("sidecar inject error", e);
+            }
+        }
+    }
+
+
+
+    private String getDefaultClusterId() {
+        Map<String, MultiClusterK8sClient.ClientSet> allClients = multiClusterK8sClient.getAllClients();
+//        allClients.
+        //TODO 待multiClusterClient暴露默认集群字段，目前使用hack方式
+        return "default";
+    }
+
+
+    class App2ProjectIndex {
+
+        private String appName;
+        private String namespace;
+        private String clusterId;
+
+        public App2ProjectIndex(String appName, String namespace, String clusterId) {
+            this.appName = appName;
+            this.namespace = namespace;
+            this.clusterId = clusterId;
+        }
+
+        public String getClusterId() {
+            return clusterId;
+        }
+
+        public void setClusterId(String clusterId) {
+            this.clusterId = clusterId;
+        }
+
+        public String getAppName() {
+            return appName;
+        }
+
+        public void setAppName(String appName) {
+            this.appName = appName;
+        }
+
+        public String getNamespace() {
+            return namespace;
+        }
+
+        public void setNamespace(String namespace) {
+            this.namespace = namespace;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            App2ProjectIndex that = (App2ProjectIndex) o;
+            return Objects.equals(appName, that.appName) &&
+                    Objects.equals(namespace, that.namespace) &&
+                    Objects.equals(clusterId, that.clusterId);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(appName, namespace, clusterId);
+        }
+    }
 }

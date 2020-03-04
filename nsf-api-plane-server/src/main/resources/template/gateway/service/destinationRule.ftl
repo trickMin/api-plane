@@ -11,12 +11,16 @@ spec:
 <#--- 默认生成的subset --->
   - name: ${t_api_service}-${t_api_gateway}
     altStatName: ${t_destination_rule_alt_stat_name}
+    gwLabels:
+      gw_cluster: ${t_api_gateway}
 <@indent count=4><@autoremove><#include "destinationRule_trafficPolicy.ftl"/></@autoremove></@indent>
 <#--- 自定义的subset --->
 <#if t_destination_rule_extra_subsets?has_content>
 <#list t_destination_rule_extra_subsets as ss>
   - name: ${ss.name}
     altStatName: ${t_destination_rule_alt_stat_name}
+    gwLabels:
+      gw_cluster: ${t_api_gateway}
 <#if ss.labels?has_content>
     labels:
 <#list ss.labels?keys as k>
