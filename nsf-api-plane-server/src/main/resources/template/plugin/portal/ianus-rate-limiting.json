@@ -27,7 +27,10 @@
             {
               "key": "right_value",
               "alias": "right_value",
-              "type": "string"
+              "type": "string",
+              "invisible": {
+                "this.operator": "present"
+              }
             },
             {
               "key": "operator",
@@ -37,7 +40,25 @@
                 "≈",
                 "!≈",
                 "=",
-                "!="
+                "!=",
+                "present"
+              ]
+            },
+            {
+              "key": "invert",
+              "alias": "invert",
+              "type": "radio",
+              "default": "false",
+              "help": "invert 为false,对于满足该匹配条件的请求进行限流; invert 为 true,对于不满足该匹配条件的请求进行限流",
+              "visible": {
+                  "this.operator": "present"
+              },
+              "options": [
+                "true",
+                "false"
+              ],
+              "rules": [
+                "Required"
               ]
             }
           ]
