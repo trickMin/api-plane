@@ -392,8 +392,14 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
 
     private void createAppOnServiceByClusterId(String clusterId, String namespace, String name, String appName){
         T service = (T) k8sResource.getResource(clusterId, K8sResourceEnum.Service.name(), namespace, name);
+        if (service == null){
+            throw new ApiPlaneException(ExceptionConst.K8S_SERVICE_NON_EXIST, 404);
+        }
         if (service.getMetadata().getLabels() == null){
             service.getMetadata().setLabels(new HashMap<>());
+        }
+        if (!StringUtils.isEmpty(appName) && appName.equals(service.getMetadata().getLabels().get(meshConfig.getAppKey()))){
+            return;
         }
         service.getMetadata().getLabels().put(meshConfig.getAppKey(),appName);
         updateResource(service);

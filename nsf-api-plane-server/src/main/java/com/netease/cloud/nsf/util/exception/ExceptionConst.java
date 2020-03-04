@@ -9,6 +9,7 @@ public interface ExceptionConst {
     String PILOT_SERVICE_NON_EXIST = "Pilot service is non-exist";
     String ENVOY_POD_NON_EXIST = "Envoy pod is non-exist";
     String RESOURCE_NON_EXIST = "Resource is non-exist";
+    String K8S_SERVICE_NON_EXIST = "k8s service is non-exist";
     String SERVICE_NON_EXIST = "service is non-exist";
     String API_NON_EXIST = "api is non-exist";
     String RESOURCE_KIND_MISMATCH = "Resource kind is mismatch";
