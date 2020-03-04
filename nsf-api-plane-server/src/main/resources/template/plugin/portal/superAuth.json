@@ -42,7 +42,6 @@
     {
       "key": "bufferSetting",
       "alias": "请求体缓存设置",
-      "help": "当选择轻舟API网关签名认证时，对请求体的计算方式，默认-----------------------",
       "type": "layouts",
       "visible": {
         "this.authnType": "aksk_authz_type"
