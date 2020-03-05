@@ -143,6 +143,18 @@
       "pluginScope": "global",
       "pluginPriority": "4000",
       "instructionForUse": "trace插件"
+    },
+    {
+      "name": "super-auth",
+      "schema": "plugin/portal/superAuth.json",
+      "description": "",
+      "processor": "AggregateExtensionProcessor",
+      "author": "system",
+      "createTime": "1572537600000",
+      "updateTime": "1572537600000",
+      "pluginScope": "global,routeRule",
+      "pluginPriority": "1700",
+      "instructionForUse": "认证鉴权插件"
     }
   ]
 }
