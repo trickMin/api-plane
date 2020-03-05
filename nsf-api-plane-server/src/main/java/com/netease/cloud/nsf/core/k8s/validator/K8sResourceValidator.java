@@ -12,5 +12,5 @@ import java.util.Set;
 public interface K8sResourceValidator<T extends HasMetadata> {
     boolean adapt(String name);
 
-    Set<ConstraintViolation> validate(T var);
+    Set<ConstraintViolation<T>> validate(T var);
 }

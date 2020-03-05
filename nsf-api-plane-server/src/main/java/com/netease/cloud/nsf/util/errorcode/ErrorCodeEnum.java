@@ -19,7 +19,7 @@ public enum ErrorCodeEnum {
     IllegalAccessKey("IllegalAccessKey", "The access key you provided is illegal.", "AccessKey 无效", 400),
     AccessKeyNotFound("AccessKeyNotFound", "We can not found the access key you provided.", "AccessKey 不存在", 401),
     InternalServerError("InternalServerError", "Internal server error .", "服务器内部错误 ", 500),
-    ServerOptionError("ServerOptionError","Server setting %s error ","配置项 %s 无法设置",500),
+    ServerOptionError("ServerOptionError", "Server setting %s error ", "配置项 %s 无法设置", 500),
     InvalidParameterValue("InvalidParameterValue", "The parameter %s cannot accept value %s.", "参数 %s 的值 %s 非法", 400),
     SignatureDoesNotMatch("SignatureDoesNotMatch", "The request signature we calculated does not match the signature you provided.", "签名不匹配", 403),
     InvalidAuthorizationInfo("InvalidAuthorizationInfo", "The authorization info you provided is invalid.", "认证信息无效", 400),
@@ -27,13 +27,14 @@ public enum ErrorCodeEnum {
     InvalidParameterLength("InvalidparameterLength", "The parameter %s length is invalid", "参数%s长度错误", 400),
     ParametersNotMatch("ParametersNotMatch", "The parameter %s cannot match parameter %s", "参数%s与参数%s不匹配", 400),
     UnknownException("UnknownException", "The unknown exception occurred", "出现未知错误", 400),
-    CustomBadRequest("BadRequest", "%s", "%s",400),
-    QueryParameterError("QueryParameterError"," The parameter %s is invalid","请求参数%s无效",400),
-    ProjectCodeError("ProjectCodeError","Can not get projectId with id %s","通过标识%s查询项目Id失败",400),
+    CustomBadRequest("BadRequest", "%s", "%s", 400),
+    QueryParameterError("QueryParameterError", " The parameter %s is invalid", "请求参数%s无效", 400),
+    ProjectCodeError("ProjectCodeError", "Can not get projectId with id %s", "通过标识%s查询项目Id失败", 400),
     RepeatValue("RepeatValue", "%s value is repeat", "%s值重复", 400),
     DryRunOperation("DryRunOperation", "The quest would have successed, but the DryRun parameter was used.", "签名认证通过，但是使用了 DryRun 参数", 400),
     ApiFreqOutOfLimit("ApiFreqOutOfLimit", "Api freq out of limit.", "访问频率过高，请稍后再试", 403),
     ResourceConflict("ResourceConflict", "Resource handling conflicts", "资源处理冲突", 409),
+    ConstraintViolation("ConstraintViolation", "Resource violation constraint", "资源校验不通过", 400),
 
     // 如下几个枚举用于异常处理
     MethodNotAllowed("MethodNotAllow", "Http method not allowed.", "http 方法不支持", 405),
@@ -66,22 +67,22 @@ public enum ErrorCodeEnum {
 
     ResourceNotFound("ResourceNotFound", "The resource requested is not found.", "请求的资源不存在", 404),
     UserStatusAbnormal("UserStatusAbnormal", "User status abnormal.", "用户状态异常", 403),
-	TooManyRequest("TooManyRequest", "Too Many Request, Please try again later.", "访问频率过快，请稍后重试。", 429),
-	TimeRangeTooLarge("TimeRangeTooLarge", "Does not support interval queries greater than 7 days.", "暂不支持大于7天的区间查询.", 400),
+    TooManyRequest("TooManyRequest", "Too Many Request, Please try again later.", "访问频率过快，请稍后重试。", 429),
+    TimeRangeTooLarge("TimeRangeTooLarge", "Does not support interval queries greater than 7 days.", "暂不支持大于7天的区间查询.", 400),
 
-	PolicyAlreadyExist("PolicyAlreadyExist", "The policy already exists, you cannot create it repeatedly.", "策略已存在，不允许重复创建", 400),
+    PolicyAlreadyExist("PolicyAlreadyExist", "The policy already exists, you cannot create it repeatedly.", "策略已存在，不允许重复创建", 400),
 
     CreateCredentialFailed("CreateCredentialFailed", "Create Credential is Failed.", "生成密钥对失败", 400),
     GetCredentialFailed("GetCredentialFailed", "Get Credential is Failed.", "查询密钥对失败", 400),
-    DeleteExterGroupFailed("DeleteExterGroupFailed","Delete external group is falied","删除对外访问服务组异常",400),
+    DeleteExterGroupFailed("DeleteExterGroupFailed", "Delete external group is falied", "删除对外访问服务组异常", 400),
     UpdateExterSwitchFailed("UpdateExterSwitchFailed", "Update external switch is Failed.", "更新对外访问开关异常", 400),
     GetAuthClientError("GetAuthClientError", "Get nec-auth client is error.", "调用nce-auth接口，客户端错误", 400),
     CreateExterGroupFailed("CreateExterGroupFailed", "Create external group is Failed.", "生成对外访问服务组失败", 400),
-    InvalidVersionWeight("InvalidVersionWeight","The sum of weights can not be 0","版本权重之和不能为0",400),
-    DuplicateDataError("DuplicateDataError","Item is Duplicated in dataBase","数据库中已存在该记录",400),
-    DataSyncError("DataSyncError","operation failed:%s","操作失败:%s",400),
-    InstanceStillExistError("StillExistError", "Instance is still exist for this service,can not cancell it","该服务仍有实例运行，无法进行注销操作",400 ),
-    ConfigAppExistError("ConfigAppExistError","App in config server is exist" ,"配置中心中appId已经存在，创建服务失败",400),
+    InvalidVersionWeight("InvalidVersionWeight", "The sum of weights can not be 0", "版本权重之和不能为0", 400),
+    DuplicateDataError("DuplicateDataError", "Item is Duplicated in dataBase", "数据库中已存在该记录", 400),
+    DataSyncError("DataSyncError", "operation failed:%s", "操作失败:%s", 400),
+    InstanceStillExistError("StillExistError", "Instance is still exist for this service,can not cancell it", "该服务仍有实例运行，无法进行注销操作", 400),
+    ConfigAppExistError("ConfigAppExistError", "App in config server is exist", "配置中心中appId已经存在，创建服务失败", 400),
     ServiceNotFound("ServiceNotFound", "Can't found service with Id %s", "找不到对应Id为%s的服务", 404),
 
     //负载均衡相关
@@ -97,8 +98,7 @@ public enum ErrorCodeEnum {
     InvalidIdleTimeout("InvalidIdleTimeout", "IdleTimeout is invalid", "idleTimeout不能小于0", 400),
     InvalidMaxRequestsPerConnection("InvalidMaxRequestsPerConnection", "MaxRequestsPerConnection is invalid", "maxRequestsPerConnection不能小于0", 400),
     InvalidMaxConnections("InvalidmaxConnections", "MaxConnections is invalid", "maxConnections不能小于0", 400),
-    InvalidConnectTimeout("InvalidConnectTimeout", "ConnectTimeout is invalid", "connectTimeout不能小于0", 400)
-    ;
+    InvalidConnectTimeout("InvalidConnectTimeout", "ConnectTimeout is invalid", "connectTimeout不能小于0", 400);
 
     private String code;
     private String enMsg;
