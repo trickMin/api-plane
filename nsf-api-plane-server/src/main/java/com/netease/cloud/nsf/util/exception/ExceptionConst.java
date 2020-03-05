@@ -7,6 +7,7 @@ public interface ExceptionConst {
 
     String ISTIO_POD_NON_EXIST = "Istio pod is non-exist";
     String PILOT_SERVICE_NON_EXIST = "Pilot service is non-exist";
+    String GALLEY_SERVICE_NON_EXIST = "Galley service is non-exist";
     String ENVOY_POD_NON_EXIST = "Envoy pod is non-exist";
     String RESOURCE_NON_EXIST = "Resource is non-exist";
     String K8S_SERVICE_NON_EXIST = "k8s service is non-exist";
