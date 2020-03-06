@@ -23,8 +23,8 @@ public class ServiceDto<T extends HasMetadata> extends K8sResourceDTO {
 
 
     public ServiceDto(T obj, String clusterId) {
-        super(obj,clusterId);
-        Service service = (Service)obj;
+        super(obj, clusterId);
+        Service service = (Service) obj;
         this.labels = service.getMetadata().getLabels();
         this.selectLabels = service.getSpec().getSelector();
         this.serviceType = service.getSpec().getType();
@@ -32,11 +32,11 @@ public class ServiceDto<T extends HasMetadata> extends K8sResourceDTO {
         List<String> serviceAddressList = new ArrayList<>();
 
         List<ServicePort> ports = service.getSpec().getPorts();
-        if (CollectionUtils.isEmpty(ports)){
+        if (CollectionUtils.isEmpty(ports)) {
             serviceAddressList.add(address);
-        }else {
-            ports.forEach(p->{
-                serviceAddressList.add(address + ":"+p.getPort());
+        } else {
+            ports.forEach(p -> {
+                serviceAddressList.add(address + ":" + p.getPort());
             });
         }
         this.serviceAddress = serviceAddressList;
