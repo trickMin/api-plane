@@ -235,6 +235,9 @@ public class OwnerReferenceSupportStore<T extends HasMetadata> implements Store<
      * @return 名称列表
      */
     private List<String> getOwnerName(T obj) {
+        if (obj == null || obj.getMetadata() == null){
+            return new ArrayList<>();
+        }
         List<OwnerReference> ownerReferences = obj.getMetadata().getOwnerReferences();
         if (CollectionUtils.isEmpty(ownerReferences)) {
             return new ArrayList<>();
