@@ -10,10 +10,12 @@ public class ExceptionHandlerErrorCode extends ErrorCode {
 	}
 
 	public static ErrorCode InternalServerError = new ErrorCode(ErrorCodeEnum.InternalServerError);
-	
+
 	public static ErrorCode UnknownException = new ErrorCode(ErrorCodeEnum.UnknownException);
 
 	public static ErrorCode InvalidBodyFormat = new ErrorCode(ErrorCodeEnum.InvalidBodyFormat);
+
+	public static ErrorCode ConstraintViolation = new ErrorCode(ErrorCodeEnum.ConstraintViolation);
 
 	public static ErrorCode ResourceConflict = new ErrorCode(ErrorCodeEnum.ResourceConflict);
 

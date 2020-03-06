@@ -4,7 +4,6 @@ import io.fabric8.kubernetes.api.model.HasMetadata;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -29,8 +28,8 @@ public class IntegratedValidator<T extends HasMetadata> implements K8sResourceVa
     }
 
     @Override
-    public Set<ConstraintViolation> validate(T var) {
-        Set<ConstraintViolation> violations = new LinkedHashSet<>();
+    public Set<ConstraintViolation<T>> validate(T var) {
+        Set<ConstraintViolation<T>> violations = new LinkedHashSet<>();
         validators.forEach(validator -> {
             if (validator.adapt(var.getKind())) {
                 violations.addAll(validator.validate(var));

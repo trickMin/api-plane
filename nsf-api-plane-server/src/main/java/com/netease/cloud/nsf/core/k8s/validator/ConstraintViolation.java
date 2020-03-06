@@ -4,13 +4,13 @@ package com.netease.cloud.nsf.core.k8s.validator;
  * @auther wupenghuai@corp.netease.com
  * @date 2020/3/5
  **/
-public class ConstraintViolation {
+public class ConstraintViolation<T> {
     private String message;
-    private Object bean;
+    private T bean;
     private Object validator;
 
 
-    public ConstraintViolation(String message, Object bean, Object validator) {
+    public ConstraintViolation(String message, T bean, Object validator) {
         this.message = message;
         this.bean = bean;
         this.validator = validator;
@@ -24,11 +24,11 @@ public class ConstraintViolation {
         this.message = message;
     }
 
-    public Object getBean() {
+    public T getBean() {
         return bean;
     }
 
-    public void setBean(Object bean) {
+    public void setBean(T bean) {
         this.bean = bean;
     }
 

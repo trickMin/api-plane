@@ -3,9 +3,7 @@ package com.netease.cloud.nsf.core.k8s.validator;
 import com.netease.cloud.nsf.core.galley.GalleyHttpClient;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import io.fabric8.kubernetes.api.model.admission.AdmissionRequest;
-import io.fabric8.kubernetes.api.model.admission.AdmissionRequestBuilder;
 import io.fabric8.kubernetes.api.model.admission.AdmissionReview;
-import io.fabric8.kubernetes.api.model.admission.AdmissionReviewBuilder;
 import me.snowdrop.istio.api.IstioResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -43,8 +41,8 @@ public class GalleyValidator implements K8sResourceValidator<IstioResource> {
     }
 
     @Override
-    public Set<ConstraintViolation> validate(IstioResource var) {
-        Set<ConstraintViolation> violations = new LinkedHashSet<>();
+    public Set<ConstraintViolation<IstioResource>> validate(IstioResource var) {
+        Set<ConstraintViolation<IstioResource>> violations = new LinkedHashSet<>();
         AdmissionReview review = new AdmissionReview();
         AdmissionRequest request = new AdmissionRequest();
         request.setObject(var);
