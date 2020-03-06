@@ -11,6 +11,7 @@ import com.netease.cloud.nsf.configuration.ApiPlaneConfig;
 import com.netease.cloud.nsf.configuration.MeshConfig;
 import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
+import com.netease.cloud.nsf.core.k8s.KubernetesClient;
 import com.netease.cloud.nsf.core.k8s.MultiClusterK8sClient;
 import com.netease.cloud.nsf.meta.PodStatus;
 import com.netease.cloud.nsf.meta.PodVersion;
@@ -79,11 +80,21 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     private static int WORK_LOAD_CACHE_REFRESH_DURATION = 5;
     private LoadingCache<WorkLoadIndex, List<T>> workLoadByServiceCache = CacheBuilder.newBuilder()
             .maximumSize(WORK_LOAD_CACHE_MAX_SIZE)
-            .refreshAfterWrite(WORK_LOAD_CACHE_REFRESH_DURATION, TimeUnit.SECONDS)
+            .expireAfterWrite(WORK_LOAD_CACHE_REFRESH_DURATION, TimeUnit.SECONDS)
             .build(new CacheLoader<WorkLoadIndex, List<T>>() {
                 @Override
                 public List<T> load(WorkLoadIndex index) {
-                    return doGetWorkLoadList(index.getClusterId(), index.getNamespace(), index.getName());
+                    return doGetWorkLoadListByApp(index.getClusterId(), index.getNamespace(), index.getName());
+                }
+
+            });
+    private LoadingCache<SelectorIndex, List<T>> workLoadBySelectorCache = CacheBuilder.newBuilder()
+            .maximumSize(WORK_LOAD_CACHE_MAX_SIZE)
+            .expireAfterWrite(WORK_LOAD_CACHE_REFRESH_DURATION, TimeUnit.SECONDS)
+            .build(new CacheLoader<SelectorIndex, List<T>>() {
+                @Override
+                public List<T> load(SelectorIndex index) {
+                    return doGetWorkLoadListBySelector(index.getClusterId(), index.getNamespace(), index.getSelectorLabels());
                 }
 
             });
@@ -305,11 +316,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                     service.getMetadata().getLabels().get(meshConfig.getProjectKey()).equals(projectId) &&
                     service.getMetadata().getName().equals(serviceName)) {
 
-                String appName = service.getMetadata().getLabels().get(meshConfig.getAppKey());
-
-                return getWorkLoadByIndex(clusterId,
-                        service.getMetadata().getNamespace(),
-                        appName).stream()
+                return getWorkLoadByServiceSelector((io.fabric8.kubernetes.api.model.Service)service,clusterId).stream()
                         .map(obj -> new WorkLoadDTO<>(obj, getServiceName(service), clusterId,
                                 getProjectCodeFromService(service), getEnvNameFromService(service)))
                         .collect(Collectors.toList());
@@ -364,14 +371,25 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                     .collect(Collectors.toList());
 
         }
-        serviceList.forEach(service -> workLoadList.addAll(getWorkLoadByIndex(clusterId,
-                service.getMetadata().getNamespace(),
-                service.getMetadata().getLabels().get(meshConfig.getAppKey())).stream()
+        serviceList.forEach(service -> workLoadList.addAll(getWorkLoadByServiceSelector((io.fabric8.kubernetes.api.model.Service)service,clusterId)
+                .stream()
                 .map(obj -> new WorkLoadDTO<>(obj, getServiceName(service), clusterId,
                         getProjectCodeFromService(service), getEnvNameFromService(service)))
                 .collect(Collectors.toList())
         ));
         return workLoadList;
+    }
+
+    private List<T> getWorkLoadByServiceSelector(io.fabric8.kubernetes.api.model.Service service, String clusterId) {
+
+        Map<String,String> selectorLabel = service.getSpec().getSelector();
+        if (selectorLabel == null || selectorLabel.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        return workLoadBySelectorCache.getUnchecked(new SelectorIndex(clusterId
+                , service.getMetadata().getNamespace()
+                , selectorLabel));
     }
 
     private String getProjectCodeFromService(T service) {
@@ -666,7 +684,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         return workLoadByServiceCache.getUnchecked(new WorkLoadIndex(clusterId, namespace, name));
     }
 
-    private List<T> doGetWorkLoadList(String clusterId, String namespace, String appName) {
+    private List<T> doGetWorkLoadListByApp(String clusterId, String namespace, String appName) {
         OwnerReferenceSupportStore store = ResourceStoreFactory.getResourceStore(clusterId);
         List<T> workLoadList = new ArrayList<>();
         workLoadList.addAll(store.listByKindAndNamespace(Deployment.name(), namespace));
@@ -702,6 +720,18 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
 //                }
 //            });
 //        }
+        return workLoadList;
+    }
+
+    private List<T> doGetWorkLoadListBySelector(String clusterId, String namespace,Map<String,String> labels) {
+        KubernetesClient kubernetesClient = multiClusterK8sClient.k8sClient(clusterId);
+        List<T> workLoadList = new ArrayList<>();
+        if (labels == null || labels.isEmpty()){
+            return workLoadList;
+        }
+        workLoadList.addAll(kubernetesClient.getObjectList(Deployment.name(),namespace,labels));
+        workLoadList.addAll(kubernetesClient.getObjectList(StatefulSet.name(),namespace,labels));
+
         return workLoadList;
     }
 
@@ -931,6 +961,57 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         @Override
         public int hashCode() {
             return Objects.hash(clusterId, namespace, name);
+        }
+    }
+
+    class SelectorIndex {
+
+        private String clusterId;
+        private String namespace;
+        private Map<String,String> selectorLabels;
+
+        public SelectorIndex(String clusterId, String namespace, Map<String, String> selectorLabels) {
+            this.clusterId = clusterId;
+            this.namespace = namespace;
+            this.selectorLabels = selectorLabels;
+        }
+
+        public String getClusterId() {
+            return clusterId;
+        }
+
+        public void setClusterId(String clusterId) {
+            this.clusterId = clusterId;
+        }
+
+        public String getNamespace() {
+            return namespace;
+        }
+
+        public void setNamespace(String namespace) {
+            this.namespace = namespace;
+        }
+
+        public Map<String, String> getSelectorLabels() {
+            return selectorLabels;
+        }
+
+        public void setSelectorLabels(Map<String, String> selectorLabels) {
+            this.selectorLabels = selectorLabels;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            SelectorIndex that = (SelectorIndex) o;
+            return Objects.equals(clusterId, that.clusterId) &&
+                    Objects.equals(namespace, that.namespace);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(clusterId, namespace);
         }
     }
 
