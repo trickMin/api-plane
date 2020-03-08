@@ -1,140 +1,394 @@
 {
-  "inject": {
-    "kind": "cache"
-  },
   "formatter": {
     "kind": "cache",
-    "cache": {
-      "enableRqx": "@enableRqx",
-      "enableRpx": "@enableRpx",
-      "cacheTtls": {
-        "LocalHttpCache": {
-          "default": 0,
-          "customs": "@localCacheCustoms"
-        },
-        "RedisHttpCache": {
-          "default": 0,
-          "customs": "@redisCacheCustoms"
-        }
-      },
-      "keyMaker": {
-        "queryParams": "&keyMaker.queryParams?",
-        "headersKeys": "&keyMaker.headersKeys?"
-      },
-      "lowLevelFill": "&lowLevelFill"
-    }
+    "condition": "&condition",
+    "ttl": "&ttl",
+    "keyMaker": "&keyMaker",
+    "lowLevelFill": "&lowLevelFill"
   },
   "layouts": [
     {
-      "key": "localCacheCustoms",
-      "alias": "内存缓存",
-      "type": "array",
+      "key": "kind",
+      "default": "cache",
+      "visible": false
+    },
+    {
+      "key": "condition",
+      "alias": "缓存条件",
+      "type": "layouts",
       "layouts": [
         {
-          "key": "key",
-          "alias": "响应码",
-          "help": "请求满足该响应码时使用缓存,支持输入具体的响应码及X.. 如2..代表2XX响应码",
-          "type": "input",
-          "rules": [
-            "Required",
-            "^[1-9]([0-9]|\\.){2,2}$"
+          "key": "request",
+          "alias": "请求",
+          "type": "layouts",
+          "layouts": [
+            {
+              "key": "requestSwitch",
+              "alias": "是否使用请求进行匹配",
+              "type": "switch",
+              "default": false
+            },
+            {
+              "key": "method",
+              "alias": "请求方法",
+              "type": "multi_select",
+              "visible": {
+                "this.requestSwitch": true
+              },
+              "options": [
+                {
+                  "text": "GET",
+                  "value": "GET"
+                },
+                {
+                  "text": "HEAD",
+                  "value": "HEAD"
+                }
+              ]
+            },
+            {
+              "key": "path",
+              "alias": "请求路径",
+              "type": "layouts",
+              "visible": {
+                "this.requestSwitch": true
+              },
+              "layouts": [
+                {
+                  "key": "match_type",
+                  "alias": "匹配方式",
+                  "type": "select",
+                  "default": "exact_match",
+                  "options": [
+                    {
+                      "text": "精确匹配",
+                      "value": "exact_match"
+                    },
+                    {
+                      "text": "正则表达式",
+                      "value": "safe_regex_match"
+                    }
+                  ]
+                },
+                {
+                  "key": "value",
+                  "type": "input",
+                  "alias": "取值"
+                }
+              ]
+            },
+            {
+              "key": "host",
+              "alias": "域名",
+              "type": "layouts",
+              "visible": {
+                "this.requestSwitch": true
+              },
+              "layouts": [
+                {
+                  "key": "match_type",
+                  "alias": "匹配方式",
+                  "type": "select",
+                  "default": "exact_match",
+                  "options": [
+                    {
+                      "text": "精确匹配",
+                      "value": "exact_match"
+                    },
+                    {
+                      "text": "正则表达式",
+                      "value": "safe_regex_match"
+                    }
+                  ]
+                },
+                {
+                  "key": "value",
+                  "type": "input",
+                  "alias": "取值"
+                }
+              ]
+            },
+            {
+              "key": "headers",
+              "alias": "请求头",
+              "type": "array",
+              "visible": {
+                "this.requestSwitch": true
+              },
+              "layouts": [
+                {
+                  "key": "headerKey",
+                  "alias": "请求头",
+                  "type": "input"
+                },
+                {
+                  "key": "match_type",
+                  "alias": "匹配方式",
+                  "type": "select",
+                  "default": "exact_match",
+                  "options": [
+                    {
+                      "text": "精确匹配",
+                      "value": "exact_match"
+                    },
+                    {
+                      "text": "正则表达式",
+                      "value": "safe_regex_match"
+                    },
+                    {
+                      "text": "参数存在则匹配",
+                      "value": "present_match"
+                    },
+                    {
+                      "text": "参数不存在则匹配",
+                      "value": "present_match_invert"
+                    }
+                  ]
+                },
+                {
+                  "key": "value",
+                  "type": "input",
+                  "alias": "取值",
+                  "invisible": {
+                    "present_match": ["this", "match_type"],
+                    "present_match_invert": ["this", "match_type"]
+                  }
+                }
+              ]
+            }
           ]
         },
         {
-          "key": "value",
-          "alias": "过期时间(ms)",
-          "type": "input",
-          "rules": [
-            "Required",
-            "Number"
+          "key": "response",
+          "alias": "响应",
+          "type": "layouts",
+          "layouts": [
+            {
+              "key": "responseSwitch",
+              "alias": "是否使用响应进行匹配",
+              "type": "switch",
+              "default": false
+            },
+            {
+              "key": "code",
+              "alias": "状态码",
+              "type": "layouts",
+              "visible": {
+                "this.responseSwitch": true
+              },
+              "layouts": [
+                {
+                  "key": "match_type",
+                  "alias": "匹配方式",
+                  "type": "select",
+                  "default": "exact_match",
+                  "options": [
+                    {
+                      "text": "精确匹配",
+                      "value": "exact_match"
+                    },
+                    {
+                      "text": "正则表达式",
+                      "value": "safe_regex_match"
+                    }
+                  ]
+                },
+                {
+                  "key": "value",
+                  "alias": "取值",
+                  "type": "input"
+                }
+              ]
+            },
+            {
+              "key": "headers",
+              "alias": "响应头",
+              "type": "array",
+              "visible": {
+                "this.responseSwitch": true
+              },
+              "layouts": [
+                {
+                  "key": "headerKey",
+                  "alias": "请求头",
+                  "type": "input"
+                },
+                {
+                  "key": "match_type",
+                  "alias": "匹配方式",
+                  "type": "select",
+                  "default": "exact_match",
+                  "options": [
+                    {
+                      "text": "精确匹配",
+                      "value": "exact_match"
+                    },
+                    {
+                      "text": "正则表达式",
+                      "value": "safe_regex_match"
+                    },
+                    {
+                      "text": "参数存在则匹配",
+                      "value": "present_match"
+                    },
+                    {
+                      "text": "参数不存在则匹配",
+                      "value": "present_match_invert"
+                    }
+                  ]
+                },
+                {
+                  "key": "value",
+                  "type": "input",
+                  "alias": "取值",
+                  "invisible": {
+                    "present_match": ["this", "match_type"],
+                    "present_match_invert": ["this", "match_type"]
+                  }
+                }
+              ]
+            }
           ]
         }
       ]
     },
     {
-      "key": "redisCacheCustoms",
-      "alias": "Redis缓存",
-      "type": "array",
+      "key": "ttl",
+      "alias": "缓存ttl",
+      "type": "layouts",
       "layouts": [
         {
-          "key": "key",
-          "alias": "响应码",
-          "help": "请求满足该响应码时使用缓存,支持输入具体的响应码及X.. 如2..代表2XX响应码",
-          "type": "input",
-          "rules": [
-            "Required",
-            "^[1-9]([0-9]|\\.){2,2}$"
+          "key": "local",
+          "alias": "本地缓存ttl",
+          "type": "layouts",
+          "layouts": [
+            {
+              "key": "default",
+              "alias": "默认ttl",
+              "help": "默认ttl设置，填写0即不使用缓存，单位ms",
+              "type": "input",
+              "rules": [
+                "Required",
+                "Number",
+                "MinNumber(0)",
+                "MaxNumber(99999999)"
+              ]
+            },
+            {
+              "key": "custom",
+              "alias": "定制化ttl配置",
+              "help": "当响应状态码满足如下条件时则使用单独的缓存ttl设置，否则使用默认ttl设置",
+              "type": "array",
+              "layouts": [
+                {
+                  "key": "code",
+                  "alias": "响应状态码",
+                  "help": "支持输入具体的响应码及X..，如2..代表2XX响应码",
+                  "type": "input",
+                  "rules": [
+                    "Required"
+                  ]
+                },
+                {
+                  "key": "value",
+                  "alias": "ttl",
+                  "type": "input",
+                  "rules": [
+                    "Required",
+                    "Number",
+                    "MinNumber(0)",
+                    "MaxNumber(99999999)"
+                  ]
+                }
+              ]
+            }
           ]
         },
         {
-          "key": "value",
-          "alias": "过期时间(ms)",
-          "type": "input",
-          "rules": [
-            "Required",
-            "Number"
+          "key": "redis",
+          "alias": "Redis缓存ttl",
+          "type": "layouts",
+          "layouts": [
+            {
+              "key": "default",
+              "alias": "默认ttl",
+              "help": "默认ttl设置，填写0即不使用缓存，单位ms",
+              "type": "input",
+              "rules": [
+                "Required",
+                "Number",
+                "MinNumber(0)",
+                "MaxNumber(99999999)"
+              ]
+            },
+            {
+              "key": "custom",
+              "alias": "定制化ttl配置",
+              "help": "当响应状态码满足如下条件时则使用单独的缓存ttl设置，否则使用默认ttl设置",
+              "type": "array",
+              "layouts": [
+                {
+                  "key": "code",
+                  "alias": "响应状态码",
+                  "help": "支持输入具体的响应码及X..，如2..代表2XX响应码",
+                  "type": "input",
+                  "rules": [
+                    "Required"
+                  ]
+                },
+                {
+                  "key": "value",
+                  "alias": "ttl",
+                  "type": "input",
+                  "rules": [
+                    "Required",
+                    "Number",
+                    "MinNumber(0)",
+                    "MaxNumber(99999999)"
+                  ]
+                }
+              ]
+            }
           ]
         }
       ]
     },
     {
       "key": "keyMaker",
-      "alias": "缓存哈希计算",
-      "help": "网关将使用该配置计算参数该请求哈希值，用于缓存数据搜索与标识，默认使用方法，域名，路径进行计算",
+      "alias": "缓存key配置",
+      "help": "默认情况下使用method + host + path（不带querystring参数）作为缓存的key",
+      "type": "layouts",
       "layouts": [
         {
-          "key": "queryParams",
-          "alias": "请求参数",
+          "key": "excludeHost",
+          "alias": "host不参与key计算",
+          "type": "switch",
+          "default": false
+        },
+        {
+          "key": "ignoreCase",
+          "alias": "key忽略大小写",
+          "type": "switch",
+          "default": true
+        },
+        {
+          "key": "queryString",
+          "alias": "query string参数",
           "type": "multi_input"
         },
         {
-          "key": "headersKeys",
+          "key": "headers",
           "alias": "请求头",
           "type": "multi_input"
-        }
-      ]
-    },
-    {
-      "key": "enableRqx",
-      "alias": "请求匹配条件",
-      "type": "array",
-      "help": "满足请求匹配条件时使用缓存，支持Reqeust Header配置",
-      "layouts": [
-        {
-          "key": "key",
-          "alias": "请求头",
-          "type": "input"
-        },
-        {
-          "key": "value",
-          "alias": "取值",
-          "type": "input"
-        }
-      ]
-    },
-    {
-      "key": "enableRpx",
-      "alias": "响应匹配条件",
-      "type": "array",
-      "help": "满足请求匹配条件时使用缓存，支持Response Header配置",
-      "layouts": [
-        {
-          "key": "key",
-          "alias": "请求头",
-          "type": "input"
-        },
-        {
-          "key": "value",
-          "alias": "取值",
-          "type": "input"
         }
       ]
     },
     {
       "key": "lowLevelFill",
-      "alias": "是否写入次级缓存",
-      "help": "当在高级别缓存中命中时，将数据写入到低级别缓存中,缓存顺序由全局配置决定",
-      "type": "boolean"
+      "alias": "次级缓存填充",
+      "help": "当在高级别缓存中命中时，将数据写入到低级别缓存中",
+      "type": "switch",
+      "default": true
     }
   ]
 }

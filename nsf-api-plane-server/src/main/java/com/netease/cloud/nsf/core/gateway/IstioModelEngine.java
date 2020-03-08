@@ -101,8 +101,6 @@ public class IstioModelEngine {
      */
     public List<K8sResourcePack> translate(API api, boolean simple) {
 
-        List<Endpoint> endpoints = resourceManager.getEndpointList();
-
         List<K8sResourcePack> resourcePacks = new ArrayList<>();
 
         RawResourceContainer rawResourceContainer = new RawResourceContainer();
@@ -114,6 +112,7 @@ public class IstioModelEngine {
 
         if (CollectionUtils.isEmpty(api.getProxyServices())) {
             //yx
+            List<Endpoint> endpoints = resourceManager.getEndpointList();
             vsHandler = new YxVirtualServiceAPIDataHandler(
                     defaultModelProcessor, rawResourceContainer.getVirtualServices(), endpoints, simple);
             List<String> rawGateways = defaultModelProcessor.process(apiGateway, api, new BaseGatewayAPIDataHandler(enableHttp10));

@@ -13,6 +13,7 @@ import com.netease.cloud.nsf.core.k8s.operator.VersionManagerOperator;
 import com.netease.cloud.nsf.core.k8s.operator.k8sResourceOperator;
 import com.netease.cloud.nsf.core.k8s.subtracter.ServiceEntryEndpointsSubtracter;
 import com.netease.cloud.nsf.meta.*;
+import com.netease.cloud.nsf.service.ValidateService;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
 import com.netease.cloud.nsf.util.function.Subtracter;
@@ -24,6 +25,7 @@ import me.snowdrop.istio.api.networking.v1alpha3.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -53,9 +55,16 @@ public class K8sConfigManager implements ConfigManager {
     @Autowired
     private List<k8sResourceOperator> operators;
 
+    @Autowired
+    private ValidateService validateService;
+
+    @Value(value = "${enableResourceValidate:false}")
+    private Boolean enableValidate;
+
     @Override
     public void updateConfig(API api) {
         List<K8sResourcePack> resources = modelProcessor.translate(api);
+        validate(resources);
         update(resources);
     }
 
@@ -63,6 +72,12 @@ public class K8sConfigManager implements ConfigManager {
     public void updateConfig(Service service) {
         List<K8sResourcePack> resources = modelProcessor.translate(service);
         update(resources);
+    }
+
+    private void validate(List<K8sResourcePack> resourcePacks) {
+        if (enableValidate) {
+            validateService.validate(resourcePacks.stream().map(K8sResourcePack::getResource).collect(Collectors.toList()));
+        }
     }
 
     private void update(List<K8sResourcePack> resources) {
@@ -134,9 +149,10 @@ public class K8sConfigManager implements ConfigManager {
         Subtracter<HasMetadata> deleteFun = new Subtracter<HasMetadata>() {
             //dr若不存在subset，则全部删除相关资源
             boolean noSubsets = false;
+
             @Override
             public HasMetadata subtract(HasMetadata r) {
-                if (r.getClass() == drClz){
+                if (r.getClass() == drClz) {
                     ResourceGenerator gen = ResourceGenerator.newInstance(r, ResourceType.OBJECT);
                     // 如果没有传入subset，则删除默认subset
                     if (CollectionUtils.isEmpty(subsets)) {
@@ -192,11 +208,11 @@ public class K8sConfigManager implements ConfigManager {
     public List<PodStatus> querySVMConfig(PodVersion podVersion) {
         String clusterId = podVersion.getClusterId();
         HasMetadata versionmanager = multiK8sConfigStore.get(K8sResourceEnum.VersionManager.name(), podVersion.getNamespace(), VM_RESOURCE_NAME, clusterId);
-        if(versionmanager == null) {
+        if (versionmanager == null) {
             return null;
         }
-        VersionManagerOperator ir = (VersionManagerOperator)resolve(versionmanager);
-        return ir.getPodVersion(podVersion, (VersionManager)versionmanager);
+        VersionManagerOperator ir = (VersionManagerOperator) resolve(versionmanager);
+        return ir.getPodVersion(podVersion, (VersionManager) versionmanager);
     }
 
     @Override
@@ -211,7 +227,7 @@ public class K8sConfigManager implements ConfigManager {
 
     @Override
     public HasMetadata getConfig(IstioGateway istioGateway) {
-        if (StringUtils.isEmpty(istioGateway.getGwCluster())){
+        if (StringUtils.isEmpty(istioGateway.getGwCluster())) {
             return null;
         }
         final String gwClusgterKey = "gw_cluster";
@@ -225,16 +241,16 @@ public class K8sConfigManager implements ConfigManager {
         {
             IstioResource ir = (IstioResource) g;
             GatewaySpec spec = (GatewaySpec) ir.getSpec();
-            if (spec == null){
+            if (spec == null) {
                 return false;
             }
             Map<String, String> selector = spec.getSelector();
-            if (selector == null){
+            if (selector == null) {
                 return false;
             }
             return istioGateway.getGwCluster().equals(selector.get(gwClusgterKey));
         }).findFirst();
-        if (first.isPresent()){
+        if (first.isPresent()) {
             return first.get();
         }
         return null;
@@ -275,7 +291,7 @@ public class K8sConfigManager implements ConfigManager {
     }
 
     private void delete(List<K8sResourcePack> resources, Subtracter<HasMetadata> fun) {
-        delete(resources, (i1,i2) -> 0, fun);
+        delete(resources, (i1, i2) -> 0, fun);
     }
 
     private void delete(List<K8sResourcePack> packs, Comparator<K8sResourcePack> compartor, Subtracter<HasMetadata> fun) {
@@ -295,7 +311,8 @@ public class K8sConfigManager implements ConfigManager {
                     if (p.hasSubtracter()) {
                         return p.getSubtracter().subtract(resource);
                     }
-                    return fun.subtract(resource);})
+                    return fun.subtract(resource);
+                })
                 .filter(i -> i != null)
                 .forEach(r -> handle(r));
     }

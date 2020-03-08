@@ -8,7 +8,7 @@
       "allowHeaders": "&allowHeaders?",
       "exposeHeaders": "&exposeHeaders?",
       "allowCredentials": "&allowCredentials",
-      "maxAge": "&maxAge?+ms"
+      "maxAge": "&maxAge?+s"
     },
     "maxAge": "&maxAge?"
   },
@@ -16,11 +16,13 @@
     {
       "key": "allowOrigin",
       "alias": "Access-Control-Allow-Origin",
-      "help": "指示请求的资源能共享给哪些域，可以是具体的域名或者*表示所有域",
+      "help": "指示请求的资源能共享给哪些域",
+      "placeholder":"请输入正则表达式",
       "type": "multi_input",
       "rules": [
         "MaxLength(200)",
-        "Required"
+        "Required",
+        "[^\\*]"
       ]
     },
     {
@@ -65,7 +67,7 @@
     {
       "key": "allowCredentials",
       "alias": "Access-Control-Allow-Credentials",
-      "help": "指示当请求的凭证标记为true时，是否响应该请求",
+      "help": "表示请求中是否允许发送Credentials，包含cookies, authorization headers 或 TLS client certificates",
       "type": "radio",
       "options": [
         "true",
@@ -75,7 +77,7 @@
     {
       "key": "maxAge",
       "alias": "Access-Control-Max-Age",
-      "help": "指示预请求的结果能被缓存多久，单位毫秒",
+      "help": "指示预请求的结果能被缓存多久，单位秒",
       "type": "number",
       "rules": [
         "Number",
