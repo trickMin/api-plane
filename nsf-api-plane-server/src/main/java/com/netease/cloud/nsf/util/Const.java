@@ -69,5 +69,14 @@ public interface Const {
     String LB_TYPE_PASSTHROUGH = "PASSTHROUGH";
     String LB_TYPE_CONSISTENT_HASH = "CONSISTENT_HASH";
 
+    String WORKLOAD_UPDATE_TIME_ANNOTATION = "nsf_workload_update_time";
+    String WORKLOAD_OPERATION_TYPE_ANNOTATION = "nsf_workload_operation_type";
+    String WORKLOAD_OPERATION_TYPE_ANNOTATION_INJECT = "inject";
+    String WORKLOAD_OPERATION_TYPE_ANNOTATION_EXIT = "exit";
+
+    String CONTAINER_STATUS_RUNNING = "Running";
+    String CONTAINER_STATUS_WAITING = "Waiting";
+    String CONTAINER_STATUS_TERMINATED = "Terminated";
+
 
 }
