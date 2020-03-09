@@ -41,32 +41,24 @@
     },
     {
       "key": "bufferSetting",
-      "alias": "请求体缓存设置",
+      "alias": "请求体设置",
       "type": "layouts",
       "visible": {
         "this.authnType": "aksk_authz_type"
       },
       "layouts": [
         {
-          "key": "allowPartialMessage",
-          "alias": "是否允许部分消息",
-          "help": "若允许部分消息，当Request body大小超出 最大请求体字节数 限制后，则截取前面部分作为请求体用于签名计算",
-          "type": "switch",
-          "default": false
-        },
-        {
           "key": "maxRequestBytes",
           "alias": "最大请求体字节数",
+          "help": "当有请求体时，请求体的hash会参与签名计算。当请求体大小大于该值后，只会截取限制的大小进行hash计算。",
           "type": "input",
           "default": "4096",
           "rules": [
             "Number",
-            "MinNumber(0)",
+            "MinNumber(1)",
+            "MaxNumber(1073741824)",
             "Required"
-          ],
-          "visible": {
-            "this.allowPartialMessage": true
-          }
+          ]
         }
       ]
     }
