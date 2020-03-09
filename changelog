@@ -25,6 +25,7 @@ release 1.1
 - 增加idletimeout 3s
 - 增加连接池、负载均衡
 - destinationrule和servcieentry增加了gwLabels
+- 发布API增加请求头新增字段
 
 ServiceMesh:
 - 创建、删除、查询资源接口

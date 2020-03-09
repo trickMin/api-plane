@@ -59,7 +59,9 @@ public abstract class APIDataHandler implements DataHandler<API> {
                 .put(SERVICE_INFO_API_SERVICE, getOrDefault(api.getService(), "NoneService"))
                 .put(SERVICE_INFO_API_METHODS, getOrDefault(methods, ".*"))
                 .put(SERVICE_INFO_API_REQUEST_URIS, getOrDefault(uris, ".*"))
-                .put(SERVICE_INFO_VIRTUAL_SERVICE_HOST_HEADERS, getOrDefault(hostHeaders, ".*"));
+                .put(SERVICE_INFO_VIRTUAL_SERVICE_HOST_HEADERS, getOrDefault(hostHeaders, ".*"))
+                .put(VIRTUAL_SERVICE_REQUEST_HEADERS, api.getRequestOperation())
+                ;
 
         return doHandle(tp, api);
     }

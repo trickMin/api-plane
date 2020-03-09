@@ -72,7 +72,15 @@ public class Trans {
             api.setPerTryTimeout(portalAPI.getHttpRetry().getPerTryTimeout());
             api.setRetryOn(portalAPI.getHttpRetry().getRetryOn());
         }
+        api.setRequestOperation(requestOperationDTO2requestOperation(portalAPI.getRequestOperation()));
         return api;
+    }
+
+    private static RequestOperation requestOperationDTO2requestOperation(RequestOperationDTO requestOperation) {
+        if (requestOperation == null) return null;
+        RequestOperation ro = new RequestOperation();
+        ro.setAdd(new HashMap<>(requestOperation.getAdd()));
+        return ro;
     }
 
     public static IstioGateway portalGW2GW(PortalIstioGatewayDTO portalGateway) {
