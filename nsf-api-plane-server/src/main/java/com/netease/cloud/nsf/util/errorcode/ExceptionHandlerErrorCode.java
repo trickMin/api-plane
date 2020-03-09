@@ -15,8 +15,6 @@ public class ExceptionHandlerErrorCode extends ErrorCode {
 
 	public static ErrorCode InvalidBodyFormat = new ErrorCode(ErrorCodeEnum.InvalidBodyFormat);
 
-	public static ErrorCode ConstraintViolation = new ErrorCode(ErrorCodeEnum.ConstraintViolation);
-
 	public static ErrorCode ResourceConflict = new ErrorCode(ErrorCodeEnum.ResourceConflict);
 
 	public static ErrorCode InvalidParamsError(String paramName,String paramValue){
