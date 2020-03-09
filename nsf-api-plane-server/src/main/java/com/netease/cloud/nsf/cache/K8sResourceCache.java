@@ -371,12 +371,15 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                     .collect(Collectors.toList());
 
         }
-        serviceList.forEach(service -> workLoadList.addAll(getWorkLoadByServiceSelector((io.fabric8.kubernetes.api.model.Service)service,clusterId)
-                .stream()
-                .map(obj -> new WorkLoadDTO<>(obj, getServiceName(service), clusterId,
-                        getProjectCodeFromService(service), getEnvNameFromService(service)))
-                .collect(Collectors.toList())
-        ));
+        for (T service : serviceList) {
+            List<T> workLoadBySelector = getWorkLoadByServiceSelector((io.fabric8.kubernetes.api.model.Service)service,clusterId);
+            List<WorkLoadDTO<T>> workLoadDtoBySelector = workLoadBySelector.stream()
+                    .map(obj -> new WorkLoadDTO<>(obj, getServiceName(service), clusterId,
+                            getProjectCodeFromService(service), getEnvNameFromService(service)))
+                    .collect(Collectors.toList());
+
+            workLoadList.addAll(workLoadDtoBySelector);
+        }
         return workLoadList;
     }
 
@@ -389,7 +392,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
 
         return workLoadBySelectorCache.getUnchecked(new SelectorIndex(clusterId
                 , service.getMetadata().getNamespace()
-                , selectorLabel));
+                , service.getMetadata().getName(), selectorLabel));
     }
 
     private String getProjectCodeFromService(T service) {
@@ -968,11 +971,13 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
 
         private String clusterId;
         private String namespace;
+        private String serviceName;
         private Map<String,String> selectorLabels;
 
-        public SelectorIndex(String clusterId, String namespace, Map<String, String> selectorLabels) {
+        public SelectorIndex(String clusterId, String namespace, String serviceName, Map<String, String> selectorLabels) {
             this.clusterId = clusterId;
             this.namespace = namespace;
+            this.serviceName = serviceName;
             this.selectorLabels = selectorLabels;
         }
 
@@ -1000,18 +1005,27 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
             this.selectorLabels = selectorLabels;
         }
 
+        public String getServiceName() {
+            return serviceName;
+        }
+
+        public void setServiceName(String serviceName) {
+            this.serviceName = serviceName;
+        }
+
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             SelectorIndex that = (SelectorIndex) o;
             return Objects.equals(clusterId, that.clusterId) &&
-                    Objects.equals(namespace, that.namespace);
+                    Objects.equals(namespace, that.namespace) &&
+                    Objects.equals(serviceName, that.serviceName);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(clusterId, namespace);
+            return Objects.hash(clusterId, namespace, serviceName);
         }
     }
 
