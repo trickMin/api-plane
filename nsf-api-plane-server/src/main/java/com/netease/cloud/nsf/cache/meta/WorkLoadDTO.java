@@ -1,5 +1,6 @@
 package com.netease.cloud.nsf.cache.meta;
 
+import com.netease.cloud.nsf.util.Const;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.apps.DeploymentStatus;
@@ -30,6 +31,13 @@ public class WorkLoadDTO<T extends HasMetadata> extends K8sResourceDTO {
 
     private Map<String, String> statusInfo = new HashMap<>();
 
+    private String lastUpdateTime;
+
+    private String lastOperationType;
+
+
+
+
 
     public WorkLoadDTO(T obj, String serviceName, String clusterId, String projectCode, String envName) {
         super(obj, clusterId);
@@ -58,6 +66,35 @@ public class WorkLoadDTO<T extends HasMetadata> extends K8sResourceDTO {
         if (obj.getMetadata()!=null){
             this.labels = obj.getMetadata().getLabels();
         }
+        Map<String,String> annotation = obj.getMetadata().getAnnotations();
+        if (annotation != null){
+            this.lastUpdateTime = annotation.get(Const.WORKLOAD_UPDATE_TIME_ANNOTATION);
+            this.lastOperationType = annotation.get(Const.WORKLOAD_OPERATION_TYPE_ANNOTATION);
+        }
+    }
+
+    public String getServiceDomain() {
+        return serviceDomain;
+    }
+
+    public void setServiceDomain(String serviceDomain) {
+        this.serviceDomain = serviceDomain;
+    }
+
+    public String getLastUpdateTime() {
+        return lastUpdateTime;
+    }
+
+    public void setLastUpdateTime(String lastUpdateTime) {
+        this.lastUpdateTime = lastUpdateTime;
+    }
+
+    public String getLastOperationType() {
+        return lastOperationType;
+    }
+
+    public void setLastOperationType(String lastOperationType) {
+        this.lastOperationType = lastOperationType;
     }
 
     public boolean isInMesh() {

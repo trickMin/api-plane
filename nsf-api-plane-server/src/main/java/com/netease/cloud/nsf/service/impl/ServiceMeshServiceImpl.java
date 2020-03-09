@@ -161,7 +161,11 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
         labels.put(meshConfig.getVersionKey(), version);
         labels.put(meshConfig.getAppKey(),appName);
         injectAnnotation.put(Const.ISTIO_INJECT_ANNOTATION, "true");
+        Map<String, String> workloadAnnotation = new HashMap<>(2);
+        workloadAnnotation.put(Const.WORKLOAD_OPERATION_TYPE_ANNOTATION, Const.WORKLOAD_OPERATION_TYPE_ANNOTATION_INJECT);
+        workloadAnnotation.put(Const.WORKLOAD_UPDATE_TIME_ANNOTATION,String.valueOf(System.currentTimeMillis()));
         T injectedWorkLoad = appendLabel(appendAnnotationToPod(resourceToInject, injectAnnotation), labels);
+        injectedWorkLoad = appendAnnotationOnWorkload(injectedWorkLoad,workloadAnnotation);
         updateResource(injectedWorkLoad);
         createSidecarVersionCRD(clusterId, namespace, kind, name, expectedVersion);
         return ApiPlaneErrorCode.Success;
@@ -241,6 +245,16 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
                     .getMetadata()
                     .setAnnotations(appendKeyValue(currentAnnotations, annotations));
         }
+        return obj;
+    }
+
+    private T appendAnnotationOnWorkload(T obj, Map<String, String> annotations) {
+
+        Map<String, String> currentAnnotations = obj.getMetadata().getAnnotations();
+        if (currentAnnotations == null){
+            currentAnnotations = new HashMap<>();
+        }
+        obj.getMetadata().setAnnotations(appendKeyValue(currentAnnotations,annotations));
         return obj;
     }
 
@@ -339,9 +353,13 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
         if (resourceToInject == null) {
             return ApiPlaneErrorCode.workLoadNotFound;
         }
-        Map<String, String> injectAnnotation = new HashMap<>(1);
+        Map<String, String> injectAnnotation = new HashMap<>(3);
         injectAnnotation.put(Const.ISTIO_INJECT_ANNOTATION, "false");
+        Map<String,String> workloadAnnotation = new HashMap<>(2);
+        workloadAnnotation.put(Const.WORKLOAD_OPERATION_TYPE_ANNOTATION, Const.WORKLOAD_OPERATION_TYPE_ANNOTATION_EXIT);
+        workloadAnnotation.put(Const.WORKLOAD_UPDATE_TIME_ANNOTATION,String.valueOf(System.currentTimeMillis()));
         T injectedWorkLoad = appendAnnotationToPod(resourceToInject, injectAnnotation);
+        injectedWorkLoad = appendAnnotationOnWorkload(injectedWorkLoad,workloadAnnotation);
         updateResource(injectedWorkLoad);
         return ApiPlaneErrorCode.Success;
     }

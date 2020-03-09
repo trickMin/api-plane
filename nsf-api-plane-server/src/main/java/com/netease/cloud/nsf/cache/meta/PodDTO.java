@@ -1,10 +1,7 @@
 package com.netease.cloud.nsf.cache.meta;
 
 import com.netease.cloud.nsf.util.Const;
-import io.fabric8.kubernetes.api.model.ContainerStatus;
-import io.fabric8.kubernetes.api.model.HasMetadata;
-import io.fabric8.kubernetes.api.model.Pod;
-import io.fabric8.kubernetes.api.model.Quantity;
+import io.fabric8.kubernetes.api.model.*;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
@@ -126,7 +123,8 @@ public class PodDTO<T extends HasMetadata> extends K8sResourceDTO {
             // 更新容器状态信息
             pod.getStatus().getContainerStatuses().forEach(cs -> {
                 Objects.requireNonNull(containerInfoMap.computeIfAbsent(cs.getName(), ContainerInfo::new))
-                        .setStatusInfo("restartCount", cs.getRestartCount().toString());
+                        .setStatusInfo("restartCount", cs.getRestartCount().toString())
+                        .setCurrState(cs.getState());
                 totalRestartCount += cs.getRestartCount();
             });
 
@@ -165,6 +163,8 @@ public class PodDTO<T extends HasMetadata> extends K8sResourceDTO {
             return this;
         }
 
+
+
         public ContainerInfo setLimitResource(Map<String, Quantity> resourceMap) {
             if (resourceMap == null || resourceMap.isEmpty()) {
                 return this;
@@ -172,6 +172,22 @@ public class PodDTO<T extends HasMetadata> extends K8sResourceDTO {
 
             for (Map.Entry<String, Quantity> entry : resourceMap.entrySet()) {
                 resourceLimit.put(entry.getKey(), entry.getValue().getAmount());
+            }
+            return this;
+        }
+
+        public ContainerInfo setCurrState(ContainerState state) {
+            if (state.getRunning()!=null){
+                statusInfo.put("Status",Const.CONTAINER_STATUS_RUNNING);
+                return this;
+            }
+            if (state.getWaiting()!=null){
+                statusInfo.put("Status",Const.CONTAINER_STATUS_WAITING);
+                return this;
+            }
+            if (state.getTerminated()!=null){
+                statusInfo.put("Status",Const.CONTAINER_STATUS_TERMINATED);
+                return this;
             }
             return this;
         }
@@ -243,7 +259,9 @@ public class PodDTO<T extends HasMetadata> extends K8sResourceDTO {
         }
         List<ContainerStatus> containerStatuses = pod.getStatus().getContainerStatuses();
         for (ContainerStatus containerStatus : containerStatuses) {
-            if (Const.SIDECAR_CONTAINER.equals(containerStatus.getName())){
+            if (Const.SIDECAR_CONTAINER.equals(containerStatus.getName())
+                    &&containerStatus.getState()!=null
+                    &&containerStatus.getState().getRunning()!=null){
                 return true;
             }
         }
