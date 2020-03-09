@@ -34,8 +34,6 @@ public enum ErrorCodeEnum {
     DryRunOperation("DryRunOperation", "The quest would have successed, but the DryRun parameter was used.", "签名认证通过，但是使用了 DryRun 参数", 400),
     ApiFreqOutOfLimit("ApiFreqOutOfLimit", "Api freq out of limit.", "访问频率过高，请稍后再试", 403),
     ResourceConflict("ResourceConflict", "Resource handling conflicts", "资源处理冲突", 409),
-    ConstraintViolation("ConstraintViolation", "Resource violation constraint", "资源校验不通过", 400),
-
     // 如下几个枚举用于异常处理
     MethodNotAllowed("MethodNotAllow", "Http method not allowed.", "http 方法不支持", 405),
     InvalidParameters("InvalidParameters", "Invalid parameters.", "参数无效", 400),

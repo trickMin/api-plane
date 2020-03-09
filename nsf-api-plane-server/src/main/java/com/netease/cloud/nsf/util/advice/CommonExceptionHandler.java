@@ -9,7 +9,6 @@ import com.jayway.jsonpath.JsonPathException;
 import com.netease.cloud.nsf.util.errorcode.ErrorCode;
 import com.netease.cloud.nsf.util.errorcode.ExceptionHandlerErrorCode;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
-import com.netease.cloud.nsf.util.exception.K8sResourceValidateException;
 import com.netease.cloud.nsf.util.exception.ResourceConflictException;
 import com.netease.cloud.nsf.web.holder.LogTraceUUIDHolder;
 import org.slf4j.Logger;
@@ -93,12 +92,6 @@ public class CommonExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> handleInvalidJsonException(InvalidJsonException exception) {
         ErrorCode errorCode = ExceptionHandlerErrorCode.InvalidBodyFormat;
         return newResponse(errorCode, exception);
-    }
-
-    @ExceptionHandler(K8sResourceValidateException.class)
-    public ResponseEntity<Object> handleK8sResourceValidateException(K8sResourceValidateException exception) {
-        ErrorCode errorCode = ExceptionHandlerErrorCode.ConstraintViolation;
-        return newValidResponse(errorCode.getMessage(), errorCode.getCode(), errorCode.getStatusCode(), exception);
     }
 
     @ExceptionHandler(ResourceConflictException.class)
@@ -224,18 +217,6 @@ public class CommonExceptionHandler extends ResponseEntityExceptionHandler {
                 .message(msg)
                 .code(code)
                 .build();
-        logger.warn("Request Id: {}, Common exception handler catch :", LogTraceUUIDHolder.getUUIDId(), exception);
-
-        return new ResponseEntity<>(returnEntity, HttpStatus.valueOf(statusCode));
-    }
-
-
-    public ResponseEntity<Object> newValidResponse(String msg, String code, int statusCode, K8sResourceValidateException exception) {
-        ValidReturnEntity returnEntity = new ValidReturnEntity();
-        returnEntity.setViolation(exception.getViolation());
-        returnEntity.setCode(code);
-        returnEntity.setMessage(msg);
-        returnEntity.setRequestId(LogTraceUUIDHolder.getUUIDId());
         logger.warn("Request Id: {}, Common exception handler catch :", LogTraceUUIDHolder.getUUIDId(), exception);
 
         return new ResponseEntity<>(returnEntity, HttpStatus.valueOf(statusCode));

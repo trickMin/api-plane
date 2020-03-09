@@ -1,18 +1,20 @@
 package com.netease.cloud.nsf.service.impl;
 
-import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.k8s.validator.ConstraintViolation;
 import com.netease.cloud.nsf.core.k8s.validator.IntegratedValidator;
+import com.netease.cloud.nsf.meta.ValidateResult;
+import com.netease.cloud.nsf.meta.ViolationItem;
 import com.netease.cloud.nsf.service.ValidateService;
-import com.netease.cloud.nsf.util.exception.ApiPlaneException;
-import com.netease.cloud.nsf.util.exception.K8sResourceValidateException;
 import io.fabric8.kubernetes.api.model.HasMetadata;
-import org.apache.commons.lang3.StringEscapeUtils;
+import io.fabric8.kubernetes.api.model.ObjectMeta;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.*;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * @auther wupenghuai@corp.netease.com
@@ -25,31 +27,29 @@ public class ValidateServiceImpl implements ValidateService {
     private IntegratedValidator validator;
 
     @Override
-    public void validate(List<HasMetadata> resources) throws K8sResourceValidateException {
+    public ValidateResult validate(List<HasMetadata> resources) {
 
         Set<ConstraintViolation<HasMetadata>> violations = new LinkedHashSet<>();
         for (HasMetadata resource : resources) {
             violations.addAll(validator.validate(resource));
         }
-        if (!CollectionUtils.isEmpty(violations)) {
-            throw getException(violations);
-        }
+        return getValidateResult(violations);
     }
 
-    private K8sResourceValidateException getException(Set<ConstraintViolation<HasMetadata>> violations) {
-        List<Object> items = new ArrayList<>();
-        for (ConstraintViolation<HasMetadata> violation : violations) {
-            ResourceGenerator item = ResourceGenerator.newInstance(String.format("{\"kind\":\"%s\",\"name\":\"%s\",\"namespace\":\"%s\",\"validator\":\"%s\",\"message\":\"%s\"}",
-                    violation.getBean().getKind(),
-                    violation.getBean().getMetadata().getName(),
-                    violation.getBean().getMetadata().getNamespace(),
-                    violation.getValidator().getClass().getSimpleName(),
-                    StringEscapeUtils.escapeJava(violation.getMessage())
-            ));
-            items.add(item.object(Object.class));
+    private ValidateResult getValidateResult(Set<ConstraintViolation<HasMetadata>> violations) {
+        ValidateResult result = new ValidateResult();
+        if (CollectionUtils.isEmpty(violations)) {
+            result.setPass(true);
         }
-        K8sResourceValidateException validateException = new K8sResourceValidateException();
-        validateException.setViolation(items);
-        return validateException;
+        for (ConstraintViolation<HasMetadata> violation : violations) {
+            ViolationItem item = new ViolationItem();
+            item.setKind(Optional.ofNullable(violation.getBean()).map(HasMetadata::getKind).orElse("Unknown"));
+            item.setNamespace(Optional.ofNullable(violation.getBean()).map(HasMetadata::getMetadata).map(ObjectMeta::getNamespace).orElse("Unknown"));
+            item.setName(Optional.ofNullable(violation.getBean()).map(HasMetadata::getMetadata).map(ObjectMeta::getName).orElse("Unknown"));
+            item.setMessage(Optional.ofNullable(violation.getMessage()).orElse("Unknown"));
+            item.setValidator(Optional.ofNullable(violation.getValidator()).map(Object::getClass).map(Class::getSimpleName).orElse("Unknown"));
+            result.getItems().add(item);
+        }
+        return result;
     }
 }
