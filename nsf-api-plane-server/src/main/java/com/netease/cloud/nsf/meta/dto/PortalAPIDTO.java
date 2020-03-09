@@ -124,6 +124,9 @@ public class PortalAPIDTO {
     @NotNull(message = "ProjectId")
     private String projectId;
 
+    @JsonProperty(value = "RequestOperation")
+    @Valid
+    private RequestOperationDTO requestOperation;
 
     public String getGateway() {
         return gateway;
@@ -267,5 +270,13 @@ public class PortalAPIDTO {
 
     public void setProjectId(String projectId) {
         this.projectId = projectId;
+    }
+
+    public RequestOperationDTO getRequestOperation() {
+        return requestOperation;
+    }
+
+    public void setRequestOperation(RequestOperationDTO requestOperation) {
+        this.requestOperation = requestOperation;
     }
 }

@@ -150,6 +150,10 @@ public class API extends CommonModel {
      */
     private String retryOn;
 
+    /**
+     * request header操作
+     */
+    private RequestOperation requestOperation;
 
     public List<String> getGateways() {
         return gateways;
@@ -414,5 +418,13 @@ public class API extends CommonModel {
 
     public void setRetryOn(String retryOn) {
         this.retryOn = retryOn;
+    }
+
+    public RequestOperation getRequestOperation() {
+        return requestOperation;
+    }
+
+    public void setRequestOperation(RequestOperation requestOperation) {
+        this.requestOperation = requestOperation;
     }
 }

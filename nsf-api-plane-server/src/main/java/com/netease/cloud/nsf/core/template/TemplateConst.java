@@ -58,6 +58,7 @@ public interface TemplateConst {
     String VIRTUAL_SERVICE_RETRY_ATTEMPTS = "t_http_retry_attempts";
     String VIRTUAL_SERVICE_RETRY_PER_TIMEOUT = "t_http_retry_perTryTimeout";
     String VIRTUAL_SERVICE_RETRY_RETRY_ON = "t_http_retry_retryOn";
+    String VIRTUAL_SERVICE_REQUEST_HEADERS = "t_virtual_service_request_headers";
 
     /**
      * ServiceInfo
