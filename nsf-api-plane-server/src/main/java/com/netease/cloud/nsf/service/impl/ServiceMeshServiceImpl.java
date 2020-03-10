@@ -137,7 +137,7 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
     public HasMetadata getIstioResource(String name, String namespace, String kind) {
 
         String defaultClusterId = getDefaultClusterId();
-        HasMetadata resource = configStore.get(name, kind, namespace, defaultClusterId);
+        HasMetadata resource = configStore.get(kind, namespace, name, defaultClusterId);
         if (resource == null) {
             throw new ApiPlaneException(ExceptionConst.RESOURCE_NON_EXIST, 404);
         }

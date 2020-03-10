@@ -8,6 +8,7 @@ RUN rm -rf webapps/*
 COPY ./target/*.war webapps/
 RUN cd /usr/local/tomcat/webapps && \
     mv nsf*.war ROOT.war && \
-    unzip ROOT.war -d ./ROOT
+    unzip ROOT.war -d ./ROOT && \
+    rm -f ROOT.war
 
 ENTRYPOINT ["catalina.sh", "run"]
