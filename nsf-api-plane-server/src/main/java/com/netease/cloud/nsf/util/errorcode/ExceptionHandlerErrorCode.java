@@ -33,4 +33,8 @@ public class ExceptionHandlerErrorCode extends ErrorCode {
 		return new ErrorCode(ErrorCodeEnum.MissingParameter, param);
 	}
 
+	public static ErrorCode CustomInvalidBodyFormat(String msg) {
+		return new ErrorCode(ErrorCodeEnum.InvalidBodyFormatCustom, msg);
+	}
+
 }

@@ -34,6 +34,7 @@ ServiceMesh:
 - k8s 资源监听管理
 - 增加pilot健康检查接口
 - 增加根据namespace查询资源接口
+- 增加资源校验接口
 
 工程整体:
 - 增加全局Reqeust,Response日志打印

@@ -2,15 +2,21 @@ package com.netease.cloud.nsf.web.controller;
 
 import com.google.common.collect.ImmutableMap;
 import com.netease.cloud.nsf.meta.Graph;
+import com.netease.cloud.nsf.meta.ValidateResult;
+import com.netease.cloud.nsf.meta.dto.ValidateResultDTO;
 import com.netease.cloud.nsf.service.ServiceMeshService;
 import com.netease.cloud.nsf.service.TopoService;
+import com.netease.cloud.nsf.service.ValidateService;
+import com.netease.cloud.nsf.util.Trans;
 import com.netease.cloud.nsf.util.errorcode.ApiPlaneErrorCode;
 import com.netease.cloud.nsf.util.errorcode.ErrorCode;
+import io.fabric8.kubernetes.api.model.HasMetadata;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -29,6 +35,9 @@ public class ServiceMeshController extends BaseController {
 
     @Autowired
     private TopoService topoService;
+
+    @Autowired
+    private ValidateService validateService;
 
     private static final String DURATION_PATTERN = "\\d+(s|m|h|d)";
 
@@ -134,5 +143,13 @@ public class ServiceMeshController extends BaseController {
         result.put("Result", projectCode);
         ErrorCode code = ApiPlaneErrorCode.Success;
         return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), result);
+    }
+
+    @RequestMapping(params = {"Action=Validate"}, method = RequestMethod.POST)
+    public String validateResource(@RequestBody HasMetadata resource) {
+
+        ValidateResult validate = validateService.validate(Arrays.asList(resource));
+        ValidateResultDTO validateResultDTO = Trans.validateResult2ValidateResultDTO(validate);
+        return apiReturn(ImmutableMap.of(RESULT, validateResultDTO));
     }
 }
