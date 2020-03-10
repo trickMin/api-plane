@@ -5,7 +5,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import com.netease.cloud.nsf.core.editor.ResourceType;
+import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
+import com.netease.cloud.nsf.core.k8s.K8sResourceGenerator;
 import com.netease.cloud.nsf.util.function.Equals;
+import io.fabric8.kubernetes.api.model.HasMetadata;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -129,5 +133,11 @@ public class CommonUtil {
             }
         }
         return result;
+    }
+
+    public static HasMetadata json2HasMetadata(String json) {
+        K8sResourceGenerator gen = K8sResourceGenerator.newInstance(json, ResourceType.JSON);
+        K8sResourceEnum resourceEnum = K8sResourceEnum.get(gen.getKind());
+        return (HasMetadata) gen.object(resourceEnum.mappingType());
     }
 }

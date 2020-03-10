@@ -7,10 +7,10 @@ import com.netease.cloud.nsf.meta.dto.ValidateResultDTO;
 import com.netease.cloud.nsf.service.ServiceMeshService;
 import com.netease.cloud.nsf.service.TopoService;
 import com.netease.cloud.nsf.service.ValidateService;
+import com.netease.cloud.nsf.util.CommonUtil;
 import com.netease.cloud.nsf.util.Trans;
 import com.netease.cloud.nsf.util.errorcode.ApiPlaneErrorCode;
 import com.netease.cloud.nsf.util.errorcode.ErrorCode;
-import io.fabric8.kubernetes.api.model.HasMetadata;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
@@ -146,9 +146,10 @@ public class ServiceMeshController extends BaseController {
     }
 
     @RequestMapping(params = {"Action=Validate"}, method = RequestMethod.POST)
-    public String validateResource(@RequestBody HasMetadata resource) {
+    public String validateResource(@RequestBody String resource) {
 
-        ValidateResult validate = validateService.validate(Arrays.asList(resource));
+        String unescapeRes = StringEscapeUtils.unescapeJava(resource);
+        ValidateResult validate = validateService.validate(Arrays.asList(CommonUtil.json2HasMetadata(unescapeRes)));
         ValidateResultDTO validateResultDTO = Trans.validateResult2ValidateResultDTO(validate);
         return apiReturn(ImmutableMap.of(RESULT, validateResultDTO));
     }
