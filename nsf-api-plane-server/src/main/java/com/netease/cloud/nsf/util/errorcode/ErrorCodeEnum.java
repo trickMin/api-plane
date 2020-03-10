@@ -14,6 +14,7 @@ public enum ErrorCodeEnum {
 
     InvalidFormat("InvalidFormat", "The format of the input parameter %s is illegal.", "参数 %s 的格式非法", 400),
     InvalidBodyFormat("InvalidFormat", "The format of the request body is illegal.", "请求体格式非法", 400),
+    InvalidBodyFormatCustom("InvalidFormat", "The format of the request body is illegal: %s", "请求体格式非法: %s", 400),
     RequestExpired("RequestExpired", "Request has expired.", "请求已过期", 400),
     MissingParameter("MissingParameter", "The required input parameter %s for processing this request is not supplied.", "参数  %s 缺失", 400),
     IllegalAccessKey("IllegalAccessKey", "The access key you provided is illegal.", "AccessKey 无效", 400),

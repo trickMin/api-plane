@@ -164,9 +164,8 @@ public class CommonExceptionHandler extends ResponseEntityExceptionHandler {
             return newResponse(ExceptionHandlerErrorCode.InvalidBodyFormat, ex);
         }
         if (ex.getCause().getClass().isAssignableFrom(JsonMappingException.class)) {
-            return newResponse(ExceptionHandlerErrorCode.InvalidBodyFormat, ex);
+            return newResponse(ExceptionHandlerErrorCode.CustomInvalidBodyFormat(ex.getMessage()), ex);
         }
-
         if (ex.getCause().getClass().isAssignableFrom(InvalidFormatException.class)) {
             return newResponse(ExceptionHandlerErrorCode.InvalidBodyFormat, ex);
         }

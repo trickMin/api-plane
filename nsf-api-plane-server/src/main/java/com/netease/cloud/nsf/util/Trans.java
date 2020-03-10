@@ -298,4 +298,13 @@ public class Trans {
         gp.setPlugins(globalPluginsDeleteDTO.getPlugins());
         return gp;
     }
+
+    public static ValidateResultDTO validateResult2ValidateResultDTO(ValidateResult validateResult) {
+        ValidateResultDTO dto = new ValidateResultDTO();
+        dto.setPass(validateResult.isPass());
+        if (validateResult.getItems() != null) {
+            dto.setItems(validateResult.getItems());
+        }
+        return dto;
+    }
 }
