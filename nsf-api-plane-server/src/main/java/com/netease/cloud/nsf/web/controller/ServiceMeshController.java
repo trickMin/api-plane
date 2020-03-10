@@ -149,8 +149,16 @@ public class ServiceMeshController extends BaseController {
     public String validateResource(@RequestBody String resource) {
 
         String unescapeRes = StringEscapeUtils.unescapeJava(resource);
-        ValidateResult validate = validateService.validate(Arrays.asList(CommonUtil.json2HasMetadata(unescapeRes)));
+        String json = optimize(unescapeRes);
+        ValidateResult validate = validateService.validate(Arrays.asList(CommonUtil.json2HasMetadata(json)));
         ValidateResultDTO validateResultDTO = Trans.validateResult2ValidateResultDTO(validate);
         return apiReturn(ImmutableMap.of(RESULT, validateResultDTO));
+    }
+
+    private String optimize(String json) {
+        if (json.startsWith("\"") && json.startsWith("\"")) {
+            json = json.substring(1, json.length() - 1);
+        }
+        return json;
     }
 }
