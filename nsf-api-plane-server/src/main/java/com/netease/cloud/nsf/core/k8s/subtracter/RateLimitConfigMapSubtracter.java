@@ -13,10 +13,12 @@ import java.util.Optional;
 
 public class RateLimitConfigMapSubtracter implements Subtracter<ConfigMap> {
 
-    private String keyword;
+    private String gateway;
+    private String api;
 
-    public RateLimitConfigMapSubtracter(String keyword) {
-        this.keyword = keyword;
+    public RateLimitConfigMapSubtracter(String gateway, String api) {
+        this.gateway = gateway;
+        this.api = api;
     }
 
     @Override
@@ -28,7 +30,7 @@ public class RateLimitConfigMapSubtracter implements Subtracter<ConfigMap> {
         if (!firstEntry.isPresent()) return configMap;
         ConfigMapRateLimit rateLimitConfig = CommonUtil.yaml2Obj(firstEntry.get().getValue(), ConfigMapRateLimit.class);
         ResourceGenerator gen = ResourceGenerator.newInstance(rateLimitConfig, ResourceType.OBJECT);
-        gen.removeElement(PathExpressionEnum.REMOVE_RATELIMIT_CONFIGMAP_BY_VALUE.translate(keyword));
+        gen.removeElement(PathExpressionEnum.REMOVE_RATELIMIT_CONFIGMAP_BY_VALUE.translate(gateway, api));
         firstEntry.get().setValue(gen.yamlString());
         return configMap;
     }
