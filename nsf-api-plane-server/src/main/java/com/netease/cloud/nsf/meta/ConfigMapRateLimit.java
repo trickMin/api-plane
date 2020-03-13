@@ -1,5 +1,6 @@
 package com.netease.cloud.nsf.meta;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ public class ConfigMapRateLimit {
     @JsonProperty("domain")
     private String domain;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class ConfigMapRateLimitDescriptor {
 
         @JsonProperty("key")
@@ -26,6 +28,9 @@ public class ConfigMapRateLimit {
 
         @JsonProperty("value")
         private String value;
+
+        @JsonProperty("descriptors")
+        private List<ConfigMapRateLimitDescriptor> descriptors;
 
         public String getKey() {
             return key;
@@ -49,6 +54,14 @@ public class ConfigMapRateLimit {
 
         public void setRateLimit(ConfigMapRateLimitInner rateLimit) {
             this.rateLimit = rateLimit;
+        }
+
+        public List<ConfigMapRateLimitDescriptor> getDescriptors() {
+            return descriptors;
+        }
+
+        public void setDescriptors(List<ConfigMapRateLimitDescriptor> descriptors) {
+            this.descriptors = descriptors;
         }
     }
 
