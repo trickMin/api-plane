@@ -63,6 +63,7 @@ public interface TemplateConst {
     /**
      * ServiceInfo
      **/
+    String SERVICE_INFO_API_GATEWAY = "t_service_info_api_gateway";
     String SERVICE_INFO_API_NAME = "t_service_info_api_name";
     String SERVICE_INFO_API_SERVICE = "t_service_info_api_service";
     String SERVICE_INFO_API_METHODS = "t_service_info_api_methods";
