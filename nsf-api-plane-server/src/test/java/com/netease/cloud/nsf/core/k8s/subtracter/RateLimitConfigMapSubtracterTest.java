@@ -20,28 +20,33 @@ public class RateLimitConfigMapSubtracterTest {
                         "    rate_limit:\n" +
                         "      requests_per_unit: 1\n" +
                         "      unit: HOUR\n" +
-                        "    value: Service[httpbin]-User[none]-Api[test1]-Id[08638e47-48db\n" +
+                        "    value: Service[httpbin]-User[none]-Gateway[gw1]-Api[test1]-Id[08638e47-48db\n" +
                         "  - key: auto-test1\n" +
                         "    rate_limit:\n" +
                         "      requests_per_unit: 1\n" +
                         "      unit: MINUTE\n" +
-                        "    value: Service[httpbin]-User[none]-Api[test1]-Id[08638e47-\n" +
+                        "    value: Service[httpbin]-User[none]-Gateway[gw1]-Api[test1]-Id[08638e47-\n" +
                         "  - key: auto-test3\n" +
                         "    rate_limit:\n" +
                         "      requests_per_unit: 1\n" +
                         "      unit: HOUR\n" +
-                        "    value: Service[httpbin]-User[none]-Api[test3]-Id[08638e47-48db\n" +
+                        "    value: Service[httpbin]-User[none]-Gateway[gw1]-Api[test3]-Id[08638e47-48db\n" +
+                        "  - key: auto-test1\n" +
+                        "    rate_limit:\n" +
+                        "      requests_per_unit: 1\n" +
+                        "      unit: MINUTE\n" +
+                        "    value: Service[httpbin]-User[none]-Gateway[gw2]-Api[test1]-Id[08638e47-\n" +
                         "  domain: qingzhou");
 
 
-        RateLimitConfigMapSubtracter subtracter = new RateLimitConfigMapSubtracter("test1");
+        RateLimitConfigMapSubtracter subtracter = new RateLimitConfigMapSubtracter("gw1", "test1");
         ConfigMap configMap1 = buildConfigMap(data1);
         ConfigMap subtracted = subtracter.subtract(configMap1);
 
         String rawData = subtracted.getData().get("config.yaml");
         ConfigMapRateLimit rateLimitConfig = CommonUtil.yaml2Obj(rawData, ConfigMapRateLimit.class);
 
-        Assert.assertEquals(1, rateLimitConfig.getDescriptors().size());
+        Assert.assertEquals(2, rateLimitConfig.getDescriptors().size());
         ConfigMapRateLimit.ConfigMapRateLimitDescriptor oneRateLimit = rateLimitConfig.getDescriptors().get(0);
         Assert.assertEquals("auto-test3", oneRateLimit.getKey());
         Assert.assertEquals("HOUR", oneRateLimit.getRateLimit().getUnit());

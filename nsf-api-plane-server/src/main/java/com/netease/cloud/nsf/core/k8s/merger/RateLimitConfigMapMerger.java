@@ -61,13 +61,14 @@ public class RateLimitConfigMapMerger implements Merger<ConfigMap> {
             String oldVal = or.getValue();
             String newVal = nr.getValue();
 
-            //eg. Service[httpbin]-User[none]-Api[httpbin]-Id[08638e47-48db-43bc-9c21-07ef892b5494]
-            // 当Api[]中的值相等时，才认为两者相当
-            Pattern pattern = Pattern.compile("(Service.*)-(User.*)-(Api.*)-(Id.*)");
+            //eg. Service[httpbin]-User[none]-Gateway[gw]-Api[httpbin]-Id[08638e47-48db-43bc-9c21-07ef892b5494]
+            // 当Api[]和Gateway[]中的值分别相等时，才认为两者相当
+            Pattern pattern = Pattern.compile("(Service.*)-(User.*)-(Gateway.*)-(Api.*)-(Id.*)");
             Matcher oldMatcher = pattern.matcher(oldVal);
             Matcher newMatcher = pattern.matcher(newVal);
             if (oldMatcher.find() && newMatcher.find()) {
-                return Objects.equals(oldMatcher.group(3), newMatcher.group(3));
+                return Objects.equals(oldMatcher.group(3), newMatcher.group(3)) &&
+                        Objects.equals(oldMatcher.group(4), newMatcher.group(4));
             }
             return false;
         }

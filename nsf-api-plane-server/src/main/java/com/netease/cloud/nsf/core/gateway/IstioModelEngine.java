@@ -130,7 +130,7 @@ public class IstioModelEngine {
 
         resourcePacks.addAll(generateK8sPack(rawVirtualServices, vs -> adjustVs(vs)));
         resourcePacks.addAll(generateK8sPack(rawSharedConfigs,
-                new RateLimitConfigMapMerger(), new RateLimitConfigMapSubtracter(api.getName())));
+                new RateLimitConfigMapMerger(), new RateLimitConfigMapSubtracter(String.join("|", api.getGateways()), api.getName())));
 
         return resourcePacks;
     }
@@ -190,7 +190,7 @@ public class IstioModelEngine {
                 new GatewayPluginSharedConfigDataHandler(rawResourceContainer.getSharedConfigs(), gateways, sharedConfigName));
         resources.addAll(generateK8sPack(rawGatewayPlugins));
         resources.addAll(generateK8sPack(rawSharedConfigs,
-                new RateLimitConfigMapMerger(), new RateLimitConfigMapSubtracter(gp.getCode())));
+                new RateLimitConfigMapMerger(), new RateLimitConfigMapSubtracter(gp.getGateway(), gp.getCode())));
 
         return resources;
     }
