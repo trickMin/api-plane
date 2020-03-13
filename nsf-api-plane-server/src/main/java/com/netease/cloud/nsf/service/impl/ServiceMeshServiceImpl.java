@@ -376,13 +376,17 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
         return ApiPlaneErrorCode.Success;
     }
 
+    private long lastLogTime = System.currentTimeMillis();
     @Override
     public String getProjectCodeByApp(String namespace, String appName, String clusterId) {
 
         try {
             return app2ProjectCache.getUnchecked(new App2ProjectIndex(appName,namespace,clusterId));
         } catch (CacheLoader.InvalidCacheLoadException e) {
-            logger.warn("can`t find projectCode by app[{}] and namespace[{}]",appName,namespace);
+            if (System.currentTimeMillis() - lastLogTime > 5000) {
+                logger.warn("can`t find projectCode by app[{}] and namespace[{}]", appName, namespace);
+                lastLogTime = System.currentTimeMillis();
+            }
             return null;
         }
 
