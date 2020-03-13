@@ -47,7 +47,7 @@ public interface Const {
     String DELETE_ENVOY_EVENT = "2";
 
     String DOWNLOAD_DAEMONSET_NAME = "nsf-api-plane-daemon";
-    String DOWNLOAD_DAEMONSET_NAMESPACE = "gateway-system";
+    String DOWNLOAD_DAEMONSET_NAMESPACE = "istio-system";
     String DOWNLOAD_DAEMONSET_PORT = "9050";
 
     String SIDECAR_CONTAINER = "istio-proxy";
