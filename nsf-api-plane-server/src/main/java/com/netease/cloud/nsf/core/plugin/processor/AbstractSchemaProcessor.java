@@ -40,6 +40,10 @@ public abstract class AbstractSchemaProcessor implements SchemaProcessor<Service
         return serviceInfo.getApiName();
     }
 
+    protected String getGateway(ServiceInfo serviceInfo){
+        return serviceInfo.getGateway();
+    }
+
     protected String getServiceName(ServiceInfo serviceInfo) {
         return serviceInfo.getServiceName();
     }

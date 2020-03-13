@@ -5,6 +5,7 @@ import com.netease.cloud.nsf.meta.API;
 import com.netease.cloud.nsf.meta.UriMatch;
 import com.netease.cloud.nsf.util.CommonUtil;
 import com.netease.cloud.nsf.util.PriorityUtil;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
@@ -55,13 +56,13 @@ public abstract class APIDataHandler implements DataHandler<API> {
                 .put(VIRTUAL_SERVICE_RETRY_ATTEMPTS, api.getAttempts())
                 .put(VIRTUAL_SERVICE_RETRY_PER_TIMEOUT, api.getPerTryTimeout())
                 .put(VIRTUAL_SERVICE_RETRY_RETRY_ON, api.getRetryOn())
+                .put(SERVICE_INFO_API_GATEWAY, getGateways(api))
                 .put(SERVICE_INFO_API_NAME, api.getName())
                 .put(SERVICE_INFO_API_SERVICE, getOrDefault(api.getService(), "NoneService"))
                 .put(SERVICE_INFO_API_METHODS, getOrDefault(methods, ".*"))
                 .put(SERVICE_INFO_API_REQUEST_URIS, getOrDefault(uris, ".*"))
                 .put(SERVICE_INFO_VIRTUAL_SERVICE_HOST_HEADERS, getOrDefault(hostHeaders, ".*"))
-                .put(VIRTUAL_SERVICE_REQUEST_HEADERS, api.getRequestOperation())
-                ;
+                .put(VIRTUAL_SERVICE_REQUEST_HEADERS, api.getRequestOperation());
 
         return doHandle(tp, api);
     }
@@ -98,6 +99,11 @@ public abstract class APIDataHandler implements DataHandler<API> {
         return String.join("|", api.getHosts().stream()
                 .map(h -> CommonUtil.host2Regex(h))
                 .collect(Collectors.toList()));
+    }
+
+    String getGateways(API api) {
+        if (CollectionUtils.isEmpty(api.getGateways())) return "";
+        return String.join("|", api.getGateways());
     }
 
     String produceHostHeaders(API api) {
