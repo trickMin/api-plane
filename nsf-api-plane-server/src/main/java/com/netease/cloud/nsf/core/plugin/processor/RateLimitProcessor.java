@@ -201,6 +201,6 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
         if (StringUtils.isBlank(user)) {
             user = "none";
         }
-        return String.format("Service[%s]-User[%s]-Api[%s]-Id[%s]", getServiceName(serviceInfo), user, getApiName(serviceInfo), id);
+        return String.format("Service[%s]-User[%s]-Gateway[%s]-Api[%s]-Id[%s]", getServiceName(serviceInfo), user, getGateway(serviceInfo), getApiName(serviceInfo), id);
     }
 }

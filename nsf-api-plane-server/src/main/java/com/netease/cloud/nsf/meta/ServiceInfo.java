@@ -15,6 +15,8 @@ public class ServiceInfo {
 
     private String serviceName = wrap(SERVICE_INFO_API_SERVICE);
 
+    private String gateway = wrap(SERVICE_INFO_API_GATEWAY);
+
     // 提供method占位符，例如${t_api_methods},后续GatewayModelProcessor会进行渲染
     // 也可直接从API中获得method
     private String method = wrap(SERVICE_INFO_API_METHODS);
@@ -44,6 +46,14 @@ public class ServiceInfo {
 
     public void setServiceName(String serviceName) {
         this.serviceName = serviceName;
+    }
+
+    public String getGateway() {
+        return gateway;
+    }
+
+    public void setGateway(String gateway) {
+        this.gateway = gateway;
     }
 
     public String getMethod() {
@@ -91,6 +101,7 @@ public class ServiceInfo {
         return "ServiceInfo{" +
                 "apiName='" + apiName + '\'' +
                 ", serviceName='" + serviceName + '\'' +
+                ", gateway='" + gateway + '\'' +
                 ", method='" + method + '\'' +
                 ", uri='" + uri + '\'' +
                 ", subset='" + subset + '\'' +
