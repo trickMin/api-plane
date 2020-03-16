@@ -33,8 +33,10 @@ public class AuthProcessor extends AbstractSchemaProcessor implements SchemaProc
 
         if (source.contain("$.bufferSetting.maxRequestBytes")) {
             String maxRequestBody = source.getValue("$.bufferSetting.maxRequestBytes", String.class);
-            builder.createOrUpdateJson("$", "with_request_body", String.format("{\"max_request_bytes\":\"%s\"}", maxRequestBody));
+            builder.createOrUpdateJson("$", "with_request_body", String.format("{\"max_request_bytes\":\"%s\", \"allow_partial_message\":\"false\"}", maxRequestBody));
         }
+        Boolean allowPartialMessage = source.getValue("$.bufferSetting.allowPartialMessage", Boolean.class);
+        builder.updateValue("$.with_request_body.allow_partial_message", allowPartialMessage);
         FragmentHolder fragmentHolder = new FragmentHolder();
         FragmentWrapper wrapper = new FragmentWrapper.Builder()
                 .withXUserId(getAndDeleteXUserId(source))
