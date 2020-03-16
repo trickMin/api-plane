@@ -58,13 +58,9 @@ public class K8sConfigManager implements ConfigManager {
     @Autowired
     private ValidateService validateService;
 
-    @Value(value = "${enableResourceValidate:false}")
-    private Boolean enableValidate;
-
     @Override
     public void updateConfig(API api) {
         List<K8sResourcePack> resources = modelProcessor.translate(api);
-        validate(resources);
         update(resources);
     }
 
@@ -72,12 +68,6 @@ public class K8sConfigManager implements ConfigManager {
     public void updateConfig(Service service) {
         List<K8sResourcePack> resources = modelProcessor.translate(service);
         update(resources);
-    }
-
-    private void validate(List<K8sResourcePack> resourcePacks) {
-        if (enableValidate) {
-            validateService.validate(resourcePacks.stream().map(K8sResourcePack::getResource).collect(Collectors.toList()));
-        }
     }
 
     private void update(List<K8sResourcePack> resources) {
