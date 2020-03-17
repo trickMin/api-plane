@@ -6,6 +6,7 @@ import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.plugin.FragmentHolder;
 import com.netease.cloud.nsf.core.plugin.FragmentTypeEnum;
 import com.netease.cloud.nsf.core.plugin.FragmentWrapper;
+import com.netease.cloud.nsf.core.plugin.PluginGenerator;
 import com.netease.cloud.nsf.meta.ServiceInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +37,7 @@ public class AggregateExtensionProcessor extends AbstractSchemaProcessor impleme
 
     @Override
     public FragmentHolder process(String plugin, ServiceInfo serviceInfo) {
-        ResourceGenerator rg = ResourceGenerator.newInstance(plugin);
+        PluginGenerator rg = PluginGenerator.newInstance(plugin);
         FragmentHolder holder;
         switch (rg.getValue("$.kind", String.class)) {
             case "rewrite":
@@ -105,8 +106,8 @@ public class AggregateExtensionProcessor extends AbstractSchemaProcessor impleme
 
     private void coverToExtensionPlugin(FragmentHolder holder, String name) {
         if (Objects.nonNull(holder.getVirtualServiceFragment())) {
-            ResourceGenerator source = ResourceGenerator.newInstance(holder.getVirtualServiceFragment().getContent(), ResourceType.YAML);
-            ResourceGenerator builder = ResourceGenerator.newInstance(String.format("{\"name\":\"%s\"}", name));
+            PluginGenerator source = PluginGenerator.newInstance(holder.getVirtualServiceFragment().getContent(), ResourceType.YAML);
+            PluginGenerator builder = PluginGenerator.newInstance(String.format("{\"name\":\"%s\"}", name));
             builder.createOrUpdateJson("$", "settings", source.jsonString());
             holder.getVirtualServiceFragment().setContent(builder.yamlString());
             logger.info("Extension plugin: [{}]", builder.yamlString());
@@ -132,9 +133,9 @@ public class AggregateExtensionProcessor extends AbstractSchemaProcessor impleme
         });
         List<FragmentHolder> ret = new ArrayList<>();
         for (Map.Entry<String, List<FragmentWrapper>> userMap : xUserMap.entrySet()) {
-            ResourceGenerator builder = ResourceGenerator.newInstance("{\"ext\":[]}");
+            PluginGenerator builder = PluginGenerator.newInstance("{\"ext\":[]}");
             for (FragmentWrapper wrapper : userMap.getValue()) {
-                ResourceGenerator source = ResourceGenerator.newInstance(wrapper.getContent(), ResourceType.YAML);
+                PluginGenerator source = PluginGenerator.newInstance(wrapper.getContent(), ResourceType.YAML);
                 builder.addJsonElement("$.ext", source.jsonString());
             }
             String xUserId = "NoneUser".equals(userMap.getKey()) ? null : userMap.getKey();

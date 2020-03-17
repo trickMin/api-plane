@@ -1,8 +1,6 @@
 package com.netease.cloud.nsf.core.gateway;
 
-import com.jayway.jsonpath.Criteria;
 import com.netease.cloud.nsf.core.editor.EditorContext;
-import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.gateway.handler.*;
 import com.netease.cloud.nsf.core.gateway.processor.DefaultModelProcessor;
@@ -25,6 +23,8 @@ import com.netease.cloud.nsf.util.exception.ExceptionConst;
 import com.netease.cloud.nsf.util.function.Merger;
 import com.netease.cloud.nsf.util.function.Subtracter;
 import io.fabric8.kubernetes.api.model.HasMetadata;
+import me.snowdrop.istio.api.networking.v1alpha3.HTTPRoute;
+import me.snowdrop.istio.api.networking.v1alpha3.VirtualService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -128,7 +128,7 @@ public class IstioModelEngine {
         List<String> rawVirtualServices = renderTwiceModelProcessor.process(apiVirtualService, api, vsHandler);
         List<String> rawSharedConfigs = renderTwiceModelProcessor.process(apiSharedConfigConfigMap, api, new BaseSharedConfigAPIDataHandler(rawResourceContainer.getSharedConfigs(), sharedConfigName));
 
-        resourcePacks.addAll(generateK8sPack(rawVirtualServices, vs -> adjustVs(vs)));
+        resourcePacks.addAll(generateK8sPack(rawVirtualServices, r -> r, this::adjust));
         resourcePacks.addAll(generateK8sPack(rawSharedConfigs,
                 new RateLimitConfigMapMerger(), new RateLimitConfigMapSubtracter(String.join("|", api.getGateways()), api.getName())));
 
@@ -220,14 +220,6 @@ public class IstioModelEngine {
         return operator.isUseless(i);
     }
 
-    private String adjustVs(String rawVs) {
-        ResourceGenerator gen = ResourceGenerator.newInstance(rawVs, ResourceType.YAML);
-        gen.removeElement("$.spec.http[?].route", Criteria.where("return").exists(true));
-        gen.removeElement("$.spec.http[?].route", Criteria.where("redirect").exists(true));
-        gen.removeElement("$.spec.http[?].fault", Criteria.where("redirect").exists(true));
-        return gen.yamlString();
-    }
-
     private List<FragmentHolder> renderPlugins(API api) {
 
         if (CollectionUtils.isEmpty(api.getPlugins())) return Collections.emptyList();
@@ -249,24 +241,42 @@ public class IstioModelEngine {
     }
 
     private List<K8sResourcePack> generateK8sPack(List<String> raws) {
-        return generateK8sPack(raws, null, null, r -> r);
+        return generateK8sPack(raws, null, null, r -> r, hsm -> hsm);
     }
 
     private List<K8sResourcePack> generateK8sPack(List<String> raws, Merger merger, Subtracter subtracter) {
-        return generateK8sPack(raws, merger, subtracter, r -> r);
+        return generateK8sPack(raws, merger, subtracter, r -> r, hsm -> hsm);
     }
 
     private List<K8sResourcePack> generateK8sPack(List<String> raws, Function<String, String> preFun) {
-        return generateK8sPack(raws, null, null, preFun);
+        return generateK8sPack(raws, null, null, preFun, hsm -> hsm);
+    }
+
+    private List<K8sResourcePack> generateK8sPack(List<String> raws, Function<String, String> preFun, Function<HasMetadata, HasMetadata> postFun) {
+        return generateK8sPack(raws, null, null, preFun, postFun);
     }
 
     private List<K8sResourcePack> generateK8sPack(List<String> raws, Merger merger, Subtracter subtracter,
-                                                  Function<String, String> preFun) {
+                                                  Function<String, String> preFun, Function<HasMetadata, HasMetadata> postFun) {
         if (CollectionUtils.isEmpty(raws)) return Collections.EMPTY_LIST;
 
         return raws.stream().map(r -> preFun.apply(r))
                 .map(r -> str2HasMetadata(r))
+                .map(hsm -> postFun.apply(hsm))
                 .map(hsm -> new K8sResourcePack(hsm, merger, subtracter))
                 .collect(Collectors.toList());
+    }
+
+    private HasMetadata adjust(HasMetadata rawVs) {
+        if ("VirtualService".equalsIgnoreCase(rawVs.getKind())) {
+            VirtualService vs = (VirtualService) rawVs;
+            List<HTTPRoute> routes = Optional.ofNullable(vs.getSpec().getHttp()).orElse(new ArrayList<>());
+            routes.forEach(route -> {
+                if (Objects.nonNull(route.getReturn())) route.setRoute(null);
+                if (Objects.nonNull(route.getRedirect())) route.setRoute(null);
+                if (Objects.nonNull(route.getRedirect())) route.setFault(null);
+            });
+        }
+        return rawVs;
     }
 }
