@@ -1,11 +1,11 @@
 package com.netease.cloud.nsf.core.plugin.processor;
 
-import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.plugin.FragmentHolder;
 import com.netease.cloud.nsf.core.plugin.FragmentTypeEnum;
 import com.netease.cloud.nsf.core.plugin.FragmentWrapper;
+import com.netease.cloud.nsf.core.plugin.PluginGenerator;
 import com.netease.cloud.nsf.meta.ServiceInfo;
 import org.springframework.stereotype.Component;
 
@@ -25,8 +25,8 @@ public class RewriteProcessor extends AbstractSchemaProcessor implements SchemaP
 
     @Override
     public FragmentHolder process(String plugin, ServiceInfo serviceInfo) {
-        ResourceGenerator builder = ResourceGenerator.newInstance("{}", ResourceType.JSON, editorContext);
-        ResourceGenerator source = ResourceGenerator.newInstance(plugin);
+        PluginGenerator builder = PluginGenerator.newInstance("{}", ResourceType.JSON, editorContext);
+        PluginGenerator source = PluginGenerator.newInstance(plugin);
         Matcher matcher = Pattern.compile("\\$\\d").matcher(source.getValue("$.action.target"));
         int regexCount = 0;
         while (matcher.find()) {

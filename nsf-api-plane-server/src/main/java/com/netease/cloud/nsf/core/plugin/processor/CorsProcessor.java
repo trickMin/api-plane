@@ -1,15 +1,10 @@
 package com.netease.cloud.nsf.core.plugin.processor;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
-import com.jayway.jsonpath.Configuration;
-import com.jayway.jsonpath.Option;
-import com.netease.cloud.nsf.core.editor.EditorContext;
-import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.plugin.FragmentHolder;
 import com.netease.cloud.nsf.core.plugin.FragmentTypeEnum;
 import com.netease.cloud.nsf.core.plugin.FragmentWrapper;
+import com.netease.cloud.nsf.core.plugin.PluginGenerator;
 import com.netease.cloud.nsf.meta.ServiceInfo;
 import org.springframework.stereotype.Component;
 
@@ -28,8 +23,8 @@ public class CorsProcessor extends AbstractSchemaProcessor implements SchemaProc
 
     @Override
     public FragmentHolder process(String plugin, ServiceInfo serviceInfo) {
-        ResourceGenerator source = ResourceGenerator.newInstance(plugin);
-        ResourceGenerator builder = ResourceGenerator.newInstance("{}");
+        PluginGenerator source = PluginGenerator.newInstance(plugin);
+        PluginGenerator builder = PluginGenerator.newInstance("{}");
         if (source.contain("$.corsPolicy.allowOrigin")) {
             builder.createOrUpdateValue("$", "allow_origin", source.getValue("$.corsPolicy.allowOrigin", List.class));
         }

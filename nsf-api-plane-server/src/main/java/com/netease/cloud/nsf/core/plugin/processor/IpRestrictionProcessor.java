@@ -1,6 +1,6 @@
 package com.netease.cloud.nsf.core.plugin.processor;
 
-import com.netease.cloud.nsf.core.editor.ResourceGenerator;
+import com.netease.cloud.nsf.core.plugin.PluginGenerator;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.plugin.FragmentHolder;
 import com.netease.cloud.nsf.core.plugin.FragmentTypeEnum;
@@ -24,8 +24,8 @@ public class IpRestrictionProcessor extends AbstractSchemaProcessor implements S
 
     @Override
     public FragmentHolder process(String plugin, ServiceInfo serviceInfo) {
-        ResourceGenerator rg = ResourceGenerator.newInstance(plugin);
-        ResourceGenerator ret = ResourceGenerator.newInstance("{\"list\":[]}");
+        PluginGenerator rg = PluginGenerator.newInstance(plugin);
+        PluginGenerator ret = PluginGenerator.newInstance("{\"list\":[]}");
         if (Objects.equals("0", rg.getValue("$.type", String.class))) {
             ret.createOrUpdateJson("$", "type", "BLACK");
         } else if (Objects.equals("1", rg.getValue("$.type", String.class))) {

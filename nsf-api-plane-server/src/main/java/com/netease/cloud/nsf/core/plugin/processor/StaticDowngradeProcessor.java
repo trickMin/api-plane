@@ -1,10 +1,10 @@
 package com.netease.cloud.nsf.core.plugin.processor;
 
-import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.plugin.FragmentHolder;
 import com.netease.cloud.nsf.core.plugin.FragmentTypeEnum;
 import com.netease.cloud.nsf.core.plugin.FragmentWrapper;
+import com.netease.cloud.nsf.core.plugin.PluginGenerator;
 import com.netease.cloud.nsf.meta.ServiceInfo;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.springframework.stereotype.Component;
@@ -28,8 +28,8 @@ public class StaticDowngradeProcessor extends AbstractSchemaProcessor implements
 
     @Override
     public FragmentHolder process(String plugin, ServiceInfo serviceInfo) {
-        ResourceGenerator source = ResourceGenerator.newInstance(plugin);
-        ResourceGenerator builder = ResourceGenerator.newInstance("{\"downgrade_rpx\":{\"headers\":[]},\"static_response\":{\"http_status\":0}}");
+        PluginGenerator source = PluginGenerator.newInstance(plugin);
+        PluginGenerator builder = PluginGenerator.newInstance("{\"downgrade_rpx\":{\"headers\":[]},\"static_response\":{\"http_status\":0}}");
         if (source.contain("$.condition.request")) {
             builder.createOrUpdateJson("$", "downgrade_rqx", "{\"headers\":[]}");
         }
@@ -39,6 +39,7 @@ public class StaticDowngradeProcessor extends AbstractSchemaProcessor implements
                 String matchType = item.get("match_type");
                 String headerKey = item.get("headerKey");
                 String headerValue = item.get("value");
+                if (haveNull(matchType, headerKey, headerValue)) return;
                 if ("safe_regex_match".equals(matchType)) {
                     builder.addJsonElement("$.downgrade_rqx.headers", String.format("{\"name\":\"%s\",\"regex_match\":\"%s\"}", headerKey, headerValue));
                 } else {
@@ -49,27 +50,33 @@ public class StaticDowngradeProcessor extends AbstractSchemaProcessor implements
         if (source.contain("$.condition.request.host")) {
             String matchType = source.getValue("$.condition.request.host.match_type", String.class);
             String host = source.getValue("$.condition.request.host.value", String.class);
-            if ("safe_regex_match".equals(matchType)) {
-                builder.addJsonElement("$.downgrade_rqx.headers", String.format("{\"name\":\":authority\",\"regex_match\":\"%s\"}", host));
-            } else {
-                builder.addJsonElement("$.downgrade_rqx.headers", String.format("{\"name\":\":authority\",\"exact_match\":\"%s\"}", host));
+            if (nonNull(matchType, host)) {
+                if ("safe_regex_match".equals(matchType)) {
+                    builder.addJsonElement("$.downgrade_rqx.headers", String.format("{\"name\":\":authority\",\"regex_match\":\"%s\"}", host));
+                } else {
+                    builder.addJsonElement("$.downgrade_rqx.headers", String.format("{\"name\":\":authority\",\"exact_match\":\"%s\"}", host));
+                }
             }
         }
         if (source.contain("$.condition.request.method")) {
             List<String> method = source.getValue("$.condition.request.method", List.class);
-            if (method.size() == 1) {
-                builder.addJsonElement("$.downgrade_rqx.headers", String.format("{\"name\":\":method\",\"exact_match\":\"%s\"}", method.get(0)));
-            } else if (method.size() > 1) {
-                builder.addJsonElement("$.downgrade_rqx.headers", String.format("{\"name\":\":method\",\"regex_match\":\"%s\"}", String.join("|", method)));
+            if (nonNull(method)) {
+                if (method.size() == 1) {
+                    builder.addJsonElement("$.downgrade_rqx.headers", String.format("{\"name\":\":method\",\"exact_match\":\"%s\"}", method.get(0)));
+                } else if (method.size() > 1) {
+                    builder.addJsonElement("$.downgrade_rqx.headers", String.format("{\"name\":\":method\",\"regex_match\":\"%s\"}", String.join("|", method)));
+                }
             }
         }
         if (source.contain("$.condition.request.path")) {
             String matchType = source.getValue("$.condition.request.path.match_type", String.class);
             String path = source.getValue("$.condition.request.path.value", String.class);
-            if ("safe_regex_match".equals(matchType)) {
-                builder.addJsonElement("$.downgrade_rqx.headers", String.format("{\"name\":\":path\",\"regex_match\":\"%s\"}", path));
-            } else {
-                builder.addJsonElement("$.downgrade_rqx.headers", String.format("{\"name\":\":path\",\"exact_match\":\"%s\"}", path));
+            if (nonNull(matchType, path)) {
+                if ("safe_regex_match".equals(matchType)) {
+                    builder.addJsonElement("$.downgrade_rqx.headers", String.format("{\"name\":\":path\",\"regex_match\":\"%s\"}", path));
+                } else {
+                    builder.addJsonElement("$.downgrade_rqx.headers", String.format("{\"name\":\":path\",\"exact_match\":\"%s\"}", path));
+                }
             }
         }
         if (source.contain("$.condition.response.headers")) {
@@ -78,6 +85,7 @@ public class StaticDowngradeProcessor extends AbstractSchemaProcessor implements
                 String matchType = item.get("match_type");
                 String headerKey = item.get("headerKey");
                 String headerValue = item.get("value");
+                if (haveNull(matchType, headerKey, headerValue)) return;
                 if ("safe_regex_match".equals(matchType)) {
                     builder.addJsonElement("$.downgrade_rpx.headers", String.format("{\"name\":\"%s\",\"regex_match\":\"%s\"}", headerKey, headerValue));
                 } else {
@@ -88,7 +96,9 @@ public class StaticDowngradeProcessor extends AbstractSchemaProcessor implements
         if (source.contain("$.condition.response.code")) {
             String matchType = source.getValue("$.condition.response.code.match_type", String.class);
             String code = source.getValue("$.condition.response.code.value", String.class);
-            builder.addJsonElement("$.downgrade_rpx.headers", String.format("{\"name\":\":status\",\"regex_match\":\"%s|\"}", code));
+            if (nonNull(code)) {
+                builder.addJsonElement("$.downgrade_rpx.headers", String.format("{\"name\":\":status\",\"regex_match\":\"%s|\"}", code));
+            }
         }
         builder.updateValue("$.static_response.http_status", source.getValue("$.response.code", Integer.class));
         if (source.contain("$.response.headers")) {

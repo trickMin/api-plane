@@ -1,6 +1,8 @@
 package com.netease.cloud.nsf.configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
+import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.Option;
 import com.jayway.jsonpath.spi.json.JacksonJsonProvider;
@@ -9,6 +11,7 @@ import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
 import com.jayway.jsonpath.spi.mapper.MappingProvider;
 import com.netease.cloud.nsf.core.editor.EditorContext;
 import com.netease.cloud.nsf.core.editor.ResourceGenerator;
+import com.netease.cloud.nsf.core.plugin.PluginGenerator;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 
@@ -46,9 +49,12 @@ public class EditorSupportConfiguration {
     }
 
     @Bean
-    public EditorContext editorContext(ObjectMapper jsonMapper, @Qualifier("yaml") ObjectMapper yamlMapper, Configuration configuration) {
+    public EditorContext editorContext(ObjectMapper jsonMapper, @Qualifier("yaml") YAMLMapper yamlMapper, Configuration configuration) {
         EditorContext editorContext = new EditorContext(jsonMapper, yamlMapper, configuration);
-        ResourceGenerator.configDefaultContext(editorContext);
+
+        ResourceGenerator.configDefaultContext(new EditorContext(jsonMapper, yamlMapper, configuration));
+        // 特殊Generator 输出引号
+        PluginGenerator.configDefaultContext(new EditorContext(jsonMapper, yamlMapper.copy().configure(YAMLGenerator.Feature.MINIMIZE_QUOTES, false), configuration));
         return editorContext;
     }
 }

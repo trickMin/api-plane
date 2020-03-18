@@ -1,10 +1,10 @@
 package com.netease.cloud.nsf.core.plugin.processor;
 
-import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.plugin.FragmentHolder;
 import com.netease.cloud.nsf.core.plugin.FragmentTypeEnum;
 import com.netease.cloud.nsf.core.plugin.FragmentWrapper;
+import com.netease.cloud.nsf.core.plugin.PluginGenerator;
 import com.netease.cloud.nsf.meta.ServiceInfo;
 import org.springframework.stereotype.Component;
 
@@ -21,9 +21,9 @@ public class FlowLimitProcessor extends AbstractSchemaProcessor implements Schem
 
     @Override
     public FragmentHolder process(String plugin, ServiceInfo serviceInfo) {
-        ResourceGenerator rg = ResourceGenerator.newInstance(plugin);
+        PluginGenerator rg = PluginGenerator.newInstance(plugin);
         int percent = Integer.parseInt(rg.getValue("$.limit_percent", String.class));
-        ResourceGenerator ret = ResourceGenerator.newInstance(String.format("{\"abort\":{\"http_status\":429,\"percentage\":{\"denominator\":\"MILLION\",\"numerator\":%s}}}", percent * 10000));
+        PluginGenerator ret = PluginGenerator.newInstance(String.format("{\"abort\":{\"http_status\":429,\"percentage\":{\"denominator\":\"MILLION\",\"numerator\":%s}}}", percent * 10000));
 
         FragmentHolder fragmentHolder = new FragmentHolder();
         FragmentWrapper wrapper = new FragmentWrapper.Builder()
