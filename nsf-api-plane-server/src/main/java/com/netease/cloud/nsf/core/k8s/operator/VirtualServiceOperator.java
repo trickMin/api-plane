@@ -2,13 +2,15 @@ package com.netease.cloud.nsf.core.k8s.operator;
 
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.util.function.Equals;
-import me.snowdrop.istio.api.networking.v1alpha3.*;
+import me.snowdrop.istio.api.networking.v1alpha3.HTTPRoute;
+import me.snowdrop.istio.api.networking.v1alpha3.VirtualService;
+import me.snowdrop.istio.api.networking.v1alpha3.VirtualServiceBuilder;
+import me.snowdrop.istio.api.networking.v1alpha3.VirtualServiceSpec;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -29,10 +31,6 @@ public class VirtualServiceOperator implements k8sResourceOperator<VirtualServic
         List<HTTPRoute> latestHttp = mergeList(oldSpec.getHttp(), freshSpec.getHttp(), new HttpRouteEquals());
         latest.getSpec().setHttp(latestHttp);
 
-        Map<String, ApiPlugins> latestPlugins = mergeMap(oldSpec.getPlugins(), freshSpec.getPlugins(), (o, n) -> Objects.equals(o, n));
-        latest.getSpec().setPlugins(latestPlugins);
-
-        latest.getSpec().setRateLimits(fresh.getSpec().getRateLimits());
         latest.getSpec().setHosts(fresh.getSpec().getHosts());
         return latest;
     }
@@ -64,10 +62,6 @@ public class VirtualServiceOperator implements k8sResourceOperator<VirtualServic
         List<HTTPRoute> latestHttp = old.getSpec().getHttp().stream()
                 .filter(h -> !h.getApi().equals(value))
                 .collect(Collectors.toList());
-
-        if (!CollectionUtils.isEmpty(old.getSpec().getPlugins())) {
-            old.getSpec().getPlugins().entrySet().removeIf(e -> e.getKey().equals(value));
-        }
 
         old.getSpec().setHttp(latestHttp);
         return old;
