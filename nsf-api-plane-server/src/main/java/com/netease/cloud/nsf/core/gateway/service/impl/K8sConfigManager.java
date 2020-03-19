@@ -7,13 +7,13 @@ import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.gateway.IstioModelEngine;
 import com.netease.cloud.nsf.core.gateway.service.ConfigManager;
 import com.netease.cloud.nsf.core.gateway.service.ConfigStore;
+import com.netease.cloud.nsf.core.k8s.empty.EmptyResource;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.k8s.K8sResourcePack;
 import com.netease.cloud.nsf.core.k8s.operator.VersionManagerOperator;
 import com.netease.cloud.nsf.core.k8s.operator.k8sResourceOperator;
 import com.netease.cloud.nsf.core.k8s.subtracter.ServiceEntryEndpointsSubtracter;
 import com.netease.cloud.nsf.meta.*;
-import com.netease.cloud.nsf.service.ValidateService;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
 import com.netease.cloud.nsf.util.function.Subtracter;
@@ -25,7 +25,6 @@ import me.snowdrop.istio.api.networking.v1alpha3.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -54,9 +53,6 @@ public class K8sConfigManager implements ConfigManager {
 
     @Autowired
     private List<k8sResourceOperator> operators;
-
-    @Autowired
-    private ValidateService validateService;
 
     @Override
     public void updateConfig(API api) {
@@ -88,12 +84,19 @@ public class K8sConfigManager implements ConfigManager {
             if (old != null) {
                 if (old.equals(latest)) continue;
                 HasMetadata merged;
-                if (pack.hasMerger()) {
+
+                // 若latest标识为emptyResource, 则进行subtract操作
+                if (latest instanceof EmptyResource && pack.hasSubtracter()) {
+                    merged = pack.getSubtracter().subtract(old);
+                } else if (pack.hasMerger()) {
                     merged = pack.getMerger().merge(old, latest);
                 } else {
                     merged = modelProcessor.merge(old, latest);
                 }
-                configStore.update(merged);
+
+                if (merged != null) {
+                    configStore.update(merged);
+                }
                 continue;
             }
             configStore.update(latest);

@@ -40,10 +40,11 @@ public class RateLimitConfigMapMerger implements Merger<ConfigMap> {
         if (oldCmrl == null) return latest;
         if (latestCmrl == null) return old;
 
+
         List mergedDescriptors = CommonUtil.mergeList(
                 oldCmrl.getDescriptors(), latestCmrl.getDescriptors(), new RateLimitDescriptorEquals());
 
-        //仅对descriptors进行覆盖
+        //对descriptors、domain进行覆盖
         oldCmrl.setDescriptors(mergedDescriptors);
         oldCmrl.setDomain(latestCmrl.getDomain());
 
