@@ -4,11 +4,13 @@ import com.netease.cloud.nsf.core.editor.EditorContext;
 import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.gateway.handler.*;
 import com.netease.cloud.nsf.core.gateway.processor.DefaultModelProcessor;
+import com.netease.cloud.nsf.core.gateway.processor.NeverReturnNullModelProcessor;
 import com.netease.cloud.nsf.core.gateway.processor.RenderTwiceModelProcessor;
 import com.netease.cloud.nsf.core.gateway.service.ResourceManager;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.k8s.K8sResourceGenerator;
 import com.netease.cloud.nsf.core.k8s.K8sResourcePack;
+import com.netease.cloud.nsf.core.k8s.empty.EmptyConfigMap;
 import com.netease.cloud.nsf.core.k8s.merger.RateLimitConfigMapMerger;
 import com.netease.cloud.nsf.core.k8s.operator.IntegratedResourceOperator;
 import com.netease.cloud.nsf.core.k8s.subtracter.RateLimitConfigMapSubtracter;
@@ -46,35 +48,44 @@ public class IstioModelEngine {
 
     private static final Logger logger = LoggerFactory.getLogger(IstioModelEngine.class);
 
-    @Autowired
     IntegratedResourceOperator operator;
 
-    @Autowired
     TemplateTranslator templateTranslator;
 
-    @Autowired
     EditorContext editorContext;
 
-    @Autowired
     ResourceManager resourceManager;
 
-    @Autowired
     PluginService pluginService;
 
-    @Autowired
     GatewayService gatewayService;
 
     @Autowired
-    RenderTwiceModelProcessor renderTwiceModelProcessor;
+    public IstioModelEngine(IntegratedResourceOperator operator, TemplateTranslator templateTranslator, EditorContext editorContext,
+                            ResourceManager resourceManager, PluginService pluginService, GatewayService gatewayService) {
+        this.operator = operator;
+        this.templateTranslator = templateTranslator;
+        this.editorContext = editorContext;
+        this.resourceManager = resourceManager;
+        this.pluginService = pluginService;
+        this.gatewayService = gatewayService;
 
-    @Autowired
+        this.defaultModelProcessor = new DefaultModelProcessor(templateTranslator);
+        this.renderTwiceModelProcessor = new RenderTwiceModelProcessor(templateTranslator);
+        this.neverNullRenderTwiceProcessor = new NeverReturnNullModelProcessor(this.renderTwiceModelProcessor, NEVER_NULL);
+    }
+
     DefaultModelProcessor defaultModelProcessor;
+    RenderTwiceModelProcessor renderTwiceModelProcessor;
+    NeverReturnNullModelProcessor neverNullRenderTwiceProcessor;
 
     @Value(value = "${http10:#{null}}")
     Boolean enableHttp10;
 
-    @Value(value = "${sharedConfigName:rate-limit-config}")
-    String sharedConfigName;
+    @Value(value = "${rateLimitConfigMapName:rate-limit-config}")
+    String rateLimitConfigMapName;
+
+    private static final String NEVER_NULL = "NEVER_NULL";
 
     private static final String apiGateway = "gateway/api/gateway";
     private static final String apiVirtualService = "gateway/api/virtualService";
@@ -126,11 +137,13 @@ public class IstioModelEngine {
         }
 
         List<String> rawVirtualServices = renderTwiceModelProcessor.process(apiVirtualService, api, vsHandler);
-        List<String> rawSharedConfigs = renderTwiceModelProcessor.process(apiSharedConfigConfigMap, api, new BaseSharedConfigAPIDataHandler(rawResourceContainer.getSharedConfigs(), sharedConfigName));
+        List<String> rawSharedConfigs = neverNullRenderTwiceProcessor.process(apiSharedConfigConfigMap, api, new BaseSharedConfigAPIDataHandler(rawResourceContainer.getSharedConfigs(), rateLimitConfigMapName));
 
         resourcePacks.addAll(generateK8sPack(rawVirtualServices, r -> r, this::adjust));
         resourcePacks.addAll(generateK8sPack(rawSharedConfigs,
-                new RateLimitConfigMapMerger(), new RateLimitConfigMapSubtracter(String.join("|", api.getGateways()), api.getName())));
+                new RateLimitConfigMapMerger(),
+                new RateLimitConfigMapSubtracter(String.join("|", api.getGateways()), api.getName()),
+                new EmptyResourceGenerator(new EmptyConfigMap(rateLimitConfigMapName))));
 
         return resourcePacks;
     }
@@ -187,10 +200,12 @@ public class IstioModelEngine {
         List<String> rawGatewayPlugins = defaultModelProcessor.process(gatewayPlugin, gp, new GatewayPluginDataHandler(rawResourceContainer.getGatewayPlugins(), gateways));
         //todo: shareConfig逻辑需要适配
         List<String> rawSharedConfigs = renderTwiceModelProcessor.process(apiSharedConfigConfigMap, gp,
-                new GatewayPluginSharedConfigDataHandler(rawResourceContainer.getSharedConfigs(), gateways, sharedConfigName));
+                new GatewayPluginSharedConfigDataHandler(rawResourceContainer.getSharedConfigs(), gateways, rateLimitConfigMapName));
         resources.addAll(generateK8sPack(rawGatewayPlugins));
         resources.addAll(generateK8sPack(rawSharedConfigs,
-                new RateLimitConfigMapMerger(), new RateLimitConfigMapSubtracter(gp.getGateway(), gp.getCode())));
+                new RateLimitConfigMapMerger(),
+                new RateLimitConfigMapSubtracter(gp.getGateway(), gp.getCode()),
+                new EmptyResourceGenerator(new EmptyConfigMap(rateLimitConfigMapName))));
 
         return resources;
     }
@@ -241,27 +256,26 @@ public class IstioModelEngine {
     }
 
     private List<K8sResourcePack> generateK8sPack(List<String> raws) {
-        return generateK8sPack(raws, null, null, r -> r, hsm -> hsm);
+        return generateK8sPack(raws, null, null, r -> r, this::str2HasMetadata, hsm -> hsm);
     }
 
-    private List<K8sResourcePack> generateK8sPack(List<String> raws, Merger merger, Subtracter subtracter) {
-        return generateK8sPack(raws, merger, subtracter, r -> r, hsm -> hsm);
-    }
-
-    private List<K8sResourcePack> generateK8sPack(List<String> raws, Function<String, String> preFun) {
-        return generateK8sPack(raws, null, null, preFun, hsm -> hsm);
+    private List<K8sResourcePack> generateK8sPack(List<String> raws, Merger merger, Subtracter subtracter, Function<String, HasMetadata> transFun) {
+        return generateK8sPack(raws, merger, subtracter, r -> r, transFun, hsm -> hsm);
     }
 
     private List<K8sResourcePack> generateK8sPack(List<String> raws, Function<String, String> preFun, Function<HasMetadata, HasMetadata> postFun) {
-        return generateK8sPack(raws, null, null, preFun, postFun);
+        return generateK8sPack(raws, null, null, preFun, this::str2HasMetadata, postFun);
     }
 
     private List<K8sResourcePack> generateK8sPack(List<String> raws, Merger merger, Subtracter subtracter,
-                                                  Function<String, String> preFun, Function<HasMetadata, HasMetadata> postFun) {
-        if (CollectionUtils.isEmpty(raws)) return Collections.EMPTY_LIST;
+                                                  Function<String, String> preFun, Function<String, HasMetadata> transFun,
+                                                  Function<HasMetadata, HasMetadata> postFun) {
+        if (CollectionUtils.isEmpty(raws)) {
+            return Collections.EMPTY_LIST;
+        }
 
         return raws.stream().map(r -> preFun.apply(r))
-                .map(r -> str2HasMetadata(r))
+                .map(r -> transFun.apply(r))
                 .map(hsm -> postFun.apply(hsm))
                 .map(hsm -> new K8sResourcePack(hsm, merger, subtracter))
                 .collect(Collectors.toList());
@@ -279,4 +293,20 @@ public class IstioModelEngine {
         }
         return rawVs;
     }
+
+    private class EmptyResourceGenerator implements Function<String, HasMetadata> {
+
+        private HasMetadata hmd;
+
+        public EmptyResourceGenerator(HasMetadata hmd) {
+            this.hmd = hmd;
+        }
+
+        @Override
+        public HasMetadata apply(String s) {
+            if (NEVER_NULL.equals(s)) return hmd;
+            return str2HasMetadata(s);
+        }
+    }
+
 }

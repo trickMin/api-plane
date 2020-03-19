@@ -3,8 +3,6 @@ package com.netease.cloud.nsf.core.gateway.processor;
 import com.netease.cloud.nsf.core.gateway.handler.DataHandler;
 import com.netease.cloud.nsf.core.template.TemplateParams;
 import com.netease.cloud.nsf.core.template.TemplateTranslator;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -15,11 +13,13 @@ import java.util.stream.Collectors;
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/9/27
  **/
-@Component
 public class RenderTwiceModelProcessor<T> implements ModelProcessor<T> {
 
-    @Autowired
     private TemplateTranslator templateTranslator;
+
+    public RenderTwiceModelProcessor(TemplateTranslator templateTranslator) {
+        this.templateTranslator = templateTranslator;
+    }
 
     @Override
     public List<String> process(String template, T t, DataHandler<T> dataHandler) {

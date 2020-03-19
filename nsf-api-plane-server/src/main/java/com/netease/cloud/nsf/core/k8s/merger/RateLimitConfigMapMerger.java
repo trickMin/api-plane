@@ -24,13 +24,6 @@ public class RateLimitConfigMapMerger implements Merger<ConfigMap> {
 
     private static final Logger logger = LoggerFactory.getLogger(RateLimitConfigMapMerger.class);
 
-    private String key;
-
-    public RateLimitConfigMapMerger(String gw, String api) {
-        this.key = String.format("Service[null]-User[null]-Gateway[%s]-Api[%s]-Id[null]", gw, api);
-    }
-
-
     @Override
     public ConfigMap merge(ConfigMap old, ConfigMap latest) {
 
