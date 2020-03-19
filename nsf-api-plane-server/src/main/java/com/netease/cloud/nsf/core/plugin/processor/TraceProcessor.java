@@ -5,7 +5,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.Option;
 import com.netease.cloud.nsf.core.editor.EditorContext;
-import com.netease.cloud.nsf.core.editor.ResourceGenerator;
+import com.netease.cloud.nsf.core.plugin.PluginGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.plugin.FragmentHolder;
@@ -27,8 +27,8 @@ public class TraceProcessor extends AbstractSchemaProcessor implements SchemaPro
 
     @Override
     public FragmentHolder process(String plugin, ServiceInfo serviceInfo) {
-        ResourceGenerator builder = ResourceGenerator.newInstance("{\"plugins\":[{\"name\":\"neTraceFileLog\"}]}", ResourceType.JSON);
-        ResourceGenerator source = ResourceGenerator.newInstance(plugin);
+        PluginGenerator builder = PluginGenerator.newInstance("{\"plugins\":[{\"name\":\"neTraceFileLog\"}]}", ResourceType.JSON);
+        PluginGenerator source = PluginGenerator.newInstance(plugin);
         Object config = source.getValue("$.config");
         builder.createOrUpdateValue("$.plugins[0]", "config", config);
 

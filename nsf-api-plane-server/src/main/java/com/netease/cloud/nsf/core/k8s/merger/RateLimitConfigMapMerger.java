@@ -37,14 +37,16 @@ public class RateLimitConfigMapMerger implements Merger<ConfigMap> {
         ConfigMapRateLimit oldCmrl = str2RateLimitConfig(oldConfig.getValue());
         ConfigMapRateLimit latestCmrl = str2RateLimitConfig(latestConfig.getValue());
 
-        if (oldCmrl == null) return old;
-        if (latestCmrl == null) return latest;
+        if (oldCmrl == null) return latest;
+        if (latestCmrl == null) return old;
+
 
         List mergedDescriptors = CommonUtil.mergeList(
                 oldCmrl.getDescriptors(), latestCmrl.getDescriptors(), new RateLimitDescriptorEquals());
 
-        //仅对descriptors进行覆盖
+        //对descriptors、domain进行覆盖
         oldCmrl.setDescriptors(mergedDescriptors);
+        oldCmrl.setDomain(latestCmrl.getDomain());
 
         String finalConfig = limitConfig2Str(oldCmrl);
         if (!StringUtils.isEmpty(finalConfig)) {
@@ -74,18 +76,9 @@ public class RateLimitConfigMapMerger implements Merger<ConfigMap> {
         }
     }
 
-    private ConfigMapRateLimit buildConfigMapRateLimit(String domain,
-                                                       List<ConfigMapRateLimit.ConfigMapRateLimitDescriptor> descriptors) {
-        ConfigMapRateLimit cmrl = new ConfigMapRateLimit();
-        cmrl.setDomain(domain);
-        cmrl.setDescriptors(descriptors);
-        return cmrl;
-    }
-
     private String limitConfig2Str(ConfigMapRateLimit cmrl) {
         return CommonUtil.obj2yaml(cmrl);
     }
-
 
     private ConfigMapRateLimit str2RateLimitConfig(String str) {
         return CommonUtil.yaml2Obj(str, ConfigMapRateLimit.class);

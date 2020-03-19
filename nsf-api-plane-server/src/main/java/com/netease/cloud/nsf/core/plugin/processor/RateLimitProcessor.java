@@ -150,8 +150,7 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
         if (length == 0 && rg.contain("$.identifier_extractor") && !StringUtils.isEmpty(rg.getValue("$.identifier_extractor", String.class))) {
             String matchHeader = getMatchHeader(rg);
             String descriptorKey = String.format("WithoutValueHeader[%s]", matchHeader);
-            shareConfig = ResourceGenerator.newInstance(String.format("{\"api\":\"%s\",\"key\":\"header_match\",\"value\":\"%s\",\"descriptors\":[{\"key\":\"%s\",\"rate_limit\":{\"unit\":\"%s\",\"requests_per_unit\":\"%d\"}}]}",
-                    getApiName(serviceInfo),
+            shareConfig = ResourceGenerator.newInstance(String.format("{\"key\":\"header_match\",\"value\":\"%s\",\"descriptors\":[{\"key\":\"%s\",\"rate_limit\":{\"unit\":\"%s\",\"requests_per_unit\":\"%d\"}}]}",
                     headerDescriptor,
                     descriptorKey,
                     unit,

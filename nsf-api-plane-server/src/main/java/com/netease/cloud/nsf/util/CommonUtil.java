@@ -114,7 +114,15 @@ public class CommonUtil {
         return yamlMapper;
     }
 
-
+    /**
+     * 合并两个list, 当遇到相等的两个element时，
+     * 用新list中的element取代老list中的element，
+     * 不相等的element全部保留。
+     * @param oldL
+     * @param newL
+     * @param eq
+     * @return
+     */
      public static List mergeList(List oldL, List newL, Equals eq) {
         List result = null;
         if (!CollectionUtils.isEmpty(newL)) {
@@ -135,9 +143,20 @@ public class CommonUtil {
         return result;
     }
 
+    public static List dropList(List oldL, Object identical, Equals eq) {
+        if (CollectionUtils.isEmpty(oldL)) return oldL;
+        List result = new ArrayList(oldL);
+        for (Object oldO : oldL) {
+            if (eq.apply(oldO, identical)) {
+                result.remove(oldO);
+            }
+        }
+        return result;
+    }
+
     public static HasMetadata json2HasMetadata(String json) {
         K8sResourceGenerator gen = K8sResourceGenerator.newInstance(json, ResourceType.JSON);
         K8sResourceEnum resourceEnum = K8sResourceEnum.get(gen.getKind());
-        return (HasMetadata) gen.object(resourceEnum.mappingType());
+        return gen.object(resourceEnum.mappingType());
     }
 }

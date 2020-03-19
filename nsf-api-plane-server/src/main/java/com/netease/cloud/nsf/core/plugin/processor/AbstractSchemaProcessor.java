@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @auther wupenghuai@corp.netease.com
@@ -40,7 +41,7 @@ public abstract class AbstractSchemaProcessor implements SchemaProcessor<Service
         return serviceInfo.getApiName();
     }
 
-    protected String getGateway(ServiceInfo serviceInfo){
+    protected String getGateway(ServiceInfo serviceInfo) {
         return serviceInfo.getGateway();
     }
 
@@ -148,6 +149,24 @@ public abstract class AbstractSchemaProcessor implements SchemaProcessor<Service
             keyword = keyword.replaceAll("\\\\", "\\\\\\\\");
         }
         return keyword;
+    }
+
+    protected boolean haveNull(Object... items) {
+        for (Object item : items) {
+            if (Objects.isNull(item)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    protected boolean nonNull(Object... items) {
+        for (Object item : items) {
+            if (Objects.isNull(item)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     protected String getAndDeleteXUserId(ResourceGenerator rg) {

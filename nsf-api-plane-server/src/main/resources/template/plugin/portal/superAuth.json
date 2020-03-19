@@ -50,7 +50,7 @@
         {
           "key": "maxRequestBytes",
           "alias": "最大请求体字节数",
-          "help": "当有请求体时，请求体的hash会参与签名计算。当请求体大小大于该值后，只会截取限制的大小进行hash计算。",
+          "help": "当有请求体时，请求体的hash会参与签名计算。当请求体大小大于该值后，根据 是否允许部分消息 配置截取部分请求体进行签名计算或者拒绝客户端请求",
           "type": "input",
           "default": "4096",
           "rules": [
@@ -59,6 +59,13 @@
             "MaxNumber(1073741824)",
             "Required"
           ]
+        },
+        {
+          "key": "allowPartialMessage",
+          "alias": "是否允许部分消息",
+          "type": "switch",
+          "help": "该开关打开时，若请求体大于 最大请求字节数 时会截取 最大请求体字节数进行签名计算；否则会拒绝客户端请求",
+          "default": true
         }
       ]
     }

@@ -5,6 +5,7 @@ import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.plugin.FragmentHolder;
 import com.netease.cloud.nsf.core.plugin.FragmentTypeEnum;
 import com.netease.cloud.nsf.core.plugin.FragmentWrapper;
+import com.netease.cloud.nsf.core.plugin.PluginGenerator;
 import com.netease.cloud.nsf.meta.ServiceInfo;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -28,8 +29,8 @@ public class TransformProcessor extends AbstractSchemaProcessor implements Schem
 
     @Override
     public FragmentHolder process(String plugin, ServiceInfo serviceInfo) {
-        ResourceGenerator source = ResourceGenerator.newInstance(plugin);
-        ResourceGenerator builder = ResourceGenerator.newInstance("{\"request_transformations\":[{\"transformation_template\":{\"extractors\":{},\"headers\":{},\"query_param_operators\":{},\"parse_body_behavior\":\"DontParse\"}}]}");
+        PluginGenerator source = PluginGenerator.newInstance(plugin);
+        PluginGenerator builder = PluginGenerator.newInstance("{\"request_transformations\":[{\"transformation_template\":{\"extractors\":{},\"headers\":{},\"query_param_operators\":{},\"parse_body_behavior\":\"DontParse\"}}]}");
         if (source.contain("$.conditions")) {
             buildConditions(source, builder);
         }
@@ -157,6 +158,7 @@ public class TransformProcessor extends AbstractSchemaProcessor implements Schem
             Integer size = source.getValue("$.url.size()");
             for (Integer i = 0; i < size; i++) {
                 String text = source.getValue(String.format("$.url[%s].text", i));
+                if (haveNull(text)) continue;
                 String value = String.format("{\"text\":\"%s\",\"action\":\"%s\"}", text, "Action_Update");
                 builder.createOrUpdateJson("$.request_transformations[0].transformation_template.headers", ":path", value);
             }

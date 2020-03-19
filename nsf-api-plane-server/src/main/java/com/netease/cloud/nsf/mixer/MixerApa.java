@@ -41,10 +41,8 @@ public class MixerApa extends HandleNsfmetaServiceGrpc.HandleNsfmetaServiceImplB
 		TemplateHandlerService.OutputMsg output = TemplateHandlerService.OutputMsg.newBuilder()
 			.setDestinationProject(destProject)
 			.setSourceProject(sourceProject)
-			.setUrlPathPattern(urlPath)
 			.setUrlPathPattern(patternsStr)
 			.build();
-		System.out.println(String.format("############################################## %s#%s\n%s", sourcePod.podName, destPod.podName, output));
 		responseObserver.onNext(output);
 		responseObserver.onCompleted();
 	}
