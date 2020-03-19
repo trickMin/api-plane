@@ -1,10 +1,13 @@
 package com.netease.cloud.nsf.util;
 
 import com.netease.cloud.nsf.meta.Service;
+import com.netease.cloud.nsf.util.function.Equals;
 import me.snowdrop.istio.api.networking.v1alpha3.VirtualService;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Pattern;
 
 /**
@@ -181,5 +184,49 @@ public class CommonUtilTest {
 
         VirtualService virtualService = CommonUtil.yaml2Obj(vsYaml, VirtualService.class);
         Assert.assertNotNull(virtualService);
+    }
+
+
+    @Test
+    public void testMergeList() {
+
+        List<String> oldL = Arrays.asList("a", "b", "b", "c", "d");
+        List<String> newL = Arrays.asList("b", "c", "c", "e", "f");
+
+        /**
+         * excepted a, b, c, c, d, e, f
+         */
+
+        List mergedList = CommonUtil.mergeList(oldL, newL, (Equals<String>) (ot, nt) -> ot.equals(nt));
+
+        Assert.assertEquals(7, mergedList.size());
+        Assert.assertEquals(1, getCount(mergedList, "b"));
+        Assert.assertEquals(2, getCount(mergedList, "c"));
+        Assert.assertEquals(1, getCount(mergedList, "d"));
+        Assert.assertEquals(1, getCount(mergedList, "e"));
+    }
+
+    @Test
+    public void testDropList() {
+
+        List<String> oldL = Arrays.asList("a", "b", "b", "c", "d", "d");
+
+        List droppedList = CommonUtil.dropList(oldL, "b", (Equals<String>) (ot, nt) -> ot.equals(nt));
+        List droppedList1 = CommonUtil.dropList(droppedList, "d", (Equals<String>) (ot, nt) -> ot.equals(nt));
+
+        Assert.assertEquals(4, droppedList.size());
+        Assert.assertTrue(droppedList.containsAll(Arrays.asList("a", "c", "d", "d")));
+
+        Assert.assertEquals(2, droppedList1.size());
+        Assert.assertTrue(droppedList.containsAll(Arrays.asList("a", "c")));
+    }
+
+    private static int getCount(List<String> list, String str) {
+
+        int count = 0;
+        for (String s : list) {
+            if (str.equals(s)) count++;
+        }
+        return count;
     }
 }
