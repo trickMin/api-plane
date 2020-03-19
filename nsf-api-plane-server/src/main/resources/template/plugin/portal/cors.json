@@ -41,7 +41,8 @@
         "PATCH",
         "DELETE",
         "HEAD",
-        "OPTIONS"
+        "OPTIONS",
+        "TRACE"
       ]
     },
     {
