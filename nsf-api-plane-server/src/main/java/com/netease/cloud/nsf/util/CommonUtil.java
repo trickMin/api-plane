@@ -159,4 +159,5 @@ public class CommonUtil {
         K8sResourceEnum resourceEnum = K8sResourceEnum.get(gen.getKind());
         return gen.object(resourceEnum.mappingType());
     }
+
 }

@@ -6,11 +6,10 @@ import com.netease.cloud.nsf.core.plugin.FragmentWrapper;
 import com.netease.cloud.nsf.core.template.TemplateParams;
 import com.netease.cloud.nsf.meta.API;
 import com.netease.cloud.nsf.meta.Endpoint;
-import com.netease.cloud.nsf.util.CommonUtil;
 import com.netease.cloud.nsf.util.PriorityUtil;
+import com.netease.cloud.nsf.util.HandlerUtil;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
-import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -24,11 +23,8 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
 
     static final String apiVirtualServiceMatch = "gateway/api/virtualServiceMatch";
     static final String apiVirtualServiceExtra = "gateway/api/virtualServiceExtra";
-    static final String apiVirtualServiceApi = "gateway/api/virtualServiceApi";
     static final String apiVirtualServiceRoute = "gateway/api/virtualServiceRoute";
     static final String apiVirtualServiceHttpRetry = "gateway/api/virtualServiceHttpRetry";
-
-    static final String defaultUserId = "";
 
     ModelProcessor subModelProcessor;
     List<FragmentWrapper> fragments;
@@ -51,9 +47,8 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
         Map<String, List<String>> apiPlugins = new HashMap<>();
         List<String> hostPlugins = new ArrayList<>();
 
-        distributePlugins(fragments, matchPlugins, apiPlugins, hostPlugins);
+        HandlerUtil.distributePlugins(fragments, matchPlugins, apiPlugins, hostPlugins);
 
-        String httpApiYaml = produceHttpApi(baseParams);
         int pluginPriority = calculatePluginPriority(api, baseParams.get(VIRTUAL_SERVICE_MATCH_PRIORITY));
 
         String matchYaml = produceMatch(baseParams);
@@ -61,10 +56,7 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
         TemplateParams vsParams = TemplateParams.instance()
                 .setParent(baseParams)
                 .put(VIRTUAL_SERVICE_MATCH_YAML, matchYaml)
-                .put(VIRTUAL_SERVICE_API_YAML, httpApiYaml)
                 .put(API_MATCH_PLUGINS, matchPlugins)
-                .put(API_API_PLUGINS, apiPlugins)
-                .put(API_HOST_PLUGINS, hostPlugins)
                 .put(VIRTUAL_SERVICE_HTTP_RETRY_YAML, httpRetryYaml)
                 .put(VIRTUAL_SERVICE_PLUGIN_MATCH_PRIORITY, pluginPriority)
                 .put(SERVICE_INFO_VIRTUAL_SERVICE_PLUGIN_MATCH_PRIORITY, pluginPriority);
@@ -102,10 +94,6 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
 
     String produceHttpRetry(TemplateParams params) {
         return subModelProcessor.process(apiVirtualServiceHttpRetry, params);
-    }
-
-    String produceHttpApi(TemplateParams params) {
-        return subModelProcessor.process(apiVirtualServiceApi, params);
     }
 
     String buildVirtualServiceSubsetName(String serviceName, String apiName, String gw) {
@@ -150,33 +138,6 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
 
     String decorateHost(String code) {
         return String.format("com.netease.%s", code);
-    }
-
-    /**
-     * 分配插件
-     *
-     * @param fragments
-     * @param matchPlugins
-     * @param apiPlugins
-     * @param hostPlugins
-     */
-    void distributePlugins(List<FragmentWrapper> fragments, List<String> matchPlugins, Map<String, List<String>> apiPlugins, List<String> hostPlugins) {
-        fragments.stream()
-                .forEach(f -> {
-                    switch (f.getFragmentType()) {
-                        case VS_MATCH:
-                            matchPlugins.add(f.getContent());
-                            break;
-                        case VS_API:
-                            String userId = StringUtils.isEmpty(f.getXUserId()) ? defaultUserId : f.getXUserId();
-                            apiPlugins.computeIfAbsent(userId, k -> new ArrayList<>()).add(f.getContent());
-                            break;
-                        case VS_HOST:
-                            hostPlugins.add(f.getContent());
-                            break;
-                        default:
-                    }
-                });
     }
 
     int calculatePluginPriority(API api, Object parentPriority) {

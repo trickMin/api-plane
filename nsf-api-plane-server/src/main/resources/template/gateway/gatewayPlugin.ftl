@@ -15,10 +15,23 @@ spec:
   - ${h}
 </#list>
 </#if>
-<#if t_gateway_plugin_plugins??>
+<#if t_gateway_plugin_routes?has_content>
+  route:
+<#list t_gateway_plugin_routes as r>
+  - ${r}
+</#list>
+</#if>
+<#if t_gateway_plugin_users?has_content>
+  user:
+<#list t_gateway_plugin_users as u>
+  - ${u}
+</#list>
+</#if>
+<#if t_gateway_plugin_plugins?has_content>
   plugins:
     <#list t_gateway_plugin_plugins as p>
-    -
-<@indent count=6>${p}</@indent>
+    - name: test
+      settings:
+<@indent count=8>${p}</@indent>
     </#list>
 </#if>
