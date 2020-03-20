@@ -1,5 +1,6 @@
 package com.netease.cloud.nsf.core.gateway;
 
+import com.netease.cloud.nsf.core.GlobalConfig;
 import com.netease.cloud.nsf.core.editor.EditorContext;
 import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.gateway.handler.*;
@@ -60,15 +61,18 @@ public class IstioModelEngine {
 
     GatewayService gatewayService;
 
+    GlobalConfig globalConfig;
+
     @Autowired
     public IstioModelEngine(IntegratedResourceOperator operator, TemplateTranslator templateTranslator, EditorContext editorContext,
-                            ResourceManager resourceManager, PluginService pluginService, GatewayService gatewayService) {
+                            ResourceManager resourceManager, PluginService pluginService, GatewayService gatewayService, GlobalConfig globalConfig) {
         this.operator = operator;
         this.templateTranslator = templateTranslator;
         this.editorContext = editorContext;
         this.resourceManager = resourceManager;
         this.pluginService = pluginService;
         this.gatewayService = gatewayService;
+        this.globalConfig = globalConfig;
 
         this.defaultModelProcessor = new DefaultModelProcessor(templateTranslator);
         this.renderTwiceModelProcessor = new RenderTwiceModelProcessor(templateTranslator);
@@ -95,6 +99,7 @@ public class IstioModelEngine {
     private static final String serviceDestinationRule = "gateway/service/destinationRule";
     private static final String pluginManager = "gateway/pluginManager";
     private static final String serviceServiceEntry = "gateway/service/serviceEntry";
+    private static final String globalGatewayPlugin = "gateway/globalGatewayPlugin";
     private static final String gatewayPlugin = "gateway/gatewayPlugin";
 
     private static final String versionManager = "sidecarVersionManagement";
@@ -138,12 +143,17 @@ public class IstioModelEngine {
 
         List<String> rawVirtualServices = renderTwiceModelProcessor.process(apiVirtualService, api, vsHandler);
         List<String> rawSharedConfigs = neverNullRenderTwiceProcessor.process(apiSharedConfigConfigMap, api, new BaseSharedConfigAPIDataHandler(rawResourceContainer.getSharedConfigs(), rateLimitConfigMapName));
+        // vs上的插件转移到gatewayplugin上
+        List<String> rawGatewayPlugins = renderTwiceModelProcessor.process(gatewayPlugin, api,
+                new ApiGatewayPluginDataHandler(rawResourceContainer.getVirtualServices(), globalConfig.getResourceNamespace()));
 
         resourcePacks.addAll(generateK8sPack(rawVirtualServices, r -> r, this::adjust));
+        // rate limit configmap
         resourcePacks.addAll(generateK8sPack(rawSharedConfigs,
                 new RateLimitConfigMapMerger(),
                 new RateLimitConfigMapSubtracter(String.join("|", api.getGateways()), api.getName()),
                 new EmptyResourceGenerator(new EmptyConfigMap(rateLimitConfigMapName))));
+        resourcePacks.addAll(generateK8sPack(rawGatewayPlugins));
 
         return resourcePacks;
     }
@@ -197,7 +207,8 @@ public class IstioModelEngine {
         rawResourceContainer.add(plugins);
         List<Gateway> gateways = gatewayService.getGatewayList();
 
-        List<String> rawGatewayPlugins = defaultModelProcessor.process(gatewayPlugin, gp, new GatewayPluginDataHandler(rawResourceContainer.getGatewayPlugins(), gateways));
+        List<String> rawGatewayPlugins = defaultModelProcessor.process(globalGatewayPlugin, gp,
+                new GatewayPluginDataHandler(rawResourceContainer.getGatewayPlugins(), gateways));
         //todo: shareConfig逻辑需要适配
         List<String> rawSharedConfigs = renderTwiceModelProcessor.process(apiSharedConfigConfigMap, gp,
                 new GatewayPluginSharedConfigDataHandler(rawResourceContainer.getSharedConfigs(), gateways, rateLimitConfigMapName));
