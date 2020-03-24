@@ -1,6 +1,7 @@
 package com.netease.cloud.nsf.web.controller;
 
 import com.google.common.collect.ImmutableMap;
+import com.netease.cloud.nsf.cache.meta.ServiceDto;
 import com.netease.cloud.nsf.meta.Graph;
 import com.netease.cloud.nsf.meta.ValidateResult;
 import com.netease.cloud.nsf.meta.dto.ValidateResultDTO;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -153,6 +155,13 @@ public class ServiceMeshController extends BaseController {
         ValidateResult validate = validateService.validate(Arrays.asList(CommonUtil.json2HasMetadata(json)));
         ValidateResultDTO validateResultDTO = Trans.validateResult2ValidateResultDTO(validate);
         return apiReturn(ImmutableMap.of(RESULT, validateResultDTO));
+    }
+
+    @RequestMapping(params = {"Action=CreateAppLabelOnService"}, method = RequestMethod.POST)
+    public String createAppOnService(@RequestBody List<ServiceDto> serviceDtoList) {
+
+        ErrorCode code = serviceMeshService.createAppOnServiceList(serviceDtoList);
+        return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), null);
     }
 
     private String optimize(String json) {

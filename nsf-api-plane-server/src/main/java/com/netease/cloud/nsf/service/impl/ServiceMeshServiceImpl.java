@@ -6,6 +6,7 @@ import com.google.common.cache.LoadingCache;
 import com.netease.cloud.nsf.cache.K8sResourceCache;
 import com.netease.cloud.nsf.cache.ResourceStoreFactory;
 import com.netease.cloud.nsf.cache.meta.PodDTO;
+import com.netease.cloud.nsf.cache.meta.ServiceDto;
 import com.netease.cloud.nsf.configuration.ApiPlaneConfig;
 import com.netease.cloud.nsf.configuration.MeshConfig;
 import com.netease.cloud.nsf.core.editor.ResourceType;
@@ -55,6 +56,7 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
 
     private static final Logger logger = LoggerFactory.getLogger(ServiceMeshServiceImpl.class);
     private static final String DEFAULT_SIDECAR_VERSION = "envoy";
+    private static final String DEFAULT_SERVICE_SELECTOR_KEY = "app";
     private static final long PROJECT_CACHE_MAX_SIZE = 200;
     private static final long PROJECT_CACHE_REFRESH_DURATION = 3;
     private ExecutorService taskPool = Executors.newCachedThreadPool();
@@ -390,6 +392,27 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
             return null;
         }
 
+    }
+
+    @Override
+    public ErrorCode createAppOnServiceList(List<ServiceDto> serviceDtoList) {
+        if (!CollectionUtils.isEmpty(serviceDtoList)){
+            for (ServiceDto serviceDto : serviceDtoList) {
+                io.fabric8.kubernetes.api.model.Service service = (io.fabric8.kubernetes.api.model.Service)ResourceStoreFactory.getResourceStore(serviceDto.getClusterId())
+                        .get(K8sResourceEnum.Service.name(), serviceDto.getNamespace(), serviceDto.getName());
+                Map<String, String> selector = service.getSpec().getSelector();
+                if (selector!=null&!selector.isEmpty()){
+                    String appName = selector.get(meshConfig.getSelectorAppKey());
+                    if (!StringUtils.isEmpty(appName)){
+                        Map<String, String> labels = service.getMetadata().getLabels();
+                        labels.put(meshConfig.getAppKey(),appName);
+                        service.getMetadata().setLabels(labels);
+                        updateResource((T) service);
+                    }
+                }
+            }
+        }
+        return ApiPlaneErrorCode.Success;
     }
 
     private String doGetProjectCodeByApp(String namespace, String appName ,String clusterId){
