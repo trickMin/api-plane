@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.k8s.K8sResourceGenerator;
@@ -160,4 +161,10 @@ public class CommonUtil {
         return gen.object(resourceEnum.mappingType());
     }
 
+    public static boolean isLuaPlugin(String plugin) {
+        ResourceGenerator source = ResourceGenerator.newInstance(plugin);
+        String type = source.getValue("$.type");
+        String kind = source.getValue("$.kind");
+        return "lua".equals(type) || "trace".equals(kind);
+    }
 }

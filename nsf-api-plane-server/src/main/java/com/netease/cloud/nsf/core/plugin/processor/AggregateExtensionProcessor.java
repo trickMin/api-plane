@@ -1,5 +1,6 @@
 package com.netease.cloud.nsf.core.plugin.processor;
 
+import com.google.common.collect.Lists;
 import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
@@ -8,6 +9,7 @@ import com.netease.cloud.nsf.core.plugin.FragmentTypeEnum;
 import com.netease.cloud.nsf.core.plugin.FragmentWrapper;
 import com.netease.cloud.nsf.core.plugin.PluginGenerator;
 import com.netease.cloud.nsf.meta.ServiceInfo;
+import com.netease.cloud.nsf.util.CommonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -79,10 +81,6 @@ public class AggregateExtensionProcessor extends AbstractSchemaProcessor impleme
                 holder = getProcessor("IpRestrictionProcessor").process(plugin, serviceInfo);
                 coverToExtensionPlugin(holder, "com.netease.iprestriction");
                 break;
-            case "trace":
-                holder = getProcessor("TraceProcessor").process(plugin, serviceInfo);
-                coverToExtensionPlugin(holder, "com.netease.resty");
-                break;
             case "cors":
                 holder = getProcessor("CorsProcessor").process(plugin, serviceInfo);
                 coverToExtensionPlugin(holder, "envoy.cors");
@@ -96,9 +94,13 @@ public class AggregateExtensionProcessor extends AbstractSchemaProcessor impleme
                 coverToExtensionPlugin(holder, "com.netease.superauthz");
                 break;
             case "request-transformer":
-            default:
                 holder = getProcessor("DefaultProcessor").process(plugin, serviceInfo);
                 coverToExtensionPlugin(holder, "com.netease.transformation");
+                break;
+            case "trace":
+            default:
+                holder = getProcessor("RestyProcessor").process(plugin, serviceInfo);
+                coverToExtensionPlugin(holder, "com.netease.resty");
                 break;
         }
         return holder;
@@ -116,9 +118,18 @@ public class AggregateExtensionProcessor extends AbstractSchemaProcessor impleme
 
     @Override
     public List<FragmentHolder> process(List<String> plugins, ServiceInfo serviceInfo) {
-        List<FragmentHolder> holders = plugins.stream()
+        List<FragmentHolder> holders = Lists.newArrayList();
+        List<String> luaPlugins = plugins.stream().filter(CommonUtil::isLuaPlugin).collect(Collectors.toList());
+        List<FragmentHolder> luaHolder = getProcessor("RestyProcessor").process(luaPlugins, serviceInfo);
+        holders.addAll(luaHolder);
+
+        List<String> notLuaPlugins = plugins.stream().filter(item -> !CommonUtil.isLuaPlugin(item)).collect(Collectors.toList());
+
+        List<FragmentHolder> notLuaHolder = notLuaPlugins.stream()
                 .map(plugin -> process(plugin, serviceInfo))
                 .collect(Collectors.toList());
+        holders.addAll(notLuaHolder);
+
         // 根据租户将插件分类
         MultiValueMap<String, FragmentWrapper> xUserMap = new LinkedMultiValueMap<>();
         holders.forEach(holder -> {
