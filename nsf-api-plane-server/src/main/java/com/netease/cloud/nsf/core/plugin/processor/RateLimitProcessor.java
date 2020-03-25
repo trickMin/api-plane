@@ -38,7 +38,7 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
 
         List<Object> limits = total.getValue("$.limit_by_list");
 
-        ResourceGenerator rateLimitGen = ResourceGenerator.newInstance("{\"ratelimit\":{\"rateLimits\":[]}}");
+        ResourceGenerator rateLimitGen = ResourceGenerator.newInstance("{\"rate_limits\":[]}");
         ResourceGenerator shareConfigGen = ResourceGenerator.newInstance("[{\"domain\":\"qingzhou\",\"descriptors\":[]}]");
 
         limits.forEach(limit -> {

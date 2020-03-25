@@ -39,6 +39,9 @@ public class PluginServiceImpl implements PluginService {
     @Value("${pluginConfigEnv:yx}")
     private String env;
 
+    @Value("${globalPluginConfigEnv:qzglobal}")
+    private String globalEnv;
+
     @Autowired
     private Configuration configuration;
 
@@ -74,7 +77,7 @@ public class PluginServiceImpl implements PluginService {
 
     @Override
     public List<FragmentHolder> processGlobalPlugin(List<String> plugins, ServiceInfo serviceInfo) {
-        return processPlugin("global", plugins, serviceInfo);
+        return processPlugin(globalEnv, plugins, serviceInfo);
     }
 
     @Override
