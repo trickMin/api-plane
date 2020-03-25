@@ -1,6 +1,6 @@
 package com.netease.cloud.nsf.core.plugin.processor;
 
-import com.netease.cloud.nsf.core.editor.ResourceGenerator;
+import com.netease.cloud.nsf.core.plugin.PluginGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.plugin.FragmentHolder;
@@ -23,8 +23,8 @@ public class RestyProcessor extends AbstractSchemaProcessor implements SchemaPro
 
     @Override
     public FragmentHolder process(String plugin, ServiceInfo serviceInfo) {
-        ResourceGenerator source = ResourceGenerator.newInstance(plugin);
-        ResourceGenerator builder = ResourceGenerator.newInstance("{}", ResourceType.JSON);
+        PluginGenerator source = PluginGenerator.newInstance(plugin);
+        PluginGenerator builder = PluginGenerator.newInstance("{}", ResourceType.JSON);
         String kind = source.getValue("$.kind", String.class);
         Object config = source.getValue("$.config");
         builder.createOrUpdateValue("$", "config", config);
@@ -43,8 +43,8 @@ public class RestyProcessor extends AbstractSchemaProcessor implements SchemaPro
 
     private void coverToExtensionPlugin(FragmentHolder holder, String name) {
         if (Objects.nonNull(holder.getVirtualServiceFragment())) {
-            ResourceGenerator source = ResourceGenerator.newInstance(holder.getVirtualServiceFragment().getContent(), ResourceType.YAML);
-            ResourceGenerator builder = ResourceGenerator.newInstance(String.format("{\"name\":\"%s\"}", name));
+            PluginGenerator source = PluginGenerator.newInstance(holder.getVirtualServiceFragment().getContent(), ResourceType.YAML);
+            PluginGenerator builder = PluginGenerator.newInstance(String.format("{\"name\":\"%s\"}", name));
             builder.createOrUpdateJson("$", "settings", source.jsonString());
             holder.getVirtualServiceFragment().setContent(builder.yamlString());
         }
@@ -56,10 +56,10 @@ public class RestyProcessor extends AbstractSchemaProcessor implements SchemaPro
                 .map(plugin -> process(plugin, serviceInfo))
                 .collect(Collectors.toList());
 
-        ResourceGenerator builder = ResourceGenerator.newInstance("{\"plugins\":[]}");
+        PluginGenerator builder = PluginGenerator.newInstance("{\"plugins\":[]}");
         holders.forEach(item -> {
             builder.addElement("$.plugins",
-            ResourceGenerator.newInstance(item.getVirtualServiceFragment().getContent(), ResourceType.YAML).getValue("$"));
+            PluginGenerator.newInstance(item.getVirtualServiceFragment().getContent(), ResourceType.YAML).getValue("$"));
         });
 
 

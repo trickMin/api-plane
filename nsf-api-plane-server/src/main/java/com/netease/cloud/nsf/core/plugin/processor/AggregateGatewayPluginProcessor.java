@@ -15,11 +15,11 @@ import java.util.stream.Collectors;
  * @date 2020/1/17
  **/
 @Component
-public class AggregateGlobalProcessor extends AbstractSchemaProcessor implements SchemaProcessor<ServiceInfo> {
+public class AggregateGatewayPluginProcessor extends AbstractSchemaProcessor implements SchemaProcessor<ServiceInfo> {
 
     @Override
     public String getName() {
-        return "AggregateGlobalProcessor";
+        return "AggregateGatewayPluginProcessor";
     }
 
     @Override

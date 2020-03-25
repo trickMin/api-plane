@@ -254,7 +254,7 @@ public class IstioModelEngine {
                 .collect(Collectors.toList());
         api.setPlugins(plugins);
 
-        return pluginService.processGlobalPlugin(plugins, new ServiceInfo());
+        return pluginService.processPlugin(plugins, new ServiceInfo());
     }
 
     private HasMetadata str2HasMetadata(String str) {
