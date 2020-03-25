@@ -4,6 +4,8 @@ metadata:
   name: ${t_destination_rule_name}
 spec:
   host: ${t_destination_rule_host}
+  exportTo:
+  - "."
   altStatName: ${t_destination_rule_alt_stat_name}
 <#--- 默认所有subset都继承同一份trafficPolicy --->
 <@indent count=2><@autoremove><#include "destinationRule_trafficPolicy.ftl"/></@autoremove></@indent>

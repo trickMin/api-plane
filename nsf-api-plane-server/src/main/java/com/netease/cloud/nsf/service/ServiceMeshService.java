@@ -1,5 +1,6 @@
 package com.netease.cloud.nsf.service;
 
+import com.netease.cloud.nsf.cache.meta.ServiceDto;
 import com.netease.cloud.nsf.meta.dto.ResourceWrapperDTO;
 import com.netease.cloud.nsf.util.errorcode.ErrorCode;
 import io.fabric8.kubernetes.api.model.HasMetadata;
@@ -31,4 +32,6 @@ public interface ServiceMeshService {
     ErrorCode createAppOnService(String clusterId, String namespace, String name, String appName);
 
     String getProjectCodeByApp(String namespace, String appName, String clusterId);
+
+    ErrorCode createAppOnServiceList(List<ServiceDto> serviceDtoList);
 }

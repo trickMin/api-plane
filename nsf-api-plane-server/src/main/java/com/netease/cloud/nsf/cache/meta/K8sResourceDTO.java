@@ -14,6 +14,9 @@ public class K8sResourceDTO<T extends HasMetadata> {
 
     protected String createTime;
 
+    public K8sResourceDTO() {
+    }
+
     public K8sResourceDTO(T obj, String clusterId){
         this.kind = obj.getKind();
         this.name = obj.getMetadata().getName();

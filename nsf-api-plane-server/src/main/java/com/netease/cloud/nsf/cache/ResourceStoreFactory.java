@@ -7,7 +7,7 @@ public class ResourceStoreFactory {
     public static Map<String, OwnerReferenceSupportStore> resourceStoreMap = new HashMap<>();
 
 
-    static OwnerReferenceSupportStore getResourceStore(String clusterId) {
+    public static OwnerReferenceSupportStore getResourceStore(String clusterId) {
         if (resourceStoreMap.get(clusterId) == null) {
             synchronized (ResourceStoreFactory.class) {
                 if (resourceStoreMap.get(clusterId) == null) {

@@ -21,6 +21,8 @@ public class ServiceDto<T extends HasMetadata> extends K8sResourceDTO {
 
     private List<String> serviceAddress;
 
+    public ServiceDto() {
+    }
 
     public ServiceDto(T obj, String clusterId) {
         super(obj, clusterId);
