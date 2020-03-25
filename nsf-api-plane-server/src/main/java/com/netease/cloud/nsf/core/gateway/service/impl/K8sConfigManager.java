@@ -289,7 +289,6 @@ public class K8sConfigManager implements ConfigManager {
 
     private void delete(List<K8sResourcePack> packs, Comparator<K8sResourcePack> compartor, Subtracter<HasMetadata> fun) {
         if (CollectionUtils.isEmpty(packs)) return;
-        List<HasMetadata> existResources = new ArrayList<>();
         for (K8sResourcePack pack : packs) {
             HasMetadata resource = pack.getResource();
             HasMetadata exist = configStore.get(resource);

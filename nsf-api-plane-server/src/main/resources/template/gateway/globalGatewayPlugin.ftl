@@ -2,7 +2,7 @@
 apiVersion: networking.istio.io/v1alpha3
 kind: GatewayPlugin
 metadata:
-name: ${t_gateway_plugin_name}
+  name: ${t_gateway_plugin_name}
 spec:
 <#if t_gateway_plugin_gateways?has_content>
   gateway:
