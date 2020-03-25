@@ -73,6 +73,10 @@ public class AggregateExtensionProcessor extends AbstractSchemaProcessor impleme
                 holder = getProcessor("DynamicDowngradeProcessor").process(plugin, serviceInfo);
                 coverToExtensionPlugin(holder, "com.netease.dynamicdowngrade");
                 break;
+            case "ianus-rate-limiting":
+                holder = getProcessor("RateLimitProcessor").process(plugin, serviceInfo);
+                coverToExtensionPlugin(holder, "envoy.ratelimit");
+                break;
             case "ianus-percent-limit":
                 holder = getProcessor("FlowLimitProcessor").process(plugin, serviceInfo);
                 coverToExtensionPlugin(holder, "envoy.fault");

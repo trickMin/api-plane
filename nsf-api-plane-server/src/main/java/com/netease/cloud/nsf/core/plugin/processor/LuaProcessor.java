@@ -1,6 +1,6 @@
 package com.netease.cloud.nsf.core.plugin.processor;
 
-import com.netease.cloud.nsf.core.editor.ResourceGenerator;
+import com.netease.cloud.nsf.core.plugin.PluginGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.plugin.FragmentHolder;
@@ -34,7 +34,7 @@ public class LuaProcessor extends AbstractSchemaProcessor implements SchemaProce
     public FragmentHolder process(String plugin, ServiceInfo serviceInfo) {
         FragmentHolder fragmentHolder = new FragmentHolder();
         FragmentWrapper wrapper;
-        ResourceGenerator rg = ResourceGenerator.newInstance("{\"resty\":{\"plugins\":[]}}");
+        PluginGenerator rg = PluginGenerator.newInstance("{\"resty\":{\"plugins\":[]}}");
         rg.addJsonElement("$.resty.plugins", plugin);
         String level = rg.getValue("$.resty.plugins[0].level");
         String xUserId = rg.getValue("$.resty.plugins[0].x_user_id");
@@ -111,9 +111,9 @@ public class LuaProcessor extends AbstractSchemaProcessor implements SchemaProce
             });
 
             for (Map.Entry<String, List<FragmentWrapper>> luaMap : userLuaMap.entrySet()) {
-                ResourceGenerator rg = ResourceGenerator.newInstance("{\"resty\":{\"plugins\":[]}}");
+                PluginGenerator rg = PluginGenerator.newInstance("{\"resty\":{\"plugins\":[]}}");
                 luaMap.getValue().forEach(lua -> rg.addElement("$.resty.plugins",
-                        ResourceGenerator.newInstance(lua.getContent(), ResourceType.YAML).getValue("$.resty.plugins[0]")));
+                        PluginGenerator.newInstance(lua.getContent(), ResourceType.YAML).getValue("$.resty.plugins[0]")));
 
                 FragmentHolder holder = new FragmentHolder();
                 FragmentWrapper wrapper = new FragmentWrapper.Builder()
