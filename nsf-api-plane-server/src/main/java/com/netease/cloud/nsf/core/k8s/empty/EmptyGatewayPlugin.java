@@ -1,18 +1,17 @@
 package com.netease.cloud.nsf.core.k8s.empty;
 
-import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2020/3/19
  **/
-public class EmptyConfigMap extends ConfigMap implements HasMetadata, EmptyResource {
+public class EmptyGatewayPlugin implements HasMetadata, EmptyResource{
 
-    private String kind = "ConfigMap";
+    private String kind = "GatewayPlugin";
     private ObjectMeta om;
 
-    public EmptyConfigMap(String name) {
+    public EmptyGatewayPlugin(String name) {
         ObjectMeta tom = new ObjectMeta();
         tom.setName(name);
         this.om = tom;
@@ -20,7 +19,7 @@ public class EmptyConfigMap extends ConfigMap implements HasMetadata, EmptyResou
 
     @Override
     public ObjectMeta getMetadata() {
-        return om;
+        return null;
     }
 
     @Override
@@ -30,7 +29,7 @@ public class EmptyConfigMap extends ConfigMap implements HasMetadata, EmptyResou
 
     @Override
     public String getKind() {
-        return kind;
+        return null;
     }
 
     @Override

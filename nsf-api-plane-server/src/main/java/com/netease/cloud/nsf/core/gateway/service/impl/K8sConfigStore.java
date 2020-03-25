@@ -1,19 +1,19 @@
 package com.netease.cloud.nsf.core.gateway.service.impl;
 
+import com.netease.cloud.nsf.core.GlobalConfig;
 import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.gateway.service.ConfigStore;
 import com.netease.cloud.nsf.core.k8s.KubernetesClient;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
-import me.snowdrop.istio.api.IstioResource;
 import me.snowdrop.istio.api.networking.v1alpha3.GatewayPlugin;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -28,8 +28,8 @@ public class K8sConfigStore implements ConfigStore {
     @Autowired
     KubernetesClient client;
 
-    @Value("${resourceNamespace:gateway-system}")
-    private String resourceNamespace;
+    @Autowired
+    GlobalConfig globalConfig;
 
     List<Class<? extends HasMetadata>> globalCrds = Arrays.asList(GatewayPlugin.class);
 
@@ -72,8 +72,17 @@ public class K8sConfigStore implements ConfigStore {
 
     void supply(HasMetadata resource) {
         if (isGlobalCrd(resource)) return;
-        if (StringUtils.isEmpty(resource.getMetadata().getNamespace())) {
-            resource.getMetadata().setNamespace(resourceNamespace);
+
+        ObjectMeta metadata = resource.getMetadata();
+        if (metadata != null) {
+            if (StringUtils.isEmpty(metadata.getNamespace())) {
+                metadata.setNamespace(globalConfig.getResourceNamespace());
+            }
+            HashMap<String, String> oldLabels = metadata.getLabels() == null ?
+                    new HashMap<>() : new HashMap<>(metadata.getLabels());
+            oldLabels.put("skiff-api-plane-type", globalConfig.getApiPlaneType());
+            oldLabels.put("skiff-api-plane-version", globalConfig.getApiPlaneVersion());
+            metadata.setLabels(oldLabels);
         }
     }
 

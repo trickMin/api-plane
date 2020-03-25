@@ -40,7 +40,7 @@ public class K8sConfigManagerTest extends BaseTest {
 
         API api = buildAPI(list("gw1"), "apiName", list("host1"), list("/any"),
                 list("GET"), "svc",
-                list("{\"limit_by_list\":[{\"pre_condition\":[],\"hour\":5,\"minute\":5}],\"kind\":\"ianus-rate-limiting\",\"name\":\"ianus-rate-limiting\"}"),
+                list("{\"kind\":\"transformer\",\"headers\":[{\"key\":\"addHeaders\",\"text\":\"abc:{{headers[abc]}},def:{{headers[def]}}\",\"action\":\"Action_Default\"}], \"x_user_id\":\"abc\"}"),
                 "HTTP",
                 Arrays.asList(buildProxyService("www.163.com", "STATIC", 100, 80)),
                 UriMatch.EXACT);
@@ -53,7 +53,7 @@ public class K8sConfigManagerTest extends BaseTest {
 
         API api = buildAPI(list("gw1"), "apiName", list("host1"), list("/any"),
                 list("GET"), "svc",
-                list("{\"limit_by_list\":[{\"pre_condition\":[],\"hour\":5,\"minute\":5}],\"kind\":\"ianus-rate-limiting\",\"name\":\"ianus-rate-limiting\"}"),
+                list("{\"kind\":\"transformer\",\"headers\":[{\"key\":\"addHeaders\",\"text\":\"abc:{{headers[abc]}},def:{{headers[def]}}\",\"action\":\"Action_Default\"}], \"x_user_id\":\"abc\"}"),
                 "HTTP",
                 Arrays.asList(buildProxyService("www.163.com", "STATIC", 100, 80)),
                 UriMatch.EXACT);

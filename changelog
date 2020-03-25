@@ -1,3 +1,15 @@
+release 1.2
+
+网关共通：
+- vs中的插件配置(除了路由)全部迁移至gateway plugin crd
+
+
+
+
+
+
+
+
 release 1.1
 
 网关共通：

@@ -1,13 +1,16 @@
 package com.netease.cloud.nsf.core.k8s.operator;
 
-import me.snowdrop.istio.api.networking.v1alpha3.*;
+import me.snowdrop.istio.api.networking.v1alpha3.HTTPMatchRequest;
+import me.snowdrop.istio.api.networking.v1alpha3.HTTPRoute;
+import me.snowdrop.istio.api.networking.v1alpha3.VirtualService;
+import me.snowdrop.istio.api.networking.v1alpha3.VirtualServiceSpec;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
 
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 public class VirtualServiceOperatorTest {
@@ -28,7 +31,7 @@ public class VirtualServiceOperatorTest {
                     getHTTPRoute("b",
                             Arrays.asList(getHTTPMatchRequest(), getHTTPMatchRequest())),
                     getHTTPRoute("a", null))
-                , getPlugins(Arrays.asList("a", "b"), 2)));
+                ));
 
         VirtualService fresh = getVirtualService(getVirtualServiceSpec(
                 Arrays.asList(
@@ -37,7 +40,7 @@ public class VirtualServiceOperatorTest {
                         getHTTPRoute("b",null),
                         getHTTPRoute("c", null),
                         getHTTPRoute("c", null))
-                , getPlugins(Arrays.asList("a", "c"), 3)));
+                ));
 
         VirtualService fresh1 = getVirtualService(getVirtualServiceSpec(
                 Arrays.asList(
@@ -45,8 +48,8 @@ public class VirtualServiceOperatorTest {
                                 Arrays.asList(getHTTPMatchRequest(), getHTTPMatchRequest())),
                         getHTTPRoute("b",null),
                         getHTTPRoute("c", null),
-                        getHTTPRoute("c", null))
-                , Collections.EMPTY_MAP));
+                        getHTTPRoute("c", null)
+                )));
 
         VirtualService merge = operator.merge(old, fresh);
         assertTrue(merge.getSpec().getHttp().size() == 4);
@@ -67,14 +70,7 @@ public class VirtualServiceOperatorTest {
 
         assertTrue(aCount == 1);
         assertTrue(cCount == 2);
-        assertTrue(merge.getSpec().getPlugins().size() == 3);
 
-        Map<String, ApiPlugins> pluginMap = merge.getSpec().getPlugins();
-        assertTrue(pluginMap.get("a").getUserPlugin().size() == 3);
-
-        VirtualService merge1 = operator.merge(old, fresh1);
-        Map<String, ApiPlugins> pluginMap1 = merge1.getSpec().getPlugins();
-        assertNull(pluginMap1);
     }
 
     @Test
@@ -87,14 +83,12 @@ public class VirtualServiceOperatorTest {
                                 Arrays.asList(getHTTPMatchRequest(), getHTTPMatchRequest())),
                         getHTTPRoute("a", null),
                         getHTTPRoute("c", null))
-                , getPlugins(Arrays.asList("a", "b"), 2)));
+                ));
 
         VirtualService result = operator.subtract(old, "a");
         Assert.assertTrue(result.getSpec().getHttp().size() == 2);
-        Assert.assertTrue(result.getSpec().getPlugins().size() == 1);
         result = operator.subtract(result, "b");
         Assert.assertTrue(result.getSpec().getHttp().size() == 1);
-        Assert.assertTrue(result.getSpec().getPlugins().size() == 0);
     }
 
     private static HTTPRoute getHTTPRoute(String api, List<HTTPMatchRequest> requests) {
@@ -108,10 +102,9 @@ public class VirtualServiceOperatorTest {
         return new HTTPMatchRequest();
     }
 
-    private static VirtualServiceSpec getVirtualServiceSpec(List<HTTPRoute> routes, Map<String, ApiPlugins> plugins) {
+    private static VirtualServiceSpec getVirtualServiceSpec(List<HTTPRoute> routes) {
         VirtualServiceSpec spec = new VirtualServiceSpec();
         spec.setHttp(routes);
-        spec.setPlugins(plugins);
         return spec;
     }
 
@@ -121,19 +114,4 @@ public class VirtualServiceOperatorTest {
         return vs;
     }
 
-    private static Map<String, ApiPlugins> getPlugins(List<String> apis, int apiPluginsNum) {
-        Map<String, ApiPlugins> pluginMap = new HashMap<>();
-        apis.forEach(a -> pluginMap.put(a, getApiPlugins(apiPluginsNum)));
-        return pluginMap;
-    }
-
-    private static ApiPlugins getApiPlugins(int num) {
-        List<ApiPlugin> apList = new ArrayList<>();
-        for (int i = 0; i < num; i++) {
-            apList.add(new ApiPlugin());
-        }
-        ApiPlugins aps = new ApiPlugins();
-        aps.setUserPlugin(apList);
-        return aps;
-    }
 }
