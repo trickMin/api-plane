@@ -4,6 +4,8 @@ metadata:
   name: ${t_destination_rule_name}
 spec:
   host: ${t_destination_rule_host}
+  exportTo:
+  - "."
   subsets:
   <#list t_api_gateways as gateway>
   - name: ${t_api_service}-${t_api_name}-${gateway}

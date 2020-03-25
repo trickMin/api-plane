@@ -8,6 +8,7 @@ release 1.1
 - 增加路由默认超时时间60s
 - ratelimit插件配置由SharedConfig转移到ConfigMap
 - 发布api时，可以覆盖ratelimit configmap
+- 发布的dr只对当前的namespace可见
 
 严选网关:
 - 多租户支持
