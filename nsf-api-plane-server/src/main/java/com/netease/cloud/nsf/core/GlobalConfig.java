@@ -12,7 +12,21 @@ public class GlobalConfig {
     @Value("${resourceNamespace:gateway-system}")
     private String resourceNamespace;
 
+    @Value("${apiPlaneType}")
+    private String apiPlaneType;
+
+    @Value("${apiPlaneVersion}")
+    private String apiPlaneVersion;
+
     public String getResourceNamespace() {
         return resourceNamespace;
+    }
+
+    public String getApiPlaneType() {
+        return apiPlaneType;
+    }
+
+    public String getApiPlaneVersion() {
+        return apiPlaneVersion;
     }
 }

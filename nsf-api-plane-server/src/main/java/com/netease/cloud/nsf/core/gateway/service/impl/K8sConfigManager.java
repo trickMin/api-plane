@@ -43,7 +43,7 @@ public class K8sConfigManager implements ConfigManager {
     private static final String VM_RESOURCE_NAME = "version-manager";
 
     @Autowired
-    private IstioModelEngine modelProcessor;
+    private IstioModelEngine modelEngine;
 
     @Autowired
     private K8sConfigStore configStore;
@@ -56,13 +56,13 @@ public class K8sConfigManager implements ConfigManager {
 
     @Override
     public void updateConfig(API api) {
-        List<K8sResourcePack> resources = modelProcessor.translate(api);
+        List<K8sResourcePack> resources = modelEngine.translate(api);
         update(resources);
     }
 
     @Override
     public void updateConfig(Service service) {
-        List<K8sResourcePack> resources = modelProcessor.translate(service);
+        List<K8sResourcePack> resources = modelEngine.translate(service);
         update(resources);
     }
 
@@ -91,7 +91,7 @@ public class K8sConfigManager implements ConfigManager {
                 } else if (pack.hasMerger()) {
                     merged = pack.getMerger().merge(old, latest);
                 } else {
-                    merged = modelProcessor.merge(old, latest);
+                    merged = modelEngine.merge(old, latest);
                 }
 
                 if (merged != null) {
@@ -109,19 +109,19 @@ public class K8sConfigManager implements ConfigManager {
 
     @Override
     public void deleteConfig(API api) {
-        List<K8sResourcePack> resources = modelProcessor.translate(api, true);
+        List<K8sResourcePack> resources = modelEngine.translate(api, true);
 
         ImmutableMap<String, String> toBeDeletedMap = ImmutableMap
                 .of(K8sResourceEnum.VirtualService.name(), api.getName(),
                         K8sResourceEnum.DestinationRule.name(), String.format("%s-%s", api.getService(), api.getName()));
 
-        delete(resources, resource -> modelProcessor.subtract(resource, toBeDeletedMap));
+        delete(resources, resource -> modelEngine.subtract(resource, toBeDeletedMap));
     }
 
     @Override
     public void deleteConfig(Service service) {
         if (StringUtils.isEmpty(service.getGateway())) return;
-        List<K8sResourcePack> resources = modelProcessor.translate(service);
+        List<K8sResourcePack> resources = modelEngine.translate(service);
         Class<? extends HasMetadata> drClz = K8sResourceEnum.DestinationRule.mappingType();
         Class<? extends HasMetadata> seClz = K8sResourceEnum.ServiceEntry.mappingType();
 
@@ -174,26 +174,26 @@ public class K8sConfigManager implements ConfigManager {
 
     @Override
     public HasMetadata getConfig(PluginOrder pluginOrder) {
-        List<K8sResourcePack> resources = modelProcessor.translate(pluginOrder);
+        List<K8sResourcePack> resources = modelEngine.translate(pluginOrder);
         if (CollectionUtils.isEmpty(resources) || resources.size() != 1) throw new ApiPlaneException();
         return configStore.get(resources.get(0).getResource());
     }
 
     @Override
     public void updateConfig(PluginOrder pluginOrder) {
-        List<K8sResourcePack> resources = modelProcessor.translate(pluginOrder);
+        List<K8sResourcePack> resources = modelEngine.translate(pluginOrder);
         update(resources);
     }
 
     @Override
     public void deleteConfig(PluginOrder pluginOrder) {
-        List<K8sResourcePack> resources = modelProcessor.translate(pluginOrder);
+        List<K8sResourcePack> resources = modelEngine.translate(pluginOrder);
         delete(resources, clearResource());
     }
 
     @Override
     public void updateConfig(SidecarVersionManagement svm) {
-        List<K8sResourcePack> resources = modelProcessor.translate(svm);
+        List<K8sResourcePack> resources = modelEngine.translate(svm);
         update(resources, svm.getClusterId());
     }
 
@@ -251,19 +251,19 @@ public class K8sConfigManager implements ConfigManager {
 
     @Override
     public void updateConfig(IstioGateway istioGateway) {
-        List<K8sResourcePack> resources = modelProcessor.translate(istioGateway);
+        List<K8sResourcePack> resources = modelEngine.translate(istioGateway);
         update(resources);
     }
 
     @Override
     public void updateConfig(GlobalPlugin gp) {
-        List<K8sResourcePack> resources = modelProcessor.translate(gp);
+        List<K8sResourcePack> resources = modelEngine.translate(gp);
         update(resources);
     }
 
     @Override
     public void deleteConfig(GlobalPlugin gp) {
-        List<K8sResourcePack> resources = modelProcessor.translate(gp);
+        List<K8sResourcePack> resources = modelEngine.translate(gp);
 
         Subtracter<HasMetadata> deleteFun = r -> {
 
@@ -311,7 +311,7 @@ public class K8sConfigManager implements ConfigManager {
     }
 
     private void handle(HasMetadata i) {
-        if (modelProcessor.isUseless(i)) {
+        if (modelEngine.isUseless(i)) {
             try {
                 configStore.delete(i);
             } catch (Exception e) {

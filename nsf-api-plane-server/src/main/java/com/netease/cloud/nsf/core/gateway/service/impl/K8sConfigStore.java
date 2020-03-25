@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -71,8 +72,17 @@ public class K8sConfigStore implements ConfigStore {
 
     void supply(HasMetadata resource) {
         if (isGlobalCrd(resource)) return;
-        if (StringUtils.isEmpty(resource.getMetadata().getNamespace())) {
-            resource.getMetadata().setNamespace(globalConfig.getResourceNamespace());
+
+        ObjectMeta metadata = resource.getMetadata();
+        if (metadata != null) {
+            if (StringUtils.isEmpty(metadata.getNamespace())) {
+                metadata.setNamespace(globalConfig.getResourceNamespace());
+            }
+            HashMap<String, String> oldLabels = metadata.getLabels() == null ?
+                    new HashMap<>() : new HashMap<>(metadata.getLabels());
+            oldLabels.put("skiff-api-plane-type", globalConfig.getApiPlaneType());
+            oldLabels.put("skiff-api-plane-version", globalConfig.getApiPlaneVersion());
+            metadata.setLabels(oldLabels);
         }
     }
 

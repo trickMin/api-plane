@@ -30,8 +30,7 @@ spec:
 <#if t_gateway_plugin_plugins?has_content>
   plugins:
     <#list t_gateway_plugin_plugins as p>
-    - name: test
-      settings:
-<@indent count=8>${p}</@indent>
+    -
+<@indent count=6>${p}</@indent>
     </#list>
 </#if>
