@@ -502,7 +502,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         if (pod == null || pod.getMetadata() == null || pod.getMetadata().getLabels() == null) {
             return "";
         } else {
-            return Strings.nullToEmpty(pod.getMetadata().getLabels().get(meshConfig.getAppKey()));
+            return Strings.nullToEmpty(pod.getMetadata().getLabels().get(meshConfig.getSelectorAppKey()));
         }
     }
 
