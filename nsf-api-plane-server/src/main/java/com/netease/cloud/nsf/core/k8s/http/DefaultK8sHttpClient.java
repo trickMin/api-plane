@@ -93,8 +93,8 @@ public class DefaultK8sHttpClient implements K8sHttpClient {
             }
             return null;
         } catch (IOException e) {
-            logger.warn("", e);
-            throw new ApiPlaneException(String.format("K8s request failed : {}.", request.toString()).toString(), e);
+            logger.warn("",e);
+            throw new ApiPlaneException(String.format("K8s request failed : %s.", request.toString()), e);
         }
     }
 
