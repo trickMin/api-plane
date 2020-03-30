@@ -38,7 +38,7 @@ public enum K8sResourceEnum {
     ReplicaSet(ReplicaSet.class, ReplicaSetList.class, "/apis/extensions/v1beta1/namespaces/%s/replicasets/"),
     VersionManager(VersionManager.class, VersionManagerList.class, "/apis/networking.istio.io/v1alpha3/namespaces/%s/versionmanagers"),
     NameSpace(Namespace.class, NamespaceList.class, "/api/v1/namespaces/%s"),
-    GatewayPlugin(GatewayPlugin.class, GatewayPluginList.class, "/apis/networking.istio.io/v1alpha3/gatewayplugins"),
+    GatewayPlugin(GatewayPlugin.class, GatewayPluginList.class, "/apis", "networking.istio.io/v1alpha3", "gatewayplugins", "clustered".equals(System.getProperty("gatewaypluginScope"))),
     MixerUrlPattern(MixerUrlPattern.class, MixerUrlPatternList.class, "/apis/networking.istio.io/v1alpha3/namespaces/%s/mixerurlpatterns"),
     ConfigMap(ConfigMap.class, ConfigMapList.class, "/api/v1/namespaces/%s/configmaps"),
     ;
@@ -53,6 +53,15 @@ public enum K8sResourceEnum {
         this.selfLink = selfLink;
     }
 
+    K8sResourceEnum(Class<? extends HasMetadata> mappingType, Class<? extends KubernetesResourceList> mappingListType, String prefix, String apiVersion, String name, Boolean isClusteredScope) {
+        this.mappingType = mappingType;
+        this.mappingListType = mappingListType;
+        if (isClusteredScope) {
+            this.selfLink = URLUtils.pathJoin(prefix, apiVersion, name);
+        } else {
+            this.selfLink = URLUtils.pathJoin(prefix, apiVersion, "namespaces/%s", name);
+        }
+    }
 
     public String selfLink() {
         return selfLink;
