@@ -60,15 +60,9 @@ public class GatewayPluginDataHandler implements DataHandler<GlobalPlugin> {
 
     List<String> getGateways(GlobalPlugin gp) {
         if (gp.getGateway() == null) return Collections.emptyList();
-        if (K8sResourceEnum.GatewayPlugin.isNamespaced()) {
-            return Collections.singletonList(gp.getGateway());
-        }
-        if (K8sResourceEnum.GatewayPlugin.isClustered()) {
-            if (gp.getGateway().contains("/")) return Collections.singletonList(gp.getGateway());
+        if (gp.getGateway().contains("/")) return Collections.singletonList(gp.getGateway());
 
-            return Collections.singletonList(String.format("%s/%s", getNamespace(gp.getGateway()), gp.getGateway()));
-        }
-        return Collections.emptyList();
+        return Collections.singletonList(String.format("%s/%s", getNamespace(gp.getGateway()), gp.getGateway()));
     }
 
     private String getNamespace(String gateway) {
