@@ -46,16 +46,19 @@ public enum K8sResourceEnum {
     private Class<? extends HasMetadata> mappingType;
     private Class<? extends KubernetesResourceList> mappingListType;
     private String selfLink;
+    private Boolean isClustered;
 
     K8sResourceEnum(Class<? extends HasMetadata> mappingType, Class<? extends KubernetesResourceList> mappingListType, String selfLink) {
         this.mappingType = mappingType;
         this.mappingListType = mappingListType;
         this.selfLink = selfLink;
+        this.isClustered = false;
     }
 
     K8sResourceEnum(Class<? extends HasMetadata> mappingType, Class<? extends KubernetesResourceList> mappingListType, String prefix, String apiVersion, String name, Boolean isClusteredScope) {
         this.mappingType = mappingType;
         this.mappingListType = mappingListType;
+        this.isClustered = isClusteredScope;
         if (isClusteredScope) {
             this.selfLink = URLUtils.pathJoin(prefix, apiVersion, name);
         } else {
@@ -73,6 +76,14 @@ public enum K8sResourceEnum {
 
     public String selfLink(String masterUrl, String namespace) {
         return URLUtils.pathJoin(masterUrl, selfLink(namespace));
+    }
+
+    public Boolean isClustered() {
+        return isClustered;
+    }
+
+    public Boolean isNamespaced() {
+        return !isClustered;
     }
 
     public Class<? extends HasMetadata> mappingType() {

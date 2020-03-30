@@ -3,6 +3,7 @@ package com.netease.cloud.nsf.core.gateway.service.impl;
 import com.netease.cloud.nsf.core.GlobalConfig;
 import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.gateway.service.ConfigStore;
+import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.k8s.KubernetesClient;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
@@ -87,7 +88,6 @@ public class K8sConfigStore implements ConfigStore {
     }
 
     boolean isGlobalCrd(HasMetadata resource) {
-        if (globalCrds.contains(resource.getClass())) return true;
-        return false;
+        return K8sResourceEnum.get(resource.getKind()).isClustered();
     }
 }

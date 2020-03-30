@@ -1,5 +1,6 @@
 package com.netease.cloud.nsf.core.gateway.handler;
 
+import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.plugin.FragmentWrapper;
 import com.netease.cloud.nsf.core.template.TemplateParams;
 import com.netease.cloud.nsf.meta.Gateway;
@@ -59,9 +60,15 @@ public class GatewayPluginDataHandler implements DataHandler<GlobalPlugin> {
 
     List<String> getGateways(GlobalPlugin gp) {
         if (gp.getGateway() == null) return Collections.emptyList();
-        if (Pattern.compile("(.*?)/(.*?)").matcher(gp.getGateway()).find()) return Arrays.asList(gp.getGateway());
+        if (K8sResourceEnum.GatewayPlugin.isNamespaced()) {
+            return Collections.singletonList(gp.getGateway());
+        }
+        if (K8sResourceEnum.GatewayPlugin.isClustered()) {
+            if (gp.getGateway().contains("/")) return Collections.singletonList(gp.getGateway());
 
-        return Arrays.asList(String.format("%s/%s", getNamespace(gp.getGateway()), gp.getGateway()));
+            return Collections.singletonList(String.format("%s/%s", getNamespace(gp.getGateway()), gp.getGateway()));
+        }
+        return Collections.emptyList();
     }
 
     private String getNamespace(String gateway) {
