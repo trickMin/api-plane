@@ -297,7 +297,7 @@ public class IstioModelEngine {
             VirtualService vs = (VirtualService) rawVs;
             List<HTTPRoute> routes = Optional.ofNullable(vs.getSpec().getHttp()).orElse(new ArrayList<>());
             routes.forEach(route -> {
-//                if (Objects.nonNull(route.getReturn())) route.setRoute(null);
+                if (Objects.nonNull(route.getReturn())) route.setRoute(null);
                 if (Objects.nonNull(route.getRedirect())) route.setRoute(null);
                 if (Objects.nonNull(route.getRedirect())) route.setFault(null);
             });
