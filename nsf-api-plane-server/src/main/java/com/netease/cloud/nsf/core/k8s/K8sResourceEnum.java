@@ -38,7 +38,7 @@ public enum K8sResourceEnum {
     ReplicaSet(ReplicaSet.class, ReplicaSetList.class, "/apis/extensions/v1beta1/namespaces/%s/replicasets/"),
     VersionManager(VersionManager.class, VersionManagerList.class, "/apis/networking.istio.io/v1alpha3/namespaces/%s/versionmanagers"),
     NameSpace(Namespace.class, NamespaceList.class, "/api/v1/namespaces/%s"),
-    GatewayPlugin(GatewayPlugin.class, GatewayPluginList.class, "/apis/networking.istio.io/v1alpha3/gatewayplugins"),
+    GatewayPlugin(GatewayPlugin.class, GatewayPluginList.class, "/apis", "networking.istio.io/v1alpha3", "gatewayplugins", "clustered".equals(System.getProperty("gatewaypluginScope"))),
     MixerUrlPattern(MixerUrlPattern.class, MixerUrlPatternList.class, "/apis/networking.istio.io/v1alpha3/namespaces/%s/mixerurlpatterns"),
     ConfigMap(ConfigMap.class, ConfigMapList.class, "/api/v1/namespaces/%s/configmaps"),
     ;
@@ -46,13 +46,25 @@ public enum K8sResourceEnum {
     private Class<? extends HasMetadata> mappingType;
     private Class<? extends KubernetesResourceList> mappingListType;
     private String selfLink;
+    private Boolean isClustered;
 
     K8sResourceEnum(Class<? extends HasMetadata> mappingType, Class<? extends KubernetesResourceList> mappingListType, String selfLink) {
         this.mappingType = mappingType;
         this.mappingListType = mappingListType;
         this.selfLink = selfLink;
+        this.isClustered = false;
     }
 
+    K8sResourceEnum(Class<? extends HasMetadata> mappingType, Class<? extends KubernetesResourceList> mappingListType, String prefix, String apiVersion, String name, Boolean isClusteredScope) {
+        this.mappingType = mappingType;
+        this.mappingListType = mappingListType;
+        this.isClustered = isClusteredScope;
+        if (isClusteredScope) {
+            this.selfLink = URLUtils.pathJoin(prefix, apiVersion, name);
+        } else {
+            this.selfLink = URLUtils.pathJoin(prefix, apiVersion, "namespaces/%s", name);
+        }
+    }
 
     public String selfLink() {
         return selfLink;
@@ -64,6 +76,14 @@ public enum K8sResourceEnum {
 
     public String selfLink(String masterUrl, String namespace) {
         return URLUtils.pathJoin(masterUrl, selfLink(namespace));
+    }
+
+    public Boolean isClustered() {
+        return isClustered;
+    }
+
+    public Boolean isNamespaced() {
+        return !isClustered;
     }
 
     public Class<? extends HasMetadata> mappingType() {
