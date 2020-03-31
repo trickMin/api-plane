@@ -253,7 +253,7 @@ public class PodDTO<T extends HasMetadata> extends K8sResourceDTO {
         }
     }
 
-    private boolean isInjected(Pod pod){
+    public static boolean isInjected(Pod pod){
         if (pod.getStatus() == null){
             return false;
         }

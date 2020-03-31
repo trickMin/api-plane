@@ -95,10 +95,23 @@ public class K8sResourceController extends BaseController {
             }
             workLoadList = resourceCache.getAllWorkLoadByClusterId(clusterId, projectId);
         }
-        workLoadList = resourceCache.getWorkLoadListWithSidecarVersion(workLoadList);
+       // workLoadList = resourceCache.getWorkLoadListWithSidecarVersion(workLoadList);
         checkResult(workLoadList);
         Map<String, Object> result = new HashMap<>();
         result.put("Result", workLoadList);
+        ErrorCode code = ApiPlaneErrorCode.Success;
+        return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), result);
+    }
+
+    @RequestMapping(params = {"Action=GetSidecarVersionOnWorkLoad"}, method = RequestMethod.GET)
+    public String getSidecarVersionOnWorkLoad(@RequestParam(name = "Name") String name,
+                                              @RequestParam(name = "Namespace") String namespace,
+                                              @RequestParam(name = "ClusterId") String clusterId,
+                                              @RequestParam(name = "Kind") String kind) {
+
+        List<String> sidecarVersion = resourceCache.getSidecarVersionOnWorkLoad(clusterId,namespace,kind,name);
+        Map<String, Object> result = new HashMap<>();
+        result.put("Result", sidecarVersion);
         ErrorCode code = ApiPlaneErrorCode.Success;
         return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), result);
     }
