@@ -375,21 +375,8 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
             List<T> workLoadBySelector = getWorkLoadByServiceSelector((io.fabric8.kubernetes.api.model.Service)service,clusterId);
             List<WorkLoadDTO> workLoadDtoBySelector = workLoadBySelector.stream()
                     .map(obj -> {
-                        List list = store.listResourceByOwnerReference(Pod.name(), obj);
                         WorkLoadDTO workLoadDTO = new  WorkLoadDTO<>(obj, getServiceName(service), clusterId,
                                 getProjectCodeFromService(service), getEnvNameFromService(service));
-                        boolean inMesh = true;
-                        for (Object pod : list){
-                            io.fabric8.kubernetes.api.model.Pod p  = (io.fabric8.kubernetes.api.model.Pod)pod;
-                            if (!PodDTO.isInjected(p)){
-                                inMesh = false;
-                                break;
-                            }
-                        }
-                        if (StringUtils.isEmpty(getLabelValueFromWorkLoad(workLoadDTO,meshConfig.getAppKey()))){
-                            inMesh = false;
-                        }
-                        workLoadDTO.setInMesh(inMesh);
                         return workLoadDTO;
                     })
                     .collect(Collectors.toList());
