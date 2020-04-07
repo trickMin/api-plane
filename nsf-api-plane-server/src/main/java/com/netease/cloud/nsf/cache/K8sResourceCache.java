@@ -377,6 +377,9 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                     .map(obj -> {
                         WorkLoadDTO workLoadDTO = new  WorkLoadDTO<>(obj, getServiceName(service), clusterId,
                                 getProjectCodeFromService(service), getEnvNameFromService(service));
+                        if (StringUtils.isEmpty(getLabelValueFromWorkLoad(workLoadDTO,meshConfig.getAppKey()))){
+                            workLoadDTO.setInMesh(false);
+                        }
                         return workLoadDTO;
                     })
                     .collect(Collectors.toList());
