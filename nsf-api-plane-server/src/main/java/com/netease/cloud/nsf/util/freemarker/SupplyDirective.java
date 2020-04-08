@@ -26,7 +26,7 @@ public class SupplyDirective implements TemplateDirectiveModel {
         ROUTE("route:", indent(wrap(TemplateConst.VIRTUAL_SERVICE_ROUTE_YAML))),
         EXTRA("extra:", indent(wrap(TemplateConst.VIRTUAL_SERVICE_EXTRA_YAML))),
         RETRY("retry:", indent(wrap(TemplateConst.VIRTUAL_SERVICE_HTTP_RETRY_YAML))),
-        API("api:", wrap(TemplateConst.API_NAME)),
+        API("api:", wrap(TemplateConst.API_IDENTITY_NAME)),
 
 
         ;

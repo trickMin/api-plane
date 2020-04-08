@@ -24,6 +24,10 @@ public interface TemplateConst {
     String API = "t_api";
     String API_SERVICE = "t_api_service";
     String API_NAME = "t_api_name";
+    /**
+     * API唯一标识，用于api name重复时
+     */
+    String API_IDENTITY_NAME = "t_api_identity_name";
     String API_LOADBALANCER = "t_api_loadBalancer";
     String API_CONNECT_TIMEOUT = "t_api_connect_timeout";
     String API_IDLE_TIMEOUT = "t_api_idle_timeout";
@@ -42,9 +46,7 @@ public interface TemplateConst {
     String VIRTUAL_SERVICE_MATCH_YAML = "t_virtual_service_match_yaml";
     String VIRTUAL_SERVICE_ROUTE_YAML = "t_virtual_service_route_yaml";
     String VIRTUAL_SERVICE_EXTRA_YAML = "t_virtual_service_extra_yaml";
-    String VIRTUAL_SERVICE_HOSTS_YAML = "t_virtual_service_hosts_yaml";
     String VIRTUAL_SERVICE_HTTP_RETRY_YAML = "t_virtual_service_http_retry_yaml";
-    String VIRTUAL_SERVICE_API_YAML = "t_virtual_service_api_yaml";
     String VIRTUAL_SERVICE_HOSTS = "t_virtual_service_hosts";
     String VIRTUAL_SERVICE_HOST_HEADERS = "t_virtual_service_host_headers";
     String VIRTUAL_SERVICE_MATCH_PRIORITY = "t_virtual_service_match_priority";
