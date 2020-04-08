@@ -5,21 +5,32 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.Pattern;
+import java.util.Map;
 
 public class SVMSpec {
 
-    @Pattern(regexp = "(Deployment|StatefulSet|Service|Labelselector)", message = "workLoadType")
+    @Pattern(regexp = "(Deployment|StatefulSet|Service|LabelSelector)", message = "workLoadType")
     @JsonProperty(value = "WorkLoadType")
     @NotEmpty(message = "workLoadType")
     private String workLoadType;
 
     @JsonProperty(value = "WorkLoadName")
-    @NotEmpty(message = "workLoadName")
     private String workLoadName;
 
     @JsonProperty(value = "ExpectedVersion")
-    @NotEmpty(message = "expectedVersion")
     private String expectedVersion;
+
+    @JsonProperty(value = "IptablesParams")
+    private String iptablesParams;
+
+    @JsonProperty(value = "IptablesDetail")
+    private String iptablesDetail;
+
+    @JsonProperty(value = "IptablesConfig")
+    private IptablesConfig iptablesConfig;
+
+    @JsonProperty(value = "LabelSelector")
+	private Map<String, String> labels;
 
     public String getWorkLoadType() {
         return workLoadType;
@@ -43,5 +54,37 @@ public class SVMSpec {
 
     public void setExpectedVersion(String expectedVersion) {
         this.expectedVersion = expectedVersion;
+    }
+
+    public String getIptablesParams() {
+        return iptablesParams;
+    }
+
+    public void setIptablesParams(String iptablesParams) {
+        this.iptablesParams = iptablesParams;
+    }
+
+    public String getIptablesDetail() {
+        return iptablesDetail;
+    }
+
+    public void setIptablesDetail(String iptablesDetail) {
+        this.iptablesDetail = iptablesDetail;
+    }
+
+    public IptablesConfig getIptablesConfig() {
+        return iptablesConfig;
+    }
+
+    public void setIptablesConfig(IptablesConfig iptablesConfig) {
+        this.iptablesConfig = iptablesConfig;
+    }
+
+    public Map<String, String> getLabels() {
+        return labels;
+    }
+
+    public void setLabels(Map<String, String> labels) {
+        this.labels = labels;
     }
 }

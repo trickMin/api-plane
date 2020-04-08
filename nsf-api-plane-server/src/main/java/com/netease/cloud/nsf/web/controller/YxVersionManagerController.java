@@ -8,15 +8,18 @@ import com.netease.cloud.nsf.meta.PodVersion;
 import com.netease.cloud.nsf.meta.SVMSpec;
 import com.netease.cloud.nsf.meta.SidecarVersionManagement;
 import com.netease.cloud.nsf.service.GatewayService;
+import com.netease.cloud.nsf.service.SVMIptablesHelper;
 import com.netease.cloud.nsf.util.errorcode.ApiPlaneErrorCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +51,10 @@ public class YxVersionManagerController extends BaseController {
                 return apiReturn(ApiPlaneErrorCode.ParameterError("WorkLoadType"));
             }
 
+            if (StringUtils.isEmpty(svmSpec.getWorkLoadName()) || StringUtils.isEmpty(svmSpec.getExpectedVersion())) {
+                return apiReturn(ApiPlaneErrorCode.MissingParamsError("WorkLoadName or ExpectedVersion"));
+            }
+
             Object obj = k8sResourceCache.getResource(svm.getClusterId(), svmSpec.getWorkLoadType(), svm.getNamespace(), svmSpec.getWorkLoadName());
             if (obj == null) {
                 return apiReturn(ApiPlaneErrorCode.workLoadNotFound);
@@ -61,8 +68,33 @@ public class YxVersionManagerController extends BaseController {
                 return apiReturn(ApiPlaneErrorCode.workLoadNotInMesh);
             }
 
+            svmSpec.setIptablesDetail(null);
+            svmSpec.setIptablesParams(null);
+
         }
 
+        gatewayService.updateSVM(svm);
+        return apiReturn(ApiPlaneErrorCode.Success);
+    }
+
+    @RequestMapping(value = "/svm", params = "Action=UpdateIptables", method = RequestMethod.POST)
+    public String updateOrCreateSVMForIptables(@RequestBody SidecarVersionManagement svm) throws IOException {
+
+        if (!ResourceStoreFactory.listClusterId().contains(svm.getClusterId())) {
+            return apiReturn(ApiPlaneErrorCode.CanNotFound("ClusterId"));
+        }
+
+        for (SVMSpec svmSpec : svm.getWorkLoads()) {
+            if (!"LabelSelector".equals(svmSpec.getWorkLoadType())) {
+                return apiReturn(ApiPlaneErrorCode.ParameterError("WorkLoadType"));
+            }
+            if (svmSpec.getIptablesDetail() == null) {
+                return apiReturn(ApiPlaneErrorCode.MissingParamsError("IptablesDetail"));
+            }
+            String iptablesParams = SVMIptablesHelper.processIptablesConfigAndBuildParams(svmSpec.getIptablesConfig());
+            svmSpec.setIptablesParams(iptablesParams);
+            svmSpec.setIptablesDetail(svmSpec.getIptablesConfig().toString());
+        }
         gatewayService.updateSVM(svm);
         return apiReturn(ApiPlaneErrorCode.Success);
     }

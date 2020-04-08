@@ -30,7 +30,21 @@ public class VersionManagerOperator implements k8sResourceOperator<VersionManage
     private class SidecarVersionSpecEquals implements Equals<SidecarVersionSpec> {
         @Override
         public boolean apply(SidecarVersionSpec np, SidecarVersionSpec op) {
-            return Objects.equals(op.getSelector(), np.getSelector());
+            boolean isEqual = Objects.equals(op.getSelector(), np.getSelector());
+            if (isEqual) {
+                mergeToNewSidecarVersionSpec(np, op);
+            }
+            return isEqual;
+        }
+
+        private void mergeToNewSidecarVersionSpec(SidecarVersionSpec np, SidecarVersionSpec op) {
+            if (StringUtils.isEmpty(np.getIptablesParams()) && StringUtils.isEmpty(np.getIptablesDetail())) {
+                np.setIptablesParams(op.getIptablesParams());
+                np.setIptablesDetail(op.getIptablesDetail());
+            }
+            if (np.getExpectedVersion() == null) {
+                np.setExpectedVersion(op.getExpectedVersion());
+            }
         }
     }
 
@@ -110,7 +124,7 @@ public class VersionManagerOperator implements k8sResourceOperator<VersionManage
                 serviceSelector.setViaService(service);
                 target = serviceSelector;
                 break;
-            case "Labelselector" :
+            case "LabelSelector" :
                 System.out.println("查询类型暂时不支持");
                 return null;
             default :
