@@ -71,7 +71,7 @@ public class K8sConfigStore implements ConfigStore {
         return client.getObjectList(kind, namespace, labels);
     }
 
-    void supply(HasMetadata resource) {
+    protected void supply(HasMetadata resource) {
         if (isGlobalCrd(resource)) return;
 
         ObjectMeta metadata = resource.getMetadata();

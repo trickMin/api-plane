@@ -18,8 +18,6 @@ import com.netease.cloud.nsf.core.template.TemplateTranslator;
 import com.netease.cloud.nsf.meta.*;
 import com.netease.cloud.nsf.service.PluginService;
 import com.netease.cloud.nsf.util.Const;
-import com.netease.cloud.nsf.util.exception.ApiPlaneException;
-import com.netease.cloud.nsf.util.exception.ExceptionConst;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import me.snowdrop.istio.api.networking.v1alpha3.HTTPRoute;
 import me.snowdrop.istio.api.networking.v1alpha3.VirtualService;
@@ -43,12 +41,12 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
 
     private static final Logger logger = LoggerFactory.getLogger(IstioModelEngine.class);
 
-    IntegratedResourceOperator operator;
-    TemplateTranslator templateTranslator;
-    EditorContext editorContext;
-    ResourceManager resourceManager;
-    PluginService pluginService;
-    GlobalConfig globalConfig;
+    private IntegratedResourceOperator operator;
+    private TemplateTranslator templateTranslator;
+    private EditorContext editorContext;
+    private ResourceManager resourceManager;
+    private PluginService pluginService;
+    private GlobalConfig globalConfig;
 
     @Autowired
     public GatewayIstioModelEngine(IntegratedResourceOperator operator, TemplateTranslator templateTranslator, EditorContext editorContext,
@@ -66,9 +64,9 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
         this.neverNullRenderTwiceProcessor = new NeverReturnNullModelProcessor(this.renderTwiceModelProcessor, NEVER_NULL);
     }
 
-    DefaultModelProcessor defaultModelProcessor;
-    RenderTwiceModelProcessor renderTwiceModelProcessor;
-    NeverReturnNullModelProcessor neverNullRenderTwiceProcessor;
+    private DefaultModelProcessor defaultModelProcessor;
+    private RenderTwiceModelProcessor renderTwiceModelProcessor;
+    private NeverReturnNullModelProcessor neverNullRenderTwiceProcessor;
 
     @Value(value = "${http10:#{null}}")
     Boolean enableHttp10;
@@ -88,8 +86,6 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
     private static final String serviceServiceEntry = "gateway/service/serviceEntry";
     private static final String globalGatewayPlugin = "gateway/globalGatewayPlugin";
     private static final String gatewayPlugin = "gateway/gatewayPlugin";
-
-
 
     public List<K8sResourcePack> translate(API api) {
         return translate(api, false);

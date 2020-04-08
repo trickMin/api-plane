@@ -1,7 +1,6 @@
 package com.netease.cloud.nsf.core.servicemesh;
 
 import com.netease.cloud.nsf.core.AbstractConfigManagerSupport;
-import com.netease.cloud.nsf.core.gateway.service.impl.MultiK8sConfigStore;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.k8s.K8sResourcePack;
 import com.netease.cloud.nsf.core.k8s.operator.VersionManagerOperator;
@@ -65,9 +64,7 @@ public class K8sServiceMeshConfigManager extends AbstractConfigManagerSupport im
 
     @Override
     public void updateRateLimit(ServiceMeshRateLimit rateLimit) {
-
-        //TODO translate
-        List<K8sResourcePack> packs = null;
+        List<K8sResourcePack> packs = modelEngine.translate(rateLimit);
         update(multiK8sConfigStore, packs, modelEngine);
     }
 

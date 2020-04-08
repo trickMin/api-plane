@@ -31,7 +31,7 @@ public abstract class IstioModelEngine {
 
     private static final Logger logger = LoggerFactory.getLogger(IstioModelEngine.class);
 
-    IntegratedResourceOperator operator;
+    private IntegratedResourceOperator operator;
 
     @Autowired
     public IstioModelEngine(IntegratedResourceOperator operator) {
@@ -58,12 +58,12 @@ public abstract class IstioModelEngine {
         return operator.subtract(old, values.get(old.getKind()));
     }
 
-    public boolean isUseless(HasMetadata i) {
+    protected boolean isUseless(HasMetadata i) {
         return operator.isUseless(i);
     }
 
 
-    public HasMetadata str2HasMetadata(String str) {
+    protected HasMetadata str2HasMetadata(String str) {
         logger.info("raw resource: " + str);
         K8sResourceGenerator gen = K8sResourceGenerator.newInstance(str, ResourceType.YAML);
         K8sResourceEnum resourceEnum = K8sResourceEnum.get(gen.getKind());
@@ -71,19 +71,19 @@ public abstract class IstioModelEngine {
         return hmd;
     }
 
-    public List<K8sResourcePack> generateK8sPack(List<String> raws) {
+    protected List<K8sResourcePack> generateK8sPack(List<String> raws) {
         return generateK8sPack(raws, null, null, r -> r, this::str2HasMetadata, hsm -> hsm);
     }
 
-    public List<K8sResourcePack> generateK8sPack(List<String> raws, Merger merger, Subtracter subtracter, Function<String, HasMetadata> transFun) {
+    protected List<K8sResourcePack> generateK8sPack(List<String> raws, Merger merger, Subtracter subtracter, Function<String, HasMetadata> transFun) {
         return generateK8sPack(raws, merger, subtracter, r -> r, transFun, hsm -> hsm);
     }
 
-    public List<K8sResourcePack> generateK8sPack(List<String> raws, Function<String, String> preFun, Function<HasMetadata, HasMetadata> postFun) {
+    protected List<K8sResourcePack> generateK8sPack(List<String> raws, Function<String, String> preFun, Function<HasMetadata, HasMetadata> postFun) {
         return generateK8sPack(raws, null, null, preFun, this::str2HasMetadata, postFun);
     }
 
-    public List<K8sResourcePack> generateK8sPack(List<String> raws, Merger merger, Subtracter subtracter,
+    protected List<K8sResourcePack> generateK8sPack(List<String> raws, Merger merger, Subtracter subtracter,
                                                   Function<String, String> preFun, Function<String, HasMetadata> transFun,
                                                   Function<HasMetadata, HasMetadata> postFun) {
         if (CollectionUtils.isEmpty(raws)) {

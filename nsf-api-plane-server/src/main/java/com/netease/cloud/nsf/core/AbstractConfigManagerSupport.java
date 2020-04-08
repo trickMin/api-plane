@@ -20,7 +20,7 @@ public abstract class AbstractConfigManagerSupport implements ConfigManager{
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractConfigManagerSupport.class);
 
-    public void update(ConfigStore configStore, List<K8sResourcePack> resources, IstioModelEngine modelEngine) {
+    protected void update(ConfigStore configStore, List<K8sResourcePack> resources, IstioModelEngine modelEngine) {
         if (CollectionUtils.isEmpty(resources)) return;
 
         for (K8sResourcePack pack : resources) {
@@ -48,7 +48,7 @@ public abstract class AbstractConfigManagerSupport implements ConfigManager{
         }
     }
 
-    public void delete(List<K8sResourcePack> packs, Comparator<K8sResourcePack> compartor, Subtracter<HasMetadata> fun, ConfigStore configStore, IstioModelEngine modelEngine) {
+    protected void delete(List<K8sResourcePack> packs, Comparator<K8sResourcePack> compartor, Subtracter<HasMetadata> fun, ConfigStore configStore, IstioModelEngine modelEngine) {
         if (CollectionUtils.isEmpty(packs)) return;
         for (K8sResourcePack pack : packs) {
             HasMetadata resource = pack.getResource();

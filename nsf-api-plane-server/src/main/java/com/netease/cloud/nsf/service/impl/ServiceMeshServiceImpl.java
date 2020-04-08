@@ -10,7 +10,7 @@ import com.netease.cloud.nsf.cache.meta.ServiceDto;
 import com.netease.cloud.nsf.configuration.ApiPlaneConfig;
 import com.netease.cloud.nsf.configuration.MeshConfig;
 import com.netease.cloud.nsf.core.editor.ResourceType;
-import com.netease.cloud.nsf.core.gateway.service.impl.MultiK8sConfigStore;
+import com.netease.cloud.nsf.core.servicemesh.MultiK8sConfigStore;
 import com.netease.cloud.nsf.core.istio.PilotHttpClient;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.k8s.K8sResourceGenerator;
