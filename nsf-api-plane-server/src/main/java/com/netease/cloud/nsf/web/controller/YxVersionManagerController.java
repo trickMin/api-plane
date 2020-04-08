@@ -7,7 +7,7 @@ import com.netease.cloud.nsf.meta.PodStatus;
 import com.netease.cloud.nsf.meta.PodVersion;
 import com.netease.cloud.nsf.meta.SVMSpec;
 import com.netease.cloud.nsf.meta.SidecarVersionManagement;
-import com.netease.cloud.nsf.service.GatewayService;
+import com.netease.cloud.nsf.service.VersionManagerService;
 import com.netease.cloud.nsf.util.errorcode.ApiPlaneErrorCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 public class YxVersionManagerController extends BaseController {
 
     @Autowired
-    private GatewayService gatewayService;
+    private VersionManagerService versionManagerService;
 
     @Autowired
     private K8sResourceCache k8sResourceCache;
@@ -63,7 +63,7 @@ public class YxVersionManagerController extends BaseController {
 
         }
 
-        gatewayService.updateSVM(svm);
+        versionManagerService.updateSVM(svm);
         return apiReturn(ApiPlaneErrorCode.Success);
     }
 
@@ -74,7 +74,7 @@ public class YxVersionManagerController extends BaseController {
             return apiReturn(ApiPlaneErrorCode.CanNotFound("ClusterId"));
         }
 
-        List<PodStatus> list =  gatewayService.queryByPodNameList(podVersion);
+        List<PodStatus> list =  versionManagerService.queryByPodNameList(podVersion);
         if (list == null) {
             return apiReturn(ApiPlaneErrorCode.resourceNotFound);
         }
@@ -94,7 +94,7 @@ public class YxVersionManagerController extends BaseController {
         podVersion.setClusterId(podDTOList.get(0).getClusterId());
         podVersion.setNamespace(podDTOList.get(0).getNamespace());
 
-        List<PodStatus> list =  gatewayService.queryByPodNameList(podVersion);
+        List<PodStatus> list =  versionManagerService.queryByPodNameList(podVersion);
         if (CollectionUtils.isEmpty(list)) {
             return false;
         }

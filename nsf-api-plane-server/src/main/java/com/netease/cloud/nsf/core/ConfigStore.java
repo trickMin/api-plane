@@ -1,8 +1,7 @@
-package com.netease.cloud.nsf.core.gateway.service;
+package com.netease.cloud.nsf.core;
 
 
 import io.fabric8.kubernetes.api.model.HasMetadata;
-import me.snowdrop.istio.api.IstioResource;
 
 import java.util.List;
 import java.util.Map;

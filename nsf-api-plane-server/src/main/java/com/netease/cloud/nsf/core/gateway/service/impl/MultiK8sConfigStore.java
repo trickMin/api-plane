@@ -34,4 +34,14 @@ public class MultiK8sConfigStore extends K8sConfigStore {
     private KubernetesClient resolve(String clusterId) {
         return multiClient.k8sClient(clusterId);
     }
+
+    @Override
+    public void update(HasMetadata resource) {
+        supply(resource);
+        resolve(getDefaultClusterId()).createOrUpdate(resource, ResourceType.OBJECT);
+    }
+
+    private String getDefaultClusterId() {
+        return multiClient.DEFAULT_CLUSTER_NAME;
+    }
 }

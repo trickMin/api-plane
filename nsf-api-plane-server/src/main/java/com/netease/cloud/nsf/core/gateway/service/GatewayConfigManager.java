@@ -1,15 +1,13 @@
 package com.netease.cloud.nsf.core.gateway.service;
 
+import com.netease.cloud.nsf.core.ConfigManager;
 import com.netease.cloud.nsf.meta.*;
 import io.fabric8.kubernetes.api.model.HasMetadata;
-import me.snowdrop.istio.api.IstioResource;
-
-import java.util.List;
 
 /**
  *  API配置客户端，用于发送配置
  */
-public interface ConfigManager {
+public interface GatewayConfigManager extends ConfigManager {
 
     /**
      * 更新API
@@ -52,25 +50,6 @@ public interface ConfigManager {
      * @param pluginOrder
      */
     void deleteConfig(PluginOrder pluginOrder);
-
-    /**
-     * 更新sidecar版本
-     * @param svm
-     */
-    void updateConfig(SidecarVersionManagement svm);
-
-    /**
-     * 查询pod的sidecar版本
-     * @param podVersion
-     */
-    List<PodStatus> querySVMConfig(PodVersion podVersion);
-
-    /**
-     * 查询负载的期望版本
-     * @param workLoadType
-     * @param workLoadName
-     */
-    String querySVMExpectedVersion(String clusterId, String namespace, String workLoadType, String workLoadName);
 
     /**
      * 更新全局插件

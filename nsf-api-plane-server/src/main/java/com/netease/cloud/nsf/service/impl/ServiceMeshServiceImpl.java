@@ -19,8 +19,8 @@ import com.netease.cloud.nsf.core.k8s.MultiClusterK8sClient;
 import com.netease.cloud.nsf.meta.SVMSpec;
 import com.netease.cloud.nsf.meta.SidecarVersionManagement;
 import com.netease.cloud.nsf.meta.dto.ResourceWrapperDTO;
-import com.netease.cloud.nsf.service.GatewayService;
 import com.netease.cloud.nsf.service.ServiceMeshService;
+import com.netease.cloud.nsf.service.VersionManagerService;
 import com.netease.cloud.nsf.util.Const;
 import com.netease.cloud.nsf.util.RestTemplateClient;
 import com.netease.cloud.nsf.util.errorcode.ApiPlaneErrorCode;
@@ -81,7 +81,7 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
     KubernetesClient httpClient;
 
     @Autowired
-    GatewayService gatewayService;
+    VersionManagerService versionManagerService;
 
     @Autowired
     RestTemplateClient restTemplateClient;
@@ -319,7 +319,7 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
             svmSpec.setExpectedVersion(DEFAULT_SIDECAR_VERSION);
         }
         versionManagement.setWorkLoads(Arrays.asList(svmSpec));
-        gatewayService.updateSVM(versionManagement);
+        versionManagerService.updateSVM(versionManagement);
     }
 
     @Override

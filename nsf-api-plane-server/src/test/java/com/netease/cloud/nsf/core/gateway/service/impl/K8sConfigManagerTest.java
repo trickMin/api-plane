@@ -21,7 +21,7 @@ import static org.mockito.Mockito.when;
 public class K8sConfigManagerTest extends BaseTest {
 
     @Autowired
-    K8sConfigManager k8sConfigManager;
+    K8sGatewayConfigManager k8sConfigManager;
 
     @MockBean(name = "configStore")
     K8sConfigStore k8sConfigStore;

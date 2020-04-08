@@ -1,21 +1,17 @@
 package com.netease.cloud.nsf.core.gateway.service.impl;
 
 import com.google.common.collect.ImmutableMap;
+import com.netease.cloud.nsf.core.AbstractConfigManagerSupport;
 import com.netease.cloud.nsf.core.editor.PathExpressionEnum;
 import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
-import com.netease.cloud.nsf.core.gateway.IstioModelEngine;
-import com.netease.cloud.nsf.core.gateway.service.ConfigManager;
-import com.netease.cloud.nsf.core.gateway.service.ConfigStore;
-import com.netease.cloud.nsf.core.k8s.empty.EmptyResource;
+import com.netease.cloud.nsf.core.gateway.GatewayIstioModelEngine;
+import com.netease.cloud.nsf.core.gateway.service.GatewayConfigManager;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.k8s.K8sResourcePack;
-import com.netease.cloud.nsf.core.k8s.operator.VersionManagerOperator;
-import com.netease.cloud.nsf.core.k8s.operator.k8sResourceOperator;
 import com.netease.cloud.nsf.core.k8s.subtracter.ServiceEntryEndpointsSubtracter;
 import com.netease.cloud.nsf.meta.*;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
-import com.netease.cloud.nsf.util.exception.ExceptionConst;
 import com.netease.cloud.nsf.util.function.Subtracter;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
@@ -36,23 +32,18 @@ import java.util.stream.Collectors;
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/7/25
  **/
 @Component
-public class K8sConfigManager implements ConfigManager {
+public class K8sGatewayConfigManager extends AbstractConfigManagerSupport implements GatewayConfigManager {
 
-    private static final Logger logger = LoggerFactory.getLogger(K8sConfigManager.class);
+    private static final Logger logger = LoggerFactory.getLogger(K8sGatewayConfigManager.class);
 
-    private static final String VM_RESOURCE_NAME = "version-manager";
-
-    @Autowired
-    private IstioModelEngine modelEngine;
-
-    @Autowired
     private K8sConfigStore configStore;
+    private GatewayIstioModelEngine modelEngine;
 
     @Autowired
-    private MultiK8sConfigStore multiK8sConfigStore;
-
-    @Autowired
-    private List<k8sResourceOperator> operators;
+    public K8sGatewayConfigManager(GatewayIstioModelEngine modelEngine, K8sConfigStore k8sConfigStore) {
+        this.modelEngine = modelEngine;
+        this.configStore = k8sConfigStore;
+    }
 
     @Override
     public void updateConfig(API api) {
@@ -67,44 +58,7 @@ public class K8sConfigManager implements ConfigManager {
     }
 
     private void update(List<K8sResourcePack> resources) {
-        update(resources, null);
-    }
-
-    private boolean isDefault(String clusterId) {
-        if (StringUtils.isEmpty(clusterId) || clusterId.equals("default")) return true;
-        return false;
-    }
-
-    private void update(ConfigStore configStore, List<K8sResourcePack> resources) {
-        if (CollectionUtils.isEmpty(resources)) return;
-
-        for (K8sResourcePack pack : resources) {
-            HasMetadata latest = pack.getResource();
-            HasMetadata old = configStore.get(latest);
-            if (old != null) {
-                if (old.equals(latest)) continue;
-                HasMetadata merged;
-
-                // 若latest标识为emptyResource, 则进行subtract操作
-                if (latest instanceof EmptyResource && pack.hasSubtracter()) {
-                    merged = pack.getSubtracter().subtract(old);
-                } else if (pack.hasMerger()) {
-                    merged = pack.getMerger().merge(old, latest);
-                } else {
-                    merged = modelEngine.merge(old, latest);
-                }
-
-                if (merged != null) {
-                    configStore.update(merged);
-                }
-                continue;
-            }
-            configStore.update(latest);
-        }
-    }
-
-    private void update(List<K8sResourcePack> resources, String clusterId) {
-        update(isDefault(clusterId) ? configStore : multiK8sConfigStore, resources);
+        update(configStore, resources, modelEngine);
     }
 
     @Override
@@ -169,7 +123,7 @@ public class K8sConfigManager implements ConfigManager {
                 return r;
             }
         };
-        delete(resources, compareFun, deleteFun);
+        delete(resources, compareFun, deleteFun, configStore, modelEngine);
     }
 
     @Override
@@ -189,33 +143,6 @@ public class K8sConfigManager implements ConfigManager {
     public void deleteConfig(PluginOrder pluginOrder) {
         List<K8sResourcePack> resources = modelEngine.translate(pluginOrder);
         delete(resources, clearResource());
-    }
-
-    @Override
-    public void updateConfig(SidecarVersionManagement svm) {
-        List<K8sResourcePack> resources = modelEngine.translate(svm);
-        update(resources, svm.getClusterId());
-    }
-
-    @Override
-    public List<PodStatus> querySVMConfig(PodVersion podVersion) {
-        String clusterId = podVersion.getClusterId();
-        HasMetadata versionmanager = multiK8sConfigStore.get(K8sResourceEnum.VersionManager.name(), podVersion.getNamespace(), VM_RESOURCE_NAME, clusterId);
-        if (versionmanager == null) {
-            return null;
-        }
-        VersionManagerOperator ir = (VersionManagerOperator) resolve(versionmanager);
-        return ir.getPodVersion(podVersion, (VersionManager) versionmanager);
-    }
-
-    @Override
-    public String querySVMExpectedVersion(String clusterId, String namespace, String workLoadType, String workLoadName) {
-        HasMetadata versionmanager = multiK8sConfigStore.get(K8sResourceEnum.VersionManager.name(), namespace, VM_RESOURCE_NAME, clusterId);
-        if(versionmanager == null) {
-            return null;
-        }
-        VersionManagerOperator ir = (VersionManagerOperator)resolve(versionmanager);
-        return ir.getExpectedVersion((VersionManager)versionmanager, workLoadType, workLoadName);
     }
 
     @Override
@@ -279,47 +206,11 @@ public class K8sConfigManager implements ConfigManager {
             }
             return r;
         };
-
         delete(resources, deleteFun);
     }
 
     private void delete(List<K8sResourcePack> resources, Subtracter<HasMetadata> fun) {
-        delete(resources, (i1, i2) -> 0, fun);
-    }
-
-    private void delete(List<K8sResourcePack> packs, Comparator<K8sResourcePack> compartor, Subtracter<HasMetadata> fun) {
-        if (CollectionUtils.isEmpty(packs)) return;
-        for (K8sResourcePack pack : packs) {
-            HasMetadata resource = pack.getResource();
-            HasMetadata exist = configStore.get(resource);
-            if (exist != null) {
-                pack.setResource(exist);
-            }
-        }
-        packs.stream()
-                .sorted(compartor)
-                .map(p -> {
-                    HasMetadata resource = p.getResource();
-                    if (p.hasSubtracter()) {
-                        return p.getSubtracter().subtract(resource);
-                    }
-                    return fun.subtract(resource);
-                })
-                .filter(i -> i != null)
-                .forEach(r -> handle(r));
-    }
-
-    private void handle(HasMetadata i) {
-        if (modelEngine.isUseless(i)) {
-            try {
-                configStore.delete(i);
-            } catch (Exception e) {
-                //ignore error
-                logger.warn("", e);
-            }
-        } else {
-            configStore.update(i);
-        }
+        delete(resources, (i1, i2) -> 0, fun, configStore, modelEngine);
     }
 
     private Subtracter<HasMetadata> clearResource() {
@@ -327,14 +218,5 @@ public class K8sConfigManager implements ConfigManager {
             resource.setApiVersion(null);
             return resource;
         };
-    }
-
-    private k8sResourceOperator resolve(HasMetadata i) {
-        for (k8sResourceOperator op : operators) {
-            if (op.adapt(i.getKind())) {
-                return op;
-            }
-        }
-        throw new ApiPlaneException(ExceptionConst.UNSUPPORTED_RESOURCE_TYPE + ":" + i.getKind());
     }
 }

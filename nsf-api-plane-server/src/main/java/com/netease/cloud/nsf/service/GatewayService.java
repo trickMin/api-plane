@@ -45,10 +45,6 @@ public interface GatewayService {
 
     List<ServiceHealth> getServiceHealthList(String host);
 
-    void updateSVM(SidecarVersionManagement svm);
-
-    List<PodStatus> queryByPodNameList(PodVersion podVersion);
-
     void updateIstioGateway(PortalIstioGatewayDTO portalGateway);
 
     PortalIstioGatewayDTO getIstioGateway(String clusterName);

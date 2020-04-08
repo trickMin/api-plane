@@ -2,7 +2,7 @@ package com.netease.cloud.nsf.core.gateway.service.impl;
 
 import com.netease.cloud.nsf.core.GlobalConfig;
 import com.netease.cloud.nsf.core.editor.ResourceType;
-import com.netease.cloud.nsf.core.gateway.service.ConfigStore;
+import com.netease.cloud.nsf.core.ConfigStore;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.k8s.KubernetesClient;
 import io.fabric8.kubernetes.api.model.HasMetadata;
