@@ -40,7 +40,7 @@ public class K8sConfigManagerTest extends BaseTest {
 
         API api = buildAPI(list("gw1"), "apiName", list("host1"), list("/any"),
                 list("GET"), "svc",
-                list("{\"kind\":\"transformer\",\"headers\":[{\"key\":\"addHeaders\",\"text\":\"abc:{{headers[abc]}},def:{{headers[def]}}\",\"action\":\"Action_Default\"}], \"x_user_id\":\"abc\"}"),
+                list("{\"kind\":\"ianus-router\",\"rule\":[{\"name\":\"rewrite\",\"matcher\":[{\"source_type\":\"Header\",\"left_value\":\"plugin\",\"op\":\"=\",\"right_value\":\"rewrite\"}],\"action\":{\"action_type\":\"rewrite\",\"rewrite_regex\":\"/rewrite/{group1}/{group2}\",\"target\":\"/anything/{{group2}}/{{group1}}\"}}]}"),
                 "HTTP",
                 Arrays.asList(buildProxyService("www.163.com", "STATIC", 100, 80)),
                 UriMatch.EXACT);
@@ -53,7 +53,7 @@ public class K8sConfigManagerTest extends BaseTest {
 
         API api = buildAPI(list("gw1"), "apiName", list("host1"), list("/any"),
                 list("GET"), "svc",
-                list("{\"kind\":\"transformer\",\"headers\":[{\"key\":\"addHeaders\",\"text\":\"abc:{{headers[abc]}},def:{{headers[def]}}\",\"action\":\"Action_Default\"}], \"x_user_id\":\"abc\"}"),
+                list("{\"kind\":\"ianus-router\",\"rule\":[{\"name\":\"rewrite\",\"matcher\":[{\"source_type\":\"Header\",\"left_value\":\"plugin\",\"op\":\"=\",\"right_value\":\"rewrite\"}],\"action\":{\"action_type\":\"rewrite\",\"rewrite_regex\":\"/rewrite/{group1}/{group2}\",\"target\":\"/anything/{{group2}}/{{group1}}\"}}]}"),
                 "HTTP",
                 Arrays.asList(buildProxyService("www.163.com", "STATIC", 100, 80)),
                 UriMatch.EXACT);
