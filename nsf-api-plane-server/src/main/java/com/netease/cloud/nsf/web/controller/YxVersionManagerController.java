@@ -78,7 +78,7 @@ public class YxVersionManagerController extends BaseController {
     }
 
     @RequestMapping(value = "/svm", params = "Action=UpdateIptables", method = RequestMethod.POST)
-    public String updateOrCreateSVMForIptables(@RequestBody SidecarVersionManagement svm) throws IOException {
+    public String updateOrCreateSVMForIptables(@Valid @RequestBody SidecarVersionManagement svm) throws IOException {
 
         if (!ResourceStoreFactory.listClusterId().contains(svm.getClusterId())) {
             return apiReturn(ApiPlaneErrorCode.CanNotFound("ClusterId"));

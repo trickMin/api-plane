@@ -12,13 +12,13 @@ spec:
   sidecarVersionSpec:
 <#list t_version_manager_workloads! as w>
   - podsHash: none
-    <#if w.expectedVersion != null>
+    <#if w.expectedVersion?? >
     expectedVersion: ${w.expectedVersion}
     </#if>
-    <#if w.iptablesParams != null>
+    <#if w.iptablesParams?? >
       iptablesParams: ${w.iptablesParams}
     </#if>
-    <#if w.iptablesDetail != null>
+    <#if w.iptablesDetail?? >
       iptablesDetail: ${w.iptablesDetail}
     </#if>
     <#if w.workLoadType == "Deployment">
