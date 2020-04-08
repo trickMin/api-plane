@@ -26,6 +26,9 @@ release 1.1
 - 多租户支持
 - route插件rewrite子插件增加condition,兼容严选旧用法
 - route插件rewrite子插件将渲染配置迁移到ext字段，使用插件别名为com.netease.rewrite
+- 支持header、query匹配
+- 路由规则排序
+- vs中的api字段值改为服务名+api名，原先单纯为api名
 
 轻舟网关：
 - vs元数据增加
