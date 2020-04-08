@@ -16,10 +16,10 @@ spec:
     expectedVersion: ${w.expectedVersion}
     </#if>
     <#if w.iptablesParams?? >
-      iptablesParams: ${w.iptablesParams}
+    iptablesParams: ${w.iptablesParams}
     </#if>
     <#if w.iptablesDetail?? >
-      iptablesDetail: ${w.iptablesDetail}
+    iptablesDetail: ${w.iptablesDetail}
     </#if>
     <#if w.workLoadType == "Deployment">
     viaDeployment:
