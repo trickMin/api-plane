@@ -13,7 +13,6 @@ import io.fabric8.kubernetes.api.model.HasMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
@@ -26,7 +25,6 @@ import java.util.stream.Collectors;
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/7/17
  **/
-@Component
 public abstract class IstioModelEngine {
 
     private static final Logger logger = LoggerFactory.getLogger(IstioModelEngine.class);
