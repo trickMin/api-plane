@@ -1,5 +1,6 @@
 package com.netease.cloud.nsf.core.plugin.processor;
 
+import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.plugin.FragmentHolder;
@@ -58,7 +59,7 @@ public class RewriteProcessor extends AbstractSchemaProcessor implements SchemaP
         return holder;
     }
 
-    private void buildConditions(ResourceGenerator source, ResourceGenerator builder) {
+    private void buildConditions(PluginGenerator source, PluginGenerator builder) {
         if (!source.contain("$.conditions")) return;
         if (source.contain("$.conditions.headers")) {
             int itemCount = source.getValue("$.conditions.headers.length()", Integer.class);
