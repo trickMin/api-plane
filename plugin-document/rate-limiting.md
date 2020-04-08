@@ -126,6 +126,29 @@
   ]
 }
 ```
+```
+场景8：配置custom extractor，生效级别大于identifier_extractor(可以不配置identifier_extractor)
+{
+  "kind": "ianus-rate-limiting",
+  "limit_by_list": [
+  {
+    "pre_condition": [
+    {
+      "custom_extractor": "Header[plugin1]",
+      "operator": "present",
+      "invert": true
+    },
+    {
+      "custom_extractor": "Header[plugin2]",
+      "operator": "=",
+      "right_value": "ratelimit"
+    }
+    ],
+    "hour": 1
+  }
+  ]
+}
+```
 - 如果仅配置identifier_extractor没有配置pre_condition则表明是动态根据key的value进行限流
 - 限流可以配置多时间维度，支持的维度有:second，hour，minute，day
 - identifier_extractor仅支持Header[$header]格式，其他格式会报错
