@@ -18,13 +18,8 @@ public class YxVirtualServiceAPIDataHandler extends BaseVirtualServiceAPIDataHan
     }
 
     @Override
-    List<String> productHostList(API api) {
-        return ImmutableList.of("*");
-    }
-
-    @Override
     String getApiName(API api) {
-        return api.getService() + "-" + api.getApiName();
+        return api.getService() + "-" + api.getName();
     }
 
     @Override
