@@ -77,7 +77,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     private static final Logger log = LoggerFactory.getLogger(K8sResourceCache.class);
     private static final String UPDATE_RESOURCE_DURATION = "0 0/5 * * * *";
     private static int WORK_LOAD_CACHE_MAX_SIZE = 100;
-    private static int WORK_LOAD_CACHE_REFRESH_DURATION = 5;
+    private static int WORK_LOAD_CACHE_REFRESH_DURATION = 20;
     private LoadingCache<WorkLoadIndex, List<T>> workLoadByServiceCache = CacheBuilder.newBuilder()
             .maximumSize(WORK_LOAD_CACHE_MAX_SIZE)
             .expireAfterWrite(WORK_LOAD_CACHE_REFRESH_DURATION, TimeUnit.SECONDS)
@@ -305,7 +305,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     }
 
     @Override
-    public List<WorkLoadDTO<T>> getWorkLoadByServiceInfo(String projectId, String namespace, String serviceName, String clusterId) {
+    public List<WorkLoadDTO> getWorkLoadByServiceInfo(String projectId, String namespace, String serviceName, String clusterId) {
         OwnerReferenceSupportStore store = ResourceStoreFactory.getResourceStore(clusterId);
         List<T> serviceList = store.listByKindAndNamespace(Service.name(), namespace);
         for (T service : serviceList) {
@@ -360,7 +360,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
 
     @Override
     public List getAllWorkLoadByClusterId(String clusterId, String projectId) {
-        List<WorkLoadDTO<T>> workLoadList = new ArrayList<>();
+        List<WorkLoadDTO> workLoadList = new ArrayList<>();
         OwnerReferenceSupportStore store = ResourceStoreFactory.getResourceStore(clusterId);
         List<T> serviceList = store.listByKind(Service.name());
         // 如果存在projectId 则过滤掉不含项目id的service
@@ -373,9 +373,15 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         }
         for (T service : serviceList) {
             List<T> workLoadBySelector = getWorkLoadByServiceSelector((io.fabric8.kubernetes.api.model.Service)service,clusterId);
-            List<WorkLoadDTO<T>> workLoadDtoBySelector = workLoadBySelector.stream()
-                    .map(obj -> new WorkLoadDTO<>(obj, getServiceName(service), clusterId,
-                            getProjectCodeFromService(service), getEnvNameFromService(service)))
+            List<WorkLoadDTO> workLoadDtoBySelector = workLoadBySelector.stream()
+                    .map(obj -> {
+                        WorkLoadDTO workLoadDTO = new  WorkLoadDTO<>(obj, getServiceName(service), clusterId,
+                                getProjectCodeFromService(service), getEnvNameFromService(service));
+                        if (StringUtils.isEmpty(getLabelValueFromWorkLoad(workLoadDTO,meshConfig.getAppKey()))){
+                            workLoadDTO.setInMesh(false);
+                        }
+                        return workLoadDTO;
+                    })
                     .collect(Collectors.toList());
 
             workLoadList.addAll(workLoadDtoBySelector);
@@ -411,7 +417,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
 
     @Override
     public List getWorkLoadByServiceInfoAllClusterId(String projectId, String namespace, String serviceName) {
-        List<WorkLoadDTO<T>> workLoadDtoList = new ArrayList<>();
+        List<WorkLoadDTO> workLoadDtoList = new ArrayList<>();
         List<String> clusterIdList = ResourceStoreFactory.listClusterId();
         for (String clusterId : clusterIdList) {
             workLoadDtoList.addAll(getWorkLoadByServiceInfo(projectId, namespace, serviceName, clusterId));
@@ -502,7 +508,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         if (pod == null || pod.getMetadata() == null || pod.getMetadata().getLabels() == null) {
             return "";
         } else {
-            return Strings.nullToEmpty(pod.getMetadata().getLabels().get(meshConfig.getAppKey()));
+            return Strings.nullToEmpty(pod.getMetadata().getLabels().get(meshConfig.getSelectorAppKey()));
         }
     }
 
@@ -577,6 +583,26 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         }
 
         return workLoadDTOList;
+    }
+
+    @Override
+    public List<String> getSidecarVersionOnWorkLoad(String clusterId, String namespace, String kind, String name) {
+        List<PodDTO<T>> podByWorkLoadInfo = getPodDtoByWorkLoadInfo(clusterId, kind, namespace, name);
+        PodVersion queryVersion = new PodVersion();
+        queryVersion.setClusterId(clusterId);
+        queryVersion.setNamespace(namespace);
+        queryVersion.setPodNames(podByWorkLoadInfo
+                .stream()
+                .map(pod -> pod.getName())
+                .collect(Collectors.toList()));
+        List<PodStatus> podStatuses = gatewayService.queryByPodNameList(queryVersion);
+        if (CollectionUtils.isEmpty(podStatuses)) {
+            return new ArrayList<>();
+        }
+        Set<String> versionSet = podStatuses.stream().
+                map(podStatus -> podStatus.getCurrentVersion())
+                .collect(Collectors.toSet());
+        return new ArrayList<>(versionSet);
     }
 
     private List<ServiceDto> getServiceByProjectCodeAndClusterId(String projectCode, String clusterId) {

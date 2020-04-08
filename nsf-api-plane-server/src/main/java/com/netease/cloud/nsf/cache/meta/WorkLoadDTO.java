@@ -27,7 +27,7 @@ public class WorkLoadDTO<T extends HasMetadata> extends K8sResourceDTO {
 
     private boolean isInMesh;
 
-    private Map<String,String> labels;
+    private Map<String, String> labels;
 
     private Map<String, String> statusInfo = new HashMap<>();
 
@@ -36,14 +36,12 @@ public class WorkLoadDTO<T extends HasMetadata> extends K8sResourceDTO {
     private String lastOperationType;
 
 
-
-
-
     public WorkLoadDTO(T obj, String serviceName, String clusterId, String projectCode, String envName) {
         super(obj, clusterId);
         this.serviceDomain = serviceName;
         this.serviceName = serviceName;
         this.clusterId = clusterId;
+        this.setInMesh(IsInjected(obj));
         if (obj instanceof Deployment) {
             Deployment deployment = (Deployment) obj;
             DeploymentStatus status = deployment.getStatus();
@@ -60,14 +58,14 @@ public class WorkLoadDTO<T extends HasMetadata> extends K8sResourceDTO {
         }
         this.setProjectCode(projectCode);
         this.setEnvName(envName);
-        if (StringUtils.isEmpty(envName)){
+        if (StringUtils.isEmpty(envName)) {
             this.setEnvName(this.getNamespace());
         }
-        if (obj.getMetadata()!=null){
+        if (obj.getMetadata() != null) {
             this.labels = obj.getMetadata().getLabels();
         }
-        Map<String,String> annotation = obj.getMetadata().getAnnotations();
-        if (annotation != null){
+        Map<String, String> annotation = obj.getMetadata().getAnnotations();
+        if (annotation != null) {
             this.lastUpdateTime = annotation.get(Const.WORKLOAD_UPDATE_TIME_ANNOTATION);
             this.lastOperationType = annotation.get(Const.WORKLOAD_OPERATION_TYPE_ANNOTATION);
         }
@@ -169,5 +167,37 @@ public class WorkLoadDTO<T extends HasMetadata> extends K8sResourceDTO {
 
     public void setEnvName(String envName) {
         this.envName = envName;
+    }
+
+    private boolean IsInjected(T obj) {
+        String injectAnnotationValue = null;
+        try {
+            if (obj instanceof Deployment) {
+                Deployment deployment = (Deployment) obj;
+                injectAnnotationValue = deployment
+                        .getSpec()
+                        .getTemplate()
+                        .getMetadata()
+                        .getAnnotations()
+                        .get(Const.ISTIO_INJECT_ANNOTATION);
+            } else if (obj instanceof StatefulSet) {
+                StatefulSet statefulSet = (StatefulSet) obj;
+                injectAnnotationValue = statefulSet
+                        .getSpec()
+                        .getTemplate()
+                        .getMetadata()
+                        .getAnnotations()
+                        .get(Const.ISTIO_INJECT_ANNOTATION);
+
+            }
+            if (!StringUtils.isEmpty(injectAnnotationValue) && injectAnnotationValue.equals(Const.OPTION_TRUE)) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (Exception e) {
+            return false;
+        }
+
     }
 }

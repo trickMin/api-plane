@@ -127,9 +127,12 @@ public class PodDTO<T extends HasMetadata> extends K8sResourceDTO {
                         .setCurrState(cs.getState());
                 totalRestartCount += cs.getRestartCount();
             });
-
-            this.totalLimitCpu = String.format(LIMIT_CPU_FORMAT, this.totalLimitCpuValue);
-            this.totalLimitMemory = String.format(LIMIT_MEMORY_FORMAT, this.totalLimitMemoryValue);
+            if (this.totalLimitCpuValue > 0){
+                this.totalLimitCpu = String.format(LIMIT_CPU_FORMAT, this.totalLimitCpuValue);
+            }
+            if (this.totalLimitMemoryValue > 0){
+                this.totalLimitMemory = String.format(LIMIT_MEMORY_FORMAT, this.totalLimitMemoryValue);
+            }
             containerInfoList.addAll(containerInfoMap.values());
 
         }
@@ -250,7 +253,7 @@ public class PodDTO<T extends HasMetadata> extends K8sResourceDTO {
         }
     }
 
-    private boolean isInjected(Pod pod){
+    public static boolean isInjected(Pod pod){
         if (pod.getStatus() == null){
             return false;
         }
