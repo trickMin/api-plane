@@ -1,6 +1,6 @@
 package com.netease.cloud.nsf.core.plugin.processor;
 
-import com.netease.cloud.nsf.core.editor.ResourceGenerator;
+import com.netease.cloud.nsf.core.plugin.PluginGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.plugin.FragmentHolder;
@@ -33,16 +33,16 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
     public FragmentHolder process(String plugin, ServiceInfo serviceInfo) {
         //todo: XUser
         FragmentHolder holder = new FragmentHolder();
-        ResourceGenerator total = ResourceGenerator.newInstance(plugin, ResourceType.JSON, editorContext);
+        PluginGenerator total = PluginGenerator.newInstance(plugin, ResourceType.JSON, editorContext);
         String xUserId = getAndDeleteXUserId(total);
 
         List<Object> limits = total.getValue("$.limit_by_list");
 
-        ResourceGenerator rateLimitGen = ResourceGenerator.newInstance("{\"rate_limits\":[]}");
-        ResourceGenerator shareConfigGen = ResourceGenerator.newInstance("[{\"domain\":\"qingzhou\",\"descriptors\":[]}]");
+        PluginGenerator rateLimitGen = PluginGenerator.newInstance("{\"rate_limits\":[]}");
+        PluginGenerator shareConfigGen = PluginGenerator.newInstance("[{\"domain\":\"qingzhou\",\"descriptors\":[]}]");
 
         limits.forEach(limit -> {
-            ResourceGenerator rg = ResourceGenerator.newInstance(limit, ResourceType.OBJECT, editorContext);
+            PluginGenerator rg = PluginGenerator.newInstance(limit, ResourceType.OBJECT, editorContext);
             // 频控计算的不同维度，例如second, minute, hour, day(month, year暂时不支持)
             getUnits(rg).forEach((unit, duration) -> {
                 String descriptorId;
@@ -52,7 +52,7 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
                     descriptorId = UUID.randomUUID().toString();
                 }
                 String headerDescriptor = getHeaderDescriptor(serviceInfo, xUserId, descriptorId);
-                rateLimitGen.addJsonElement("$.ratelimit.rateLimits", createRateLimits(rg, serviceInfo, headerDescriptor, null));
+                rateLimitGen.addJsonElement("$.rate_limits", createRateLimits(rg, serviceInfo, headerDescriptor, null));
                 shareConfigGen.addJsonElement("$[0].descriptors", createShareConfig(rg, serviceInfo, headerDescriptor, unit, duration));
             });
         });
@@ -75,24 +75,27 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
         return holder;
     }
 
-    private String createRateLimits(ResourceGenerator rg, ServiceInfo serviceInfo, String headerDescriptor, String xUserId) {
-        ResourceGenerator vs = ResourceGenerator.newInstance("{\"stage\":0,\"actions\":[]}");
+    private String createRateLimits(PluginGenerator rg, ServiceInfo serviceInfo, String headerDescriptor, String xUserId) {
+        PluginGenerator vs = PluginGenerator.newInstance("{\"stage\":0,\"actions\":[]}");
 
         vs.addJsonElement("$.actions",
                 String.format("{\"header_value_match\":{\"headers\":[],\"descriptor_value\":\"%s\"}}", headerDescriptor));
         vs.addJsonElement("$.actions[0].header_value_match.headers",
-                String.format("{\"name\":\":authority\",\"regex_match\":\"%s\"}", serviceInfo.getHosts()));
+                String.format("{\"name\":\":authority\",\"regex_match\":\"%s\",\"invert_match\":false}", serviceInfo.getHosts()));
 
         int length = 0;
         if (rg.contain("$.pre_condition")) {
             length = rg.getValue("$.pre_condition.length()");
         }
         if (length != 0) {
-            String matchHeader = getMatchHeader(rg);
+            String matchHeader = getMatchHeader(rg, "", "$.identifier_extractor");
             for (int i = 0; i < length; i++) {
                 String operator = rg.getValue(String.format("$.pre_condition[%d].operator", i));
                 String rightValue = rg.getValue(String.format("$.pre_condition[%d].right_value", i));
                 boolean invertMatch = false;
+                if (rg.contain(String.format("$.pre_condition[%d].custom_extractor", i))) {
+                    matchHeader = getMatchHeader(rg, matchHeader, String.format("$.pre_condition[%d].custom_extractor", i));
+                }
                 if ("true".equalsIgnoreCase(rg.getValue(String.format("$.pre_condition[%d].invert", i), String.class))) {
                     invertMatch = true;
                 }
@@ -102,27 +105,27 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
                     case "≈":
                         expression = escapeBackSlash(rightValue);
                         vs.addJsonElement("$.actions[0].header_value_match.headers",
-                                String.format("{\"name\":\"%s\",\"regex_match\":\"%s\",\"invert_match\":\"%s\"}", matchHeader, expression, invertMatch));
+                                String.format("{\"name\":\"%s\",\"regex_match\":\"%s\",\"invert_match\":%s}", matchHeader, expression, invertMatch));
                         break;
                     case "!≈":
                         expression = String.format("((?!%s).)*", escapeBackSlash(rightValue));
                         vs.addJsonElement("$.actions[0].header_value_match.headers",
-                                String.format("{\"name\":\"%s\",\"regex_match\":\"%s\",\"invert_match\":\"%s\"}", matchHeader, expression, invertMatch));
+                                String.format("{\"name\":\"%s\",\"regex_match\":\"%s\",\"invert_match\":%s}", matchHeader, expression, invertMatch));
                         break;
                     case "=":
                         expression = String.format("%s", escapeExprSpecialWord(rightValue));
                         vs.addJsonElement("$.actions[0].header_value_match.headers",
-                                String.format("{\"name\":\"%s\",\"regex_match\":\"%s\",\"invert_match\":\"%s\"}", matchHeader, expression, invertMatch));
+                                String.format("{\"name\":\"%s\",\"regex_match\":\"%s\",\"invert_match\":%s}", matchHeader, expression, invertMatch));
                         break;
                     case "!=":
                         expression = String.format("((?!%s).)*", escapeExprSpecialWord(rightValue));
                         vs.addJsonElement("$.actions[0].header_value_match.headers",
-                                String.format("{\"name\":\"%s\",\"regex_match\":\"%s\",\"invert_match\":\"%s\"}", matchHeader, expression, invertMatch));
+                                String.format("{\"name\":\"%s\",\"regex_match\":\"%s\",\"invert_match\":%s}", matchHeader, expression, invertMatch));
                         break;
                     case "present":
                         //todo: envoy bug: presentMatch always true. Use invertMatch if need not present.
                         vs.addJsonElement("$.actions[0].header_value_match.headers",
-                                String.format("{\"name\":\"%s\",\"present_match\":true,\"invert_match\":\"%s\"}", matchHeader, invertMatch));
+                                String.format("{\"name\":\"%s\",\"present_match\":true,\"invert_match\":%s}", matchHeader, invertMatch));
                         break;
                     default:
                         throw new ApiPlaneException(String.format("Unsupported $.config.limit_by_list.pre_condition.operator: %s", operator));
@@ -130,30 +133,30 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
             }
         }
         if (length == 0 && rg.contain("$.identifier_extractor") && !StringUtils.isEmpty(rg.getValue("$.identifier_extractor", String.class))) {
-            String matchHeader = getMatchHeader(rg);
+            String matchHeader = getMatchHeader(rg, "", "$.identifier_extractor");
             String descriptorKey = String.format("WithoutValueHeader[%s]", matchHeader);
             vs.addJsonElement("$.actions", String.format("{\"request_headers\":{\"header_name\":\"%s\",\"descriptor_key\":\"%s\"}}", matchHeader, descriptorKey));
         }
         return vs.jsonString();
     }
 
-    private String createShareConfig(ResourceGenerator rg, ServiceInfo serviceInfo, String headerDescriptor, String unit, Long duration) {
-        ResourceGenerator shareConfig;
+    private String createShareConfig(PluginGenerator rg, ServiceInfo serviceInfo, String headerDescriptor, String unit, Long duration) {
+        PluginGenerator shareConfig;
         int length = 0;
         if (rg.contain("$.pre_condition")) {
             length = rg.getValue("$.pre_condition.length()");
         }
         if (length == 0 && rg.contain("$.identifier_extractor") && !StringUtils.isEmpty(rg.getValue("$.identifier_extractor", String.class))) {
-            String matchHeader = getMatchHeader(rg);
+            String matchHeader = getMatchHeader(rg, "", "$.identifier_extractor");
             String descriptorKey = String.format("WithoutValueHeader[%s]", matchHeader);
-            shareConfig = ResourceGenerator.newInstance(String.format("{\"key\":\"header_match\",\"value\":\"%s\",\"descriptors\":[{\"key\":\"%s\",\"rate_limit\":{\"unit\":\"%s\",\"requests_per_unit\":\"%d\"}}]}",
+            shareConfig = PluginGenerator.newInstance(String.format("{\"key\":\"header_match\",\"value\":\"%s\",\"descriptors\":[{\"key\":\"%s\",\"rate_limit\":{\"unit\":\"%s\",\"requests_per_unit\":\"%d\"}}]}",
                     headerDescriptor,
                     descriptorKey,
                     unit,
                     duration
             ));
         } else {
-            shareConfig = ResourceGenerator.newInstance(String.format("{\"key\":\"header_match\",\"value\":\"%s\",\"rate_limit\":{\"unit\":\"%s\",\"requests_per_unit\":%d}}",
+            shareConfig = PluginGenerator.newInstance(String.format("{\"key\":\"header_match\",\"value\":\"%s\",\"rate_limit\":{\"unit\":\"%s\",\"requests_per_unit\":%d}}",
                     headerDescriptor,
                     unit,
                     duration
@@ -162,21 +165,21 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
         return shareConfig.jsonString();
     }
 
-    private String getMatchHeader(ResourceGenerator rg) {
-        if (!rg.contain("$.identifier_extractor")) return "";
-        String extractor = rg.getValue("$.identifier_extractor");
+    private String getMatchHeader(PluginGenerator rg, String defaultVal, String path) {
+        if (!rg.contain(path)) return defaultVal;
+        String extractor = rg.getValue(path, String.class);
 
         String matchHeader;
         Matcher matcher = Pattern.compile("Header\\[(.*)\\]").matcher(extractor);
         if (matcher.find()) {
             matchHeader = matcher.group(1);
         } else {
-            throw new ApiPlaneException(String.format("Unsupported $.config.limit_by_list.identifier_extractor: %s", extractor));
+            throw new ApiPlaneException(String.format("Unsupported %s: %s", path, extractor));
         }
         return matchHeader;
     }
 
-    private Map<String, Long> getUnits(ResourceGenerator rg) {
+    private Map<String, Long> getUnits(PluginGenerator rg) {
         Map<String, Long> ret = new LinkedHashMap<>();
         String[][] map = new String[][]{
                 {"$.second", "SECOND"},
