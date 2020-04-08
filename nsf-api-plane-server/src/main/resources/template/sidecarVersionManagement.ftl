@@ -35,6 +35,9 @@ spec:
     </#if>
     <#if w.workLoadType == "LabelSelector">
     viaLabelSelector:
-      labels: ${w.workLoadName}
+      labels:
+      <#list w.labels?keys as key>
+        ${key}: ${w.labels[key]!}
+      </#list>
     </#if>
 </#list>
