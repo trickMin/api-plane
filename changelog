@@ -21,6 +21,7 @@ release 1.1
 - ratelimit插件配置由SharedConfig转移到ConfigMap
 - 发布api时，可以覆盖ratelimit configmap
 - 发布的dr只对当前的namespace可见
+- rewrite插件支持配置condition
 
 严选网关:
 - 多租户支持
