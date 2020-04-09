@@ -1,6 +1,6 @@
 package com.netease.cloud.nsf.service.impl;
 
-import com.netease.cloud.nsf.core.gateway.service.ConfigManager;
+import com.netease.cloud.nsf.core.gateway.service.GatewayConfigManager;
 import com.netease.cloud.nsf.core.gateway.service.ResourceManager;
 import com.netease.cloud.nsf.meta.*;
 import com.netease.cloud.nsf.meta.dto.*;
@@ -49,7 +49,7 @@ public class GatewayServiceImpl implements GatewayService {
     private ResourceManager resourceManager;
 
     @Autowired
-    private ConfigManager configManager;
+    private GatewayConfigManager configManager;
 
     @Override
     public void updateAPI(YxAPIDTO api) {
@@ -244,21 +244,6 @@ public class GatewayServiceImpl implements GatewayService {
     @Override
     public List<Gateway> getGatewayList() {
         return resourceManager.getGatewayList();
-    }
-
-    @Override
-    public void updateSVM(SidecarVersionManagement svm) {
-        configManager.updateConfig(svm);
-    }
-
-    @Override
-    public List<PodStatus> queryByPodNameList(PodVersion podVersion) {
-        return configManager.querySVMConfig(podVersion);
-    }
-
-    @Override
-    public IptablesConfig queryIptablesConfigByApp(String cluterId, String namespace, String appName) {
-        return configManager.queryIptablesConfig(cluterId, namespace, appName);
     }
 
     @Override

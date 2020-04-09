@@ -9,6 +9,7 @@ import com.netease.cloud.nsf.meta.PodStatus;
 import com.netease.cloud.nsf.meta.PodVersion;
 import com.netease.cloud.nsf.meta.SVMSpec;
 import com.netease.cloud.nsf.meta.SidecarVersionManagement;
+import com.netease.cloud.nsf.service.VersionManagerService;
 import com.netease.cloud.nsf.service.GatewayService;
 import com.netease.cloud.nsf.service.SVMIptablesHelper;
 import com.netease.cloud.nsf.util.errorcode.ApiPlaneErrorCode;
@@ -36,7 +37,7 @@ import java.util.stream.Collectors;
 public class YxVersionManagerController extends BaseController {
 
     @Autowired
-    private GatewayService gatewayService;
+    private VersionManagerService versionManagerService;
 
     @Autowired
     private K8sResourceCache k8sResourceCache;
@@ -74,7 +75,7 @@ public class YxVersionManagerController extends BaseController {
 
         }
 
-        gatewayService.updateSVM(svm);
+        versionManagerService.updateSVM(svm);
         return apiReturn(ApiPlaneErrorCode.Success);
     }
 
@@ -94,11 +95,11 @@ public class YxVersionManagerController extends BaseController {
         svmSpec.getLabels().put(meshConfig.getSelectorAppKey(), appName);
         svmSpec.setIptablesParams(SVMIptablesHelper.processIptablesConfigAndBuildParams(iptablesConfig));
         svmSpec.setIptablesDetail(iptablesConfig.toString());
-		SidecarVersionManagement svm = new SidecarVersionManagement();
-		svm.setClusterId(clusterId);
-		svm.setNamespace(namespace);
-		svm.setWorkLoads(Arrays.asList(svmSpec));
-        gatewayService.updateSVM(svm);
+        SidecarVersionManagement svm = new SidecarVersionManagement();
+        svm.setClusterId(clusterId);
+        svm.setNamespace(namespace);
+        svm.setWorkLoads(Arrays.asList(svmSpec));
+        versionManagerService.updateSVM(svm);
         return apiReturn(ApiPlaneErrorCode.Success);
     }
 
@@ -106,7 +107,7 @@ public class YxVersionManagerController extends BaseController {
     public IptablesConfig updateOrCreateSVMForIptables(@RequestParam(name = "ClusterId") String clusterId,
                                                        @RequestParam(name = "Namespace") String namespace,
                                                        @RequestParam(name = "AppName") String appName) {
-        return gatewayService.queryIptablesConfigByApp(clusterId, namespace, appName);
+        return versionManagerService.queryIptablesConfigByApp(clusterId, namespace, appName);
     }
 
     @RequestMapping(value = "/svm", params = "Action=QueryByPodNameList", method = RequestMethod.POST)
@@ -116,7 +117,7 @@ public class YxVersionManagerController extends BaseController {
             return apiReturn(ApiPlaneErrorCode.CanNotFound("ClusterId"));
         }
 
-        List<PodStatus> list =  gatewayService.queryByPodNameList(podVersion);
+        List<PodStatus> list =  versionManagerService.queryByPodNameList(podVersion);
         if (list == null) {
             return apiReturn(ApiPlaneErrorCode.resourceNotFound);
         }
@@ -136,7 +137,7 @@ public class YxVersionManagerController extends BaseController {
         podVersion.setClusterId(podDTOList.get(0).getClusterId());
         podVersion.setNamespace(podDTOList.get(0).getNamespace());
 
-        List<PodStatus> list =  gatewayService.queryByPodNameList(podVersion);
+        List<PodStatus> list =  versionManagerService.queryByPodNameList(podVersion);
         if (CollectionUtils.isEmpty(list)) {
             return false;
         }

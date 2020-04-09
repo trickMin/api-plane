@@ -3,7 +3,6 @@ package com.netease.cloud.nsf.core.k8s.operator;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
 import io.fabric8.kubernetes.api.model.HasMetadata;
-import me.snowdrop.istio.api.IstioResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -50,7 +49,7 @@ public class IntegratedResourceOperator {
         return resolve(i).isUseless(i);
     }
 
-    private k8sResourceOperator resolve(HasMetadata i) {
+    public k8sResourceOperator resolve(HasMetadata i) {
         for (k8sResourceOperator op : operators) {
             if (op.adapt(i.getKind())) {
                 return op;

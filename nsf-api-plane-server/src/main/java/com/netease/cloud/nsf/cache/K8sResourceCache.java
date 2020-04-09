@@ -15,16 +15,14 @@ import com.netease.cloud.nsf.core.k8s.KubernetesClient;
 import com.netease.cloud.nsf.core.k8s.MultiClusterK8sClient;
 import com.netease.cloud.nsf.meta.PodStatus;
 import com.netease.cloud.nsf.meta.PodVersion;
-import com.netease.cloud.nsf.service.GatewayService;
 import com.netease.cloud.nsf.service.ServiceMeshService;
+import com.netease.cloud.nsf.service.VersionManagerService;
 import com.netease.cloud.nsf.util.Const;
 import com.netease.cloud.nsf.util.RestTemplateClient;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
-import io.fabric8.kubernetes.api.model.EndpointAddress;
 import io.fabric8.kubernetes.api.model.Endpoints;
-import io.fabric8.kubernetes.api.model.HasMetadata;
-import io.fabric8.kubernetes.api.model.ObjectReference;
 import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.apiextensions.CustomResourceDefinition;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import me.snowdrop.istio.api.networking.v1alpha3.DoneableMixerUrlPattern;
@@ -62,7 +60,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     ApiPlaneConfig config;
 
     @Autowired
-    GatewayService gatewayService;
+    VersionManagerService versionManagerService;
 
     @Autowired
     ServiceMeshService serviceMeshService;
@@ -595,7 +593,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                 .stream()
                 .map(pod -> pod.getName())
                 .collect(Collectors.toList()));
-        List<PodStatus> podStatuses = gatewayService.queryByPodNameList(queryVersion);
+        List<PodStatus> podStatuses = versionManagerService.queryByPodNameList(queryVersion);
         if (CollectionUtils.isEmpty(podStatuses)) {
             return new ArrayList<>();
         }
@@ -631,7 +629,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         queryVersion.setClusterId(podDTO.getClusterId());
         queryVersion.setNamespace(podDTO.getNamespace());
         queryVersion.setPodNames(Arrays.asList(podDTO.getName()));
-        List<PodStatus> podStatuses = gatewayService.queryByPodNameList(queryVersion);
+        List<PodStatus> podStatuses = versionManagerService.queryByPodNameList(queryVersion);
         if (CollectionUtils.isEmpty(podStatuses)) {
             podDTO.setSidecarContainerStatus(Const.SIDECAR_CONTAINER_ERROR);
             if (podDTO.isInjected()){
@@ -670,7 +668,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                 .stream()
                 .map(pod -> pod.getName())
                 .collect(Collectors.toList()));
-        List<PodStatus> podStatuses = gatewayService.queryByPodNameList(queryVersion);
+        List<PodStatus> podStatuses = versionManagerService.queryByPodNameList(queryVersion);
         if (CollectionUtils.isEmpty(podStatuses)) {
             return workLoadDTO;
         }
