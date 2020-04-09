@@ -28,10 +28,13 @@ public class RewriteProcessor extends AbstractSchemaProcessor implements SchemaP
     public FragmentHolder process(String plugin, ServiceInfo serviceInfo) {
         PluginGenerator builder = PluginGenerator.newInstance("{}", ResourceType.JSON, editorContext);
         PluginGenerator source = PluginGenerator.newInstance(plugin);
-        Matcher matcher = Pattern.compile("\\$\\d").matcher(source.getValue("$.action.target"));
+        Matcher matcher = Pattern.compile("\\$(\\d)").matcher(source.getValue("$.action.target"));
         int regexCount = 0;
         while (matcher.find()) {
-            regexCount++;
+            int group = Integer.parseInt(matcher.group(1));
+            if(group > regexCount){
+                regexCount = group;
+            }
         }
 
         String original = source.getValue("$.action.rewrite_regex");
