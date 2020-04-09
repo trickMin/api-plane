@@ -209,6 +209,16 @@ public class K8sConfigManager implements ConfigManager {
     }
 
     @Override
+    public IptablesConfig queryIptablesConfig(String clusterId, String namespace, String appName) {
+        HasMetadata versionmanager = multiK8sConfigStore.get(K8sResourceEnum.VersionManager.name(), namespace, VM_RESOURCE_NAME, clusterId);
+        if (versionmanager == null) {
+            return null;
+        }
+        VersionManagerOperator ir = (VersionManagerOperator) resolve(versionmanager);
+        return ir.getIptablesConfigOfApp((VersionManager) versionmanager, appName);
+    }
+
+    @Override
     public String querySVMExpectedVersion(String clusterId, String namespace, String workLoadType, String workLoadName) {
         HasMetadata versionmanager = multiK8sConfigStore.get(K8sResourceEnum.VersionManager.name(), namespace, VM_RESOURCE_NAME, clusterId);
         if(versionmanager == null) {

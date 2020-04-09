@@ -19,7 +19,7 @@ spec:
     iptablesParams: ${w.iptablesParams}
     </#if>
     <#if w.iptablesDetail?? >
-    iptablesDetail: ${w.iptablesDetail}
+    iptablesDetail: '${w.iptablesDetail}'
     </#if>
     <#if w.workLoadType == "Deployment">
     viaDeployment:

@@ -1,8 +1,15 @@
 package com.netease.cloud.nsf.core.gateway.service;
 
-import com.netease.cloud.nsf.meta.*;
+import com.netease.cloud.nsf.meta.API;
+import com.netease.cloud.nsf.meta.GlobalPlugin;
+import com.netease.cloud.nsf.meta.IptablesConfig;
+import com.netease.cloud.nsf.meta.IstioGateway;
+import com.netease.cloud.nsf.meta.PluginOrder;
+import com.netease.cloud.nsf.meta.PodStatus;
+import com.netease.cloud.nsf.meta.PodVersion;
+import com.netease.cloud.nsf.meta.Service;
+import com.netease.cloud.nsf.meta.SidecarVersionManagement;
 import io.fabric8.kubernetes.api.model.HasMetadata;
-import me.snowdrop.istio.api.IstioResource;
 
 import java.util.List;
 
@@ -64,6 +71,8 @@ public interface ConfigManager {
      * @param podVersion
      */
     List<PodStatus> querySVMConfig(PodVersion podVersion);
+
+    IptablesConfig queryIptablesConfig(String clusterId, String namespace, String appName);
 
     /**
      * 查询负载的期望版本

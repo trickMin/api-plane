@@ -15,9 +15,11 @@ public class SVMSpec {
     private String workLoadType;
 
     @JsonProperty(value = "WorkLoadName")
+    @NotEmpty(message = "workLoadName")
     private String workLoadName;
 
     @JsonProperty(value = "ExpectedVersion")
+    @NotEmpty(message = "expectedVersion")
     private String expectedVersion;
 
     @JsonProperty(value = "IptablesParams")

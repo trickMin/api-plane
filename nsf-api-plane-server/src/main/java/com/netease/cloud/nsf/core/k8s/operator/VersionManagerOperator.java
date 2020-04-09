@@ -1,10 +1,13 @@
 package com.netease.cloud.nsf.core.k8s.operator;
 
+import com.netease.cloud.nsf.configuration.MeshConfig;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
+import com.netease.cloud.nsf.meta.IptablesConfig;
 import com.netease.cloud.nsf.meta.PodStatus;
 import com.netease.cloud.nsf.meta.PodVersion;
 import com.netease.cloud.nsf.util.function.Equals;
 import me.snowdrop.istio.api.networking.v1alpha3.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -16,6 +19,10 @@ import java.util.Objects;
 
 @Component
 public class VersionManagerOperator implements k8sResourceOperator<VersionManager> {
+
+    @Autowired
+    private MeshConfig meshConfig;
+
     @Override
     public VersionManager merge(VersionManager old, VersionManager fresh) {
         VersionManager versionManager = new VersionManagerBuilder(old).build();
@@ -96,6 +103,26 @@ public class VersionManagerOperator implements k8sResourceOperator<VersionManage
             }
         }
         return resultList;
+    }
+
+    public IptablesConfig getIptablesConfigOfApp(VersionManager vm, String appName) {
+        List<SidecarVersionSpec> specs = vm.getSpec().getSidecarVersionSpec();
+        if (specs == null || appName == null) {
+            return null;
+        }
+        return specs.stream()
+            .filter(spec -> {
+                if (!(spec.getSelector() instanceof ViaLabelSelectorSelector)) {
+                    return false;
+                }
+                ViaLabelSelectorSelector selector = (ViaLabelSelectorSelector) spec.getSelector();
+                return selector.getViaLabelSelector() != null &&
+                    selector.getViaLabelSelector().getLabels() != null &&
+                    appName.equals(selector.getViaLabelSelector().getLabels().get(meshConfig.getSelectorAppKey()));
+            })
+            .map(spec -> IptablesConfig.readFromJson(spec.getIptablesDetail()))
+            .findAny()
+            .orElse(null);
     }
 
     public String getExpectedVersion (VersionManager versionmanager, String workLoadType, String workLoadName ) {

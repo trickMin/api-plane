@@ -1,5 +1,8 @@
 package com.netease.cloud.nsf.meta;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -8,6 +11,7 @@ import java.util.stream.Collectors;
  */
 public class IptablesConfig {
 
+	private static final ObjectMapper MAPPER = new ObjectMapper();
 	private boolean enableOutbound;
 	private List<String> outboundIps;
 	private List<String> excludeOutboundIps;
@@ -110,4 +114,29 @@ public class IptablesConfig {
 	private String asJson(String obj) {
 		return String.format("\"%s\"", obj);
 	}
+
+	public static IptablesConfig readFromJson(String json) {
+		if (json == null) {
+			return null;
+		}
+		try {
+			IptablesConfig result = MAPPER.readValue(json, IptablesConfig.class);
+			result.setOutboundPorts(convertPorts(result.getOutboundPorts()));
+			result.setInboundPorts(convertPorts(result.getInboundPorts()));
+			return result;
+		} catch (IOException e) {
+			return null;
+		}
+	}
+
+	private static List<String> convertPorts(List<String> ports) {
+		if (ports == null) {
+			return null;
+		} else {
+			return ports.stream()
+				.map(p -> p.replaceAll(":", "-"))
+				.collect(Collectors.toList());
+		}
+	}
+
 }

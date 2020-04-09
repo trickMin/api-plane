@@ -257,6 +257,11 @@ public class GatewayServiceImpl implements GatewayService {
     }
 
     @Override
+    public IptablesConfig queryIptablesConfigByApp(String cluterId, String namespace, String appName) {
+        return configManager.queryIptablesConfig(cluterId, namespace, appName);
+    }
+
+    @Override
     public void updateGlobalPlugins(GlobalPluginDTO globalPluginDTO) {
         configManager.updateConfig(Trans.globalPluginsDTO2GlobalPlugins(globalPluginDTO));
 

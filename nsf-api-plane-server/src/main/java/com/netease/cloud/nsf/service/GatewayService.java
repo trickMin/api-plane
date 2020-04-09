@@ -53,6 +53,8 @@ public interface GatewayService {
 
     PortalIstioGatewayDTO getIstioGateway(String clusterName);
 
+    IptablesConfig queryIptablesConfigByApp(String cluterId, String namespace, String appName);
+
     void updateGlobalPlugins(GlobalPluginDTO globalPluginsDTO);
 
     void deleteGlobalPlugins(GlobalPluginsDeleteDTO globalPluginsDeleteDTO);
