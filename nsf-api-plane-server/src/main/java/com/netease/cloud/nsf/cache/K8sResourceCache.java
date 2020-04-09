@@ -593,7 +593,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                 .stream()
                 .map(pod -> pod.getName())
                 .collect(Collectors.toList()));
-        List<PodStatus> podStatuses = gatewayService.queryByPodNameList(queryVersion);
+        List<PodStatus> podStatuses = versionManagerService.queryByPodNameList(queryVersion);
         if (CollectionUtils.isEmpty(podStatuses)) {
             return new ArrayList<>();
         }
