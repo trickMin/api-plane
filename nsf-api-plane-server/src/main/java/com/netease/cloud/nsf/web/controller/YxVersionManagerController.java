@@ -3,20 +3,26 @@ package com.netease.cloud.nsf.web.controller;
 import com.netease.cloud.nsf.cache.K8sResourceCache;
 import com.netease.cloud.nsf.cache.ResourceStoreFactory;
 import com.netease.cloud.nsf.cache.meta.PodDTO;
+import com.netease.cloud.nsf.configuration.MeshConfig;
+import com.netease.cloud.nsf.meta.IptablesConfig;
 import com.netease.cloud.nsf.meta.PodStatus;
 import com.netease.cloud.nsf.meta.PodVersion;
 import com.netease.cloud.nsf.meta.SVMSpec;
 import com.netease.cloud.nsf.meta.SidecarVersionManagement;
 import com.netease.cloud.nsf.service.VersionManagerService;
+import com.netease.cloud.nsf.service.GatewayService;
+import com.netease.cloud.nsf.service.SVMIptablesHelper;
 import com.netease.cloud.nsf.util.errorcode.ApiPlaneErrorCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +41,9 @@ public class YxVersionManagerController extends BaseController {
 
     @Autowired
     private K8sResourceCache k8sResourceCache;
+
+    @Autowired
+    private MeshConfig meshConfig;
 
     @RequestMapping(value = "/svm", params = "Action=UpdateSVM", method = RequestMethod.POST)
     public String updateOrCreateSVM(@RequestBody @Valid SidecarVersionManagement svm) {
@@ -61,10 +70,44 @@ public class YxVersionManagerController extends BaseController {
                 return apiReturn(ApiPlaneErrorCode.workLoadNotInMesh);
             }
 
+            svmSpec.setIptablesDetail(null);
+            svmSpec.setIptablesParams(null);
+
         }
 
         versionManagerService.updateSVM(svm);
         return apiReturn(ApiPlaneErrorCode.Success);
+    }
+
+    @RequestMapping(value = "/svm", params = "Action=UpdateIptables", method = RequestMethod.POST)
+    public String updateOrCreateSVMForIptables(@RequestBody IptablesConfig iptablesConfig,
+                                               @RequestParam(name = "ClusterId") String clusterId,
+                                               @RequestParam(name = "Namespace") String namespace,
+                                               @RequestParam(name = "AppName") String appName) {
+
+        if (!ResourceStoreFactory.listClusterId().contains(clusterId)) {
+            return apiReturn(ApiPlaneErrorCode.CanNotFound("ClusterId"));
+        }
+
+        SVMSpec svmSpec = new SVMSpec();
+        svmSpec.setWorkLoadType("LabelSelector");
+        svmSpec.setLabels(new HashMap<>());
+        svmSpec.getLabels().put(meshConfig.getSelectorAppKey(), appName);
+        svmSpec.setIptablesParams(SVMIptablesHelper.processIptablesConfigAndBuildParams(iptablesConfig));
+        svmSpec.setIptablesDetail(iptablesConfig.toString());
+        SidecarVersionManagement svm = new SidecarVersionManagement();
+        svm.setClusterId(clusterId);
+        svm.setNamespace(namespace);
+        svm.setWorkLoads(Arrays.asList(svmSpec));
+        versionManagerService.updateSVM(svm);
+        return apiReturn(ApiPlaneErrorCode.Success);
+    }
+
+    @RequestMapping(value = "/svm", params = "Action=GetIptables", method = RequestMethod.GET)
+    public IptablesConfig updateOrCreateSVMForIptables(@RequestParam(name = "ClusterId") String clusterId,
+                                                       @RequestParam(name = "Namespace") String namespace,
+                                                       @RequestParam(name = "AppName") String appName) {
+        return versionManagerService.queryIptablesConfigByApp(clusterId, namespace, appName);
     }
 
     @RequestMapping(value = "/svm", params = "Action=QueryByPodNameList", method = RequestMethod.POST)

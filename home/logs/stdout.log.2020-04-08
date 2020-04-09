@@ -1,0 +1,1431 @@
+2020-04-08 20:07:13.815 [main]-[INFO ]  [INFO] [com.netease.cloud.nsf.ApiPlaneApplication:48] Starting ApiPlaneApplication on HIH-D-13743 with PID 7020 (C:\Users\chenjiahan\git\nsf-api-plane\nsf-api-plane-server\target\classes started by chenjiahan in C:\Users\chenjiahan\git\nsf-api-plane)
+2020-04-08 20:07:13.818 [main]-[INFO ]  [INFO] [com.netease.cloud.nsf.ApiPlaneApplication:597] The following profiles are active: gw-qz
+2020-04-08 20:07:13.869 [main]-[INFO ]  [INFO] [org.springframework.boot.context.embedded.AnnotationConfigEmbeddedWebApplicationContext:583] Refreshing org.springframework.boot.context.embedded.AnnotationConfigEmbeddedWebApplicationContext@b83a9be: startup date [Wed Apr 08 20:07:13 CST 2020]; root of context hierarchy
+2020-04-08 20:07:14.035 [background-preinit]-[INFO ]  [INFO] [org.hibernate.validator.internal.util.Version:30] HV000001: Hibernate Validator 5.3.5.Final
+2020-04-08 20:07:14.089 [main]-[WARN ]  [WARN] [org.springframework.boot.context.embedded.AnnotationConfigEmbeddedWebApplicationContext:551] Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanDefinitionStoreException: Failed to parse configuration class [com.netease.cloud.nsf.ApiPlaneApplication]; nested exception is java.io.FileNotFoundException: class path resource [gw-qz/config.properties] cannot be opened because it does not exist
+2020-04-08 20:07:14.091 [main]-[ERROR]  [ERROR] [org.springframework.beans.factory.support.DefaultListableBeanFactory:581] Destroy method on bean with name 'org.springframework.boot.autoconfigure.internalCachingMetadataReaderFactory' threw an exception
+java.lang.IllegalStateException: ApplicationEventMulticaster not initialized - call 'refresh' before multicasting events via the context: org.springframework.boot.context.embedded.AnnotationConfigEmbeddedWebApplicationContext@b83a9be: startup date [Wed Apr 08 20:07:13 CST 2020]; root of context hierarchy
+	at org.springframework.context.support.AbstractApplicationContext.getApplicationEventMulticaster(AbstractApplicationContext.java:414)
+	at org.springframework.context.support.ApplicationListenerDetector.postProcessBeforeDestruction(ApplicationListenerDetector.java:97)
+	at org.springframework.beans.factory.support.DisposableBeanAdapter.destroy(DisposableBeanAdapter.java:253)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.destroyBean(DefaultSingletonBeanRegistry.java:578)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.destroySingleton(DefaultSingletonBeanRegistry.java:554)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.destroySingleton(DefaultListableBeanFactory.java:961)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.destroySingletons(DefaultSingletonBeanRegistry.java:523)
+	at org.springframework.beans.factory.support.FactoryBeanRegistrySupport.destroySingletons(FactoryBeanRegistrySupport.java:230)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.destroySingletons(DefaultListableBeanFactory.java:968)
+	at org.springframework.context.support.AbstractApplicationContext.destroyBeans(AbstractApplicationContext.java:1030)
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:556)
+	at org.springframework.boot.context.embedded.EmbeddedWebApplicationContext.refresh(EmbeddedWebApplicationContext.java:122)
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:693)
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:360)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:303)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1118)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1107)
+	at com.netease.cloud.nsf.ApiPlaneApplication.main(ApiPlaneApplication.java:24)
+2020-04-08 20:07:14.188 [main]-[ERROR]  [ERROR] [org.springframework.boot.SpringApplication:771] Application startup failed
+org.springframework.beans.factory.BeanDefinitionStoreException: Failed to parse configuration class [com.netease.cloud.nsf.ApiPlaneApplication]; nested exception is java.io.FileNotFoundException: class path resource [gw-qz/config.properties] cannot be opened because it does not exist
+	at org.springframework.context.annotation.ConfigurationClassParser.parse(ConfigurationClassParser.java:181)
+	at org.springframework.context.annotation.ConfigurationClassPostProcessor.processConfigBeanDefinitions(ConfigurationClassPostProcessor.java:308)
+	at org.springframework.context.annotation.ConfigurationClassPostProcessor.postProcessBeanDefinitionRegistry(ConfigurationClassPostProcessor.java:228)
+	at org.springframework.context.support.PostProcessorRegistrationDelegate.invokeBeanDefinitionRegistryPostProcessors(PostProcessorRegistrationDelegate.java:272)
+	at org.springframework.context.support.PostProcessorRegistrationDelegate.invokeBeanFactoryPostProcessors(PostProcessorRegistrationDelegate.java:92)
+	at org.springframework.context.support.AbstractApplicationContext.invokeBeanFactoryPostProcessors(AbstractApplicationContext.java:687)
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:525)
+	at org.springframework.boot.context.embedded.EmbeddedWebApplicationContext.refresh(EmbeddedWebApplicationContext.java:122)
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:693)
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:360)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:303)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1118)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1107)
+	at com.netease.cloud.nsf.ApiPlaneApplication.main(ApiPlaneApplication.java:24)
+Caused by: java.io.FileNotFoundException: class path resource [gw-qz/config.properties] cannot be opened because it does not exist
+	at org.springframework.core.io.ClassPathResource.getInputStream(ClassPathResource.java:172)
+	at org.springframework.core.io.support.EncodedResource.getInputStream(EncodedResource.java:154)
+	at org.springframework.core.io.support.PropertiesLoaderUtils.fillProperties(PropertiesLoaderUtils.java:98)
+	at org.springframework.core.io.support.PropertiesLoaderUtils.fillProperties(PropertiesLoaderUtils.java:72)
+	at org.springframework.core.io.support.PropertiesLoaderUtils.loadProperties(PropertiesLoaderUtils.java:58)
+	at org.springframework.core.io.support.ResourcePropertySource.<init>(ResourcePropertySource.java:65)
+	at org.springframework.core.io.support.DefaultPropertySourceFactory.createPropertySource(DefaultPropertySourceFactory.java:36)
+	at org.springframework.context.annotation.ConfigurationClassParser.processPropertySource(ConfigurationClassParser.java:440)
+	at org.springframework.context.annotation.ConfigurationClassParser.doProcessConfigurationClass(ConfigurationClassParser.java:271)
+	at org.springframework.context.annotation.ConfigurationClassParser.processConfigurationClass(ConfigurationClassParser.java:245)
+	at org.springframework.context.annotation.ConfigurationClassParser.parse(ConfigurationClassParser.java:198)
+	at org.springframework.context.annotation.ConfigurationClassParser.parse(ConfigurationClassParser.java:167)
+	... 13 common frames omitted
+2020-04-08 20:08:16.828 [main]-[INFO ]  [INFO] [com.netease.cloud.nsf.ApiPlaneApplication:48] Starting ApiPlaneApplication on HIH-D-13743 with PID 19932 (C:\Users\chenjiahan\git\nsf-api-plane\nsf-api-plane-server\target\classes started by chenjiahan in C:\Users\chenjiahan\git\nsf-api-plane)
+2020-04-08 20:08:16.832 [main]-[INFO ]  [INFO] [com.netease.cloud.nsf.ApiPlaneApplication:597] The following profiles are active: gw-qz
+2020-04-08 20:08:16.908 [main]-[INFO ]  [INFO] [org.springframework.boot.context.embedded.AnnotationConfigEmbeddedWebApplicationContext:583] Refreshing org.springframework.boot.context.embedded.AnnotationConfigEmbeddedWebApplicationContext@78a773fd: startup date [Wed Apr 08 20:08:16 CST 2020]; root of context hierarchy
+2020-04-08 20:08:17.050 [background-preinit]-[INFO ]  [INFO] [org.hibernate.validator.internal.util.Version:30] HV000001: Hibernate Validator 5.3.5.Final
+2020-04-08 20:08:18.383 [main]-[INFO ]  [INFO] [org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainer:89] Tomcat initialized with port(s): 9090 (http)
+2020-04-08 20:08:18.395 [main]-[INFO ]  [INFO] [org.apache.catalina.core.StandardService:179] Starting service [Tomcat]
+2020-04-08 20:08:18.395 [main]-[INFO ]  [INFO] [org.apache.catalina.core.StandardEngine:179] Starting Servlet Engine: Apache Tomcat/8.5.23
+2020-04-08 20:08:18.499 [localhost-startStop-1]-[INFO ]  [INFO] [org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/]:179] Initializing Spring embedded WebApplicationContext
+2020-04-08 20:08:18.499 [localhost-startStop-1]-[INFO ]  [INFO] [org.springframework.web.context.ContextLoader:276] Root WebApplicationContext: initialization completed in 1591 ms
+2020-04-08 20:08:18.683 [localhost-startStop-1]-[INFO ]  [INFO] [org.springframework.boot.web.servlet.FilterRegistrationBean:258] Mapping filter: 'characterEncodingFilter' to: [/*]
+2020-04-08 20:08:18.684 [localhost-startStop-1]-[INFO ]  [INFO] [org.springframework.boot.web.servlet.FilterRegistrationBean:258] Mapping filter: 'hiddenHttpMethodFilter' to: [/*]
+2020-04-08 20:08:18.684 [localhost-startStop-1]-[INFO ]  [INFO] [org.springframework.boot.web.servlet.FilterRegistrationBean:258] Mapping filter: 'httpPutFormContentFilter' to: [/*]
+2020-04-08 20:08:18.684 [localhost-startStop-1]-[INFO ]  [INFO] [org.springframework.boot.web.servlet.FilterRegistrationBean:258] Mapping filter: 'requestContextFilter' to: [/*]
+2020-04-08 20:08:18.684 [localhost-startStop-1]-[INFO ]  [INFO] [org.springframework.boot.web.servlet.FilterRegistrationBean:271] Mapping filter: 'RequestContextHolderFilter' to urls: [/*]
+2020-04-08 20:08:18.684 [localhost-startStop-1]-[INFO ]  [INFO] [org.springframework.boot.web.servlet.FilterRegistrationBean:271] Mapping filter: 'LogUUIDFilter' to urls: [/*]
+2020-04-08 20:08:18.685 [localhost-startStop-1]-[INFO ]  [INFO] [org.springframework.boot.web.servlet.ServletRegistrationBean:190] Mapping servlet: 'dispatcherServlet' to [/]
+2020-04-08 20:08:18.824 [main]-[INFO ]  [INFO] [org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer:127] ClassTemplateLoader for Spring macros added to FreeMarker configuration
+2020-04-08 20:08:19.125 [main]-[WARN ]  [WARN] [io.fabric8.kubernetes.client.Config:414] Error reading service account token from: [/var/run/secrets/kubernetes.io/serviceaccount/token]. Ignoring.
+2020-04-08 20:08:20.092 [main]-[WARN ]  [WARN] [org.springframework.boot.context.embedded.AnnotationConfigEmbeddedWebApplicationContext:551] Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'authSupportConfiguration': Injection of autowired dependencies failed; nested exception is java.lang.IllegalArgumentException: Could not resolve placeholder 'authServer' in value "${authServer}"
+2020-04-08 20:08:20.094 [main]-[INFO ]  [INFO] [org.apache.catalina.core.StandardService:179] Stopping service [Tomcat]
+2020-04-08 20:08:20.105 [main]-[INFO ]  [INFO] [org.springframework.boot.autoconfigure.logging.AutoConfigurationReportLoggingInitializer:101] 
+
+Error starting ApplicationContext. To display the auto-configuration report re-run your application with 'debug' enabled.
+2020-04-08 20:08:20.115 [main]-[ERROR]  [ERROR] [org.springframework.boot.SpringApplication:771] Application startup failed
+org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'authSupportConfiguration': Injection of autowired dependencies failed; nested exception is java.lang.IllegalArgumentException: Could not resolve placeholder 'authServer' in value "${authServer}"
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor.postProcessPropertyValues(AutowiredAnnotationBeanPostProcessor.java:372)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.populateBean(AbstractAutowireCapableBeanFactory.java:1264)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:553)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:483)
+	at org.springframework.beans.factory.support.AbstractBeanFactory$1.getObject(AbstractBeanFactory.java:306)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:230)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:302)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:197)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:761)
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:867)
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:543)
+	at org.springframework.boot.context.embedded.EmbeddedWebApplicationContext.refresh(EmbeddedWebApplicationContext.java:122)
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:693)
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:360)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:303)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1118)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1107)
+	at com.netease.cloud.nsf.ApiPlaneApplication.main(ApiPlaneApplication.java:24)
+Caused by: java.lang.IllegalArgumentException: Could not resolve placeholder 'authServer' in value "${authServer}"
+	at org.springframework.util.PropertyPlaceholderHelper.parseStringValue(PropertyPlaceholderHelper.java:174)
+	at org.springframework.util.PropertyPlaceholderHelper.replacePlaceholders(PropertyPlaceholderHelper.java:126)
+	at org.springframework.core.env.AbstractPropertyResolver.doResolvePlaceholders(AbstractPropertyResolver.java:236)
+	at org.springframework.core.env.AbstractPropertyResolver.resolveRequiredPlaceholders(AbstractPropertyResolver.java:210)
+	at org.springframework.context.support.PropertySourcesPlaceholderConfigurer$2.resolveStringValue(PropertySourcesPlaceholderConfigurer.java:172)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.resolveEmbeddedValue(AbstractBeanFactory.java:831)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1086)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1066)
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor$AutowiredFieldElement.inject(AutowiredAnnotationBeanPostProcessor.java:585)
+	at org.springframework.beans.factory.annotation.InjectionMetadata.inject(InjectionMetadata.java:88)
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor.postProcessPropertyValues(AutowiredAnnotationBeanPostProcessor.java:366)
+	... 17 common frames omitted
+2020-04-08 20:08:35.524 [main]-[INFO ]  [INFO] [com.netease.cloud.nsf.ApiPlaneApplication:48] Starting ApiPlaneApplication on HIH-D-13743 with PID 18748 (C:\Users\chenjiahan\git\nsf-api-plane\nsf-api-plane-server\target\classes started by chenjiahan in C:\Users\chenjiahan\git\nsf-api-plane)
+2020-04-08 20:08:35.528 [main]-[INFO ]  [INFO] [com.netease.cloud.nsf.ApiPlaneApplication:597] The following profiles are active: gw-qz
+2020-04-08 20:08:35.610 [main]-[INFO ]  [INFO] [org.springframework.boot.context.embedded.AnnotationConfigEmbeddedWebApplicationContext:583] Refreshing org.springframework.boot.context.embedded.AnnotationConfigEmbeddedWebApplicationContext@78a773fd: startup date [Wed Apr 08 20:08:35 CST 2020]; root of context hierarchy
+2020-04-08 20:08:35.746 [background-preinit]-[INFO ]  [INFO] [org.hibernate.validator.internal.util.Version:30] HV000001: Hibernate Validator 5.3.5.Final
+2020-04-08 20:08:37.407 [main]-[INFO ]  [INFO] [org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainer:89] Tomcat initialized with port(s): 9090 (http)
+2020-04-08 20:08:37.415 [main]-[INFO ]  [INFO] [org.apache.catalina.core.StandardService:179] Starting service [Tomcat]
+2020-04-08 20:08:37.417 [main]-[INFO ]  [INFO] [org.apache.catalina.core.StandardEngine:179] Starting Servlet Engine: Apache Tomcat/8.5.23
+2020-04-08 20:08:37.532 [localhost-startStop-1]-[INFO ]  [INFO] [org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/]:179] Initializing Spring embedded WebApplicationContext
+2020-04-08 20:08:37.532 [localhost-startStop-1]-[INFO ]  [INFO] [org.springframework.web.context.ContextLoader:276] Root WebApplicationContext: initialization completed in 1922 ms
+2020-04-08 20:08:37.733 [localhost-startStop-1]-[INFO ]  [INFO] [org.springframework.boot.web.servlet.FilterRegistrationBean:258] Mapping filter: 'characterEncodingFilter' to: [/*]
+2020-04-08 20:08:37.734 [localhost-startStop-1]-[INFO ]  [INFO] [org.springframework.boot.web.servlet.FilterRegistrationBean:258] Mapping filter: 'hiddenHttpMethodFilter' to: [/*]
+2020-04-08 20:08:37.734 [localhost-startStop-1]-[INFO ]  [INFO] [org.springframework.boot.web.servlet.FilterRegistrationBean:258] Mapping filter: 'httpPutFormContentFilter' to: [/*]
+2020-04-08 20:08:37.734 [localhost-startStop-1]-[INFO ]  [INFO] [org.springframework.boot.web.servlet.FilterRegistrationBean:258] Mapping filter: 'requestContextFilter' to: [/*]
+2020-04-08 20:08:37.735 [localhost-startStop-1]-[INFO ]  [INFO] [org.springframework.boot.web.servlet.FilterRegistrationBean:271] Mapping filter: 'RequestContextHolderFilter' to urls: [/*]
+2020-04-08 20:08:37.735 [localhost-startStop-1]-[INFO ]  [INFO] [org.springframework.boot.web.servlet.FilterRegistrationBean:271] Mapping filter: 'LogUUIDFilter' to urls: [/*]
+2020-04-08 20:08:37.735 [localhost-startStop-1]-[INFO ]  [INFO] [org.springframework.boot.web.servlet.ServletRegistrationBean:190] Mapping servlet: 'dispatcherServlet' to [/]
+2020-04-08 20:08:37.872 [main]-[INFO ]  [INFO] [org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer:127] ClassTemplateLoader for Spring macros added to FreeMarker configuration
+2020-04-08 20:08:38.239 [main]-[WARN ]  [WARN] [io.fabric8.kubernetes.client.Config:414] Error reading service account token from: [/var/run/secrets/kubernetes.io/serviceaccount/token]. Ignoring.
+2020-04-08 20:08:39.560 [main]-[INFO ]  [INFO] [org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter:534] Looking for @ControllerAdvice: org.springframework.boot.context.embedded.AnnotationConfigEmbeddedWebApplicationContext@78a773fd: startup date [Wed Apr 08 20:08:35 CST 2020]; root of context hierarchy
+2020-04-08 20:08:39.681 [main]-[INFO ]  [INFO] [org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping:543] Mapped "{[/api],methods=[GET],params=[Version=2019-07-25 && Action=GetServiceList]}" onto public java.lang.String com.netease.cloud.nsf.web.controller.GatewayCommonController.getServiceList()
+2020-04-08 20:08:39.682 [main]-[INFO ]  [INFO] [org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping:543] Mapped "{[/api],methods=[GET],params=[Version=2019-07-25 && Action=GetGatewayList]}" onto public java.lang.String com.netease.cloud.nsf.web.controller.GatewayCommonController.getGatewayList()
+2020-04-08 20:08:39.684 [main]-[INFO ]  [INFO] [org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping:543] Mapped "{[/api],methods=[GET],params=[Version=2019-07-25 && Action=GetServiceAndPortList]}" onto public java.lang.String com.netease.cloud.nsf.web.controller.GatewayCommonController.getServiceAndPortList(java.lang.String,java.lang.String,java.lang.String)
+2020-04-08 20:08:39.685 [main]-[INFO ]  [INFO] [org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping:543] Mapped "{[/api],methods=[POST],params=[Version=2019-07-25 && Action=DeletePluginOrder]}" onto public java.lang.String com.netease.cloud.nsf.web.controller.GatewayCommonController.deletePluginOrder(com.netease.cloud.nsf.meta.dto.PluginOrderDTO)
+2020-04-08 20:08:39.686 [main]-[INFO ]  [INFO] [org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping:543] Mapped "{[/api],methods=[POST],params=[Version=2019-07-25 && Action=PublishPluginOrder]}" onto public java.lang.String com.netease.cloud.nsf.web.controller.GatewayCommonController.publishPluginOrder(com.netease.cloud.nsf.meta.dto.PluginOrderDTO)
+2020-04-08 20:08:39.687 [main]-[INFO ]  [INFO] [org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping:543] Mapped "{[/api],methods=[POST],params=[Version=2019-07-25 && Action=GetPluginOrder]}" onto public java.lang.String com.netease.cloud.nsf.web.controller.GatewayCommonController.getPluginOrder(com.netease.cloud.nsf.meta.dto.PluginOrderDTO)
+2020-04-08 20:08:39.688 [main]-[INFO ]  [INFO] [org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping:543] Mapped "{[/api/plugin],methods=[GET],params=[Version=2019-07-25 && Action=GetPluginDetail]}" onto public java.lang.String com.netease.cloud.nsf.web.controller.GatewayPluginController.getTemplate(java.lang.String)
+2020-04-08 20:08:39.689 [main]-[INFO ]  [INFO] [org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping:543] Mapped "{[/api/plugin],methods=[GET],params=[Version=2019-07-25 && Action=GetPluginList]}" onto public java.lang.String com.netease.cloud.nsf.web.controller.GatewayPluginController.getPlugins()
+2020-04-08 20:08:39.690 [main]-[INFO ]  [INFO] [org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping:543] Mapped "{[/api/health],methods=[GET],params=[Version=2019-07-25 && Action=Health]}" onto public java.lang.String com.netease.cloud.nsf.web.controller.HealthCheckController.heathCheck(javax.servlet.http.HttpServletRequest,javax.servlet.http.HttpServletResponse)
+2020-04-08 20:08:39.690 [main]-[INFO ]  [INFO] [org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping:543] Mapped "{[/i/health]}" onto public java.lang.String com.netease.cloud.nsf.web.controller.HealthController.health()
+2020-04-08 20:08:39.691 [main]-[INFO ]  [INFO] [org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping:543] Mapped "{[/api/resource],methods=[GET],params=[Version=2019-11-07 && Action=GetWorkLoadByServiceInfo]}" onto public java.lang.String com.netease.cloud.nsf.web.controller.K8sResourceController.getWorkLoadByServiceInfo(java.lang.String,java.lang.String,java.lang.String,java.lang.String)
+2020-04-08 20:08:39.692 [main]-[INFO ]  [INFO] [org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping:543] Mapped "{[/api/resource],methods=[GET],params=[Version=2019-11-07 && Action=GetAllWorkLoad]}" onto public java.lang.String com.netease.cloud.nsf.web.controller.K8sResourceController.getAllWorkLoad(java.lang.String,java.lang.String)
+2020-04-08 20:08:39.692 [main]-[INFO ]  [INFO] [org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping:543] Mapped "{[/api/resource],methods=[GET],params=[Version=2019-11-07 && Action=GetPodByWorkLoad]}" onto public java.lang.String com.netease.cloud.nsf.web.controller.K8sResourceController.getPodByWorkLoad(java.lang.String,java.lang.String,java.lang.String,java.lang.String)
+2020-04-08 20:08:39.693 [main]-[INFO ]  [INFO] [org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping:543] Mapped "{[/api/resource],methods=[GET],params=[Version=2019-11-07 && Action=GetNamespaceList]}" onto public java.lang.String com.netease.cloud.nsf.web.controller.K8sResourceController.getNamespaceList(java.lang.String)
+2020-04-08 20:08:39.693 [main]-[INFO ]  [INFO] [org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping:543] Mapped "{[/api/resource],methods=[GET],params=[Version=2019-11-07 && Action=GetClusterIdList]}" onto public java.lang.String com.netease.cloud.nsf.web.controller.K8sResourceController.getClusterIdList()
+2020-04-08 20:08:39.696 [main]-[INFO ]  [INFO] [org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping:543] Mapped "{[/api/kiali/**]}" onto java.lang.String com.netease.cloud.nsf.web.controller.KialiProxyController.redirectToKiali(javax.servlet.http.HttpServletRequest,java.lang.String)
+2020-04-08 20:08:39.698 [main]-[INFO ]  [INFO] [org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping:543] Mapped "{[/api/portal],methods=[GET],params=[Version=2019-07-25 && Action=GetServiceHealthList]}" onto public java.lang.String com.netease.cloud.nsf.web.controller.PortalGatewayController.getServiceHealthList(java.lang.String,java.lang.String)
+2020-04-08 20:08:39.699 [main]-[INFO ]  [INFO] [org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping:543] Mapped "{[/api/portal],methods=[POST],params=[Version=2019-07-25 && Action=DeleteGlobalPlugins]}" onto public java.lang.String com.netease.cloud.nsf.web.controller.PortalGatewayController.deleteGlobalPlugins(com.netease.cloud.nsf.meta.dto.GlobalPluginsDeleteDTO)
+2020-04-08 20:08:39.700 [main]-[INFO ]  [INFO] [org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping:543] Mapped "{[/api/portal],methods=[POST],params=[Version=2019-07-25 && Action=PublishGlobalPlugins]}" onto public java.lang.String com.netease.cloud.nsf.web.controller.PortalGatewayController.publishGlobalPlugins(com.netease.cloud.nsf.meta.dto.GlobalPluginsDTO)
+2020-04-08 20:08:39.700 [main]-[INFO ]  [INFO] [org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping:543] Mapped "{[/api/portal],methods=[POST],params=[Version=2019-07-25 && Action=DeleteService]}" onto public java.lang.String com.netease.cloud.nsf.web.controller.PortalGatewayController.deletePortalService(com.netease.cloud.nsf.meta.dto.PortalServiceDTO)
+2020-04-08 20:08:39.701 [main]-[INFO ]  [INFO] [org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping:543] Mapped "{[/api/portal],methods=[POST],params=[Version=2019-07-25 && Action=UpdateIstioGateway]}" onto public java.lang.String com.netease.cloud.nsf.web.controller.PortalGatewayController.updatePortalGateway(com.netease.cloud.nsf.meta.dto.PortalIstioGatewayDTO)
+2020-04-08 20:08:39.701 [main]-[INFO ]  [INFO] [org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping:543] Mapped "{[/api/portal],methods=[POST],params=[Version=2019-07-25 && Action=PublishService]}" onto public java.lang.String com.netease.cloud.nsf.web.controller.PortalGatewayController.publishPortalService(com.netease.cloud.nsf.meta.dto.PortalServiceDTO)
+2020-04-08 20:08:39.702 [main]-[INFO ]  [INFO] [org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping:543] Mapped "{[/api/portal],methods=[POST],params=[Version=2019-07-25 && Action=PublishAPI]}" onto public java.lang.String com.netease.cloud.nsf.web.controller.PortalGatewayController.publishPortalAPI(com.netease.cloud.nsf.meta.dto.PortalAPIDTO)
+2020-04-08 20:08:39.702 [main]-[INFO ]  [INFO] [org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping:543] Mapped "{[/api/portal],methods=[POST],params=[Version=2019-07-25 && Action=DeleteAPI]}" onto public java.lang.String com.netease.cloud.nsf.web.controller.PortalGatewayController.deletePortalAPI(com.netease.cloud.nsf.meta.dto.PortalAPIDeleteDTO)
+2020-04-08 20:08:39.703 [main]-[INFO ]  [INFO] [org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping:543] Mapped "{[/api/portal],methods=[GET],params=[Version=2019-07-25 && Action=GetIstioGateway]}" onto public java.lang.String com.netease.cloud.nsf.web.controller.PortalGatewayController.getPortalGateway(java.lang.String)
+2020-04-08 20:08:39.704 [main]-[INFO ]  [INFO] [org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping:543] Mapped "{[/api/servicemesh],methods=[GET],params=[Version=2019-07-25 && Action=GetConfig]}" onto public java.lang.String com.netease.cloud.nsf.web.controller.ServiceMeshController.deleteConfig(java.lang.String,java.lang.String,java.lang.String)
+2020-04-08 20:08:39.704 [main]-[INFO ]  [INFO] [org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping:543] Mapped "{[/api/servicemesh],methods=[POST],params=[Version=2019-07-25 && Action=DeleteConfig]}" onto public java.lang.String com.netease.cloud.nsf.web.controller.ServiceMeshController.deleteConfig(java.lang.String)
+2020-04-08 20:08:39.705 [main]-[INFO ]  [INFO] [org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping:543] Mapped "{[/api/servicemesh],methods=[POST],params=[Version=2019-07-25 && Action=UpdateConfig]}" onto public java.lang.String com.netease.cloud.nsf.web.controller.ServiceMeshController.updateConfig(java.lang.String)
+2020-04-08 20:08:39.705 [main]-[INFO ]  [INFO] [org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping:543] Mapped "{[/api/servicemesh],methods=[GET],params=[Version=2019-07-25 && Action=NotifySidecarEvent]}" onto public java.lang.String com.netease.cloud.nsf.web.controller.ServiceMeshController.notifySidecarDownload(java.lang.String,java.lang.String)
+2020-04-08 20:08:39.705 [main]-[INFO ]  [INFO] [org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping:543] Mapped "{[/api/servicemesh],methods=[GET],params=[Version=2019-07-25 && Action=InjectSidecar]}" onto public java.lang.String com.netease.cloud.nsf.web.controller.ServiceMeshController.injectSidecar(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String)
+2020-04-08 20:08:39.706 [main]-[INFO ]  [INFO] [org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping:543] Mapped "{[/api/servicemesh],methods=[GET],params=[Version=2019-07-25 && Action=GetTopo]}" onto public java.lang.String com.netease.cloud.nsf.web.controller.ServiceMeshController.getTopo(java.lang.String,java.lang.String,java.lang.String)
+2020-04-08 20:08:39.706 [main]-[INFO ]  [INFO] [org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping:543] Mapped "{[/api/istio],methods=[GET],params=[Version=2018-05-31 && Action=DeleteConfig]}" onto public java.lang.String com.netease.cloud.nsf.web.controller.TemplateApiController.deleteConfig(java.lang.String,java.lang.String,java.lang.String,java.lang.String)
+2020-04-08 20:08:39.706 [main]-[INFO ]  [INFO] [org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping:543] Mapped "{[/api/istio],methods=[POST],params=[Version=2018-05-31 && Action=UpdateConfig]}" onto public java.lang.String com.netease.cloud.nsf.web.controller.TemplateApiController.createConfig(com.netease.cloud.nsf.meta.template.ServiceMeshTemplate)
+2020-04-08 20:08:39.707 [main]-[INFO ]  [INFO] [org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping:543] Mapped "{[/api/istio],methods=[GET],params=[Version=2018-05-31 && Action=GetConfigList]}" onto public java.lang.String com.netease.cloud.nsf.web.controller.TemplateApiController.getConfigList(java.lang.String,java.lang.String,java.lang.String,java.lang.String)
+2020-04-08 20:08:39.707 [main]-[INFO ]  [INFO] [org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping:543] Mapped "{[/api/istio/rbac],params=[Version=2018-05-31 && Action=EnableTls]}" onto public java.lang.String com.netease.cloud.nsf.web.controller.WhiteListController.update(java.lang.String)
+2020-04-08 20:08:39.708 [main]-[INFO ]  [INFO] [org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping:543] Mapped "{[/api/istio/rbac],methods=[POST],params=[Version=2018-05-31 && Action=GetGatewayIps]}" onto public java.lang.String com.netease.cloud.nsf.web.controller.WhiteListController.getGatewayIps() throws java.io.IOException
+2020-04-08 20:08:39.708 [main]-[INFO ]  [INFO] [org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping:543] Mapped "{[/xhr/v1/auth/proxy/**]}" onto public void com.netease.cloud.nsf.web.controller.YXAuthProxyController.proxy(javax.servlet.http.HttpServletRequest,javax.servlet.http.HttpServletResponse,java.lang.String)
+2020-04-08 20:08:39.709 [main]-[INFO ]  [INFO] [org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping:543] Mapped "{[/api/yx],methods=[POST],params=[Version=2019-07-25 && Action=PublishAPI]}" onto public java.lang.String com.netease.cloud.nsf.web.controller.YxGatewayController.publishYXAPI(com.netease.cloud.nsf.meta.dto.YxAPIDTO)
+2020-04-08 20:08:39.709 [main]-[INFO ]  [INFO] [org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping:543] Mapped "{[/api/yx],methods=[POST],params=[Version=2019-07-25 && Action=DeleteAPI]}" onto public java.lang.String com.netease.cloud.nsf.web.controller.YxGatewayController.deleteApi(com.netease.cloud.nsf.meta.dto.YxAPIDTO)
+2020-04-08 20:08:39.710 [main]-[INFO ]  [INFO] [org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping:543] Mapped "{[/api/svm],methods=[POST],params=[Version=2019-11-13 && Action=QueryByPodNameList]}" onto public java.lang.String com.netease.cloud.nsf.web.controller.YxVersionManagerController.queryByPodNameList(com.netease.cloud.nsf.meta.PodVersion)
+2020-04-08 20:08:39.710 [main]-[INFO ]  [INFO] [org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping:543] Mapped "{[/api/svm],methods=[POST],params=[Version=2019-11-13 && Action=UpdateSVM]}" onto public java.lang.String com.netease.cloud.nsf.web.controller.YxVersionManagerController.updateOrCreateSVM(com.netease.cloud.nsf.meta.SidecarVersionManagement)
+2020-04-08 20:08:39.712 [main]-[INFO ]  [INFO] [org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping:543] Mapped "{[/error]}" onto public org.springframework.http.ResponseEntity<java.util.Map<java.lang.String, java.lang.Object>> org.springframework.boot.autoconfigure.web.BasicErrorController.error(javax.servlet.http.HttpServletRequest)
+2020-04-08 20:08:39.712 [main]-[INFO ]  [INFO] [org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping:543] Mapped "{[/error],produces=[text/html]}" onto public org.springframework.web.servlet.ModelAndView org.springframework.boot.autoconfigure.web.BasicErrorController.errorHtml(javax.servlet.http.HttpServletRequest,javax.servlet.http.HttpServletResponse)
+2020-04-08 20:08:39.743 [main]-[INFO ]  [INFO] [org.springframework.web.servlet.handler.SimpleUrlHandlerMapping:362] Mapped URL path [/webjars/**] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+2020-04-08 20:08:39.744 [main]-[INFO ]  [INFO] [org.springframework.web.servlet.handler.SimpleUrlHandlerMapping:362] Mapped URL path [/**] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+2020-04-08 20:08:39.763 [main]-[INFO ]  [INFO] [org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver:273] Detected @ExceptionHandler methods in commonExceptionHandler
+2020-04-08 20:08:39.788 [main]-[INFO ]  [INFO] [org.springframework.web.servlet.handler.SimpleUrlHandlerMapping:362] Mapped URL path [/**/favicon.ico] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+2020-04-08 20:08:40.028 [main]-[INFO ]  [INFO] [org.springframework.jmx.export.annotation.AnnotationMBeanExporter:431] Registering beans for JMX exposure on startup
+2020-04-08 20:08:40.040 [main]-[INFO ]  [INFO] [org.springframework.scheduling.annotation.ScheduledAnnotationBeanPostProcessor:262] No TaskScheduler/ScheduledExecutorService bean found for scheduled processing
+2020-04-08 20:08:40.051 [main]-[INFO ]  [INFO] [org.apache.coyote.http11.Http11NioProtocol:179] Initializing ProtocolHandler ["http-nio-9090"]
+2020-04-08 20:08:40.060 [main]-[INFO ]  [INFO] [org.apache.coyote.http11.Http11NioProtocol:179] Starting ProtocolHandler ["http-nio-9090"]
+2020-04-08 20:08:40.071 [main]-[INFO ]  [INFO] [org.apache.tomcat.util.net.NioSelectorPool:179] Using a shared selector for servlet write/read
+2020-04-08 20:08:40.090 [main]-[INFO ]  [INFO] [org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainer:201] Tomcat started on port(s): 9090 (http)
+2020-04-08 20:08:40.094 [main]-[INFO ]  [INFO] [com.netease.cloud.nsf.ApiPlaneApplication:57] Started ApiPlaneApplication in 5.183 seconds (JVM running for 6.705)
+2020-04-08 20:08:44.837 [http-nio-9090-exec-3]-[INFO ]  [INFO] [org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/]:179] Initializing Spring FrameworkServlet 'dispatcherServlet'
+2020-04-08 20:08:44.837 [http-nio-9090-exec-3]-[INFO ]  [INFO] [org.springframework.web.servlet.DispatcherServlet:489] FrameworkServlet 'dispatcherServlet': initialization started
+2020-04-08 20:08:44.866 [http-nio-9090-exec-3]-[INFO ]  [INFO] [org.springframework.web.servlet.DispatcherServlet:508] FrameworkServlet 'dispatcherServlet': initialization completed in 29 ms
+2020-04-08 20:08:45.071 [http-nio-9090-exec-3]-[INFO ]  [INFO] [com.netease.cloud.nsf.util.interceptor.RestTemplateLogInterceptor:24] Request  --> URI: http://103.196.65.178:31005/debug/endpointz?brief=true, Request Body: 
+2020-04-08 20:08:45.072 [http-nio-9090-exec-3]-[INFO ]  [INFO] [com.netease.cloud.nsf.util.interceptor.RestTemplateLogInterceptor:24] Request  --> URI: http://103.196.65.178:31005/debug/endpointz?brief=true, Request Body: 
+2020-04-08 20:08:45.090 [http-nio-9090-exec-3]-[INFO ]  [INFO] [com.netease.cloud.nsf.util.interceptor.RestTemplateLogInterceptor:26] Response <-- Status code: 200
+2020-04-08 20:08:45.090 [http-nio-9090-exec-3]-[INFO ]  [INFO] [com.netease.cloud.nsf.util.interceptor.RestTemplateLogInterceptor:26] Response <-- Status code: 200
+2020-04-08 20:08:45.190 [http-nio-9090-exec-3]-[INFO ]  [INFO] [com.netease.cloud.nsf.service.impl.PluginServiceImpl:129] get processor:RateLimitProcessor
+2020-04-08 20:08:45.199 [http-nio-9090-exec-3]-[INFO ]  [INFO] [com.netease.cloud.nsf.service.impl.PluginServiceImpl:104] process multi processor :[RateLimitProcessor], jsons :[[{"kind":"ianus-rate-limiting","version":"1.0","name":"ianus-rate-limiting","limit_by_list":[{"identifier_extractor":"Header[plugin]","pre_condition":[{"operator":"=","right_value":"ratelimit"}],"enable":true,"hour":1}],"policy":"global","hide_client_headers":true,"refuse_strategy":"directly-refuse","fault_tolerant":true}]], serviceInfo :[ServiceInfo{apiName='${t_api_identity_name}', serviceName='${t_api_service}', method='${t_api_methods}', uri='${t_api_request_uris}', subset='${t_virtual_service_subset_name}', hosts='${t_virtual_service_host_headers}', priority='${t_virtual_service_plugin_match_priority}'}]
+2020-04-08 20:08:45.438 [http-nio-9090-exec-3]-[INFO ]  [INFO] [com.netease.cloud.nsf.core.gateway.GatewayModelOperator:250] raw resource: apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: gateway-proxy-102
+spec:
+  enableHttp10: true
+  defaultHostForHttp10: netease.com
+  selector:
+    gw_cluster: gateway-proxy-102
+  servers:
+  - port:
+      name: http
+      number: 80
+      protocol: HTTP
+    hosts:
+      - "*"
+
+2020-04-08 20:08:45.482 [http-nio-9090-exec-3]-[INFO ]  [INFO] [com.netease.cloud.nsf.core.gateway.GatewayModelOperator:250] raw resource: apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: autotest-gateway-proxy-102
+  labels:
+    api_service: autotest
+spec:
+  gateways:
+  - gateway-proxy-102
+  hosts:
+  - ABC
+  - DEF
+  http:
+  - match:
+    - uri:
+        regex: .*
+      method:
+        regex: GET|POST
+      headers:
+        :authority:
+          regex: ABC|DEF
+        abc:
+          exact: good
+        abc1:
+          exact: good
+      queryParams:
+        qzsdss:
+          prefix: good
+        qzsdss11:
+          prefix: good
+    priority: 46
+    route:
+    - destination:
+        host: a.powerful-v13.svc.cluster.local
+        port:
+          number: 80
+        subset: autotest-auto-test3-gateway-proxy-102
+      weight: 100
+    retries:
+      attempts: 5
+    api: autotest-auto-test3
+    meta:
+      qz_cluster_name: gateway-proxy-102
+  plugins:
+    autotest-auto-test3:
+      userPlugin:
+      - ratelimit:
+          rateLimits:
+          - stage: 0
+            actions:
+            - headerValueMatch:
+                headers:
+                - name: :path
+                  regexMatch: .*
+                - name: :authority
+                  regexMatch: ABC|DEF
+                - name: :method
+                  regexMatch: GET|POST
+                - name: plugin
+                  regexMatch: ratelimit
+                descriptorValue: Service[autotest]-User[none]-Api[autotest-auto-test3]-Id[02f9e466-122a-4b8e-900d-cbc501d58940]
+
+2020-04-08 20:08:45.565 [http-nio-9090-exec-3]-[INFO ]  [INFO] [com.netease.cloud.nsf.core.gateway.GatewayModelOperator:250] raw resource: apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: a.powerful-v13.svc.cluster.local
+spec:
+  host: a.powerful-v13.svc.cluster.local
+  subsets:
+  - name: autotest-auto-test3-gateway-proxy-102
+    api: autotest-auto-test3
+
+2020-04-08 20:08:45.583 [http-nio-9090-exec-3]-[INFO ]  [INFO] [com.netease.cloud.nsf.core.gateway.GatewayModelOperator:250] raw resource: apiVersion: networking.istio.io/v1alpha3
+kind: SharedConfig
+metadata:
+  name: qz-share-config
+spec:
+  rateLimitConfigs:
+    - domain: qingzhou
+      descriptors:
+      - api: auto-test3
+        key: header_match
+        value: Service[autotest]-User[none]-Api[auto-test3]-Id[02f9e466-122a-4b8e-900d-cbc501d58940]
+        rateLimit:
+          unit: HOUR
+          requestsPerUnit: 1
+
+
+2020-04-08 20:08:45.598 [http-nio-9090-exec-3]-[INFO ]  [INFO] [com.netease.cloud.nsf.core.k8s.http.DefaultK8sHttpClient:75] Request{method=GET, url=https://103.196.65.178:6443/apis/networking.istio.io/v1alpha3/namespaces/gateway-system/gateways/gateway-proxy-102, tags={}}
+2020-04-08 20:08:45.738 [http-nio-9090-exec-3]-[INFO ]  [INFO] [com.netease.cloud.nsf.core.k8s.http.DefaultK8sHttpClient:88] Response{protocol=http/1.1, code=200, message=OK, url=https://103.196.65.178:6443/apis/networking.istio.io/v1alpha3/namespaces/gateway-system/gateways/gateway-proxy-102}
+2020-04-08 20:08:45.741 [http-nio-9090-exec-3]-[INFO ]  [INFO] [com.netease.cloud.nsf.core.k8s.http.DefaultK8sHttpClient:200] Response body: 
+{
+  "apiVersion" : "networking.istio.io/v1alpha3",
+  "kind" : "Gateway",
+  "metadata" : {
+    "creationTimestamp" : "2020-04-08T08:35:17Z",
+    "generation" : 1,
+    "labels" : {
+      "skiff-api-plane-type" : "qz-gw",
+      "skiff-api-plane-version" : "release-1.2"
+    },
+    "name" : "gateway-proxy-102",
+    "namespace" : "gateway-system",
+    "resourceVersion" : "44375994",
+    "selfLink" : "/apis/networking.istio.io/v1alpha3/namespaces/gateway-system/gateways/gateway-proxy-102",
+    "uid" : "e04dd88b-7973-11ea-ba47-fa163e3ce980"
+  },
+  "spec" : {
+    "defaultHostForHttp10" : "netease.com",
+    "enableHttp10" : true,
+    "selector" : {
+      "gw_cluster" : "gateway-proxy-102"
+    },
+    "servers" : [ {
+      "hosts" : [ "*" ],
+      "port" : {
+        "name" : "http",
+        "number" : 80,
+        "protocol" : "HTTP"
+      }
+    } ]
+  }
+}
+2020-04-08 20:08:45.816 [http-nio-9090-exec-3]-[INFO ]  [INFO] [com.netease.cloud.nsf.core.k8s.http.DefaultK8sHttpClient:75] Request{method=GET, url=https://103.196.65.178:6443/apis/networking.istio.io/v1alpha3/namespaces/gateway-system/gateways/gateway-proxy-102, tags={}}
+2020-04-08 20:08:45.823 [http-nio-9090-exec-3]-[INFO ]  [INFO] [com.netease.cloud.nsf.core.k8s.http.DefaultK8sHttpClient:88] Response{protocol=http/1.1, code=200, message=OK, url=https://103.196.65.178:6443/apis/networking.istio.io/v1alpha3/namespaces/gateway-system/gateways/gateway-proxy-102}
+2020-04-08 20:08:45.823 [http-nio-9090-exec-3]-[INFO ]  [INFO] [com.netease.cloud.nsf.core.k8s.http.DefaultK8sHttpClient:200] Response body: 
+{
+  "apiVersion" : "networking.istio.io/v1alpha3",
+  "kind" : "Gateway",
+  "metadata" : {
+    "creationTimestamp" : "2020-04-08T08:35:17Z",
+    "generation" : 1,
+    "labels" : {
+      "skiff-api-plane-type" : "qz-gw",
+      "skiff-api-plane-version" : "release-1.2"
+    },
+    "name" : "gateway-proxy-102",
+    "namespace" : "gateway-system",
+    "resourceVersion" : "44375994",
+    "selfLink" : "/apis/networking.istio.io/v1alpha3/namespaces/gateway-system/gateways/gateway-proxy-102",
+    "uid" : "e04dd88b-7973-11ea-ba47-fa163e3ce980"
+  },
+  "spec" : {
+    "defaultHostForHttp10" : "netease.com",
+    "enableHttp10" : true,
+    "selector" : {
+      "gw_cluster" : "gateway-proxy-102"
+    },
+    "servers" : [ {
+      "hosts" : [ "*" ],
+      "port" : {
+        "name" : "http",
+        "number" : 80,
+        "protocol" : "HTTP"
+      }
+    } ]
+  }
+}
+2020-04-08 20:08:45.825 [http-nio-9090-exec-3]-[INFO ]  [INFO] [com.netease.cloud.nsf.core.k8s.http.DefaultK8sHttpClient:75] Request{method=PUT, url=https://103.196.65.178:6443/apis/networking.istio.io/v1alpha3/namespaces/gateway-system/gateways/gateway-proxy-102, tags={}}
+2020-04-08 20:08:45.825 [http-nio-9090-exec-3]-[INFO ]  [INFO] [com.netease.cloud.nsf.core.k8s.http.DefaultK8sHttpClient:81] Request body: 
+{
+  "apiVersion" : "networking.istio.io/v1alpha3",
+  "kind" : "Gateway",
+  "metadata" : {
+    "annotations" : { },
+    "creationTimestamp" : "2020-04-08T08:35:17Z",
+    "generation" : 1,
+    "labels" : {
+      "skiff-api-plane-type" : "qz-gw",
+      "skiff-api-plane-version" : "release-1.2"
+    },
+    "name" : "gateway-proxy-102",
+    "namespace" : "gateway-system",
+    "resourceVersion" : "44375994",
+    "selfLink" : "/apis/networking.istio.io/v1alpha3/namespaces/gateway-system/gateways/gateway-proxy-102",
+    "uid" : "e04dd88b-7973-11ea-ba47-fa163e3ce980"
+  },
+  "spec" : {
+    "defaultHostForHttp10" : "netease.com",
+    "enableHttp10" : true,
+    "selector" : {
+      "gw_cluster" : "gateway-proxy-102"
+    },
+    "servers" : [ {
+      "hosts" : [ "*" ],
+      "port" : {
+        "name" : "http",
+        "number" : 80,
+        "protocol" : "HTTP"
+      }
+    } ]
+  }
+}
+2020-04-08 20:08:46.839 [http-nio-9090-exec-3]-[INFO ]  [INFO] [com.netease.cloud.nsf.core.k8s.http.DefaultK8sHttpClient:88] Response{protocol=http/1.1, code=200, message=OK, url=https://103.196.65.178:6443/apis/networking.istio.io/v1alpha3/namespaces/gateway-system/gateways/gateway-proxy-102}
+2020-04-08 20:08:46.839 [http-nio-9090-exec-3]-[INFO ]  [INFO] [com.netease.cloud.nsf.core.k8s.http.DefaultK8sHttpClient:92] Response body: 
+{
+  "apiVersion" : "networking.istio.io/v1alpha3",
+  "kind" : "Gateway",
+  "metadata" : {
+    "creationTimestamp" : "2020-04-08T08:35:17Z",
+    "generation" : 1,
+    "labels" : {
+      "skiff-api-plane-type" : "qz-gw",
+      "skiff-api-plane-version" : "release-1.2"
+    },
+    "name" : "gateway-proxy-102",
+    "namespace" : "gateway-system",
+    "resourceVersion" : "44375994",
+    "selfLink" : "/apis/networking.istio.io/v1alpha3/namespaces/gateway-system/gateways/gateway-proxy-102",
+    "uid" : "e04dd88b-7973-11ea-ba47-fa163e3ce980"
+  },
+  "spec" : {
+    "defaultHostForHttp10" : "netease.com",
+    "enableHttp10" : true,
+    "selector" : {
+      "gw_cluster" : "gateway-proxy-102"
+    },
+    "servers" : [ {
+      "hosts" : [ "*" ],
+      "port" : {
+        "name" : "http",
+        "number" : 80,
+        "protocol" : "HTTP"
+      }
+    } ]
+  }
+}
+2020-04-08 20:08:46.840 [http-nio-9090-exec-3]-[INFO ]  [INFO] [com.netease.cloud.nsf.core.k8s.http.DefaultK8sHttpClient:75] Request{method=GET, url=https://103.196.65.178:6443/apis/networking.istio.io/v1alpha3/namespaces/gateway-system/virtualservices/autotest-gateway-proxy-102, tags={}}
+2020-04-08 20:08:46.847 [http-nio-9090-exec-3]-[INFO ]  [INFO] [com.netease.cloud.nsf.core.k8s.http.DefaultK8sHttpClient:88] Response{protocol=http/1.1, code=200, message=OK, url=https://103.196.65.178:6443/apis/networking.istio.io/v1alpha3/namespaces/gateway-system/virtualservices/autotest-gateway-proxy-102}
+2020-04-08 20:08:46.848 [http-nio-9090-exec-3]-[INFO ]  [INFO] [com.netease.cloud.nsf.core.k8s.http.DefaultK8sHttpClient:200] Response body: 
+{
+  "apiVersion" : "networking.istio.io/v1alpha3",
+  "kind" : "VirtualService",
+  "metadata" : {
+    "creationTimestamp" : "2020-04-08T08:35:20Z",
+    "generation" : 3,
+    "labels" : {
+      "api_service" : "autotest",
+      "skiff-api-plane-type" : "qz-gw",
+      "skiff-api-plane-version" : "release-1.2"
+    },
+    "name" : "autotest-gateway-proxy-102",
+    "namespace" : "gateway-system",
+    "resourceVersion" : "44396801",
+    "selfLink" : "/apis/networking.istio.io/v1alpha3/namespaces/gateway-system/virtualservices/autotest-gateway-proxy-102",
+    "uid" : "e195a02c-7973-11ea-ba47-fa163e3ce980"
+  },
+  "spec" : {
+    "gateways" : [ "gateway-proxy-102" ],
+    "hosts" : [ "*" ],
+    "http" : [ {
+      "api" : "autotest-auto-test3",
+      "match" : [ {
+        "headers" : {
+          ":authority" : {
+            "regex" : "ABC|DEF"
+          },
+          "plugin" : {
+            "regex" : "^rewrite$"
+          }
+        },
+        "method" : {
+          "regex" : "GET|POST"
+        },
+        "uri" : {
+          "regex" : "(?:.*.*)"
+        }
+      } ],
+      "priority" : 47,
+      "retries" : {
+        "attempts" : 5
+      },
+      "route" : [ {
+        "destination" : {
+          "host" : "a.powerful-v13.svc.cluster.local",
+          "port" : {
+            "number" : 80
+          },
+          "subset" : "autotest-auto-test3-gateway-proxy-102"
+        },
+        "weight" : 100
+      } ]
+    }, {
+      "api" : "autotest-auto-test3",
+      "match" : [ {
+        "headers" : {
+          ":authority" : {
+            "regex" : "ABC|DEF"
+          },
+          "abc" : {
+            "exact" : "good"
+          },
+          "abc1" : {
+            "exact" : "good"
+          }
+        },
+        "method" : {
+          "regex" : "GET|POST"
+        },
+        "queryParams" : {
+          "qzsdss" : {
+            "prefix" : "good"
+          },
+          "qzsdss11" : {
+            "prefix" : "good"
+          }
+        },
+        "uri" : {
+          "regex" : ".*"
+        }
+      } ],
+      "meta" : {
+        "qz_cluster_name" : "gateway-proxy-102"
+      },
+      "priority" : 46,
+      "retries" : {
+        "attempts" : 5
+      },
+      "route" : [ {
+        "destination" : {
+          "host" : "a.powerful-v13.svc.cluster.local",
+          "port" : {
+            "number" : 80
+          },
+          "subset" : "autotest-auto-test3-gateway-proxy-102"
+        },
+        "weight" : 100
+      } ]
+    }, {
+      "api" : "auto-test3",
+      "match" : [ {
+        "headers" : {
+          ":authority" : {
+            "regex" : "ABC|DEF"
+          },
+          "plugin" : {
+            "regex" : "^rewrite$"
+          }
+        },
+        "method" : {
+          "regex" : "GET|POST"
+        },
+        "uri" : {
+          "regex" : "(?:.*.*)"
+        }
+      } ],
+      "priority" : 47,
+      "retries" : {
+        "attempts" : 5
+      },
+      "route" : [ {
+        "destination" : {
+          "host" : "a.powerful-v13.svc.cluster.local",
+          "port" : {
+            "number" : 80
+          },
+          "subset" : "autotest-auto-test3-gateway-proxy-102"
+        },
+        "weight" : 100
+      } ]
+    }, {
+      "api" : "auto-test3",
+      "match" : [ {
+        "headers" : {
+          ":authority" : {
+            "regex" : "ABC|DEF"
+          },
+          "abc" : {
+            "exact" : "good"
+          },
+          "abc1" : {
+            "exact" : "good"
+          }
+        },
+        "method" : {
+          "regex" : "GET|POST"
+        },
+        "queryParams" : {
+          "qzsdss" : {
+            "prefix" : "good"
+          },
+          "qzsdss11" : {
+            "prefix" : "good"
+          }
+        },
+        "uri" : {
+          "regex" : ".*"
+        }
+      } ],
+      "meta" : {
+        "qz_cluster_name" : "gateway-proxy-102"
+      },
+      "priority" : 46,
+      "retries" : {
+        "attempts" : 5
+      },
+      "route" : [ {
+        "destination" : {
+          "host" : "a.powerful-v13.svc.cluster.local",
+          "port" : {
+            "number" : 80
+          },
+          "subset" : "autotest-auto-test3-gateway-proxy-102"
+        },
+        "weight" : 100
+      } ]
+    } ]
+  }
+}
+2020-04-08 20:08:46.920 [http-nio-9090-exec-3]-[INFO ]  [INFO] [com.netease.cloud.nsf.core.k8s.http.DefaultK8sHttpClient:75] Request{method=GET, url=https://103.196.65.178:6443/apis/networking.istio.io/v1alpha3/namespaces/gateway-system/virtualservices/autotest-gateway-proxy-102, tags={}}
+2020-04-08 20:08:46.927 [http-nio-9090-exec-3]-[INFO ]  [INFO] [com.netease.cloud.nsf.core.k8s.http.DefaultK8sHttpClient:88] Response{protocol=http/1.1, code=200, message=OK, url=https://103.196.65.178:6443/apis/networking.istio.io/v1alpha3/namespaces/gateway-system/virtualservices/autotest-gateway-proxy-102}
+2020-04-08 20:08:46.928 [http-nio-9090-exec-3]-[INFO ]  [INFO] [com.netease.cloud.nsf.core.k8s.http.DefaultK8sHttpClient:200] Response body: 
+{
+  "apiVersion" : "networking.istio.io/v1alpha3",
+  "kind" : "VirtualService",
+  "metadata" : {
+    "creationTimestamp" : "2020-04-08T08:35:20Z",
+    "generation" : 3,
+    "labels" : {
+      "api_service" : "autotest",
+      "skiff-api-plane-type" : "qz-gw",
+      "skiff-api-plane-version" : "release-1.2"
+    },
+    "name" : "autotest-gateway-proxy-102",
+    "namespace" : "gateway-system",
+    "resourceVersion" : "44396801",
+    "selfLink" : "/apis/networking.istio.io/v1alpha3/namespaces/gateway-system/virtualservices/autotest-gateway-proxy-102",
+    "uid" : "e195a02c-7973-11ea-ba47-fa163e3ce980"
+  },
+  "spec" : {
+    "gateways" : [ "gateway-proxy-102" ],
+    "hosts" : [ "*" ],
+    "http" : [ {
+      "api" : "autotest-auto-test3",
+      "match" : [ {
+        "headers" : {
+          ":authority" : {
+            "regex" : "ABC|DEF"
+          },
+          "plugin" : {
+            "regex" : "^rewrite$"
+          }
+        },
+        "method" : {
+          "regex" : "GET|POST"
+        },
+        "uri" : {
+          "regex" : "(?:.*.*)"
+        }
+      } ],
+      "priority" : 47,
+      "retries" : {
+        "attempts" : 5
+      },
+      "route" : [ {
+        "destination" : {
+          "host" : "a.powerful-v13.svc.cluster.local",
+          "port" : {
+            "number" : 80
+          },
+          "subset" : "autotest-auto-test3-gateway-proxy-102"
+        },
+        "weight" : 100
+      } ]
+    }, {
+      "api" : "autotest-auto-test3",
+      "match" : [ {
+        "headers" : {
+          ":authority" : {
+            "regex" : "ABC|DEF"
+          },
+          "abc" : {
+            "exact" : "good"
+          },
+          "abc1" : {
+            "exact" : "good"
+          }
+        },
+        "method" : {
+          "regex" : "GET|POST"
+        },
+        "queryParams" : {
+          "qzsdss" : {
+            "prefix" : "good"
+          },
+          "qzsdss11" : {
+            "prefix" : "good"
+          }
+        },
+        "uri" : {
+          "regex" : ".*"
+        }
+      } ],
+      "meta" : {
+        "qz_cluster_name" : "gateway-proxy-102"
+      },
+      "priority" : 46,
+      "retries" : {
+        "attempts" : 5
+      },
+      "route" : [ {
+        "destination" : {
+          "host" : "a.powerful-v13.svc.cluster.local",
+          "port" : {
+            "number" : 80
+          },
+          "subset" : "autotest-auto-test3-gateway-proxy-102"
+        },
+        "weight" : 100
+      } ]
+    }, {
+      "api" : "auto-test3",
+      "match" : [ {
+        "headers" : {
+          ":authority" : {
+            "regex" : "ABC|DEF"
+          },
+          "plugin" : {
+            "regex" : "^rewrite$"
+          }
+        },
+        "method" : {
+          "regex" : "GET|POST"
+        },
+        "uri" : {
+          "regex" : "(?:.*.*)"
+        }
+      } ],
+      "priority" : 47,
+      "retries" : {
+        "attempts" : 5
+      },
+      "route" : [ {
+        "destination" : {
+          "host" : "a.powerful-v13.svc.cluster.local",
+          "port" : {
+            "number" : 80
+          },
+          "subset" : "autotest-auto-test3-gateway-proxy-102"
+        },
+        "weight" : 100
+      } ]
+    }, {
+      "api" : "auto-test3",
+      "match" : [ {
+        "headers" : {
+          ":authority" : {
+            "regex" : "ABC|DEF"
+          },
+          "abc" : {
+            "exact" : "good"
+          },
+          "abc1" : {
+            "exact" : "good"
+          }
+        },
+        "method" : {
+          "regex" : "GET|POST"
+        },
+        "queryParams" : {
+          "qzsdss" : {
+            "prefix" : "good"
+          },
+          "qzsdss11" : {
+            "prefix" : "good"
+          }
+        },
+        "uri" : {
+          "regex" : ".*"
+        }
+      } ],
+      "meta" : {
+        "qz_cluster_name" : "gateway-proxy-102"
+      },
+      "priority" : 46,
+      "retries" : {
+        "attempts" : 5
+      },
+      "route" : [ {
+        "destination" : {
+          "host" : "a.powerful-v13.svc.cluster.local",
+          "port" : {
+            "number" : 80
+          },
+          "subset" : "autotest-auto-test3-gateway-proxy-102"
+        },
+        "weight" : 100
+      } ]
+    } ]
+  }
+}
+2020-04-08 20:08:46.928 [http-nio-9090-exec-3]-[INFO ]  [INFO] [com.netease.cloud.nsf.core.k8s.http.DefaultK8sHttpClient:75] Request{method=PUT, url=https://103.196.65.178:6443/apis/networking.istio.io/v1alpha3/namespaces/gateway-system/virtualservices/autotest-gateway-proxy-102, tags={}}
+2020-04-08 20:08:46.929 [http-nio-9090-exec-3]-[INFO ]  [INFO] [com.netease.cloud.nsf.core.k8s.http.DefaultK8sHttpClient:81] Request body: 
+{
+  "apiVersion" : "networking.istio.io/v1alpha3",
+  "kind" : "VirtualService",
+  "metadata" : {
+    "annotations" : { },
+    "creationTimestamp" : "2020-04-08T08:35:20Z",
+    "generation" : 3,
+    "labels" : {
+      "api_service" : "autotest",
+      "skiff-api-plane-type" : "qz-gw",
+      "skiff-api-plane-version" : "release-1.2"
+    },
+    "name" : "autotest-gateway-proxy-102",
+    "namespace" : "gateway-system",
+    "resourceVersion" : "44396801",
+    "selfLink" : "/apis/networking.istio.io/v1alpha3/namespaces/gateway-system/virtualservices/autotest-gateway-proxy-102",
+    "uid" : "e195a02c-7973-11ea-ba47-fa163e3ce980"
+  },
+  "spec" : {
+    "gateways" : [ "gateway-proxy-102" ],
+    "hosts" : [ "ABC", "DEF" ],
+    "http" : [ {
+      "api" : "auto-test3",
+      "match" : [ {
+        "headers" : {
+          ":authority" : {
+            "regex" : "ABC|DEF"
+          },
+          "plugin" : {
+            "regex" : "^rewrite$"
+          }
+        },
+        "method" : {
+          "regex" : "GET|POST"
+        },
+        "uri" : {
+          "regex" : "(?:.*.*)"
+        }
+      } ],
+      "priority" : 47,
+      "retries" : {
+        "attempts" : 5
+      },
+      "route" : [ {
+        "destination" : {
+          "host" : "a.powerful-v13.svc.cluster.local",
+          "port" : {
+            "number" : 80
+          },
+          "subset" : "autotest-auto-test3-gateway-proxy-102"
+        },
+        "weight" : 100
+      } ]
+    }, {
+      "api" : "auto-test3",
+      "match" : [ {
+        "headers" : {
+          ":authority" : {
+            "regex" : "ABC|DEF"
+          },
+          "abc" : {
+            "exact" : "good"
+          },
+          "abc1" : {
+            "exact" : "good"
+          }
+        },
+        "method" : {
+          "regex" : "GET|POST"
+        },
+        "queryParams" : {
+          "qzsdss" : {
+            "prefix" : "good"
+          },
+          "qzsdss11" : {
+            "prefix" : "good"
+          }
+        },
+        "uri" : {
+          "regex" : ".*"
+        }
+      } ],
+      "meta" : {
+        "qz_cluster_name" : "gateway-proxy-102"
+      },
+      "priority" : 46,
+      "retries" : {
+        "attempts" : 5
+      },
+      "route" : [ {
+        "destination" : {
+          "host" : "a.powerful-v13.svc.cluster.local",
+          "port" : {
+            "number" : 80
+          },
+          "subset" : "autotest-auto-test3-gateway-proxy-102"
+        },
+        "weight" : 100
+      } ]
+    }, {
+      "api" : "autotest-auto-test3",
+      "match" : [ {
+        "headers" : {
+          ":authority" : {
+            "regex" : "ABC|DEF"
+          },
+          "abc" : {
+            "exact" : "good"
+          },
+          "abc1" : {
+            "exact" : "good"
+          }
+        },
+        "method" : {
+          "regex" : "GET|POST"
+        },
+        "queryParams" : {
+          "qzsdss" : {
+            "prefix" : "good"
+          },
+          "qzsdss11" : {
+            "prefix" : "good"
+          }
+        },
+        "uri" : {
+          "regex" : ".*"
+        }
+      } ],
+      "meta" : {
+        "qz_cluster_name" : "gateway-proxy-102"
+      },
+      "priority" : 46,
+      "retries" : {
+        "attempts" : 5
+      },
+      "route" : [ {
+        "destination" : {
+          "host" : "a.powerful-v13.svc.cluster.local",
+          "port" : {
+            "number" : 80
+          },
+          "subset" : "autotest-auto-test3-gateway-proxy-102"
+        },
+        "weight" : 100
+      } ]
+    } ],
+    "plugins" : {
+      "autotest-auto-test3" : {
+        "userPlugin" : [ {
+          "ratelimit" : {
+            "rateLimits" : [ {
+              "actions" : [ {
+                "headerValueMatch" : {
+                  "descriptorValue" : "Service[autotest]-User[none]-Api[autotest-auto-test3]-Id[02f9e466-122a-4b8e-900d-cbc501d58940]",
+                  "headers" : [ {
+                    "regexMatch" : ".*",
+                    "name" : ":path"
+                  }, {
+                    "regexMatch" : "ABC|DEF",
+                    "name" : ":authority"
+                  }, {
+                    "regexMatch" : "GET|POST",
+                    "name" : ":method"
+                  }, {
+                    "regexMatch" : "ratelimit",
+                    "name" : "plugin"
+                  } ]
+                }
+              } ],
+              "stage" : 0
+            } ]
+          }
+        } ]
+      }
+    }
+  }
+}
+2020-04-08 20:08:47.941 [http-nio-9090-exec-3]-[INFO ]  [INFO] [com.netease.cloud.nsf.core.k8s.http.DefaultK8sHttpClient:88] Response{protocol=http/1.1, code=200, message=OK, url=https://103.196.65.178:6443/apis/networking.istio.io/v1alpha3/namespaces/gateway-system/virtualservices/autotest-gateway-proxy-102}
+2020-04-08 20:08:47.942 [http-nio-9090-exec-3]-[INFO ]  [INFO] [com.netease.cloud.nsf.core.k8s.http.DefaultK8sHttpClient:92] Response body: 
+{
+  "apiVersion" : "networking.istio.io/v1alpha3",
+  "kind" : "VirtualService",
+  "metadata" : {
+    "creationTimestamp" : "2020-04-08T08:35:20Z",
+    "generation" : 4,
+    "labels" : {
+      "api_service" : "autotest",
+      "skiff-api-plane-type" : "qz-gw",
+      "skiff-api-plane-version" : "release-1.2"
+    },
+    "name" : "autotest-gateway-proxy-102",
+    "namespace" : "gateway-system",
+    "resourceVersion" : "44408569",
+    "selfLink" : "/apis/networking.istio.io/v1alpha3/namespaces/gateway-system/virtualservices/autotest-gateway-proxy-102",
+    "uid" : "e195a02c-7973-11ea-ba47-fa163e3ce980"
+  },
+  "spec" : {
+    "gateways" : [ "gateway-proxy-102" ],
+    "hosts" : [ "ABC", "DEF" ],
+    "http" : [ {
+      "api" : "auto-test3",
+      "match" : [ {
+        "headers" : {
+          ":authority" : {
+            "regex" : "ABC|DEF"
+          },
+          "plugin" : {
+            "regex" : "^rewrite$"
+          }
+        },
+        "method" : {
+          "regex" : "GET|POST"
+        },
+        "uri" : {
+          "regex" : "(?:.*.*)"
+        }
+      } ],
+      "priority" : 47,
+      "retries" : {
+        "attempts" : 5
+      },
+      "route" : [ {
+        "destination" : {
+          "host" : "a.powerful-v13.svc.cluster.local",
+          "port" : {
+            "number" : 80
+          },
+          "subset" : "autotest-auto-test3-gateway-proxy-102"
+        },
+        "weight" : 100
+      } ]
+    }, {
+      "api" : "auto-test3",
+      "match" : [ {
+        "headers" : {
+          ":authority" : {
+            "regex" : "ABC|DEF"
+          },
+          "abc" : {
+            "exact" : "good"
+          },
+          "abc1" : {
+            "exact" : "good"
+          }
+        },
+        "method" : {
+          "regex" : "GET|POST"
+        },
+        "queryParams" : {
+          "qzsdss" : {
+            "prefix" : "good"
+          },
+          "qzsdss11" : {
+            "prefix" : "good"
+          }
+        },
+        "uri" : {
+          "regex" : ".*"
+        }
+      } ],
+      "meta" : {
+        "qz_cluster_name" : "gateway-proxy-102"
+      },
+      "priority" : 46,
+      "retries" : {
+        "attempts" : 5
+      },
+      "route" : [ {
+        "destination" : {
+          "host" : "a.powerful-v13.svc.cluster.local",
+          "port" : {
+            "number" : 80
+          },
+          "subset" : "autotest-auto-test3-gateway-proxy-102"
+        },
+        "weight" : 100
+      } ]
+    }, {
+      "api" : "autotest-auto-test3",
+      "match" : [ {
+        "headers" : {
+          ":authority" : {
+            "regex" : "ABC|DEF"
+          },
+          "abc" : {
+            "exact" : "good"
+          },
+          "abc1" : {
+            "exact" : "good"
+          }
+        },
+        "method" : {
+          "regex" : "GET|POST"
+        },
+        "queryParams" : {
+          "qzsdss" : {
+            "prefix" : "good"
+          },
+          "qzsdss11" : {
+            "prefix" : "good"
+          }
+        },
+        "uri" : {
+          "regex" : ".*"
+        }
+      } ],
+      "meta" : {
+        "qz_cluster_name" : "gateway-proxy-102"
+      },
+      "priority" : 46,
+      "retries" : {
+        "attempts" : 5
+      },
+      "route" : [ {
+        "destination" : {
+          "host" : "a.powerful-v13.svc.cluster.local",
+          "port" : {
+            "number" : 80
+          },
+          "subset" : "autotest-auto-test3-gateway-proxy-102"
+        },
+        "weight" : 100
+      } ]
+    } ],
+    "plugins" : {
+      "autotest-auto-test3" : {
+        "userPlugin" : [ {
+          "ratelimit" : {
+            "rateLimits" : [ {
+              "actions" : [ {
+                "headerValueMatch" : {
+                  "descriptorValue" : "Service[autotest]-User[none]-Api[autotest-auto-test3]-Id[02f9e466-122a-4b8e-900d-cbc501d58940]",
+                  "headers" : [ {
+                    "name" : ":path",
+                    "regexMatch" : ".*"
+                  }, {
+                    "name" : ":authority",
+                    "regexMatch" : "ABC|DEF"
+                  }, {
+                    "name" : ":method",
+                    "regexMatch" : "GET|POST"
+                  }, {
+                    "name" : "plugin",
+                    "regexMatch" : "ratelimit"
+                  } ]
+                }
+              } ],
+              "stage" : 0
+            } ]
+          }
+        } ]
+      }
+    }
+  }
+}
+2020-04-08 20:08:47.943 [http-nio-9090-exec-3]-[INFO ]  [INFO] [com.netease.cloud.nsf.core.k8s.http.DefaultK8sHttpClient:75] Request{method=GET, url=https://103.196.65.178:6443/apis/networking.istio.io/v1alpha3/namespaces/gateway-system/destinationrules/a.powerful-v13.svc.cluster.local, tags={}}
+2020-04-08 20:08:47.948 [http-nio-9090-exec-3]-[INFO ]  [INFO] [com.netease.cloud.nsf.core.k8s.http.DefaultK8sHttpClient:88] Response{protocol=http/1.1, code=200, message=OK, url=https://103.196.65.178:6443/apis/networking.istio.io/v1alpha3/namespaces/gateway-system/destinationrules/a.powerful-v13.svc.cluster.local}
+2020-04-08 20:08:47.948 [http-nio-9090-exec-3]-[INFO ]  [INFO] [com.netease.cloud.nsf.core.k8s.http.DefaultK8sHttpClient:200] Response body: 
+{
+  "apiVersion" : "networking.istio.io/v1alpha3",
+  "kind" : "DestinationRule",
+  "metadata" : {
+    "creationTimestamp" : "2020-04-08T08:05:57Z",
+    "generation" : 2,
+    "labels" : {
+      "skiff-api-plane-type" : "qz-gw",
+      "skiff-api-plane-version" : "release-1.2"
+    },
+    "name" : "a.powerful-v13.svc.cluster.local",
+    "namespace" : "gateway-system",
+    "resourceVersion" : "44375997",
+    "selfLink" : "/apis/networking.istio.io/v1alpha3/namespaces/gateway-system/destinationrules/a.powerful-v13.svc.cluster.local",
+    "uid" : "c7415db7-796f-11ea-ba47-fa163e3ce980"
+  },
+  "spec" : {
+    "host" : "a.powerful-v13.svc.cluster.local",
+    "subsets" : [ {
+      "api" : "autotest-auto-test3",
+      "name" : "autotest-auto-test3-gateway-proxy-121d1"
+    }, {
+      "api" : "autotest-auto-test3",
+      "name" : "autotest-auto-test3-gateway-proxy-102"
+    } ]
+  }
+}
+2020-04-08 20:08:47.960 [http-nio-9090-exec-3]-[INFO ]  [INFO] [com.netease.cloud.nsf.core.k8s.http.DefaultK8sHttpClient:75] Request{method=GET, url=https://103.196.65.178:6443/apis/networking.istio.io/v1alpha3/namespaces/gateway-system/destinationrules/a.powerful-v13.svc.cluster.local, tags={}}
+2020-04-08 20:08:47.966 [http-nio-9090-exec-3]-[INFO ]  [INFO] [com.netease.cloud.nsf.core.k8s.http.DefaultK8sHttpClient:88] Response{protocol=http/1.1, code=200, message=OK, url=https://103.196.65.178:6443/apis/networking.istio.io/v1alpha3/namespaces/gateway-system/destinationrules/a.powerful-v13.svc.cluster.local}
+2020-04-08 20:08:47.966 [http-nio-9090-exec-3]-[INFO ]  [INFO] [com.netease.cloud.nsf.core.k8s.http.DefaultK8sHttpClient:200] Response body: 
+{
+  "apiVersion" : "networking.istio.io/v1alpha3",
+  "kind" : "DestinationRule",
+  "metadata" : {
+    "creationTimestamp" : "2020-04-08T08:05:57Z",
+    "generation" : 2,
+    "labels" : {
+      "skiff-api-plane-type" : "qz-gw",
+      "skiff-api-plane-version" : "release-1.2"
+    },
+    "name" : "a.powerful-v13.svc.cluster.local",
+    "namespace" : "gateway-system",
+    "resourceVersion" : "44375997",
+    "selfLink" : "/apis/networking.istio.io/v1alpha3/namespaces/gateway-system/destinationrules/a.powerful-v13.svc.cluster.local",
+    "uid" : "c7415db7-796f-11ea-ba47-fa163e3ce980"
+  },
+  "spec" : {
+    "host" : "a.powerful-v13.svc.cluster.local",
+    "subsets" : [ {
+      "api" : "autotest-auto-test3",
+      "name" : "autotest-auto-test3-gateway-proxy-121d1"
+    }, {
+      "api" : "autotest-auto-test3",
+      "name" : "autotest-auto-test3-gateway-proxy-102"
+    } ]
+  }
+}
+2020-04-08 20:08:47.967 [http-nio-9090-exec-3]-[INFO ]  [INFO] [com.netease.cloud.nsf.core.k8s.http.DefaultK8sHttpClient:75] Request{method=PUT, url=https://103.196.65.178:6443/apis/networking.istio.io/v1alpha3/namespaces/gateway-system/destinationrules/a.powerful-v13.svc.cluster.local, tags={}}
+2020-04-08 20:08:47.967 [http-nio-9090-exec-3]-[INFO ]  [INFO] [com.netease.cloud.nsf.core.k8s.http.DefaultK8sHttpClient:81] Request body: 
+{
+  "apiVersion" : "networking.istio.io/v1alpha3",
+  "kind" : "DestinationRule",
+  "metadata" : {
+    "annotations" : { },
+    "creationTimestamp" : "2020-04-08T08:05:57Z",
+    "generation" : 2,
+    "labels" : {
+      "skiff-api-plane-type" : "qz-gw",
+      "skiff-api-plane-version" : "release-1.2"
+    },
+    "name" : "a.powerful-v13.svc.cluster.local",
+    "namespace" : "gateway-system",
+    "resourceVersion" : "44375997",
+    "selfLink" : "/apis/networking.istio.io/v1alpha3/namespaces/gateway-system/destinationrules/a.powerful-v13.svc.cluster.local",
+    "uid" : "c7415db7-796f-11ea-ba47-fa163e3ce980"
+  },
+  "spec" : {
+    "host" : "a.powerful-v13.svc.cluster.local",
+    "subsets" : [ {
+      "api" : "autotest-auto-test3",
+      "name" : "autotest-auto-test3-gateway-proxy-121d1"
+    }, {
+      "api" : "autotest-auto-test3",
+      "name" : "autotest-auto-test3-gateway-proxy-102"
+    } ]
+  }
+}
+2020-04-08 20:08:48.977 [http-nio-9090-exec-3]-[INFO ]  [INFO] [com.netease.cloud.nsf.core.k8s.http.DefaultK8sHttpClient:88] Response{protocol=http/1.1, code=200, message=OK, url=https://103.196.65.178:6443/apis/networking.istio.io/v1alpha3/namespaces/gateway-system/destinationrules/a.powerful-v13.svc.cluster.local}
+2020-04-08 20:08:48.978 [http-nio-9090-exec-3]-[INFO ]  [INFO] [com.netease.cloud.nsf.core.k8s.http.DefaultK8sHttpClient:92] Response body: 
+{
+  "apiVersion" : "networking.istio.io/v1alpha3",
+  "kind" : "DestinationRule",
+  "metadata" : {
+    "creationTimestamp" : "2020-04-08T08:05:57Z",
+    "generation" : 2,
+    "labels" : {
+      "skiff-api-plane-type" : "qz-gw",
+      "skiff-api-plane-version" : "release-1.2"
+    },
+    "name" : "a.powerful-v13.svc.cluster.local",
+    "namespace" : "gateway-system",
+    "resourceVersion" : "44375997",
+    "selfLink" : "/apis/networking.istio.io/v1alpha3/namespaces/gateway-system/destinationrules/a.powerful-v13.svc.cluster.local",
+    "uid" : "c7415db7-796f-11ea-ba47-fa163e3ce980"
+  },
+  "spec" : {
+    "host" : "a.powerful-v13.svc.cluster.local",
+    "subsets" : [ {
+      "api" : "autotest-auto-test3",
+      "name" : "autotest-auto-test3-gateway-proxy-121d1"
+    }, {
+      "api" : "autotest-auto-test3",
+      "name" : "autotest-auto-test3-gateway-proxy-102"
+    } ]
+  }
+}
+2020-04-08 20:08:48.978 [http-nio-9090-exec-3]-[INFO ]  [INFO] [com.netease.cloud.nsf.core.k8s.http.DefaultK8sHttpClient:75] Request{method=GET, url=https://103.196.65.178:6443/apis/networking.istio.io/v1alpha3/namespaces/gateway-system/sharedconfigs/qz-share-config, tags={}}
+2020-04-08 20:08:48.985 [http-nio-9090-exec-3]-[INFO ]  [INFO] [com.netease.cloud.nsf.core.k8s.http.DefaultK8sHttpClient:88] Response{protocol=http/1.1, code=200, message=OK, url=https://103.196.65.178:6443/apis/networking.istio.io/v1alpha3/namespaces/gateway-system/sharedconfigs/qz-share-config}
+2020-04-08 20:08:48.986 [http-nio-9090-exec-3]-[INFO ]  [INFO] [com.netease.cloud.nsf.core.k8s.http.DefaultK8sHttpClient:200] Response body: 
+{
+  "apiVersion" : "networking.istio.io/v1alpha3",
+  "kind" : "SharedConfig",
+  "metadata" : {
+    "creationTimestamp" : "2020-03-13T10:31:37Z",
+    "generation" : 5,
+    "name" : "qz-share-config",
+    "namespace" : "gateway-system",
+    "resourceVersion" : "44371752",
+    "selfLink" : "/apis/networking.istio.io/v1alpha3/namespaces/gateway-system/sharedconfigs/qz-share-config",
+    "uid" : "d18a9264-6515-11ea-ba47-fa163e3ce980"
+  },
+  "spec" : {
+    "rateLimitConfigs" : [ {
+      "descriptors" : [ {
+        "api" : "httpbin",
+        "key" : "header_match",
+        "rateLimit" : {
+          "requestsPerUnit" : 1,
+          "unit" : "HOUR"
+        },
+        "value" : "Service[httpbin]-User[none]-Api[httpbin]-Id[4aac39d9-d184-4024-815f-1ceb54184f39]"
+      }, {
+        "api" : "auto-test3",
+        "key" : "header_match",
+        "rateLimit" : {
+          "requestsPerUnit" : 1,
+          "unit" : "HOUR"
+        },
+        "value" : "Service[autotest]-User[none]-Api[auto-test3]-Id[29bfe1e1-9ccf-4575-a6bb-63fdbbf55817]"
+      } ],
+      "domain" : "qingzhou"
+    } ]
+  }
+}
+2020-04-08 20:08:49.006 [http-nio-9090-exec-3]-[INFO ]  [INFO] [com.netease.cloud.nsf.core.k8s.http.DefaultK8sHttpClient:75] Request{method=GET, url=https://103.196.65.178:6443/apis/networking.istio.io/v1alpha3/namespaces/gateway-system/sharedconfigs/qz-share-config, tags={}}
+2020-04-08 20:08:49.011 [http-nio-9090-exec-3]-[INFO ]  [INFO] [com.netease.cloud.nsf.core.k8s.http.DefaultK8sHttpClient:88] Response{protocol=http/1.1, code=200, message=OK, url=https://103.196.65.178:6443/apis/networking.istio.io/v1alpha3/namespaces/gateway-system/sharedconfigs/qz-share-config}
+2020-04-08 20:08:49.011 [http-nio-9090-exec-3]-[INFO ]  [INFO] [com.netease.cloud.nsf.core.k8s.http.DefaultK8sHttpClient:200] Response body: 
+{
+  "apiVersion" : "networking.istio.io/v1alpha3",
+  "kind" : "SharedConfig",
+  "metadata" : {
+    "creationTimestamp" : "2020-03-13T10:31:37Z",
+    "generation" : 5,
+    "name" : "qz-share-config",
+    "namespace" : "gateway-system",
+    "resourceVersion" : "44371752",
+    "selfLink" : "/apis/networking.istio.io/v1alpha3/namespaces/gateway-system/sharedconfigs/qz-share-config",
+    "uid" : "d18a9264-6515-11ea-ba47-fa163e3ce980"
+  },
+  "spec" : {
+    "rateLimitConfigs" : [ {
+      "descriptors" : [ {
+        "api" : "httpbin",
+        "key" : "header_match",
+        "rateLimit" : {
+          "requestsPerUnit" : 1,
+          "unit" : "HOUR"
+        },
+        "value" : "Service[httpbin]-User[none]-Api[httpbin]-Id[4aac39d9-d184-4024-815f-1ceb54184f39]"
+      }, {
+        "api" : "auto-test3",
+        "key" : "header_match",
+        "rateLimit" : {
+          "requestsPerUnit" : 1,
+          "unit" : "HOUR"
+        },
+        "value" : "Service[autotest]-User[none]-Api[auto-test3]-Id[29bfe1e1-9ccf-4575-a6bb-63fdbbf55817]"
+      } ],
+      "domain" : "qingzhou"
+    } ]
+  }
+}
+2020-04-08 20:08:49.012 [http-nio-9090-exec-3]-[INFO ]  [INFO] [com.netease.cloud.nsf.core.k8s.http.DefaultK8sHttpClient:75] Request{method=PUT, url=https://103.196.65.178:6443/apis/networking.istio.io/v1alpha3/namespaces/gateway-system/sharedconfigs/qz-share-config, tags={}}
+2020-04-08 20:08:49.012 [http-nio-9090-exec-3]-[INFO ]  [INFO] [com.netease.cloud.nsf.core.k8s.http.DefaultK8sHttpClient:81] Request body: 
+{
+  "apiVersion" : "networking.istio.io/v1alpha3",
+  "kind" : "SharedConfig",
+  "metadata" : {
+    "annotations" : { },
+    "creationTimestamp" : "2020-03-13T10:31:37Z",
+    "generation" : 5,
+    "labels" : { },
+    "name" : "qz-share-config",
+    "namespace" : "gateway-system",
+    "resourceVersion" : "44371752",
+    "selfLink" : "/apis/networking.istio.io/v1alpha3/namespaces/gateway-system/sharedconfigs/qz-share-config",
+    "uid" : "d18a9264-6515-11ea-ba47-fa163e3ce980"
+  },
+  "spec" : {
+    "rateLimitConfigs" : [ {
+      "descriptors" : [ {
+        "api" : "httpbin",
+        "key" : "header_match",
+        "rateLimit" : {
+          "requestsPerUnit" : 1,
+          "unit" : "HOUR"
+        },
+        "value" : "Service[httpbin]-User[none]-Api[httpbin]-Id[4aac39d9-d184-4024-815f-1ceb54184f39]"
+      }, {
+        "api" : "auto-test3",
+        "key" : "header_match",
+        "rateLimit" : {
+          "requestsPerUnit" : 1,
+          "unit" : "HOUR"
+        },
+        "value" : "Service[autotest]-User[none]-Api[auto-test3]-Id[02f9e466-122a-4b8e-900d-cbc501d58940]"
+      } ],
+      "domain" : "qingzhou"
+    } ]
+  }
+}
+2020-04-08 20:08:50.024 [http-nio-9090-exec-3]-[INFO ]  [INFO] [com.netease.cloud.nsf.core.k8s.http.DefaultK8sHttpClient:88] Response{protocol=http/1.1, code=200, message=OK, url=https://103.196.65.178:6443/apis/networking.istio.io/v1alpha3/namespaces/gateway-system/sharedconfigs/qz-share-config}
+2020-04-08 20:08:50.024 [http-nio-9090-exec-3]-[INFO ]  [INFO] [com.netease.cloud.nsf.core.k8s.http.DefaultK8sHttpClient:92] Response body: 
+{
+  "apiVersion" : "networking.istio.io/v1alpha3",
+  "kind" : "SharedConfig",
+  "metadata" : {
+    "creationTimestamp" : "2020-03-13T10:31:37Z",
+    "generation" : 6,
+    "name" : "qz-share-config",
+    "namespace" : "gateway-system",
+    "resourceVersion" : "44408575",
+    "selfLink" : "/apis/networking.istio.io/v1alpha3/namespaces/gateway-system/sharedconfigs/qz-share-config",
+    "uid" : "d18a9264-6515-11ea-ba47-fa163e3ce980"
+  },
+  "spec" : {
+    "rateLimitConfigs" : [ {
+      "descriptors" : [ {
+        "api" : "httpbin",
+        "key" : "header_match",
+        "rateLimit" : {
+          "requestsPerUnit" : 1,
+          "unit" : "HOUR"
+        },
+        "value" : "Service[httpbin]-User[none]-Api[httpbin]-Id[4aac39d9-d184-4024-815f-1ceb54184f39]"
+      }, {
+        "api" : "auto-test3",
+        "key" : "header_match",
+        "rateLimit" : {
+          "requestsPerUnit" : 1,
+          "unit" : "HOUR"
+        },
+        "value" : "Service[autotest]-User[none]-Api[auto-test3]-Id[02f9e466-122a-4b8e-900d-cbc501d58940]"
+      } ],
+      "domain" : "qingzhou"
+    } ]
+  }
+}
+2020-04-08 20:22:08.692 [Thread-9]-[INFO ]  [INFO] [org.springframework.boot.context.embedded.AnnotationConfigEmbeddedWebApplicationContext:984] Closing org.springframework.boot.context.embedded.AnnotationConfigEmbeddedWebApplicationContext@78a773fd: startup date [Wed Apr 08 20:08:35 CST 2020]; root of context hierarchy
+2020-04-08 20:22:08.694 [Thread-9]-[INFO ]  [INFO] [org.springframework.jmx.export.annotation.AnnotationMBeanExporter:449] Unregistering JMX-exposed beans on shutdown

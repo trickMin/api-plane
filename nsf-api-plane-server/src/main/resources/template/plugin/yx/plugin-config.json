@@ -95,6 +95,18 @@
       "pluginScope": "routeRule",
       "pluginPriority": "3000",
       "instructionForUse": "请求转换插件"
+    },
+    {
+      "name": "rewrite",
+      "schema": "plugin/portal/rewrite.json",
+      "description": "重写插件",
+      "processor": "AggregateExtensionProcessor",
+      "author": "system",
+      "createTime": "1572537600000",
+      "updateTime": "1572537600000",
+      "pluginScope": "routeRule",
+      "pluginPriority": "2500",
+      "instructionForUse": "重写插件"
     }
   ]
 }

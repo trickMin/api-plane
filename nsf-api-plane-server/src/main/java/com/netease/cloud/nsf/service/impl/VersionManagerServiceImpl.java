@@ -1,6 +1,7 @@
 package com.netease.cloud.nsf.service.impl;
 
 import com.netease.cloud.nsf.core.servicemesh.ServiceMeshConfigManager;
+import com.netease.cloud.nsf.meta.IptablesConfig;
 import com.netease.cloud.nsf.meta.PodStatus;
 import com.netease.cloud.nsf.meta.PodVersion;
 import com.netease.cloud.nsf.meta.SidecarVersionManagement;
@@ -31,5 +32,10 @@ public class VersionManagerServiceImpl implements VersionManagerService {
     @Override
     public List<PodStatus> queryByPodNameList(PodVersion podVersion) {
         return configManager.querySVMConfig(podVersion);
+    }
+
+    @Override
+    public IptablesConfig queryIptablesConfigByApp(String clusterId, String namespace, String appName) {
+        return configManager.queryIptablesConfigByApp(clusterId, namespace, appName);
     }
 }

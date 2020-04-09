@@ -1,10 +1,7 @@
 package com.netease.cloud.nsf.core.servicemesh;
 
 import com.netease.cloud.nsf.core.ConfigManager;
-import com.netease.cloud.nsf.meta.PodStatus;
-import com.netease.cloud.nsf.meta.PodVersion;
-import com.netease.cloud.nsf.meta.ServiceMeshRateLimit;
-import com.netease.cloud.nsf.meta.SidecarVersionManagement;
+import com.netease.cloud.nsf.meta.*;
 
 import java.util.List;
 
@@ -33,6 +30,7 @@ public interface ServiceMeshConfigManager extends ConfigManager {
      */
     String querySVMExpectedVersion(String clusterId, String namespace, String workLoadType, String workLoadName);
 
+    IptablesConfig queryIptablesConfigByApp(String cluterId, String namespace, String appName);
 
     void updateRateLimit(ServiceMeshRateLimit rateLimit);
 }

@@ -21,6 +21,7 @@ public abstract class APIDataHandler implements DataHandler<API> {
 
         String uris = getUris(api);
         String methods = getMethods(api);
+        String apiName = getApiName(api);
         // host用于virtualservice的host
         List<String> hostList = productHostList(api);
         // host用于match中的header match
@@ -31,6 +32,7 @@ public abstract class APIDataHandler implements DataHandler<API> {
                 .put(NAMESPACE, api.getNamespace())
                 .put(API_SERVICE, api.getService())
                 .put(API_NAME, api.getName())
+                .put(API_IDENTITY_NAME, apiName)
                 .put(API_LOADBALANCER, api.getLoadBalancer())
                 .put(API_GATEWAYS, api.getGateways())
                 .put(API_REQUEST_URIS, uris)
@@ -57,7 +59,7 @@ public abstract class APIDataHandler implements DataHandler<API> {
                 .put(VIRTUAL_SERVICE_RETRY_PER_TIMEOUT, api.getPerTryTimeout())
                 .put(VIRTUAL_SERVICE_RETRY_RETRY_ON, api.getRetryOn())
                 .put(SERVICE_INFO_API_GATEWAY, getGateways(api))
-                .put(SERVICE_INFO_API_NAME, api.getName())
+                .put(SERVICE_INFO_API_NAME, apiName)
                 .put(SERVICE_INFO_API_SERVICE, getOrDefault(api.getService(), "NoneService"))
                 .put(SERVICE_INFO_API_METHODS, getOrDefault(methods, ".*"))
                 .put(SERVICE_INFO_API_REQUEST_URIS, getOrDefault(uris, ".*"))
@@ -112,5 +114,9 @@ public abstract class APIDataHandler implements DataHandler<API> {
 
     List<String> productHostList(API api) {
         return api.getHosts();
+    }
+
+    String getApiName(API api) {
+        return api.getName();
     }
 }

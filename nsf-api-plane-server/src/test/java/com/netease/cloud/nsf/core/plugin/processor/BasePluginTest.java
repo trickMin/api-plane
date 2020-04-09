@@ -16,5 +16,7 @@ public class BasePluginTest extends BaseTest {
         serviceInfo.setPriority("100");
         serviceInfo.setSubset("sb1");
         serviceInfo.setServiceName("svvc");
+        serviceInfo.setGateway("proxy");
+        serviceInfo.setUri("/uri");
     }
 }

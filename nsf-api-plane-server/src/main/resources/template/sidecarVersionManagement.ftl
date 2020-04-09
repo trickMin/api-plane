@@ -11,19 +11,33 @@ spec:
     retryInterval: 3s
   sidecarVersionSpec:
 <#list t_version_manager_workloads! as w>
-  - expectedVersion: ${w.expectedVersion}
-    podsHash: none
+  - podsHash: none
+    <#if w.expectedVersion?? >
+    expectedVersion: ${w.expectedVersion}
+    </#if>
+    <#if w.iptablesParams?? >
+    iptablesParams: ${w.iptablesParams}
+    </#if>
+    <#if w.iptablesDetail?? >
+    iptablesDetail: '${w.iptablesDetail}'
+    </#if>
     <#if w.workLoadType == "Deployment">
     viaDeployment:
+      name: ${w.workLoadName}
     </#if>
     <#if w.workLoadType == "StatefulSet">
     viaStatefulSet:
+      name: ${w.workLoadName}
     </#if>
     <#if w.workLoadType == "Service">
     viaService:
-    </#if>
-    <#if w.workLoadType == "Labelselector">
-    viaLabelSelector:
-    </#if>
       name: ${w.workLoadName}
+    </#if>
+    <#if w.workLoadType == "LabelSelector">
+    viaLabelSelector:
+      labels:
+      <#list w.labels?keys as key>
+        ${key}: ${w.labels[key]!}
+      </#list>
+    </#if>
 </#list>

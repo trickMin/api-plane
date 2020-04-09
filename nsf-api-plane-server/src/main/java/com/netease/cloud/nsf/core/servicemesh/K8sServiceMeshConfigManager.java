@@ -4,10 +4,7 @@ import com.netease.cloud.nsf.core.AbstractConfigManagerSupport;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.k8s.K8sResourcePack;
 import com.netease.cloud.nsf.core.k8s.operator.VersionManagerOperator;
-import com.netease.cloud.nsf.meta.PodStatus;
-import com.netease.cloud.nsf.meta.PodVersion;
-import com.netease.cloud.nsf.meta.ServiceMeshRateLimit;
-import com.netease.cloud.nsf.meta.SidecarVersionManagement;
+import com.netease.cloud.nsf.meta.*;
 import com.netease.cloud.nsf.service.PluginService;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import me.snowdrop.istio.api.networking.v1alpha3.VersionManager;
@@ -60,6 +57,16 @@ public class K8sServiceMeshConfigManager extends AbstractConfigManagerSupport im
         }
         VersionManagerOperator ir = (VersionManagerOperator) modelEngine.getOperator().resolve(versionmanager);
         return ir.getExpectedVersion((VersionManager)versionmanager, workLoadType, workLoadName);
+    }
+
+    @Override
+    public IptablesConfig queryIptablesConfigByApp(String clusterId, String namespace, String appName) {
+        HasMetadata versionmanager = multiK8sConfigStore.get(K8sResourceEnum.VersionManager.name(), namespace, VM_RESOURCE_NAME, clusterId);
+        if (versionmanager == null) {
+            return null;
+        }
+        VersionManagerOperator ir = (VersionManagerOperator) modelEngine.getOperator().resolve(versionmanager);
+        return ir.getIptablesConfigOfApp((VersionManager) versionmanager, appName);
     }
 
     @Override

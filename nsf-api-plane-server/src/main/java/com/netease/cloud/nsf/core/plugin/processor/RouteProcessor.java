@@ -179,10 +179,13 @@ public class RouteProcessor extends AbstractSchemaProcessor implements SchemaPro
         } else {
             // 新的使用方式
             // 例如rewrite_regex: /anything/(.*)/(.*) $.action.target:/$2/$1
-            Matcher matcher = Pattern.compile("\\$\\d").matcher(rg.getValue("$.action.target"));
+            Matcher matcher = Pattern.compile("\\$(\\d)").matcher(rg.getValue("$.action.target"));
             int regexCount = 0;
             while (matcher.find()) {
-                regexCount++;
+                int group = Integer.parseInt(matcher.group(1));
+                if(group > regexCount){
+                    regexCount = group;
+                }
             }
             String original = rg.getValue("$.action.rewrite_regex");
             String target = transformPath.replaceAll("(\\$\\d)", "{{$1}}");

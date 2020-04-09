@@ -1,5 +1,6 @@
 package com.netease.cloud.nsf.cache.meta;
 
+import com.netease.cloud.nsf.meta.IptablesConfig;
 import com.netease.cloud.nsf.util.Const;
 import io.fabric8.kubernetes.api.model.*;
 import org.springframework.util.StringUtils;
@@ -40,6 +41,8 @@ public class PodDTO<T extends HasMetadata> extends K8sResourceDTO {
     private int versionManagerCrdStatus;
 
     private String sidecarContainerStatus;
+
+    private final IptablesConfig iptablesConfig;
 
     public String getSidecarContainerStatus() {
         return sidecarContainerStatus;
@@ -127,12 +130,20 @@ public class PodDTO<T extends HasMetadata> extends K8sResourceDTO {
                         .setCurrState(cs.getState());
                 totalRestartCount += cs.getRestartCount();
             });
-
-            this.totalLimitCpu = String.format(LIMIT_CPU_FORMAT, this.totalLimitCpuValue);
-            this.totalLimitMemory = String.format(LIMIT_MEMORY_FORMAT, this.totalLimitMemoryValue);
+            if (this.totalLimitCpuValue > 0){
+                this.totalLimitCpu = String.format(LIMIT_CPU_FORMAT, this.totalLimitCpuValue);
+            }
+            if (this.totalLimitMemoryValue > 0){
+                this.totalLimitMemory = String.format(LIMIT_MEMORY_FORMAT, this.totalLimitMemoryValue);
+            }
             containerInfoList.addAll(containerInfoMap.values());
 
         }
+        iptablesConfig = IptablesConfig.readFromJson(obj.getMetadata().getAnnotations().get("envoy.io/iptablesDetail"));
+    }
+
+    public IptablesConfig getIptablesConfig() {
+        return iptablesConfig;
     }
 
 
@@ -250,7 +261,7 @@ public class PodDTO<T extends HasMetadata> extends K8sResourceDTO {
         }
     }
 
-    private boolean isInjected(Pod pod){
+    public static boolean isInjected(Pod pod){
         if (pod.getStatus() == null){
             return false;
         }
