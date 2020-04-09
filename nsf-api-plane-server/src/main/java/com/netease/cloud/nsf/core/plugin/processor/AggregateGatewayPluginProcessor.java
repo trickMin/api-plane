@@ -6,6 +6,7 @@ import com.netease.cloud.nsf.core.plugin.FragmentHolder;
 import com.netease.cloud.nsf.meta.ServiceInfo;
 import com.netease.cloud.nsf.util.CommonUtil;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -45,16 +46,19 @@ public class AggregateGatewayPluginProcessor extends AbstractSchemaProcessor imp
         List<FragmentHolder> ret = Lists.newArrayList();
 
         List<String> luaPlugins = plugins.stream().filter(CommonUtil::isLuaPlugin).collect(Collectors.toList());
-        List<FragmentHolder> luaHolder = getProcessor("RestyProcessor").process(luaPlugins, serviceInfo);
-        luaHolder.forEach(this::convertToGatewayPlugin);
-        ret.addAll(luaHolder);
+        if (!CollectionUtils.isEmpty(luaPlugins)) {
+            List<FragmentHolder> luaHolder = getProcessor("RestyProcessor").process(luaPlugins, serviceInfo);
+            luaHolder.forEach(this::convertToGatewayPlugin);
+            ret.addAll(luaHolder);
+        }
 
         List<String> notLuaPlugins = plugins.stream().filter(item -> !CommonUtil.isLuaPlugin(item)).collect(Collectors.toList());
-
-        List<FragmentHolder> notLuaHolder = notLuaPlugins.stream()
-                .map(plugin -> process(plugin, serviceInfo))
-                .collect(Collectors.toList());
-        ret.addAll(notLuaHolder);
+        if (!CollectionUtils.isEmpty(notLuaPlugins)) {
+            List<FragmentHolder> notLuaHolder = notLuaPlugins.stream()
+                    .map(plugin -> process(plugin, serviceInfo))
+                    .collect(Collectors.toList());
+            ret.addAll(notLuaHolder);
+        }
 
         return ret;
     }
