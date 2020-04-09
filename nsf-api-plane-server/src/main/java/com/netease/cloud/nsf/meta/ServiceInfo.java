@@ -32,6 +32,19 @@ public class ServiceInfo {
 
     private String priority = wrap(SERVICE_INFO_VIRTUAL_SERVICE_PLUGIN_MATCH_PRIORITY);
 
+    public static ServiceInfo instance() {
+        ServiceInfo serviceInfo = new ServiceInfo();
+        serviceInfo.setPriority(null);
+        serviceInfo.setApiName(null);
+        serviceInfo.setGateway(null);
+        serviceInfo.setHosts(null);
+        serviceInfo.setServiceName(null);
+        serviceInfo.setSubset(null);
+        serviceInfo.setUri(null);
+        serviceInfo.setMethod(null);
+        return serviceInfo;
+    }
+
     public String getApiName() {
         return apiName;
     }

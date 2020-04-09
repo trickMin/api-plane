@@ -5,7 +5,9 @@ import com.netease.cloud.nsf.core.gateway.handler.VersionManagersDataHandler;
 import com.netease.cloud.nsf.core.gateway.processor.DefaultModelProcessor;
 import com.netease.cloud.nsf.core.k8s.K8sResourcePack;
 import com.netease.cloud.nsf.core.k8s.operator.IntegratedResourceOperator;
+import com.netease.cloud.nsf.core.plugin.FragmentHolder;
 import com.netease.cloud.nsf.core.template.TemplateTranslator;
+import com.netease.cloud.nsf.meta.ServiceInfo;
 import com.netease.cloud.nsf.meta.ServiceMeshRateLimit;
 import com.netease.cloud.nsf.meta.SidecarVersionManagement;
 import com.netease.cloud.nsf.service.PluginService;
@@ -44,6 +46,14 @@ public class ServiceMeshIstioModelEngine extends IstioModelEngine {
     public List<K8sResourcePack> translate(ServiceMeshRateLimit rateLimit) {
         List<K8sResourcePack> resources = new ArrayList<>();
         //TODO translate
+        ServiceInfo serviceInfo = ServiceInfo.instance();
+        serviceInfo.setServiceName(rateLimit.getHost());
+        List<FragmentHolder> fragmentHolders = pluginService.processGlobalPlugin(Arrays.asList(rateLimit.getPlugin()), serviceInfo);
+
+
         return resources;
     }
+
+
+
 }
