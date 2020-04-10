@@ -48,6 +48,10 @@ public abstract class AbstractConfigManagerSupport implements ConfigManager{
         }
     }
 
+    protected void delete(ConfigStore configStore, List<K8sResourcePack> resources, IstioModelEngine modelEngine) {
+        delete(resources, (i1, i2) -> 0, n -> n, configStore, modelEngine);
+    }
+
     protected void delete(List<K8sResourcePack> packs, Comparator<K8sResourcePack> compartor, Subtracter<HasMetadata> fun, ConfigStore configStore, IstioModelEngine modelEngine) {
         if (CollectionUtils.isEmpty(packs)) return;
         for (K8sResourcePack pack : packs) {

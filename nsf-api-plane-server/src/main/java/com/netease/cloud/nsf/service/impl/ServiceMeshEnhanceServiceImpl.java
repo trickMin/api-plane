@@ -26,9 +26,16 @@ public class ServiceMeshEnhanceServiceImpl implements ServiceMeshEnhanceService 
         configManager.updateRateLimit(rateLimit);
     }
 
+    @Override
+    public void deleteRateLimit(ServiceMeshRateLimitDTO rateLimitDTO) {
+        ServiceMeshRateLimit rateLimit = rateLimitDTO2RateLimit(rateLimitDTO);
+        configManager.deleteRateLimit(rateLimit);
+    }
+
     private ServiceMeshRateLimit rateLimitDTO2RateLimit(ServiceMeshRateLimitDTO rateLimitDTO) {
         ServiceMeshRateLimit rl = new ServiceMeshRateLimit();
         rl.setHost(rateLimitDTO.getHost());
+        rl.setRuleId(rateLimitDTO.getRuleId());
         rl.setPlugin(rateLimitDTO.getPlugin());
         return rl;
     }

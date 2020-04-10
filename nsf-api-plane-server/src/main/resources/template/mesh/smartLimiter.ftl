@@ -4,4 +4,6 @@ metadata:
   name: ${t_smart_limiter_name}
   namespace: ${t_namespace}
 spec:
-  ${t_smart_limit_config}
+  ratelimitConfig:
+    descriptors:
+<@indent count=4>${t_smart_limiter_config}</@indent>

@@ -7,7 +7,17 @@ public class ServiceMeshRateLimit {
 
     private String host;
 
+    private Long ruleId;
+
     private String plugin;
+
+    public Long getRuleId() {
+        return ruleId;
+    }
+
+    public void setRuleId(Long ruleId) {
+        this.ruleId = ruleId;
+    }
 
     public String getHost() {
         return host;

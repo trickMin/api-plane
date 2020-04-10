@@ -5,7 +5,9 @@ import com.netease.cloud.nsf.core.gateway.handler.VersionManagersDataHandler;
 import com.netease.cloud.nsf.core.gateway.processor.DefaultModelProcessor;
 import com.netease.cloud.nsf.core.gateway.processor.RenderTwiceModelProcessor;
 import com.netease.cloud.nsf.core.k8s.K8sResourcePack;
+import com.netease.cloud.nsf.core.k8s.merger.SmartLimiterMerger;
 import com.netease.cloud.nsf.core.k8s.operator.IntegratedResourceOperator;
+import com.netease.cloud.nsf.core.k8s.subtracter.SmartLimiterSubtracter;
 import com.netease.cloud.nsf.core.plugin.FragmentHolder;
 import com.netease.cloud.nsf.core.template.TemplateParams;
 import com.netease.cloud.nsf.core.template.TemplateTranslator;
@@ -37,7 +39,7 @@ public class ServiceMeshIstioModelEngine extends IstioModelEngine {
 
     private static final String versionManager = "sidecarVersionManagement";
     private static final String smartLimiter = "mesh/smartLimiter";
-    private static final String gatewayPlugin = "gateway/globalGatewayPlugin";
+    private static final String gatewayPlugin = "mesh/globalGatewayPlugin";
 
     @Autowired
     public ServiceMeshIstioModelEngine(IntegratedResourceOperator operator, TemplateTranslator templateTranslator, PluginService pluginService) {
@@ -59,6 +61,7 @@ public class ServiceMeshIstioModelEngine extends IstioModelEngine {
         //TODO translate
         ServiceInfo serviceInfo = ServiceInfo.instance();
         serviceInfo.setServiceName(rateLimit.getHost());
+        serviceInfo.setApiName(rateLimit.getRuleId() + "");
         List<FragmentHolder> fragmentHolders = pluginService.processGlobalPlugin(Arrays.asList(rateLimit.getPlugin()), serviceInfo);
 
         if (CollectionUtils.isEmpty(fragmentHolders)) {
@@ -72,7 +75,7 @@ public class ServiceMeshIstioModelEngine extends IstioModelEngine {
         List<String> rawSmartLimiter = renderTwiceModelProcessor.process(smartLimiter, params);
         List<String> rawGatewayPlugin = renderTwiceModelProcessor.process(gatewayPlugin, params);
 
-        resourcePacks.addAll(generateK8sPack(rawSmartLimiter));
+        resourcePacks.addAll(generateK8sPack(rawSmartLimiter, new SmartLimiterMerger(), new SmartLimiterSubtracter(rateLimit.getHost(), rateLimit.getRuleId())));
         resourcePacks.addAll(generateK8sPack(rawGatewayPlugin));
 
         return resourcePacks;

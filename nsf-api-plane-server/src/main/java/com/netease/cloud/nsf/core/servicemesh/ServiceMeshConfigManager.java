@@ -33,4 +33,6 @@ public interface ServiceMeshConfigManager extends ConfigManager {
     IptablesConfig queryIptablesConfigByApp(String cluterId, String namespace, String appName);
 
     void updateRateLimit(ServiceMeshRateLimit rateLimit);
+
+    void deleteRateLimit(ServiceMeshRateLimit rateLimit);
 }

@@ -26,4 +26,11 @@ public class ServiceMeshEnhanceController extends BaseController {
         serviceMeshEnhanceService.updateRateLimit(rateLimitDTO);
         return apiReturn(SUCCESS, "Success", null, null);
     }
+
+    @RequestMapping(params = "Action=DeleteRateLimit", method = RequestMethod.POST)
+    public String deleteRateLimit(@RequestBody ServiceMeshRateLimitDTO rateLimitDTO) {
+
+        serviceMeshEnhanceService.deleteRateLimit(rateLimitDTO);
+        return apiReturn(SUCCESS, "Success", null, null);
+    }
 }

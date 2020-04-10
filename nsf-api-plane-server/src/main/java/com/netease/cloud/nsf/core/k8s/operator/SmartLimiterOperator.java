@@ -3,6 +3,7 @@ package com.netease.cloud.nsf.core.k8s.operator;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.slime.api.microservice.v1alpha1.SmartLimiter;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2020/4/10
@@ -12,12 +13,12 @@ public class SmartLimiterOperator implements k8sResourceOperator<SmartLimiter> {
 
     @Override
     public SmartLimiter merge(SmartLimiter old, SmartLimiter fresh) {
-        return fresh;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public SmartLimiter subtract(SmartLimiter old, String value) {
-        return old;
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -28,6 +29,8 @@ public class SmartLimiterOperator implements k8sResourceOperator<SmartLimiter> {
     @Override
     public boolean isUseless(SmartLimiter smartLimiter) {
         return smartLimiter == null ||
-                smartLimiter.getSpec() == null;
+                smartLimiter.getSpec() == null ||
+                smartLimiter.getSpec().getRatelimitConfig() == null ||
+                CollectionUtils.isEmpty(smartLimiter.getSpec().getRatelimitConfig().getDescriptors());
     }
 }
