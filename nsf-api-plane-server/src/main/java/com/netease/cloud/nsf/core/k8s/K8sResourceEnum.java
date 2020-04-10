@@ -2,6 +2,7 @@ package com.netease.cloud.nsf.core.k8s;
 
 
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
+import com.netease.slime.api.microservice.v1alpha1.SmartLimiterList;
 import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.apps.*;
 import io.fabric8.kubernetes.client.utils.URLUtils;
@@ -41,6 +42,7 @@ public enum K8sResourceEnum {
     GatewayPlugin(GatewayPlugin.class, GatewayPluginList.class, "/apis", "networking.istio.io/v1alpha3", "gatewayplugins", "clustered".equals(System.getProperty("gatewaypluginScope"))),
     MixerUrlPattern(MixerUrlPattern.class, MixerUrlPatternList.class, "/apis/networking.istio.io/v1alpha3/namespaces/%s/mixerurlpatterns"),
     ConfigMap(ConfigMap.class, ConfigMapList.class, "/api/v1/namespaces/%s/configmaps"),
+    SmartLimiter(com.netease.slime.api.microservice.v1alpha1.SmartLimiter.class, SmartLimiterList.class, "/apis/microservice.netease.com/v1alpha1/namespaces/%s/smartlimiters"),
     ;
 
     private Class<? extends HasMetadata> mappingType;

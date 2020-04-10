@@ -218,6 +218,14 @@ public interface TemplateConst {
     String GATEWAY_PLUGIN_USERS = "t_gateway_plugin_users";
 
 
+    /**
+     * SmartLimiter
+     */
+
+    String SMART_LIMITER_NAME = "t_smart_limiter_name";
+    String SMART_LIMITER_CONFIG = "t_smart_limiter_config";
+
+
     /** ---------- 模板占位符名 end ---------- **/
 
 }

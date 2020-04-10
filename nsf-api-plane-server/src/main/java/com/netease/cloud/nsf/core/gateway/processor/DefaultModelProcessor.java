@@ -27,14 +27,22 @@ public class DefaultModelProcessor<T> implements ModelProcessor<T> {
         List<TemplateParams> params = dataHandler.handle(t);
         if (CollectionUtils.isEmpty(params)) return Collections.emptyList();
 
-        return params.stream()
-                    .map(p -> templateTranslator.translate(template, p.output()))
-                    .filter(r -> !StringUtils.isEmpty(r))
-                    .collect(Collectors.toList());
+        return process(template, params);
     }
 
     @Override
     public String process(String template, TemplateParams params) {
         return templateTranslator.translate(template, params.output());
+    }
+
+    @Override
+    public List<String> process(String template, List<TemplateParams> params) {
+
+        if (CollectionUtils.isEmpty(params)) return Collections.emptyList();
+
+        return params.stream()
+                .map(p -> templateTranslator.translate(template, p.output()))
+                .filter(r -> !StringUtils.isEmpty(r))
+                .collect(Collectors.toList());
     }
 }
