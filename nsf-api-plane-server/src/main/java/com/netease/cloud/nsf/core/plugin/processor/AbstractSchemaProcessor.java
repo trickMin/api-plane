@@ -181,4 +181,12 @@ public abstract class AbstractSchemaProcessor implements SchemaProcessor<Service
     protected Integer getPriority(ResourceGenerator rg) {
         return rg.getValue("$.priority", Integer.class);
     }
+
+    protected <T> T getOrDefault(T obj, T defaultVal) {
+        if (Objects.isNull(obj)) {
+            return defaultVal;
+        } else {
+            return obj;
+        }
+    }
 }
