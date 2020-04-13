@@ -7,6 +7,7 @@ import org.junit.Before;
 public class BasePluginTest extends BaseTest {
 
     ServiceInfo serviceInfo = new ServiceInfo();
+    ServiceInfo nullInfo = new ServiceInfo();
 
     @Before
     public void before() {
@@ -18,5 +19,14 @@ public class BasePluginTest extends BaseTest {
         serviceInfo.setServiceName("svvc");
         serviceInfo.setGateway("proxy");
         serviceInfo.setUri("/uri");
+
+        nullInfo.setApiName(null);
+        nullInfo.setHosts(null);
+        nullInfo.setMethod(null);
+        nullInfo.setPriority(null);
+        nullInfo.setSubset(null);
+        nullInfo.setServiceName(null);
+        nullInfo.setGateway(null);
+        nullInfo.setUri(null);
     }
 }
