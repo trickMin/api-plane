@@ -5,9 +5,9 @@ import com.netease.cloud.nsf.core.plugin.FragmentHolder;
 import com.netease.cloud.nsf.core.plugin.FragmentTypeEnum;
 import com.netease.cloud.nsf.core.plugin.FragmentWrapper;
 import com.netease.cloud.nsf.core.plugin.PluginGenerator;
-import com.netease.cloud.nsf.meta.Plugin;
 import com.netease.cloud.nsf.meta.ServiceInfo;
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 /**
@@ -47,7 +47,9 @@ public class CircuitBreakerProcessor extends AbstractSchemaProcessor implements 
         }
         if (source.contain("$.response.body")) {
             String body = source.getValue("$.response.body");
-            builder.createOrUpdateJson("$.response", "body", String.format("{\"inline_string\":\"%s\"}", StringEscapeUtils.escapeJava(body)));
+            if (StringUtils.isNotBlank(body)) {
+                builder.createOrUpdateJson("$.response", "body", String.format("{\"inline_string\":\"%s\"}", StringEscapeUtils.escapeJava(body)));
+            }
         }
         if (source.contain("$.response.headers")) {
             builder.createOrUpdateJson("$.response", "headers", "[]");
@@ -63,28 +65,28 @@ public class CircuitBreakerProcessor extends AbstractSchemaProcessor implements 
     private void buildConfig(PluginGenerator source, PluginGenerator builder) {
         if (!source.contain("$.config")) return;
         if (source.contain("$.config.consecutive_slow_requests")) {
-            Integer consecutive_slow_requests = source.getValue("$.config.consecutive_slow_requests");
+            Long consecutive_slow_requests = Long.valueOf(source.getValue("$.config.consecutive_slow_requests"));
             builder.createOrUpdateValue("$", "consecutive_slow_requests", consecutive_slow_requests);
         }
         if (source.contain("$.config.average_response_time")) {
-            String average_response_time = source.getValue("$.config.average_response_time");
-            builder.createOrUpdateValue("$", "average_response_time", average_response_time);
+            Double average_response_time = Double.valueOf(source.getValue("$.config.average_response_time"));
+            builder.createOrUpdateValue("$", "average_response_time", average_response_time + "s");
         }
         if (source.contain("$.config.min_request_amount")) {
-            Integer min_request_amount = source.getValue("$.config.min_request_amount");
+            Long min_request_amount = Long.valueOf(source.getValue("$.config.min_request_amount"));
             builder.createOrUpdateValue("$", "min_request_amount", min_request_amount);
         }
         if (source.contain("$.config.error_percent_threshold")) {
-            Integer error_percent_threshold = source.getValue("$.config.error_percent_threshold");
+            Double error_percent_threshold = Double.valueOf(source.getValue("$.config.error_percent_threshold"));
             builder.createOrUpdateJson("$", "error_percent_threshold", String.format("{\"value\":%s}", error_percent_threshold));
         }
         if (source.contain("$.config.break_duration")) {
-            String break_duration = source.getValue("$.config.break_duration");
-            builder.createOrUpdateValue("$", "break_duration", break_duration);
+            Double break_duration = Double.valueOf(source.getValue("$.config.break_duration"));
+            builder.createOrUpdateValue("$", "break_duration", break_duration + "s");
         }
         if (source.contain("$.config.lookback_duration")) {
-            String lookback_duration = source.getValue("$.config.lookback_duration");
-            builder.createOrUpdateValue("$", "lookback_duration", lookback_duration);
+            Double lookback_duration = Double.valueOf(source.getValue("$.config.lookback_duration"));
+            builder.createOrUpdateValue("$", "lookback_duration", lookback_duration + "s");
         }
     }
 
