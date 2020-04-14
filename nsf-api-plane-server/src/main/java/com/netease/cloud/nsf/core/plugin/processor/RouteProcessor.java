@@ -44,7 +44,8 @@ public class RouteProcessor extends AbstractSchemaProcessor implements SchemaPro
 
     @Override
     public FragmentHolder process(String plugin, ServiceInfo serviceInfo) {
-        //todo: XUser
+        //todo: yx add querystring and header match
+        //todo: meta copy
         MultiValueMap<String, String> pluginMap = new LinkedMultiValueMap<>();
 
         ResourceGenerator total = ResourceGenerator.newInstance(plugin, ResourceType.JSON, editorContext);
@@ -97,8 +98,7 @@ public class RouteProcessor extends AbstractSchemaProcessor implements SchemaPro
         List<Endpoint> endpoints = resourceManager.getEndpointList();
 
         ResourceGenerator ret = ResourceGenerator.newInstance("{}", ResourceType.JSON, editorContext);
-        ret.createOrUpdateJson("$", "match", createMatch(rg, info, xUserId));
-        ret.createOrUpdateJson("$", "priority", info.getPriority());
+        customMatchAndPriority(rg, ret, info, xUserId);
         ret.createOrUpdateJson("$", "route", "[]");
 
         int length = rg.getValue("$.action.pass_proxy_target.length()");
@@ -116,8 +116,7 @@ public class RouteProcessor extends AbstractSchemaProcessor implements SchemaPro
 
     private String createReturn(ResourceGenerator rg, ServiceInfo info, String xUserId) {
         ResourceGenerator ret = ResourceGenerator.newInstance("{}", ResourceType.JSON, editorContext);
-        ret.createOrUpdateJson("$", "match", createMatch(rg, info, xUserId));
-        ret.createOrUpdateJson("$", "priority", info.getPriority());
+        customMatchAndPriority(rg, ret, info, xUserId);
         ret.createOrUpdateJson("$", "return",
                 String.format("{\"body\":{\"inlineString\":\"%s\"},\"code\":%s}", StringEscapeUtils.escapeJava(rg.getValue("$.action.return_target.body")), rg.getValue("$.action.return_target.code")));
         if (rg.contain("$.action.return_target.header")) {
@@ -133,8 +132,7 @@ public class RouteProcessor extends AbstractSchemaProcessor implements SchemaPro
 
     private String createRedirect(ResourceGenerator rg, ServiceInfo info, String xUserId) {
         ResourceGenerator ret = ResourceGenerator.newInstance("{}", ResourceType.JSON, editorContext);
-        ret.createOrUpdateJson("$", "match", createMatch(rg, info, xUserId));
-        ret.createOrUpdateJson("$", "priority", info.getPriority());
+        customMatchAndPriority(rg, ret, info, xUserId);
         String target = rg.getValue("$.action.target", String.class);
         try {
             URI uri = new URI(target);
@@ -158,8 +156,7 @@ public class RouteProcessor extends AbstractSchemaProcessor implements SchemaPro
 
     private String createRewrite(ResourceGenerator rg, ServiceInfo info, String xUserId) {
         ResourceGenerator ret = ResourceGenerator.newInstance("{}", ResourceType.JSON, editorContext);
-        ret.createOrUpdateJson("$", "match", createMatch(rg, info, xUserId));
-        ret.createOrUpdateJson("$", "priority", info.getPriority());
+        customMatchAndPriority(rg, ret, info, xUserId);
         ret.createOrUpdateJson("$", "ext", "[]");
         ret.addJsonElement("$.ext", "{\"name\":\"com.netease.rewrite\",\"settings\":{\"request_transformations\":[{\"transformation_template\":{\"extractors\":{},\"headers\":{},\"parse_body_behavior\":\"DontParse\"}}]}}");
         String extractor = rg.getValue("$.action.rewrite_regex");
@@ -183,7 +180,7 @@ public class RouteProcessor extends AbstractSchemaProcessor implements SchemaPro
             int regexCount = 0;
             while (matcher.find()) {
                 int group = Integer.parseInt(matcher.group(1));
-                if(group > regexCount){
+                if (group > regexCount) {
                     regexCount = group;
                 }
             }
@@ -197,5 +194,15 @@ public class RouteProcessor extends AbstractSchemaProcessor implements SchemaPro
             ret.createOrUpdateJson("$.ext[0].settings.request_transformations[0].transformation_template.headers", ":path", String.format("{\"text\":\"%s\"}", target));
         }
         return ret.jsonString();
+    }
+
+    public void customMatchAndPriority(ResourceGenerator rg, ResourceGenerator ret, ServiceInfo info, String xUserId) {
+        // 如果插件没有自带的match条件，则不渲染match和priority
+        // 后续freemarker <supply></supply>标记会自动填充match
+        if (!rg.contain("$.matcher") || rg.getValue("$.matcher.length()", Integer.class) == 0) {
+            return;
+        }
+        ret.createOrUpdateJson("$", "match", createMatch(rg, info, xUserId));
+        ret.createOrUpdateJson("$", "priority", info.getPriority());
     }
 }
