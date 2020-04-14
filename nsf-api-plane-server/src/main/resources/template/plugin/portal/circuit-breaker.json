@@ -50,9 +50,12 @@
           "alias": "错误百分比阈值",
           "help": "与最小错误数搭配生效，仅在统计窗口内，最小错误数与错误百分比阈值同时满足时触发熔断",
           "type": "input",
-          "placeholder": "可选 (0.0, 100.0] 之间",
+          "placeholder": "范围 (0.0, 100.0] 之间",
           "rules": [
-            "Required"
+            "Required",
+            "FloatNumber(5)",
+            "MaxFloatNumber(100.0)",
+            "MinFloatNumber(0.00001)"
           ]
         },
         {
@@ -60,7 +63,7 @@
           "alias": "最小错误数",
           "help": "与错误百分比阈值搭配生效，仅在统计窗口内，最小错误数与错误百分比阈值同时满足时触发熔断",
           "type": "input",
-          "placeholder": "可选 (0, 4294967295] 之间",
+          "placeholder": "范围 [1, 4294967295] 之间",
           "rules": [
             "Required",
             "Number",
@@ -84,16 +87,19 @@
           "key": "rtThreshold",
           "alias": "慢响应时间阈值",
           "help": "慢响应时间阈值，与连续慢响应次数搭配生效，当连续",
-          "placeholder": "单位s",
+          "placeholder": "单位s，范围 (0, 1000.0]",
           "type": "input",
           "rules": [
-            "Required"
+            "Required",
+            "FloatNumber(5)",
+            "MaxFloatNumber(1000.0)",
+            "MinFloatNumber(0.00001)"
           ]
         },
         {
           "key": "consecutiveSlowRequests",
           "alias": "连续慢响应次数",
-          "help": "与响应时间阈值，可选 (0, 4294967295] 之间，与慢响应时间阈值搭配生效，当连续有",
+          "help": "与响应时间阈值，范围 [1, 4294967295] 之间，与慢响应时间阈值搭配生效，当连续有",
           "type": "input",
           "rules": [
             "Required",
@@ -109,9 +115,12 @@
       "alias": "统计时间窗口",
       "help": "统计时间窗口，单位s，默认10s，最大值为120s",
       "type": "input",
-      "placeholder": "单位s，默认10，可选[10.0,120)",
+      "placeholder": "单位s，范围(0.0,120.0)",
       "rules": [
-        "Required"
+        "Required",
+        "FloatNumber(5)",
+        "MaxFloatNumber(199.99999)",
+        "MinFloatNumber(0.00001)"
       ]
     },
     {
@@ -119,12 +128,12 @@
       "alias": "熔断惩罚时间",
       "help": "当触发熔断时的惩罚时间，单位s，在该时间内不再请求后端服务而之间返回熔断后的定制响应",
       "type": "input",
-      "placeholder": "单位s，可选 (0.0, 10000]",
+      "placeholder": "单位s，范围 (0.0, 10000]",
       "rules": [
         "Required",
-        "Number",
-        "MinNumber(0)",
-        "MaxNumber(10000)"
+        "FloatNumber(5)",
+        "MaxFloatNumber(10000.0)",
+        "MinFloatNumber(0.00001)"
       ]
     },
     {
@@ -172,7 +181,7 @@
           "key": "body",
           "type": "input",
           "alias": "请求响应内容",
-          "help": "若不填写，则默认返回 circuit breaker filter abort"
+          "help": "若不填写，则默认返回：circuit breaker filter abort"
         }
       ]
     }

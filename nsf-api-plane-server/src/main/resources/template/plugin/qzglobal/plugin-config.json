@@ -140,7 +140,7 @@
       "author": "system",
       "createTime": "1572537600000",
       "updateTime": "1572537600000",
-      "pluginScope": "global",
+      "pluginScope": "routeRule,global",
       "pluginPriority": "3400",
       "instructionForUse": "熔断降级插件"
     }
