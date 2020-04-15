@@ -488,7 +488,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     public void updateMixerPathPatterns(String clusterId, String namespace, String name, List<String> urlPatterns) {
         OwnerReferenceSupportStore<MixerUrlPattern> store = ResourceStoreFactory.getResourceStore(clusterId);
         MixerUrlPattern mup = new MixerUrlPatternBuilder()
-            .withNewModelMetadata()
+            .withNewMetadata()
             .withName(name)
             .withNamespace(namespace)
             .and()
