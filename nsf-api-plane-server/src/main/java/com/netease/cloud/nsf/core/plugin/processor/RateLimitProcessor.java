@@ -81,12 +81,28 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
         vs.addJsonElement("$.actions",
                 String.format("{\"header_value_match\":{\"headers\":[],\"descriptor_value\":\"%s\"}}", headerDescriptor));
         vs.addJsonElement("$.actions[0].header_value_match.headers",
-                String.format("{\"name\":\":authority\",\"regex_match\":\"%s\",\"invert_match\":false}", serviceInfo.getHosts()));
+                String.format("{\"name\":\":authority\",\"regex_match\":\"%s\",\"invert_match\":false}", getOrDefault(serviceInfo.getHosts(), ".*")));
 
         int length = 0;
         if (rg.contain("$.pre_condition")) {
             length = rg.getValue("$.pre_condition.length()");
         }
+
+        if (rg.contain("$.type")) {
+            String type = rg.getValue("$.type");
+            switch (type) {
+                case "Local":
+                    vs.createOrUpdateValue("$.actions[0].header_value_match", "type", "Local");
+                    break;
+                case "Global":
+                    vs.createOrUpdateValue("$.actions[0].header_value_match", "type", "Global");
+                    break;
+                case "LocalAvg":
+                    vs.createOrUpdateValue("$.actions[0].header_value_match", "type", "LocalAvg");
+                    break;
+            }
+        }
+
         if (length != 0) {
             String matchHeader = getMatchHeader(rg, "", "$.identifier_extractor");
             for (int i = 0; i < length; i++) {

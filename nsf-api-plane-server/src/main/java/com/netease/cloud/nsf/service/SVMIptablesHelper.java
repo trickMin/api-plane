@@ -1,10 +1,8 @@
 package com.netease.cloud.nsf.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netease.cloud.nsf.meta.IptablesConfig;
 import org.springframework.util.CollectionUtils;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -40,10 +38,7 @@ public class SVMIptablesHelper {
 		}
 		if (config.isEnableInbound()) {
 			config.setInboundPorts(translatePorts(extractPorts(config.getInboundPorts())));
-			appendValueList(sb, config.getInboundPorts(), "-b", "");
-			if (config.getInboundPorts() == null) {
-				config.setEnableInbound(false);
-			}
+			appendValueList(sb, config.getInboundPorts(), "-b", "*");
 		} else {
 			config.setInboundPorts(null);
 			sb.append(" -b ''");
@@ -109,6 +104,10 @@ public class SVMIptablesHelper {
 			} else {
 				i++;
 			}
+		}
+		//如果覆盖了全端口，则返回null
+		if (portsResult.size() == 1 && portsResult.get(0)[0] == MIN_PORT && portsResult.get(0)[1] == MAX_PORT) {
+			return null;
 		}
 		return portsResult;
 	}
