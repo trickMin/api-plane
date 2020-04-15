@@ -11,4 +11,6 @@ public interface ModelProcessor<T> {
 
     String process(String template, TemplateParams params);
 
+    List<String> process(String template, List<TemplateParams> params);
+
 }

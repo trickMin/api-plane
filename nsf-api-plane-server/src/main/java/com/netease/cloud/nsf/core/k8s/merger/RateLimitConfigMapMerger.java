@@ -40,7 +40,6 @@ public class RateLimitConfigMapMerger implements Merger<ConfigMap> {
         if (oldCmrl == null) return latest;
         if (latestCmrl == null) return old;
 
-
         List mergedDescriptors = CommonUtil.mergeList(
                 oldCmrl.getDescriptors(), latestCmrl.getDescriptors(), new RateLimitDescriptorEquals());
 

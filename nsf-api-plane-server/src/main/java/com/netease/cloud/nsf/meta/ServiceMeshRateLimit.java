@@ -7,6 +7,8 @@ public class ServiceMeshRateLimit {
 
     private String host;
 
+    private String namespace;
+
     private String plugin;
 
     public String getHost() {
@@ -25,4 +27,11 @@ public class ServiceMeshRateLimit {
         this.plugin = plugin;
     }
 
+    public String getNamespace() {
+        return namespace;
+    }
+
+    public void setNamespace(String namespace) {
+        this.namespace = namespace;
+    }
 }

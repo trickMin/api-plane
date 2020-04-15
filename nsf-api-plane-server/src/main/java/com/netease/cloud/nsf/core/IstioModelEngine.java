@@ -29,6 +29,8 @@ public abstract class IstioModelEngine {
 
     private static final Logger logger = LoggerFactory.getLogger(IstioModelEngine.class);
 
+    protected static final String NEVER_NULL = "NEVER_NULL";
+
     private IntegratedResourceOperator operator;
 
     @Autowired
@@ -73,6 +75,10 @@ public abstract class IstioModelEngine {
         return generateK8sPack(raws, null, null, r -> r, this::str2HasMetadata, hsm -> hsm);
     }
 
+    protected List<K8sResourcePack> generateK8sPack(List<String> raws, Merger merger, Subtracter subtracter) {
+        return generateK8sPack(raws, merger, subtracter, r -> r, this::str2HasMetadata, hsm -> hsm);
+    }
+
     protected List<K8sResourcePack> generateK8sPack(List<String> raws, Merger merger, Subtracter subtracter, Function<String, HasMetadata> transFun) {
         return generateK8sPack(raws, merger, subtracter, r -> r, transFun, hsm -> hsm);
     }
@@ -97,5 +103,20 @@ public abstract class IstioModelEngine {
 
     public IntegratedResourceOperator getOperator() {
         return operator;
+    }
+
+    protected class EmptyResourceGenerator implements Function<String, HasMetadata> {
+
+        private HasMetadata hmd;
+
+        public EmptyResourceGenerator(HasMetadata hmd) {
+            this.hmd = hmd;
+        }
+
+        @Override
+        public HasMetadata apply(String s) {
+            if (NEVER_NULL.equals(s)) return hmd;
+            return str2HasMetadata(s);
+        }
     }
 }
