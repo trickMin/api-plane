@@ -125,7 +125,7 @@ public class WhiteListV2ServiceImpl implements WhiteListV2Service {
             HashSet<String> allApisSet = new HashSet<>();
             for (WhiteListV2AuthRuleDto rule : allRuleList) {
                 //  add api to set for "others" config
-                MatchApi.parseList(rule.getMatchApis()).forEach(api -> allApisSet.add(api.path));
+                MatchApi.parseList(rule.getMatchApis()).forEach(api -> allApisSet.add(api.getAccessRulePath()));
             }
 
             // service role other configs
@@ -232,18 +232,38 @@ public class WhiteListV2ServiceImpl implements WhiteListV2Service {
     }
 
     private static class MatchApi {
+
+        /**
+         * 匹配类型，目前暂不用解析直接透传给crd
+         * 空： 默认全字符串匹配
+         * regex: 正则匹配
+         */
+        private String matchType;
+        /**
+         * api 纯路径部分
+         */
         private String path;
+
+        /**
+         * 预留的api 方法字段，目前还不支持单独api级别配置
+         */
         private String method;
+
+        /**
+         * 透传给crd的api地址
+         */
+        private String accessRulePath;
 
         public MatchApi(String apiStr) {
             if (apiStr.contains(":")) {
                 String[] parts = apiStr.split("\\:");
-                this.method = parts[0];
+                this.matchType = parts[0];
                 this.path = parts[1];
             } else {
-                this.method = "*";
+                this.matchType = "";
                 this.path = apiStr;
             }
+            this.accessRulePath = apiStr;
         }
 
         public static List<MatchApi> parseList(String matchApis) {
@@ -258,25 +278,17 @@ public class WhiteListV2ServiceImpl implements WhiteListV2Service {
         public static AccessRule parseToAccessRule(String svcFQDN, String matchApis) {
             List<MatchApi> apiList = parseList(matchApis);
             AccessRule accessRule = new AccessRule();
-            apiList.forEach(api -> accessRule.getPaths().add(api.getPath()));
+            apiList.forEach(api -> accessRule.getPaths().add(api.getAccessRulePath()));
             accessRule.setServices(Arrays.asList(svcFQDN));
             return accessRule;
         }
 
-        public String getPath() {
-            return path;
+        public String getAccessRulePath() {
+            return accessRulePath;
         }
 
-        public void setPath(String path) {
-            this.path = path;
-        }
-
-        public String getMethod() {
-            return method;
-        }
-
-        public void setMethod(String method) {
-            this.method = method;
+        public void setAccessRulePath(String accessRulePath) {
+            this.accessRulePath = accessRulePath;
         }
     }
 
