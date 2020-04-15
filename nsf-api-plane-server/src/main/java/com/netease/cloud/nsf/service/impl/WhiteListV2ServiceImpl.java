@@ -40,7 +40,7 @@ public class WhiteListV2ServiceImpl implements WhiteListV2Service {
             RbacConfig newRbacConfig = rbacConfigBuilder
                     .withKind("ClusterRbacConfig")
                     .withMetadata(new ObjectMetaBuilder().withName("default").build())
-                    .withSpec(new RbacConfigSpecBuilder().withInclusion(target).build())
+                    .withSpec(new RbacConfigSpecBuilder().withMode(Mode.ON_WITH_INCLUSION).withInclusion(target).build())
                     .build();
             k8sClient.createOrUpdate(newRbacConfig, ResourceType.OBJECT);
         } else {
@@ -68,42 +68,65 @@ public class WhiteListV2ServiceImpl implements WhiteListV2Service {
         // 先分别创建 ServiceRole 和 ServiceRoleBinding
         for (WhiteListV2AuthRuleDto rule : authRuleList) {
 
-            String serviceRoleConfigName = k8sService.getCrdCompName() + "-" + rule.getRuleName();
-            // service role config
-            ServiceRole serviceRoleConfig = k8sClient.getObject(K8sResourceEnum.ServiceRole.name(), k8sService.namespace, serviceRoleConfigName);
-            AccessRule accessRule = MatchApi.parseToAccessRule(k8sService.getFQDN(), rule.getMatchApis());
-            if (serviceRoleConfig == null) {
-                ServiceRoleBuilder serviceRoleBuilder = new ServiceRoleBuilder();
-                serviceRoleConfig = serviceRoleBuilder
-                        .withKind("ServiceRole")
-                        .withMetadata(new ObjectMetaBuilder().withNamespace(k8sService.namespace).withName(serviceRoleConfigName).build())
-                        .withSpec(new ServiceRoleSpecBuilder().addToRules(accessRule).build())
-                        .build();
+            if(rule.getEnabled()){
+                // 创建或者修改配置
+                createOrUpdateRuleConfig(k8sService, rule);
             } else {
-                serviceRoleConfig.getSpec().getRules().clear();
-                serviceRoleConfig.getSpec().getRules().add(accessRule);
+                // 删除存在的配置
+                deleteIfExistRuleConfig(k8sService, rule);
             }
-            k8sClient.createOrUpdate(serviceRoleConfig, ResourceType.OBJECT);
 
-            // service role binding config
-            ServiceRoleBinding serviceRoleBindingConfig = k8sClient.getObject(K8sResourceEnum.ServiceRoleBinding.name(), k8sService.namespace, rule.getRuleName());
-            List<Subject> subjectList = AbsMatchCondition.parseToSubjects(rule.getMatchType(), rule.getMatchConditions());
-            if (serviceRoleBindingConfig == null) {
-                ServiceRoleBindingBuilder serviceRoleBindingBuilder = new ServiceRoleBindingBuilder();
-                RoleRef roleRef = new RoleRefBuilder().withKind("ServiceRole").withName(serviceRoleConfigName).build();
-                serviceRoleBindingConfig = serviceRoleBindingBuilder
-                        .withKind("ServiceRoleBinding")
-                        .withMetadata(new ObjectMetaBuilder().withNamespace(k8sService.namespace).withName(serviceRoleConfigName).build())
-                        .withSpec(new ServiceRoleBindingSpecBuilder().withRoleRef(roleRef).addAllToSubjects(subjectList).build())
-                        .build();
-            } else {
-                serviceRoleBindingConfig.getSpec().getSubjects().clear();
-                serviceRoleBindingConfig.getSpec().getSubjects().addAll(subjectList);
-            }
-            k8sClient.createOrUpdate(serviceRoleBindingConfig, ResourceType.OBJECT);
         }
 
         updateServiceRoleOthersConfigsByPolicy(k8sService, defaultPolicy, authRuleList);
+    }
+
+    private void createOrUpdateRuleConfig(K8sService k8sService, WhiteListV2AuthRuleDto rule) {
+        String serviceRoleConfigName = k8sService.getCrdCompName() + "-" + rule.getRuleName();
+        // service role config
+        ServiceRole serviceRoleConfig = k8sClient.getObject(K8sResourceEnum.ServiceRole.name(), k8sService.namespace, serviceRoleConfigName);
+        AccessRule accessRule = MatchApi.parseToAccessRule(k8sService.getFQDN(), rule.getMatchApis());
+        if (serviceRoleConfig == null) {
+            ServiceRoleBuilder serviceRoleBuilder = new ServiceRoleBuilder();
+            serviceRoleConfig = serviceRoleBuilder
+                    .withKind("ServiceRole")
+                    .withMetadata(new ObjectMetaBuilder().withNamespace(k8sService.namespace).withName(serviceRoleConfigName).build())
+                    .withSpec(new ServiceRoleSpecBuilder().addToRules(accessRule).build())
+                    .build();
+        } else {
+            serviceRoleConfig.getSpec().getRules().clear();
+            serviceRoleConfig.getSpec().getRules().add(accessRule);
+        }
+        k8sClient.createOrUpdate(serviceRoleConfig, ResourceType.OBJECT);
+
+        // service role binding config
+        ServiceRoleBinding serviceRoleBindingConfig = k8sClient.getObject(K8sResourceEnum.ServiceRoleBinding.name(), k8sService.namespace, serviceRoleConfigName);
+        List<Subject> subjectList = AbsMatchCondition.parseToSubjects(rule.getMatchType(), rule.getMatchConditions());
+        if (serviceRoleBindingConfig == null) {
+            ServiceRoleBindingBuilder serviceRoleBindingBuilder = new ServiceRoleBindingBuilder();
+            RoleRef roleRef = new RoleRefBuilder().withKind("ServiceRole").withName(serviceRoleConfigName).build();
+            serviceRoleBindingConfig = serviceRoleBindingBuilder
+                    .withKind("ServiceRoleBinding")
+                    .withMetadata(new ObjectMetaBuilder().withNamespace(k8sService.namespace).withName(serviceRoleConfigName).build())
+                    .withSpec(new ServiceRoleBindingSpecBuilder().withRoleRef(roleRef).addAllToSubjects(subjectList).build())
+                    .build();
+        } else {
+            serviceRoleBindingConfig.getSpec().getSubjects().clear();
+            serviceRoleBindingConfig.getSpec().getSubjects().addAll(subjectList);
+        }
+        k8sClient.createOrUpdate(serviceRoleBindingConfig, ResourceType.OBJECT);
+    }
+
+    private void deleteIfExistRuleConfig(K8sService k8sService, WhiteListV2AuthRuleDto rule) {
+        String serviceRoleConfigName = k8sService.getCrdCompName() + "-" + rule.getRuleName();
+        ServiceRole serviceRoleConfig = k8sClient.getObject(K8sResourceEnum.ServiceRole.name(), k8sService.namespace, serviceRoleConfigName);
+        if(serviceRoleConfig != null){
+            k8sClient.delete(K8sResourceEnum.ServiceRole.name(), k8sService.namespace, serviceRoleConfigName);
+        }
+        ServiceRoleBinding serviceRoleBindingConfig = k8sClient.getObject(K8sResourceEnum.ServiceRoleBinding.name(), k8sService.namespace, serviceRoleConfigName);
+        if(serviceRoleBindingConfig != null){
+            k8sClient.delete(K8sResourceEnum.ServiceRoleBinding.name(), k8sService.namespace, serviceRoleConfigName);
+        }
     }
 
     private void updateServiceRoleOthersConfigsByPolicy(K8sService k8sService, String defaultPolicy, List<WhiteListV2AuthRuleDto> allRuleList) {
@@ -125,7 +148,9 @@ public class WhiteListV2ServiceImpl implements WhiteListV2Service {
             HashSet<String> allApisSet = new HashSet<>();
             for (WhiteListV2AuthRuleDto rule : allRuleList) {
                 //  add api to set for "others" config
-                MatchApi.parseList(rule.getMatchApis()).forEach(api -> allApisSet.add(api.getAccessRulePath()));
+                if(rule.getEnabled()){
+                    MatchApi.parseList(rule.getMatchApis()).forEach(api -> allApisSet.add(api.getAccessRulePath()));
+                }
             }
 
             // service role other configs
@@ -164,6 +189,7 @@ public class WhiteListV2ServiceImpl implements WhiteListV2Service {
                 serviceRoleBindingOthersConfig.getSpec().getSubjects().addAll(subjectOthersList);
             }
             k8sClient.createOrUpdate(serviceRoleBindingOthersConfig, ResourceType.OBJECT);
+
         } else {
             throw new ApiPlaneException("Unsupported Default Policy: " + defaultPolicy);
         }

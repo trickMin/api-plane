@@ -15,6 +15,10 @@ public class WhiteListV2AuthRuleDto {
     @NotNull(message = "rule name")
     private String ruleName;
 
+    @JsonProperty("Enabled")
+    @NotNull(message = "rule status")
+    private Boolean enabled;
+
     @JsonProperty("MatchType")
     @NotNull(message = "match type")
     private String matchType;
@@ -29,6 +33,14 @@ public class WhiteListV2AuthRuleDto {
 
     public String getRuleName() {
         return ruleName;
+    }
+
+    public Boolean getEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(Boolean enabled) {
+        this.enabled = enabled;
     }
 
     public void setRuleName(String ruleName) {
