@@ -3,6 +3,7 @@ apiVersion: networking.istio.io/v1alpha3
 kind: GatewayPlugin
 metadata:
   name: ${t_gateway_plugin_name}
+  namespace: ${t_namespace}
 spec:
   gateway:
     - mesh
@@ -15,7 +16,9 @@ spec:
 <#if t_gateway_plugin_plugins??>
   plugins:
   <#list t_gateway_plugin_plugins as p>
+    <#if p?has_content>
     -
     <@indent count=6>${p}</@indent>
+    </#if>
   </#list>
 </#if>

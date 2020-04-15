@@ -29,6 +29,8 @@ public abstract class IstioModelEngine {
 
     private static final Logger logger = LoggerFactory.getLogger(IstioModelEngine.class);
 
+    protected static final String NEVER_NULL = "NEVER_NULL";
+
     private IntegratedResourceOperator operator;
 
     @Autowired
@@ -101,5 +103,20 @@ public abstract class IstioModelEngine {
 
     public IntegratedResourceOperator getOperator() {
         return operator;
+    }
+
+    protected class EmptyResourceGenerator implements Function<String, HasMetadata> {
+
+        private HasMetadata hmd;
+
+        public EmptyResourceGenerator(HasMetadata hmd) {
+            this.hmd = hmd;
+        }
+
+        @Override
+        public HasMetadata apply(String s) {
+            if (NEVER_NULL.equals(s)) return hmd;
+            return str2HasMetadata(s);
+        }
     }
 }

@@ -31,6 +31,7 @@ public class SmartLimiterOperator implements k8sResourceOperator<SmartLimiter> {
         return smartLimiter == null ||
                 smartLimiter.getSpec() == null ||
                 smartLimiter.getSpec().getRatelimitConfig() == null ||
-                CollectionUtils.isEmpty(smartLimiter.getSpec().getRatelimitConfig().getDescriptors());
+                smartLimiter.getSpec().getRatelimitConfig().getRateLimitConf() == null ||
+                CollectionUtils.isEmpty(smartLimiter.getSpec().getRatelimitConfig().getRateLimitConf().getDescriptors());
     }
 }

@@ -39,9 +39,7 @@ public abstract class AbstractConfigManagerSupport implements ConfigManager{
                     merged = modelEngine.merge(old, latest);
                 }
 
-                if (merged != null) {
-                    configStore.update(merged);
-                }
+                handle(merged, configStore, modelEngine);
                 continue;
             }
             configStore.update(latest);

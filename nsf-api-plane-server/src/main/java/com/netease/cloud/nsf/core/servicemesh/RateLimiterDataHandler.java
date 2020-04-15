@@ -4,11 +4,10 @@ import com.netease.cloud.nsf.core.gateway.handler.DataHandler;
 import com.netease.cloud.nsf.core.plugin.FragmentHolder;
 import com.netease.cloud.nsf.core.template.TemplateParams;
 import com.netease.cloud.nsf.meta.ServiceMeshRateLimit;
-import com.netease.cloud.nsf.util.exception.ApiPlaneException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.util.CollectionUtils;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static com.netease.cloud.nsf.core.template.TemplateConst.*;
@@ -18,40 +17,28 @@ import static com.netease.cloud.nsf.core.template.TemplateConst.*;
  **/
 public class RateLimiterDataHandler implements DataHandler<ServiceMeshRateLimit> {
 
-    private static final Logger logger = LoggerFactory.getLogger(RateLimiterDataHandler.class);
+    List<FragmentHolder> fragmentHolders;
 
-    FragmentHolder fragmentHolder;
-
-    public RateLimiterDataHandler(FragmentHolder fragmentHolder) {
-        this.fragmentHolder = fragmentHolder;
+    public RateLimiterDataHandler(List<FragmentHolder> fragmentHolder) {
+        this.fragmentHolders = fragmentHolder;
     }
 
     @Override
     public List<TemplateParams> handle(ServiceMeshRateLimit rateLimit) {
 
-        if (fragmentHolder == null ||
-                fragmentHolder.getGatewayPluginsFragment() == null ||
-                fragmentHolder.getSharedConfigFragment() == null) {
-            logger.warn("fragmentHolder lacks fragments");
-            throw new ApiPlaneException("fragmentHolder lacks fragments");
-        }
+        if (CollectionUtils.isEmpty(fragmentHolders)) return Collections.EMPTY_LIST;
+        String smartLimiterConfig = fragmentHolders.get(0).getSharedConfigFragment().getContent();
+        String gatewayPluginConfig = fragmentHolders.get(0).getGatewayPluginsFragment().getContent();
 
         TemplateParams tp = TemplateParams.instance()
                 .put(SMART_LIMITER_NAME, rateLimit.getHost())
-                .put(NAMESPACE, getNamespace(rateLimit.getHost()))
-                .put(SMART_LIMITER_CONFIG, fragmentHolder.getSharedConfigFragment().getContent())
+                .put(NAMESPACE, rateLimit.getNamespace())
+                .put(SMART_LIMITER_CONFIG, smartLimiterConfig)
                 .put(GATEWAY_HOSTS, Arrays.asList(rateLimit.getHost()))
                 .put(GATEWAY_PLUGIN_NAME, rateLimit.getHost())
-                .put(GATEWAY_PLUGIN_PLUGINS, Arrays.asList(fragmentHolder.getGatewayPluginsFragment().getContent()));
+                .put(GATEWAY_PLUGIN_PLUGINS, Arrays.asList(gatewayPluginConfig));
 
         return Arrays.asList(tp);
     }
 
-    private String getNamespace(String host) {
-        if (!host.contains(".")) {
-            throw new ApiPlaneException("illegal argument host " + host);
-        }
-
-        return host.split("\\.")[1];
-    }
 }
