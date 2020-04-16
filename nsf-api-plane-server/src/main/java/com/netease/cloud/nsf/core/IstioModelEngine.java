@@ -75,12 +75,12 @@ public abstract class IstioModelEngine {
         return generateK8sPack(raws, null, null, r -> r, this::str2HasMetadata, hsm -> hsm);
     }
 
-    protected List<K8sResourcePack> generateK8sPack(List<String> raws, Merger merger, Subtracter subtracter) {
-        return generateK8sPack(raws, merger, subtracter, r -> r, this::str2HasMetadata, hsm -> hsm);
-    }
-
     protected List<K8sResourcePack> generateK8sPack(List<String> raws, Merger merger, Subtracter subtracter, Function<String, HasMetadata> transFun) {
         return generateK8sPack(raws, merger, subtracter, r -> r, transFun, hsm -> hsm);
+    }
+
+    protected List<K8sResourcePack> generateK8sPack(List<String> raws, Merger merger, Subtracter subtracter, Function<String, String> preFun, Function<String, HasMetadata> transFun) {
+        return generateK8sPack(raws, merger, subtracter, preFun, transFun, hsm -> hsm);
     }
 
     protected List<K8sResourcePack> generateK8sPack(List<String> raws, Function<String, String> preFun, Function<HasMetadata, HasMetadata> postFun) {

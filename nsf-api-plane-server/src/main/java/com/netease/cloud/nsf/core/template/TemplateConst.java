@@ -46,6 +46,7 @@ public interface TemplateConst {
     String VIRTUAL_SERVICE_MATCH_YAML = "t_virtual_service_match_yaml";
     String VIRTUAL_SERVICE_ROUTE_YAML = "t_virtual_service_route_yaml";
     String VIRTUAL_SERVICE_EXTRA_YAML = "t_virtual_service_extra_yaml";
+    String VIRTUAL_SERVICE_META_YAML = "t_virtual_service_meta_yaml";
     String VIRTUAL_SERVICE_HTTP_RETRY_YAML = "t_virtual_service_http_retry_yaml";
     String VIRTUAL_SERVICE_HOSTS = "t_virtual_service_hosts";
     String VIRTUAL_SERVICE_HOST_HEADERS = "t_virtual_service_host_headers";
@@ -213,6 +214,7 @@ public interface TemplateConst {
     String GATEWAY_PLUGIN_NAME = "t_gateway_plugin_name";
     String GATEWAY_PLUGIN_GATEWAYS = "t_gateway_plugin_gateways";
     String GATEWAY_PLUGIN_HOSTS = "t_gateway_plugin_hosts";
+    String GATEWAY_PLUGIN_SERVICES = "t_gateway_plugin_services";
     String GATEWAY_PLUGIN_PLUGINS = "t_gateway_plugin_plugins";
     String GATEWAY_PLUGIN_ROUTES = "t_gateway_plugin_routes";
     String GATEWAY_PLUGIN_USERS = "t_gateway_plugin_users";

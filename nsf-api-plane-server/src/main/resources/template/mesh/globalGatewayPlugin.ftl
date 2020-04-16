@@ -13,6 +13,12 @@ spec:
     - ${h}
   </#list>
 </#if>
+<#if t_gateway_plugin_services?has_content>
+  service:
+<#list t_gateway_plugin_services as s>
+    - ${s}
+</#list>
+</#if>
 <#if t_gateway_plugin_plugins??>
   plugins:
   <#list t_gateway_plugin_plugins as p>

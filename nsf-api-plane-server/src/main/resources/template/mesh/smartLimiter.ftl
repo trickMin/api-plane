@@ -7,6 +7,5 @@ spec:
 <#if t_smart_limiter_config?has_content>
   ratelimitConfig:
     rate_limit_conf:
-      descriptors:
-<@indent count=6>${t_smart_limiter_config}</@indent>
+<@indent count=4>${t_smart_limiter_config}</@indent>
 </#if>

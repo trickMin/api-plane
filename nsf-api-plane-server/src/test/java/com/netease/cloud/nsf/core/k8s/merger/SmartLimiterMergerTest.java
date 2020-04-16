@@ -21,24 +21,17 @@ public class SmartLimiterMergerTest {
                 "    rate_limit_conf:\n" +
                 "      descriptors:\n" +
                 "      - key: header_match\n" +
-                "        rate_limit:\n" +
-                "          requests_per_unit: 2\n" +
-                "          unit: SECOND\n" +
+                "        unit: 1\n" +
                 "        value: Service[a.default]-User[none]-Gateway[null]-Api[3]-Id[cc41fdbd-5994-46ef-9f8d-213136ce4d88]\n" +
                 "      - key: header_match\n" +
-                "        rate_limit:\n" +
-                "          requests_per_unit: 2\n" +
-                "          unit: HOUR\n" +
+                "        unit: 3\n" +
                 "        value: Service[a.default]-User[none]-Gateway[null]-Api[3]-Id[bfbd4dd4-a373-427d-949c-ae7c97aa74a0]\n" +
                 "      - key: header_match\n" +
                 "        rate_limit:\n" +
-                "          requests_per_unit: 2\n" +
-                "          unit: SECOND\n" +
+                "        unit: 1\n" +
                 "        value: Service[a.default]-User[none]-Gateway[null]-Api[3]-Id[849252b3-d6c2-4306-9611-e95071f24fd5]\n" +
                 "      - key: header_match\n" +
-                "        rate_limit:\n" +
-                "          requests_per_unit: 2\n" +
-                "          unit: HOUR\n" +
+                "        unit: 3\n" +
                 "        value: Service[a.default]-User[none]-Gateway[null]-Api[3]-Id[5db406cf-943b-477a-81ab-a7fc63b567fe]";
 
         String yaml2 = "apiVersion: microservice.netease.com/v1alpha1\n" +
@@ -51,14 +44,10 @@ public class SmartLimiterMergerTest {
                 "    rate_limit_conf:\n" +
                 "      descriptors:\n" +
                 "      - key: header_match\n" +
-                "        rate_limit:\n" +
-                "          requests_per_unit: 2\n" +
-                "          unit: SECOND\n" +
+                "        unit: 1\n" +
                 "        value: Service[b.default]-User[none]-Gateway[null]-Api[3]-Id[cc41fdbd-5994-46ef-9f8d-213136ce4d88]\n" +
                 "      - key: header_match\n" +
-                "        rate_limit:\n" +
-                "          requests_per_unit: 2\n" +
-                "          unit: HOUR\n" +
+                "        unit: 3\n" +
                 "        value: Service[b.default]-User[none]-Gateway[null]-Api[3]-Id[bfbd4dd4-a373-427d-949c-ae7c97aa74a0]\n";
 
         SmartLimiter sl1 = CommonUtil.yaml2Obj(yaml1, SmartLimiter.class);

@@ -29,6 +29,7 @@ import org.springframework.util.StringUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2020/4/8
@@ -80,6 +81,7 @@ public class ServiceMeshIstioModelEngine extends IstioModelEngine {
         resourcePacks.addAll(generateK8sPack(rawSmartLimiter,
                 new SmartLimiterMerger(),
                 new SmartLimiterSubtracter(),
+                new RawSmartLimiterPreHandler(),
                 new EmptyResourceGenerator(new EmptySmartLimiter(rateLimit.getHost(), rateLimit.getNamespace()))));
         resourcePacks.addAll(generateK8sPack(rawGatewayPlugin,
                 new MeshRateLimitGatewayPluginMerger(),
@@ -88,5 +90,14 @@ public class ServiceMeshIstioModelEngine extends IstioModelEngine {
         return resourcePacks;
     }
 
+    /**
+     * 由于原先插件渲染domain为数组，去掉domain前面的 -
+     */
+    private class RawSmartLimiterPreHandler implements Function<String, String> {
 
+        @Override
+        public String apply(String s) {
+            return s.replace("- domain:", "  domain:");
+        }
+    }
 }
