@@ -14,6 +14,7 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.util.StringUtils;
 
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 
@@ -30,10 +31,15 @@ public class MixerApa extends HandleNsfmetaServiceGrpc.HandleNsfmetaServiceImplB
 	@Override
 	public void handleNsfmeta(TemplateHandlerService.HandleNsfmetaRequest request, StreamObserver<TemplateHandlerService.OutputMsg> responseObserver) {
 		TemplateHandlerService.InstanceMsg instance = request.getInstance();
+		String host = instance.getHost();
+		String destinationHost = instance.getDestinationHost();
+		String xNsfApp = instance.getXNsfApp();
+		System.out.println(String.format("host: %s, destinationHost: %s, xNsfApp: %s", host, destinationHost, xNsfApp));
 		String clusterId = "default";
 		PodInfo destPod = new PodInfo(clusterId, instance.getDestinationUid());
 		PodInfo sourcePod = new PodInfo(clusterId, instance.getSourceUid());
 		String urlPath = instance.getUrlPath();
+		recordCallRelation(sourcePod, xNsfApp, host, destinationHost);
 
 		String destProject = getProjectId(destPod);
 		String sourceProject = getProjectId(sourcePod);
@@ -45,6 +51,48 @@ public class MixerApa extends HandleNsfmetaServiceGrpc.HandleNsfmetaServiceImplB
 			.build();
 		responseObserver.onNext(output);
 		responseObserver.onCompleted();
+	}
+
+	private void recordCallRelation(PodInfo sourcePod, String xNsfAppHeader, String authority, String destinationHost) {
+		ArrayList<String> targetHosts = new ArrayList<>();
+		if(!StringUtils.isEmpty(authority)) {
+			targetHosts.add(authority);
+			String[] hostParts = authority.split("\\.");
+			if (hostParts.length == 1) {
+				targetHosts.add(String.format("%s.%s.cluster.local", hostParts[0], sourcePod.namespace));
+			} else if (hostParts.length == 2) {
+				targetHosts.add(String.format("%s.%s.cluster.local", hostParts[0], hostParts[1]));
+			}
+		}
+		if (!StringUtils.isEmpty(destinationHost)) {
+			targetHosts.add(destinationHost);
+		}
+
+		final String sourceApp;
+		final String sourceNamespace;
+		if (sourcePod.isIngress) {
+			int idx = xNsfAppHeader.lastIndexOf(".");
+			if (idx != -1) {
+				sourceApp = xNsfAppHeader.substring(0, idx);
+				sourceNamespace = xNsfAppHeader.substring(idx + 1);
+			} else {
+				sourceApp = sourceNamespace = "";
+			}
+		} else {
+			sourceApp = sourcePod.appName;
+			sourceNamespace = sourcePod.namespace;
+		}
+
+		if (!StringUtils.isEmpty(sourceApp) && !StringUtils.isEmpty(sourceNamespace)) {
+			for (String targetHost : targetHosts) {
+				recordCallRelation(sourceApp, sourceNamespace, targetHost);
+			}
+		}
+
+	}
+
+	private void recordCallRelation(String sourceApp, String sourceNamespace, String targetHost) {
+
 	}
 
 	private String getProjectId(PodInfo pod) {
@@ -67,6 +115,7 @@ public class MixerApa extends HandleNsfmetaServiceGrpc.HandleNsfmetaServiceImplB
 		@NotNull private final String namespace;
 		@NotNull private final String appName;
 		@NotNull private final String podName;
+		private final boolean isIngress;
 
 		// kubernetes://a-686ff98446-hcdlm.powerful-v13
 		public PodInfo(String clusterId, String uid) {
@@ -80,8 +129,10 @@ public class MixerApa extends HandleNsfmetaServiceGrpc.HandleNsfmetaServiceImplB
 				podName = fullPodName.substring(0, lastDot);
 				namespace = fullPodName.substring(lastDot + 1);
 				appName = resourceCache.getAppNameByPod(clusterId, namespace, podName);
+				isIngress = "true".equals("nsf.skiff.netease.com/isIngress");
 			} else {
 				namespace = appName = podName = "";
+				isIngress = false;
 				if (!StringUtils.isEmpty(uid)) {
 					logger.error("invalid uid: {}", uid);
 				}
