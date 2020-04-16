@@ -6,8 +6,8 @@ import com.netease.cloud.nsf.core.plugin.FragmentWrapper;
 import com.netease.cloud.nsf.core.template.TemplateParams;
 import com.netease.cloud.nsf.meta.API;
 import com.netease.cloud.nsf.meta.Endpoint;
-import com.netease.cloud.nsf.util.PriorityUtil;
 import com.netease.cloud.nsf.util.HandlerUtil;
+import com.netease.cloud.nsf.util.PriorityUtil;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
 
@@ -25,6 +25,7 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
     static final String apiVirtualServiceExtra = "gateway/api/virtualServiceExtra";
     static final String apiVirtualServiceRoute = "gateway/api/virtualServiceRoute";
     static final String apiVirtualServiceHttpRetry = "gateway/api/virtualServiceHttpRetry";
+    static final String apiVirtualServiceMeta = "gateway/api/virtualServiceMeta";
 
     ModelProcessor subModelProcessor;
     List<FragmentWrapper> fragments;
@@ -53,9 +54,11 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
 
         String matchYaml = produceMatch(baseParams);
         String httpRetryYaml = produceHttpRetry(baseParams);
+        String metaYaml = produceMeta(baseParams);
         TemplateParams vsParams = TemplateParams.instance()
                 .setParent(baseParams)
                 .put(VIRTUAL_SERVICE_MATCH_YAML, matchYaml)
+                .put(VIRTUAL_SERVICE_META_YAML, metaYaml)
                 .put(API_MATCH_PLUGINS, matchPlugins)
                 .put(VIRTUAL_SERVICE_HTTP_RETRY_YAML, httpRetryYaml)
                 .put(VIRTUAL_SERVICE_PLUGIN_MATCH_PRIORITY, pluginPriority)
@@ -94,6 +97,10 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
 
     String produceHttpRetry(TemplateParams params) {
         return subModelProcessor.process(apiVirtualServiceHttpRetry, params);
+    }
+
+    String produceMeta(TemplateParams params) {
+        return subModelProcessor.process(apiVirtualServiceMeta, params);
     }
 
     String buildVirtualServiceSubsetName(String serviceName, String apiName, String gw) {
