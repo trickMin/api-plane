@@ -34,7 +34,6 @@ public class RateLimiterDataHandler implements DataHandler<ServiceMeshRateLimit>
                 .put(SMART_LIMITER_NAME, rateLimit.getHost().split("\\.")[0])
                 .put(NAMESPACE, rateLimit.getNamespace())
                 .put(SMART_LIMITER_CONFIG, smartLimiterConfig)
-//                .put(GATEWAY_PLUGIN_HOSTS, Arrays.asList("*"))
                 .put(GATEWAY_PLUGIN_NAME, rateLimit.getHost())
                 .put(GATEWAY_PLUGIN_SERVICES, Arrays.asList(rateLimit.getHost()))
                 .put(GATEWAY_PLUGIN_PLUGINS, Arrays.asList(gatewayPluginConfig));
