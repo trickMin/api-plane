@@ -6,7 +6,6 @@
 | pre_condition.operator             | 比较符        | ≈，!≈，=，!=，present        |                      |    |
 | pre_condition.right_value          | 匹配的value   |                     |                      |    |
 | pre_condition.invert(可选)          | 条件反转   | true或false                    |默认为false                      |    |
-| type | 限流类型 | 可选项:Local、Global、LocalAvg | |
 ```
 场景1：配置when then
 {
@@ -26,7 +25,9 @@
     }
     ],
     "hour": 1,
-    "type": "Local",
+    "second": 2,
+    "minute": 3,
+    "day": 4,
     "when": "true",
     "then": "@/{pod}"
   }
