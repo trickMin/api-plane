@@ -6,4 +6,5 @@ public interface ServiceMeshEnhanceService {
 
     void updateRateLimit(ServiceMeshRateLimitDTO rateLimitDTO);
 
+    void deleteRateLimit(ServiceMeshRateLimitDTO rateLimitDTO);
 }

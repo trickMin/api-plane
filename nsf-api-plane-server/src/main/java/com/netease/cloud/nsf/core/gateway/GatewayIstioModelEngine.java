@@ -30,7 +30,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -74,7 +73,6 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
     @Value(value = "${rateLimitConfigMapName:rate-limit-config}")
     String rateLimitConfigMapName;
 
-    private static final String NEVER_NULL = "NEVER_NULL";
 
     private static final String apiGateway = "gateway/api/gateway";
     private static final String apiVirtualService = "gateway/api/virtualService";
@@ -135,7 +133,7 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
         resourcePacks.addAll(generateK8sPack(rawSharedConfigs,
                 new RateLimitConfigMapMerger(),
                 new RateLimitConfigMapSubtracter(String.join("|", api.getGateways()), api.getName()),
-                new GatewayIstioModelEngine.EmptyResourceGenerator(new EmptyConfigMap(rateLimitConfigMapName))));
+                new EmptyResourceGenerator(new EmptyConfigMap(rateLimitConfigMapName))));
         resourcePacks.addAll(generateK8sPack(rawGatewayPlugins));
 
         return resourcePacks;
@@ -219,19 +217,5 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
         return rawVs;
     }
 
-    private class EmptyResourceGenerator implements Function<String, HasMetadata> {
-
-        private HasMetadata hmd;
-
-        public EmptyResourceGenerator(HasMetadata hmd) {
-            this.hmd = hmd;
-        }
-
-        @Override
-        public HasMetadata apply(String s) {
-            if (NEVER_NULL.equals(s)) return hmd;
-            return str2HasMetadata(s);
-        }
-    }
 
 }

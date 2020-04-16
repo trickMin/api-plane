@@ -1,17 +1,17 @@
 package com.netease.cloud.nsf.core.k8s.empty;
 
+import com.netease.slime.api.microservice.v1alpha1.SmartLimiter;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
-import me.snowdrop.istio.api.networking.v1alpha3.GatewayPlugin;
 
 /**
- * @Author chenjiahan | chenjiahan@corp.netease.com | 2020/3/19
+ * @Author chenjiahan | chenjiahan@corp.netease.com | 2020/4/13
  **/
-public class EmptyGatewayPlugin extends GatewayPlugin implements HasMetadata, EmptyResource{
+public class EmptySmartLimiter extends SmartLimiter implements HasMetadata, EmptyResource {
 
     private ObjectMeta om;
 
-    public EmptyGatewayPlugin(String name, String namespace) {
+    public EmptySmartLimiter(String name, String namespace) {
         ObjectMeta tom = new ObjectMeta();
         tom.setName(name);
         tom.setNamespace(namespace);
@@ -22,5 +22,4 @@ public class EmptyGatewayPlugin extends GatewayPlugin implements HasMetadata, Em
     public ObjectMeta getMetadata() {
         return om;
     }
-
 }

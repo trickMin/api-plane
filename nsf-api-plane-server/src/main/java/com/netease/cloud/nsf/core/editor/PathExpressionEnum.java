@@ -25,6 +25,7 @@ public enum PathExpressionEnum {
 
     /** rbac **/
     REMOVE_RBAC_SERVICE("$.spec.rules[?]", 0),
+    CLUSTER_RBAC_SERVICE("$.spec.inclusion.services[?]", 0),
 
     /** destinationrule **/
     REMOVE_DST_SUBSET_API("$.spec.subsets[?(@.api == '%s')]", 1),
@@ -37,6 +38,8 @@ public enum PathExpressionEnum {
     REMOVE_SC_RATELIMITDESC_BY_CODE("$.spec.rateLimitConfigs[*].descriptors[?(@.code == '%s')]", 1),
 
     REMOVE_RATELIMIT_CONFIGMAP_BY_VALUE("$.descriptors[?(@.value =~ /.+Gateway\\[%s\\]-Api\\[%s\\].+/i)]",2),
+
+    REMOVE_SMART_LIMIT_BY_VALUE("$.spec..descriptors[?(@.value =~ /^Service\\[%s\\]-.*-Api\\[%s\\].+/i)]",2),
     /** plugin **/
     PLUGIN_GET_KIND("$.kind", 0),
     ;

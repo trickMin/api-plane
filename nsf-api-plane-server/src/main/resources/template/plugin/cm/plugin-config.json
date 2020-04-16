@@ -155,6 +155,18 @@
       "pluginScope": "global,routeRule",
       "pluginPriority": "1700",
       "instructionForUse": "认证鉴权插件"
+    },
+    {
+      "name": "circuit-breaker",
+      "schema": "plugin/portal/circuit-breaker.json",
+      "description": "",
+      "processor": "AggregateGatewayPluginProcessor",
+      "author": "system",
+      "createTime": "1572537600000",
+      "updateTime": "1572537600000",
+      "pluginScope": "routeRule,global",
+      "pluginPriority": "3400",
+      "instructionForUse": "熔断降级插件"
     }
   ]
 }

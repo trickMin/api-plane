@@ -9,7 +9,6 @@ import io.fabric8.kubernetes.api.model.ObjectMeta;
  **/
 public class EmptyConfigMap extends ConfigMap implements HasMetadata, EmptyResource {
 
-    private String kind = "ConfigMap";
     private ObjectMeta om;
 
     public EmptyConfigMap(String name) {
@@ -23,23 +22,7 @@ public class EmptyConfigMap extends ConfigMap implements HasMetadata, EmptyResou
         return om;
     }
 
-    @Override
-    public void setMetadata(ObjectMeta objectMeta) {
 
-    }
 
-    @Override
-    public String getKind() {
-        return kind;
-    }
 
-    @Override
-    public String getApiVersion() {
-        return null;
-    }
-
-    @Override
-    public void setApiVersion(String s) {
-
-    }
 }

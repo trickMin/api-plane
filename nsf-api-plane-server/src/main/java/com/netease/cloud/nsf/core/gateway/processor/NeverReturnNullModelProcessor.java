@@ -42,4 +42,13 @@ public class NeverReturnNullModelProcessor<T> implements ModelProcessor<T> {
         }
         return replacement;
     }
+
+    @Override
+    public List<String> process(String template, List<TemplateParams> params) {
+        if (modelProcessor != null) {
+            List<String> results = modelProcessor.process(template, params);
+            if (!CollectionUtils.isEmpty(results)) return results;
+        }
+        return Arrays.asList(replacement);
+    }
 }

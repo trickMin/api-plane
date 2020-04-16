@@ -39,13 +39,15 @@ public abstract class AbstractConfigManagerSupport implements ConfigManager{
                     merged = modelEngine.merge(old, latest);
                 }
 
-                if (merged != null) {
-                    configStore.update(merged);
-                }
+                handle(merged, configStore, modelEngine);
                 continue;
             }
             configStore.update(latest);
         }
+    }
+
+    protected void delete(ConfigStore configStore, List<K8sResourcePack> resources, IstioModelEngine modelEngine) {
+        delete(resources, (i1, i2) -> 0, n -> n, configStore, modelEngine);
     }
 
     protected void delete(List<K8sResourcePack> packs, Comparator<K8sResourcePack> compartor, Subtracter<HasMetadata> fun, ConfigStore configStore, IstioModelEngine modelEngine) {

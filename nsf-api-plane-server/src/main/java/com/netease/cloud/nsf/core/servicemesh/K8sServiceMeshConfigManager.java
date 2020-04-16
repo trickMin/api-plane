@@ -75,4 +75,10 @@ public class K8sServiceMeshConfigManager extends AbstractConfigManagerSupport im
         update(multiK8sConfigStore, packs, modelEngine);
     }
 
+    @Override
+    public void deleteRateLimit(ServiceMeshRateLimit rateLimit) {
+        List<K8sResourcePack> packs = modelEngine.translate(rateLimit);
+        delete(multiK8sConfigStore, packs, modelEngine);
+    }
+
 }

@@ -23,8 +23,17 @@ public class RenderTwiceModelProcessor<T> implements ModelProcessor<T> {
 
     @Override
     public List<String> process(String template, T t, DataHandler<T> dataHandler) {
-
         List<TemplateParams> params = dataHandler.handle(t);
+        return process(template, params);
+    }
+
+    @Override
+    public String process(String template, TemplateParams params) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<String> process(String template, List<TemplateParams> params) {
         if (CollectionUtils.isEmpty(params)) return Collections.emptyList();
 
         return params.stream()
@@ -33,11 +42,6 @@ public class RenderTwiceModelProcessor<T> implements ModelProcessor<T> {
                         p.output()))
                 .filter(r -> !StringUtils.isEmpty(r))
                 .collect(Collectors.toList());
-    }
-
-    @Override
-    public String process(String template, TemplateParams params) {
-        throw new UnsupportedOperationException();
     }
 
 }

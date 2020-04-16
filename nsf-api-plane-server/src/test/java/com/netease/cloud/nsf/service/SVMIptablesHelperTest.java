@@ -6,7 +6,8 @@ import org.junit.Test;
 
 import java.util.Arrays;
 
-import static com.netease.cloud.nsf.service.SVMIptablesHelper.*;
+import static com.netease.cloud.nsf.service.SVMIptablesHelper.INIT_PARAMS;
+import static com.netease.cloud.nsf.service.SVMIptablesHelper.processIptablesConfigAndBuildParams;
 
 /**
  * Created by 张武(zhangwu@corp.netease.com) at 2020/3/27
@@ -72,13 +73,12 @@ public class SVMIptablesHelperTest {
 			Arrays.asList()
 		);
 		String params1 = processIptablesConfigAndBuildParams(config1);
-		Assert.assertEquals("{\"enableOutbound\": false, \"enableInbound\": false}", config1.toString());
-		Assert.assertEquals(INIT_PARAMS + " -i '' -x '' -b ''", params1);
+		Assert.assertEquals("{\"enableOutbound\": false, \"enableInbound\": true}", config1.toString());
+		Assert.assertEquals(INIT_PARAMS + " -i '' -x '' -b '*'", params1);
 		Assert.assertNull(config1.getOutboundIps());
 		Assert.assertNull(config1.getExcludeOutboundIps());
 		Assert.assertNull(config1.getOutboundPorts());
 		Assert.assertNull(config1.getInboundPorts());
-		Assert.assertEquals(config.toString(), config1.toString());
 	}
 
 	@Test(expected = IllegalArgumentException.class)
