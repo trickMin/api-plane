@@ -186,21 +186,19 @@ public class MeshRateLimitProcessor extends AbstractSchemaProcessor implements S
         if (length == 0 && rg.contain("$.identifier_extractor") && !StringUtils.isEmpty(rg.getValue("$.identifier_extractor", String.class))) {
             String matchHeader = getMatchHeader(rg, "", "$.identifier_extractor");
             String descriptorKey = String.format("WithoutValueHeader[%s]", matchHeader);
-            shareConfig = PluginGenerator.newInstance(String.format("{\"key\":\"header_match\",\"value\":\"%s\",\"descriptors\":[{\"key\":\"%s\",\"rate_limit\":{\"unit\":\"%s\",\"requests_per_unit\":\"%d\"}}]}",
+            shareConfig = PluginGenerator.newInstance(String.format("{\"key\":\"header_match\",\"value\":\"%s\",\"descriptors\":[{\"key\":\"%s\",\"unit\":\"%s\"}]}",
                     headerDescriptor,
                     descriptorKey,
-                    unit,
-                    duration
+                    unit
             ));
             if (useWhenThen) {
                 shareConfig.createOrUpdateValue("$.descriptors[0]", "when", when);
                 shareConfig.createOrUpdateValue("$.descriptors[0]", "then", then);
             }
         } else {
-            shareConfig = PluginGenerator.newInstance(String.format("{\"key\":\"header_match\",\"value\":\"%s\",\"rate_limit\":{\"unit\":\"%s\",\"requests_per_unit\":%d}}",
+            shareConfig = PluginGenerator.newInstance(String.format("{\"key\":\"header_match\",\"value\":\"%s\",\"unit\":\"%s\"}",
                     headerDescriptor,
-                    unit,
-                    duration
+                    unit
             ));
             if (useWhenThen) {
                 shareConfig.createOrUpdateValue("$", "when", when);
