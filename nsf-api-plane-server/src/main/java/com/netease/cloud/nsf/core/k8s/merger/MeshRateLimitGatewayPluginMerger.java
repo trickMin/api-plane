@@ -42,6 +42,7 @@ public class MeshRateLimitGatewayPluginMerger implements Merger<GatewayPlugin> {
         }
         //override old
         oldRateLimit.get().setSettings(latestRateLimit.get().getSettings());
+        old.getSpec().setService(latest.getSpec().getService());
         return old;
     }
 

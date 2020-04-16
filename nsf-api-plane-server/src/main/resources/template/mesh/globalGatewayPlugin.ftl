@@ -12,6 +12,10 @@ spec:
   <#list t_gateway_plugin_hosts as h>
     - ${h}
   </#list>
+  service:
+  <#list t_gateway_plugin_services as s>
+    - ${s}
+  </#list>
 </#if>
 <#if t_gateway_plugin_plugins??>
   plugins:
