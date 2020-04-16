@@ -3,8 +3,7 @@ release 1.2
 网关共通：
 - vs中的插件配置(除了路由)全部迁移至gateway plugin crd
 - 修改ratelimit插件的id生成方式（使用hash计算）
-
-
+- 路由插件中增加meta信息
 
 网格：
 - 增加单机+自适应限流插件
