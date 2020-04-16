@@ -34,7 +34,6 @@ public class MeshRateLimitProcessorTest extends BasePluginTest {
                 "      \"second\": 2,\n" +
                 "      \"minute\": 3,\n" +
                 "      \"day\": 4,\n" +
-                "      \"type\": \"Local\",\n" +
                 "      \"when\": \"true\",\n" +
                 "      \"then\": \"@/{pod}\"\n" +
                 "    }\n" +

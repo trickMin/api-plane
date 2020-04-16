@@ -81,21 +81,6 @@ public class MeshRateLimitProcessor extends AbstractSchemaProcessor implements S
             length = rg.getValue("$.pre_condition.length()");
         }
 
-        if (rg.contain("$.type")) {
-            String type = rg.getValue("$.type");
-            switch (type) {
-                case "Local":
-                    vs.createOrUpdateValue("$.actions[0].header_value_match", "type", "Local");
-                    break;
-                case "Global":
-                    vs.createOrUpdateValue("$.actions[0].header_value_match", "type", "Global");
-                    break;
-                case "LocalAvg":
-                    vs.createOrUpdateValue("$.actions[0].header_value_match", "type", "LocalAvg");
-                    break;
-            }
-        }
-
         if (length != 0) {
             String matchHeader = getMatchHeader(rg, "", "$.identifier_extractor");
             for (int i = 0; i < length; i++) {
@@ -186,7 +171,7 @@ public class MeshRateLimitProcessor extends AbstractSchemaProcessor implements S
         if (length == 0 && rg.contain("$.identifier_extractor") && !StringUtils.isEmpty(rg.getValue("$.identifier_extractor", String.class))) {
             String matchHeader = getMatchHeader(rg, "", "$.identifier_extractor");
             String descriptorKey = String.format("WithoutValueHeader[%s]", matchHeader);
-            shareConfig = PluginGenerator.newInstance(String.format("{\"key\":\"header_match\",\"value\":\"%s\",\"descriptors\":[{\"key\":\"%s\",\"unit\":\"%s\"}]}",
+            shareConfig = PluginGenerator.newInstance(String.format("{\"key\":\"header_match\",\"value\":\"%s\",\"descriptors\":[{\"key\":\"%s\",\"unit\":%s}]}",
                     headerDescriptor,
                     descriptorKey,
                     unit
@@ -196,7 +181,7 @@ public class MeshRateLimitProcessor extends AbstractSchemaProcessor implements S
                 shareConfig.createOrUpdateValue("$.descriptors[0]", "then", then);
             }
         } else {
-            shareConfig = PluginGenerator.newInstance(String.format("{\"key\":\"header_match\",\"value\":\"%s\",\"unit\":\"%s\"}",
+            shareConfig = PluginGenerator.newInstance(String.format("{\"key\":\"header_match\",\"value\":\"%s\",\"unit\":%s}",
                     headerDescriptor,
                     unit
             ));
