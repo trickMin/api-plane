@@ -1,14 +1,13 @@
 package com.netease.cloud.nsf.core.plugin.processor;
 
-import com.netease.cloud.nsf.core.plugin.PluginGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.plugin.FragmentHolder;
 import com.netease.cloud.nsf.core.plugin.FragmentTypeEnum;
 import com.netease.cloud.nsf.core.plugin.FragmentWrapper;
+import com.netease.cloud.nsf.core.plugin.PluginGenerator;
 import com.netease.cloud.nsf.meta.ServiceInfo;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
-import io.envoyproxy.envoy.config.filter.http.http_cache.v2.Cache;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
@@ -42,7 +41,8 @@ public class MeshRateLimitProcessor extends AbstractSchemaProcessor implements S
                 if (rg.contain("$.limit_id")) {
                     descriptorId = rg.getValue("$.limit_id", String.class);
                 } else {
-                    descriptorId = UUID.randomUUID().toString();
+                    // 根据每个limit的整个string + unit单位 + unit值做hash
+                    descriptorId = "hash:" + Objects.hash(limit, unit, duration);
                 }
                 String headerDescriptor = getHeaderDescriptor(serviceInfo, xUserId, descriptorId);
                 rateLimitGen.addJsonElement("$.rate_limits", createRateLimits(rg, serviceInfo, headerDescriptor, null));

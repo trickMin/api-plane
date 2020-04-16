@@ -11,10 +11,7 @@ import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -49,7 +46,8 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
                 if (rg.contain("$.limit_id")) {
                     descriptorId = rg.getValue("$.limit_id", String.class);
                 } else {
-                    descriptorId = UUID.randomUUID().toString();
+                    // 根据每个limit的整个string + unit单位 + unit值做hash
+                    descriptorId = "hash:" + Objects.hash(limit, unit, duration);
                 }
                 String headerDescriptor = getHeaderDescriptor(serviceInfo, xUserId, descriptorId);
                 rateLimitGen.addJsonElement("$.rate_limits", createRateLimits(rg, serviceInfo, headerDescriptor, null));
