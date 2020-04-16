@@ -12,6 +12,8 @@ import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServicePort;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,15 +24,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -118,27 +122,29 @@ public class PilotHttpClient {
 
     private List<Endpoint> getEndpointList() {
         List<Endpoint> endpoints = new ArrayList<>();
-        String[] rawValues = getEndpoints().split("\\n");
+        String[] rawValues = StringUtils.split(getEndpoints(), "\n");
         for (String rawValue : rawValues) {
-            Pattern pattern = Pattern.compile("(.*):(.*) (.*) (.*):(.*) (.*) (.*)");
-            Matcher matcher = pattern.matcher(rawValue);
-            if (matcher.find()) {
-                Endpoint endpoint = new Endpoint();
-                endpoint.setHostname(matcher.group(1));
-                endpoint.setAddress(matcher.group(4));
-                endpoint.setProtocol(matcher.group(2));
-                endpoint.setPort(Integer.valueOf(matcher.group(5)));
-                Map<String, String> labelMap = new HashMap<>();
-                String[] labels = matcher.group(6).split(",");
-                for (String label : labels) {
-                    Matcher kv = Pattern.compile("(.*)=(.*)").matcher(label);
-                    if (kv.find()) {
-                        labelMap.put(kv.group(1), kv.group(2));
-                    }
-                }
-                endpoint.setLabels(labelMap);
-                endpoints.add(endpoint);
+            String[] segments = StringUtils.splitPreserveAllTokens(rawValue, " ");
+            if (ArrayUtils.getLength(segments) != 5) {
+                continue;
             }
+            String[] hostNameProtocol = StringUtils.splitPreserveAllTokens(segments[0], ":");
+            String[] ipPort = StringUtils.splitPreserveAllTokens(segments[2], ":");
+            Map<String, String> labelMap = new HashMap<>();
+            String[] labels = StringUtils.split(segments[3], ",");
+            for (String label : labels) {
+                String[] kv = StringUtils.splitPreserveAllTokens(label, "=");
+                if (ArrayUtils.getLength(kv) == 2) {
+                    labelMap.put(kv[0], kv[1]);
+                }
+            }
+            Endpoint ep = new Endpoint();
+            ep.setHostname(hostNameProtocol[0]);
+            ep.setProtocol(hostNameProtocol[1]);
+            ep.setAddress(ipPort[0]);
+            ep.setPort(Integer.valueOf(ipPort[1]));
+            ep.setLabels(labelMap);
+            endpoints.add(ep);
         }
         return endpoints;
     }

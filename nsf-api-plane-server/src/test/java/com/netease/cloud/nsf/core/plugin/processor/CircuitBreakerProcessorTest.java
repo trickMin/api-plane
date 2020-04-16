@@ -17,12 +17,12 @@ public class CircuitBreakerProcessorTest extends BasePluginTest {
         String p1 = "{\n" +
                 "  \"kind\": \"circuit-breaker\",\n" +
                 "  \"config\": {\n" +
-                "    \"consecutive_slow_requests\": 3,\n" +
-                "    \"average_response_time\": \"0.1s\",\n" +
-                "    \"min_request_amount\": 3,\n" +
-                "    \"error_percent_threshold\": 50,\n" +
-                "    \"break_duration\": \"50s\",\n" +
-                "    \"lookback_duration\": \"10s\"\n" +
+                "    \"consecutive_slow_requests\": \"3\",\n" +
+                "    \"average_response_time\": \"0.1\",\n" +
+                "    \"min_request_amount\": \"3\",\n" +
+                "    \"error_percent_threshold\": \"50\",\n" +
+                "    \"break_duration\": \"50\",\n" +
+                "    \"lookback_duration\": \"10\"\n" +
                 "  },\n" +
                 "  \"response\": {\n" +
                 "    \"code\": \"200\",\n" +

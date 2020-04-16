@@ -77,6 +77,10 @@ public class AggregateExtensionProcessor extends AbstractSchemaProcessor impleme
                 holder = getProcessor("RateLimitProcessor").process(plugin, serviceInfo);
                 coverToExtensionPlugin(holder, "envoy.ratelimit");
                 break;
+            case "mesh-rate-limiting":
+                holder = getProcessor("MeshRateLimitProcessor").process(plugin, serviceInfo);
+                coverToExtensionPlugin(holder, "envoy.ratelimit");
+                break;
             case "ianus-percent-limit":
                 holder = getProcessor("FlowLimitProcessor").process(plugin, serviceInfo);
                 coverToExtensionPlugin(holder, "envoy.fault");

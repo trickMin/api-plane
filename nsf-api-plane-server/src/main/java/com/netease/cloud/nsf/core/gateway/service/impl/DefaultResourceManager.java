@@ -8,6 +8,7 @@ import com.netease.cloud.nsf.meta.Gateway;
 import com.netease.cloud.nsf.meta.ServiceAndPort;
 import com.netease.cloud.nsf.meta.ServiceHealth;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -125,33 +126,13 @@ public class DefaultResourceManager implements ResourceManager {
         return serviceHealth;
     }
 
-
-    private boolean inIstioSystem(String hostName) {
-        return inNamespace(hostName, "istio-system");
-    }
-
-    private boolean inKubeSystem(String hostName) {
-        return inNamespace(hostName, "kube-system");
-    }
-
-    private boolean inGatewaySystem(String hostName) {
-        return inNamespace(hostName, "gateway-system");
-    }
-
     private boolean inNamespace(String hostName, String namespace) {
-        String pattern = String.format("(.*)\\.%s\\.(.*)\\.(.*)\\.(.*)", namespace);
-        return Pattern.compile(pattern).matcher(hostName).find();
-    }
-
-    private boolean isHttp(String protocol) {
-        return Pattern.compile(".*http(?!s).*").matcher(protocol).find();
-    }
-
-    private boolean isHttps(String protocol) {
-        return Pattern.compile(".*https.*").matcher(protocol).find();
+        String[] segments = StringUtils.split(hostName, ".");
+        if (ArrayUtils.getLength(segments) != 5) return false;
+        return Objects.equals(segments[1], namespace);
     }
 
     private boolean isServiceEntry(String hostname) {
-        return Pattern.compile("com.netease.static.*").matcher(hostname).find();
+        return StringUtils.contains(hostname, "com.netease.static");
     }
 }

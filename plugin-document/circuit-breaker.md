@@ -17,12 +17,12 @@
 {
   "kind": "circuit-breaker",
   "config": {
-    "consecutive_slow_requests": 3,
-    "average_response_time": "0.1s",
-    "min_request_amount": 3,
-    "error_percent_threshold": 50,
-    "break_duration": "50s",
-    "lookback_duration": "10s"
+    "consecutive_slow_requests": "3",
+    "average_response_time": "0.1",
+    "min_request_amount": "3",
+    "error_percent_threshold": "50",
+    "break_duration": "50",
+    "lookback_duration": "10"
   },
   "response": {
     "code": "200",
