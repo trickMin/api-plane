@@ -29,7 +29,11 @@ public class MultiK8sConfigStore extends K8sConfigStore {
     }
 
     public HasMetadata get(String kind, String namespace, String name, String clusterId) {
-        return resolve(clusterId).getObject(kind, namespace, name);
+        KubernetesClient k8sClient = resolve(clusterId);
+        if (k8sClient == null) {
+            return null;
+        }
+        return k8sClient.getObject(kind, namespace, name);
     }
 
     public List<HasMetadata> getList(String kind, String namespace, String clusterId) {
