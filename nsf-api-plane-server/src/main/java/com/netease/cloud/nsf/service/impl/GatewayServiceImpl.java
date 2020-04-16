@@ -229,9 +229,9 @@ public class GatewayServiceImpl implements GatewayService {
         if (!StringUtils.isEmpty(name)) {
             pattern = "^" + name + pattern + "$";
         }
-        final String fPattern = pattern;
+        final Pattern fPattern = Pattern.compile(pattern);
         return resourceManager.getServiceAndPortList().stream()
-                .filter(sap -> Pattern.compile(fPattern).matcher(sap.getName()).find())
+                .filter(sap -> fPattern.matcher(sap.getName()).find())
                 .filter(sap -> matchType(type, sap.getName(), registryId))
                 .map(sap -> {
                     ServiceAndPortDTO dto = new ServiceAndPortDTO();

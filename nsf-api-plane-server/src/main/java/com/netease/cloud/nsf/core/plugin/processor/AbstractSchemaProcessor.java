@@ -56,11 +56,6 @@ public abstract class AbstractSchemaProcessor implements SchemaProcessor<Service
         match.createOrUpdateJson("$[0]", "method", String.format("{\"regex\":\"%s\"}", info.getMethod()));
         match.createOrUpdateJson("$[0]", "headers", String.format("{\":authority\":{\"regex\":\"%s\"}}", info.getHosts()));
 
-        // 增加租户信息
-        if (StringUtils.isNotBlank(xUserId)) {
-            match.createOrUpdateJson("$[0].headers", "x_user_id", String.format("{\"regex\":\"%s\"}", xUserId));
-        }
-
         if (rg.contain("$.matcher")) {
             int length = rg.getValue("$.matcher.length()");
             for (int i = 0; i < length; i++) {
@@ -180,5 +175,13 @@ public abstract class AbstractSchemaProcessor implements SchemaProcessor<Service
 
     protected Integer getPriority(ResourceGenerator rg) {
         return rg.getValue("$.priority", Integer.class);
+    }
+
+    protected <T> T getOrDefault(T obj, T defaultVal) {
+        if (Objects.isNull(obj)) {
+            return defaultVal;
+        } else {
+            return obj;
+        }
     }
 }

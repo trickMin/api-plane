@@ -1,5 +1,6 @@
 package com.netease.cloud.nsf.core.plugin.processor;
 
+import com.netease.cloud.nsf.core.plugin.FragmentHolder;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -107,10 +108,33 @@ public class RouteProcessorTest extends BasePluginTest {
                 "  ]\n" +
                 "}";
 
-        routeProcessor.process(p1, serviceInfo);
-        routeProcessor.process(p2, serviceInfo);
-        routeProcessor.process(p3, serviceInfo);
-        routeProcessor.process(p4, serviceInfo);
+        String p5 = "{\n" +
+                "  \"kind\": \"ianus-router\",\n" +
+                "  \"rule\": [\n" +
+                "    {\n" +
+                "      \"name\": \"return\",\n" +
+                "      \"matcher\": [],\n" +
+                "      \"action\": {\n" +
+                "        \"action_type\": \"return\",\n" +
+                "        \"return_target\": {\n" +
+                "          \"code\": 403,\n" +
+                "          \"header\": [\n" +
+                "            {\n" +
+                "              \"name\": \"Content-Type\",\n" +
+                "              \"value\": \"application/json\"\n" +
+                "            }\n" +
+                "          ],\n" +
+                "          \"body\": \"{\\\"abc\\\":\\\"def\\\"}\"\n" +
+                "        }\n" +
+                "      }\n" +
+                "    }\n" +
+                "  ]\n" +
+                "}";
+        FragmentHolder f1 = routeProcessor.process(p1, serviceInfo);
+        FragmentHolder f2 = routeProcessor.process(p2, serviceInfo);
+        FragmentHolder f3 = routeProcessor.process(p3, serviceInfo);
+        FragmentHolder f4 = routeProcessor.process(p4, serviceInfo);
+        FragmentHolder f5 = routeProcessor.process(p5, serviceInfo);
         //TODO
     }
 

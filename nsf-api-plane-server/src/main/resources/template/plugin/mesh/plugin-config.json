@@ -13,8 +13,8 @@
       "instructionForUse": "按百分比限流，例如允许50%通"
     },
     {
-      "name": "ianus-rate-limiting",
-      "schema": "plugin/portal/ianus-rate-limiting.json",
+      "name": "mesh-rate-limiting",
+      "schema": "plugin/portal/mesh-rate-limiting.json",
       "description": "频控插件",
       "processor": "AggregateGatewayPluginProcessor",
       "author": "system",

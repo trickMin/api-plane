@@ -25,6 +25,7 @@ public enum PathExpressionEnum {
 
     /** rbac **/
     REMOVE_RBAC_SERVICE("$.spec.rules[?]", 0),
+    CLUSTER_RBAC_SERVICE("$.spec.inclusion.services[?]", 0),
 
     /** destinationrule **/
     REMOVE_DST_SUBSET_API("$.spec.subsets[?(@.api == '%s')]", 1),

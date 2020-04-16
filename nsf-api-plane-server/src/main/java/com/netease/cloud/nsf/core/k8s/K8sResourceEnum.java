@@ -28,6 +28,7 @@ public enum K8sResourceEnum {
     Gateway(Gateway.class, GatewayList.class, "/apis/networking.istio.io/v1alpha3/namespaces/%s/gateways"),
     Pod(Pod.class, PodList.class, "/api/v1/namespaces/%s/pods"),
     ClusterRbacConfig(RbacConfig.class, RbacConfigList.class, "/apis/rbac.istio.io/v1alpha1/clusterrbacconfigs"),
+    RbacConfig(RbacConfig.class, RbacConfigList.class, "/apis/rbac.istio.io/v1alpha1/clusterrbacconfigs"),
     SharedConfig(SharedConfig.class, SharedConfigList.class, "/apis/networking.istio.io/v1alpha3/namespaces/%s/sharedconfigs"),
     ServiceEntry(ServiceEntry.class, ServiceEntryList.class, "/apis/networking.istio.io/v1alpha3/namespaces/%s/serviceentries"),
     PluginManager(PluginManager.class, PluginManagerList.class, "/apis/networking.istio.io/v1alpha3/namespaces/%s/pluginmanagers"),
