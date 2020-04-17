@@ -54,11 +54,10 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
 
         String matchYaml = produceMatch(baseParams);
         String httpRetryYaml = produceHttpRetry(baseParams);
-        String metaYaml = produceMeta(baseParams);
+
         TemplateParams vsParams = TemplateParams.instance()
                 .setParent(baseParams)
                 .put(VIRTUAL_SERVICE_MATCH_YAML, matchYaml)
-                .put(VIRTUAL_SERVICE_META_YAML, metaYaml)
                 .put(API_MATCH_PLUGINS, matchPlugins)
                 .put(VIRTUAL_SERVICE_HTTP_RETRY_YAML, httpRetryYaml)
                 .put(VIRTUAL_SERVICE_PLUGIN_MATCH_PRIORITY, pluginPriority)
@@ -69,7 +68,7 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
                     String subset = buildVirtualServiceSubsetName(api.getService(), api.getName(), gw);
                     String route = produceRoute(api, endpoints, subset);
 
-                    return TemplateParams.instance()
+                    TemplateParams tmpParams = TemplateParams.instance()
                             .setParent(vsParams)
                             .put(GATEWAY_NAME, buildGatewayName(api.getService(), gw))
                             .put(VIRTUAL_SERVICE_NAME, buildVirtualServiceName(api.getService(), api.getName(), gw))
@@ -77,6 +76,9 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
                             .put(VIRTUAL_SERVICE_ROUTE_YAML, route)
                             .put(VIRTUAL_SERVICE_EXTRA_YAML, productExtra(vsParams))
                             .put(SERVICE_INFO_VIRTUAL_SERVICE_SUBSET_NAME, subset);
+
+                    tmpParams.put(VIRTUAL_SERVICE_META_YAML, produceMeta(tmpParams));
+                    return tmpParams;
                 })
                 .collect(Collectors.toList());
 
