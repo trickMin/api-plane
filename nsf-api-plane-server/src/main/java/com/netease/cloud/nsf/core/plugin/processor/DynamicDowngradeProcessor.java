@@ -1,15 +1,10 @@
 package com.netease.cloud.nsf.core.plugin.processor;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
-import com.jayway.jsonpath.Configuration;
-import com.jayway.jsonpath.Option;
-import com.netease.cloud.nsf.core.editor.EditorContext;
-import com.netease.cloud.nsf.core.plugin.PluginGenerator;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.plugin.FragmentHolder;
 import com.netease.cloud.nsf.core.plugin.FragmentTypeEnum;
 import com.netease.cloud.nsf.core.plugin.FragmentWrapper;
+import com.netease.cloud.nsf.core.plugin.PluginGenerator;
 import com.netease.cloud.nsf.meta.ServiceInfo;
 import org.springframework.stereotype.Component;
 
@@ -31,11 +26,16 @@ public class DynamicDowngradeProcessor extends AbstractSchemaProcessor implement
     @Override
     public FragmentHolder process(String plugin, ServiceInfo serviceInfo) {
         PluginGenerator source = PluginGenerator.newInstance(plugin);
-        PluginGenerator builder = PluginGenerator.newInstance("{\"downgrade_rpx\":{\"headers\":[]},\"cache_rpx_rpx\":{\"headers\":[]},\"cache_ttls\":{\"RedisHttpCache\":{}},\"key_maker\":{\"query_params\":[],\"headers_keys\":[]}}");
+        PluginGenerator builder = PluginGenerator.newInstance("{\"downgrade_rpx\":{\"headers\":[]}}");
         createCondition(source, builder);
-        createCacheRpx(source, builder);
-        createCacheTtls(source, builder);
-        createKeyMaker(source, builder);
+        if (source.contain("$.cache")) {
+            createCacheRpx(source, builder);
+            createCacheTtls(source, builder);
+            createKeyMaker(source, builder);
+        }
+        if (source.contain("$.httpx")) {
+            createHttpx(source, builder);
+        }
 
 
         FragmentHolder fragmentHolder = new FragmentHolder();
@@ -121,6 +121,7 @@ public class DynamicDowngradeProcessor extends AbstractSchemaProcessor implement
     }
 
     private void createCacheRpx(PluginGenerator source, PluginGenerator builder) {
+        builder.createOrUpdateJson("$", "cache_rpx_rpx", "{\"headers\":[]}");
         if (source.contain("$.cache.condition.response.code")) {
             String mathchType = source.getValue("$.cache.condition.response.code.match_type");
             String code = source.getValue("$.cache.condition.response.code.value");
@@ -145,6 +146,7 @@ public class DynamicDowngradeProcessor extends AbstractSchemaProcessor implement
     }
 
     private void createCacheTtls(PluginGenerator source, PluginGenerator builder) {
+        builder.createOrUpdateJson("$", "cache_ttls", "{\"RedisHttpCache\":{}}");
         if (source.contain("$.cache.ttls.default")) {
             builder.createOrUpdateValue("$.cache_ttls.RedisHttpCache", "default", 30000);
         }
@@ -160,6 +162,7 @@ public class DynamicDowngradeProcessor extends AbstractSchemaProcessor implement
     }
 
     private void createKeyMaker(PluginGenerator source, PluginGenerator builder) {
+        builder.createOrUpdateJson("$", "key_maker", "{\"query_params\":[],\"headers_keys\":[]}");
         if (source.contain("$.cache.cache_key.query_params")) {
             List<String> queryParams = source.getValue("$.cache.cache_key.query_params", List.class);
             queryParams.forEach(item -> {
@@ -171,6 +174,14 @@ public class DynamicDowngradeProcessor extends AbstractSchemaProcessor implement
             headers.forEach(item -> {
                 builder.addJsonElement("$.key_maker.headers_keys", item);
             });
+        }
+    }
+
+    private void createHttpx(PluginGenerator source, PluginGenerator builder) {
+        if (source.contain("$.httpx.uri")) {
+            String uri = source.getValue("$.httpx.uri");
+            builder.createOrUpdateValue("$", "downgrade_src", "HTTPX");
+            builder.createOrUpdateValue("$", "downgrade_uri", uri);
         }
     }
 }
