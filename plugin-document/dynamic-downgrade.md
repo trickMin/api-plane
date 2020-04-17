@@ -12,6 +12,7 @@
 | cache.condition       | 将缓存结果进行缓存的条件       |                  |              |    |
 | cache.ttls        | 环境结果的失效时长 |                  |  |    |
 | cache.cache_key           | 缓存key的生成策略   |                  |              |    |
+缓存降级：
 ```
 {
 	"condition": {
@@ -57,7 +58,7 @@
 				}]
 			}
 		},
-		"ttl": {
+		"ttls": {
 			"default": 30000,
 			"custom": [{
 				"code": "200",
@@ -129,5 +130,44 @@
 			]
 		}
 	}
+}
+```
+接口降级
+```
+{
+  "condition": {
+    "request": {
+      "requestSwitch": true,
+      "path": {
+        "match_type": "safe_regex_match",
+        "value": "/anything/anythin."
+      },
+      "host": {
+        "match_type": "safe_regex_match",
+        "value": "103.196.65.17."
+      },
+      "headers": [
+        {
+          "headerKey": "key",
+          "match_type": "exact_match",
+          "value": "va"
+        }
+      ],
+      "method": [
+        "GET"
+      ]
+    },
+    "response": {
+      "code": {
+        "match_type": "exact_match",
+        "value": "200"
+      },
+      "headers": []
+    }
+  },
+  "kind": "dynamic-downgrade",
+  "httpx":{
+    "uri":"http://httpbin.org/anything"
+  }
 }
 ```

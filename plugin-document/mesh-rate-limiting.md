@@ -6,152 +6,8 @@
 | pre_condition.operator             | 比较符        | ≈，!≈，=，!=，present        |                      |    |
 | pre_condition.right_value          | 匹配的value   |                     |                      |    |
 | pre_condition.invert(可选)          | 条件反转   | true或false                    |默认为false                      |    |
-| type | 限流类型 | 可选项:Local、Global、LocalAvg | |
 ```
-场景1：不配置条件，对整个api限流
-{
-  "kind": "mesh-rate-limiting",
-  "limit_by_list": [
-  {
-    "hour": 1
-  }
-  ]
-}
-```
-
-```
-场景2：对特定key-value组合条件限流，例如对plugin=ratelimit请求限流
-{
-  "kind": "mesh-rate-limiting",
-  "limit_by_list": [
-  {
-    "identifier_extractor": "Header[plugin]",
-    "pre_condition": [
-    {
-      "operator": "=",
-      "right_value": "ratelimit"
-    }
-    ],
-    "hour": 1
-  }
-  ]
-}
-```
-
-```
-场景3：根据key的value动态限流，例如根据xff对每个ip限流
-{
-  "kind": "mesh-rate-limiting",
-  "limit_by_list": [
-  {
-    "identifier_extractor": "Header[XFF]",
-    "hour": 1
-  }
-  ]
-}
-```
-
-```
-场景4：多维度限流，同时配置多个维度的阈值，例如每秒5个请求，每小时10个
-{
-  "kind": "mesh-rate-limiting",
-  "limit_by_list": [
-  {
-    "identifier_extractor": "Header[plugin]",
-    "pre_condition": [
-    {
-      "operator": "=",
-      "right_value": "ratelimit"
-    }
-    ],
-    "second": 5,
-    "hour": 10
-  }
-  ]
-}
-```
-
-```
-场景5： plugin header存在时限流
-{
-  "kind": "mesh-rate-limiting",
-  "limit_by_list": [
-  {
-    "identifier_extractor": "Header[plugin]",
-    "pre_condition": [
-    {
-      "operator": "present"
-    }
-    ],
-    "hour": 1
-  }
-  ]
-}
-```
-
-```
-场景6： 条件反转，例如存在判断则变为不存在,plugin header不存在时限流
-{
-  "kind": "mesh-rate-limiting",
-  "limit_by_list": [
-  {
-    "identifier_extractor": "Header[plugin]",
-    "pre_condition": [
-    {
-      "operator": "present",
-      "invert": true
-    }
-    ],
-    "hour": 1
-  }
-  ]
-}
-```
-
-```
-场景7： 自定义限流key id
-{
-  "kind": "mesh-rate-limiting",
-  "limit_by_list": [
-  {
-    "identifier_extractor": "Header[plugin]",
-    "limit_id": "aabbcc"
-    "pre_condition": [
-    {
-      "operator": "present",
-      "invert": true
-    }
-    ],
-    "hour": 1
-  }
-  ]
-}
-```
-```
-场景8：配置custom extractor，生效级别大于identifier_extractor(可以不配置identifier_extractor)
-{
-  "kind": "mesh-rate-limiting",
-  "limit_by_list": [
-  {
-    "pre_condition": [
-    {
-      "custom_extractor": "Header[plugin1]",
-      "operator": "present",
-      "invert": true
-    },
-    {
-      "custom_extractor": "Header[plugin2]",
-      "operator": "=",
-      "right_value": "ratelimit"
-    }
-    ],
-    "hour": 1
-  }
-  ]
-}
-```
-```
-场景9：配置限流方式为单机限流
+场景1：配置when then
 {
   "kind": "mesh-rate-limiting",
   "limit_by_list": [
@@ -169,31 +25,9 @@
     }
     ],
     "hour": 1,
-    "type": "Local"
-  }
-  ]
-}
-```
-```
-场景9：配置when then
-{
-  "kind": "mesh-rate-limiting",
-  "limit_by_list": [
-  {
-    "pre_condition": [
-    {
-      "custom_extractor": "Header[plugin1]",
-      "operator": "present",
-      "invert": true
-    },
-    {
-      "custom_extractor": "Header[plugin2]",
-      "operator": "=",
-      "right_value": "ratelimit"
-    }
-    ],
-    "hour": 1,
-    "type": "Local",
+    "second": 2,
+    "minute": 3,
+    "day": 4,
     "when": "true",
     "then": "@/{pod}"
   }

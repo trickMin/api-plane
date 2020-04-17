@@ -31,11 +31,11 @@ public class RateLimiterDataHandler implements DataHandler<ServiceMeshRateLimit>
         String gatewayPluginConfig = fragmentHolders.get(0).getGatewayPluginsFragment().getContent();
 
         TemplateParams tp = TemplateParams.instance()
-                .put(SMART_LIMITER_NAME, rateLimit.getHost())
+                .put(SMART_LIMITER_NAME, rateLimit.getHost().split("\\.")[0])
                 .put(NAMESPACE, rateLimit.getNamespace())
                 .put(SMART_LIMITER_CONFIG, smartLimiterConfig)
-                .put(GATEWAY_HOSTS, Arrays.asList(rateLimit.getHost()))
                 .put(GATEWAY_PLUGIN_NAME, rateLimit.getHost())
+                .put(GATEWAY_PLUGIN_SERVICES, Arrays.asList(rateLimit.getHost()))
                 .put(GATEWAY_PLUGIN_PLUGINS, Arrays.asList(gatewayPluginConfig));
 
         return Arrays.asList(tp);
