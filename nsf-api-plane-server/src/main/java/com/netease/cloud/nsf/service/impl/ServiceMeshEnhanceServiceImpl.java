@@ -42,6 +42,7 @@ public class ServiceMeshEnhanceServiceImpl implements ServiceMeshEnhanceService 
         }
         String[] metas = host.split("\\.");
         rl.setHost(host);
+        rl.setServiceName(metas[0]);
         rl.setNamespace(metas[1]);
         rl.setPlugin(rateLimitDTO.getPlugin());
         return rl;
