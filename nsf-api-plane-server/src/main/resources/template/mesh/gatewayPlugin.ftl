@@ -6,12 +6,6 @@ metadata:
   namespace: ${t_gateway_plugin_namespace}
 </#if>
 spec:
-<#if t_gateway_plugin_gateways?has_content>
-  gateway:
-  <#list t_gateway_plugin_gateways as g>
-  - ${g}
-  </#list>
-</#if>
 <#if t_gateway_plugin_hosts?has_content>
   host:
 <#list t_gateway_plugin_hosts as h>

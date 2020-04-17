@@ -22,17 +22,10 @@
     "min_request_amount": 3,
     "error_percent_threshold": 50,
     "break_duration": "50s",
-    "lookback_duration": "10s"
+    "lookback_duration": "10s"  
   },
   "response": {
-    "code": "200",
-    "body": "{\"ba\":\"ba\"}",
-    "headers": [
-      {
-        "key": "buhao",
-        "value": "buhaoyabuhao"
-      }
-    ]
+    "code": "200"
   }
 }
 ```

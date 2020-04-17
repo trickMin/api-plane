@@ -78,5 +78,6 @@ public interface Const {
     String CONTAINER_STATUS_WAITING = "Waiting";
     String CONTAINER_STATUS_TERMINATED = "Terminated";
 
+    String SERVICE_MESH_PLUGIN_NAME_CIRCUIT_BREAKER = "com.netease.circuitbreaker";
 
 }

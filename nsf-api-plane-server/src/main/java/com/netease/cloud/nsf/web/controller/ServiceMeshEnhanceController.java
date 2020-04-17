@@ -1,6 +1,13 @@
 package com.netease.cloud.nsf.web.controller;
 
+import com.netease.cloud.nsf.meta.dto.ServiceMeshCircuitBreakerDTO;
 import com.netease.cloud.nsf.meta.dto.sm.ServiceMeshRateLimitDTO;
+import com.netease.cloud.nsf.service.ServiceMeshEnhanceService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 import com.netease.cloud.nsf.service.ServiceMeshEnhanceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +35,15 @@ public class ServiceMeshEnhanceController extends BaseController {
     public String deleteRateLimit(@RequestBody ServiceMeshRateLimitDTO rateLimitDTO) {
 
         serviceMeshEnhanceService.deleteRateLimit(rateLimitDTO);
+        return apiReturn(SUCCESS, "Success", null, null);
+    }
+
+    @RequestMapping(params = "Action=UpdateCircuitBreaker", method = RequestMethod.POST)
+    public String updateCircuitBreaker(@RequestBody ServiceMeshCircuitBreakerDTO circuitBreakerDTO) {
+
+        serviceMeshEnhanceService.updateServiceMeshCircuitBreaker(circuitBreakerDTO);
+
+
         return apiReturn(SUCCESS, "Success", null, null);
     }
 }
