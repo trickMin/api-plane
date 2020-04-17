@@ -45,7 +45,7 @@ public class MeshRateLimitProcessor extends AbstractSchemaProcessor implements S
                     descriptorId = "hash:" + Objects.hash(limit, unit, duration);
                 }
                 String headerDescriptor = getHeaderDescriptor(serviceInfo, xUserId, descriptorId);
-                rateLimitGen.addJsonElement("$.rate_limits", createRateLimits(rg, serviceInfo, headerDescriptor, null));
+                rateLimitGen.addJsonElement("$.rate_limits", createRateLimits(rg, serviceInfo, headerDescriptor));
                 shareConfigGen.addJsonElement("$[0].descriptors", createShareConfig(rg, serviceInfo, headerDescriptor, unit, duration));
             });
         });
@@ -68,20 +68,22 @@ public class MeshRateLimitProcessor extends AbstractSchemaProcessor implements S
         return holder;
     }
 
-    private String createRateLimits(PluginGenerator rg, ServiceInfo serviceInfo, String headerDescriptor, String xUserId) {
+    private String createRateLimits(PluginGenerator rg, ServiceInfo serviceInfo, String headerDescriptor) {
         PluginGenerator vs = PluginGenerator.newInstance("{\"stage\":0,\"actions\":[]}");
-
-        vs.addJsonElement("$.actions",
-                String.format("{\"header_value_match\":{\"headers\":[],\"descriptor_value\":\"%s\"}}", headerDescriptor));
-        vs.addJsonElement("$.actions[0].header_value_match.headers",
-                String.format("{\"name\":\":authority\",\"regex_match\":\"%s\",\"invert_match\":false}", getOrDefault(serviceInfo.getHosts(), ".*")));
-
+        boolean hasCondition;
         int length = 0;
         if (rg.contain("$.pre_condition")) {
             length = rg.getValue("$.pre_condition.length()");
         }
-
-        if (length != 0) {
+        // 如果condition数量为0，则使用generic_key，否则使用header_value_match
+        if (length == 0) {
+            hasCondition = false;
+            vs.addJsonElement("$.actions",
+                    String.format("{\"generic_key\":{\"descriptor_value\":\"%s\"}}", headerDescriptor));
+        } else {
+            hasCondition = true;
+            vs.addJsonElement("$.actions",
+                    String.format("{\"header_value_match\":{\"headers\":[],\"descriptor_value\":\"%s\"}}", headerDescriptor));
             String matchHeader = getMatchHeader(rg, "", "$.identifier_extractor");
             for (int i = 0; i < length; i++) {
                 String operator = rg.getValue(String.format("$.pre_condition[%d].operator", i));
@@ -126,6 +128,7 @@ public class MeshRateLimitProcessor extends AbstractSchemaProcessor implements S
                 }
             }
         }
+
         if (length == 0 && rg.contain("$.identifier_extractor") && !StringUtils.isEmpty(rg.getValue("$.identifier_extractor", String.class))) {
             String matchHeader = getMatchHeader(rg, "", "$.identifier_extractor");
             String descriptorKey = String.format("WithoutValueHeader[%s]", matchHeader);
@@ -171,7 +174,7 @@ public class MeshRateLimitProcessor extends AbstractSchemaProcessor implements S
         if (length == 0 && rg.contain("$.identifier_extractor") && !StringUtils.isEmpty(rg.getValue("$.identifier_extractor", String.class))) {
             String matchHeader = getMatchHeader(rg, "", "$.identifier_extractor");
             String descriptorKey = String.format("WithoutValueHeader[%s]", matchHeader);
-            shareConfig = PluginGenerator.newInstance(String.format("{\"key\":\"header_match\",\"value\":\"%s\",\"descriptors\":[{\"key\":\"%s\",\"unit\":%s}]}",
+            shareConfig = PluginGenerator.newInstance(String.format("{\"key\":\"generic_key\",\"value\":\"%s\",\"descriptors\":[{\"key\":\"%s\",\"unit\":%s}]}",
                     headerDescriptor,
                     descriptorKey,
                     unit
@@ -179,6 +182,15 @@ public class MeshRateLimitProcessor extends AbstractSchemaProcessor implements S
             if (useWhenThen) {
                 shareConfig.createOrUpdateValue("$.descriptors[0]", "when", when);
                 shareConfig.createOrUpdateValue("$.descriptors[0]", "then", then);
+            }
+        } else if (length == 0) {
+            shareConfig = PluginGenerator.newInstance(String.format("{\"key\":\"generic_key\",\"value\":\"%s\",\"unit\":%s}",
+                    headerDescriptor,
+                    unit
+            ));
+            if (useWhenThen) {
+                shareConfig.createOrUpdateValue("$", "when", when);
+                shareConfig.createOrUpdateValue("$", "then", then);
             }
         } else {
             shareConfig = PluginGenerator.newInstance(String.format("{\"key\":\"header_match\",\"value\":\"%s\",\"unit\":%s}",

@@ -39,6 +39,37 @@ public class MeshRateLimitProcessorTest extends BasePluginTest {
                 "    }\n" +
                 "  ]\n" +
                 "}";
+
+        String plugin2 = "{\n" +
+                "  \"kind\": \"mesh-rate-limiting\",\n" +
+                "  \"limit_by_list\": [\n" +
+                "  {\n" +
+                "    \"hour\": 1,\n" +
+                "    \"second\": 2,\n" +
+                "    \"minute\": 3,\n" +
+                "    \"day\": 4,\n" +
+                "    \"when\": \"true\",\n" +
+                "    \"then\": \"@/{pod}\"\n" +
+                "  }\n" +
+                "  ]\n" +
+                "}";
+
+        String plugin3 = "{\n" +
+                "  \"kind\": \"mesh-rate-limiting\",\n" +
+                "  \"limit_by_list\": [\n" +
+                "    {\n" +
+                "      \"identifier_extractor\": \"Header[plugin]\",\n" +
+                "      \"hour\": 1,\n" +
+                "      \"second\": 2,\n" +
+                "      \"minute\": 3,\n" +
+                "      \"day\": 4,\n" +
+                "      \"when\": \"true\",\n" +
+                "      \"then\": \"@/{pod}\"\n" +
+                "    }\n" +
+                "  ]\n" +
+                "}";
         FragmentHolder fragment1 = processor.process(plugin1, serviceInfo);
+        FragmentHolder fragment2 = processor.process(plugin2, serviceInfo);
+        FragmentHolder fragment3 = processor.process(plugin3, serviceInfo);
     }
 }
