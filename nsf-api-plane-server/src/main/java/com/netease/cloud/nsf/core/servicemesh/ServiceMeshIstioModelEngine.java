@@ -82,7 +82,7 @@ public class ServiceMeshIstioModelEngine extends IstioModelEngine {
                 new SmartLimiterMerger(),
                 new SmartLimiterSubtracter(),
                 new RawSmartLimiterPreHandler(),
-                new EmptyResourceGenerator(new EmptySmartLimiter(rateLimit.getHost(), rateLimit.getNamespace()))));
+                new EmptyResourceGenerator(new EmptySmartLimiter(rateLimit.getServiceName(), rateLimit.getNamespace()))));
         resourcePacks.addAll(generateK8sPack(rawGatewayPlugin,
                 new MeshRateLimitGatewayPluginMerger(),
                 new MeshRateLimitGatewayPluginSubtracter(),
