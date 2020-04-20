@@ -1,6 +1,5 @@
 package com.netease.cloud.nsf.core.gateway.handler;
 
-import com.google.common.collect.ImmutableList;
 import com.netease.cloud.nsf.core.gateway.processor.ModelProcessor;
 import com.netease.cloud.nsf.core.plugin.FragmentWrapper;
 import com.netease.cloud.nsf.meta.API;
@@ -19,7 +18,7 @@ public class YxVirtualServiceAPIDataHandler extends BaseVirtualServiceAPIDataHan
     }
 
     @Override
-    String getApiName(API api) {
+    public String getApiName(API api) {
         return api.getService() + "-" + api.getName();
     }
 

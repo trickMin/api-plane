@@ -12,6 +12,8 @@ import com.netease.cloud.nsf.core.k8s.K8sResourcePack;
 import com.netease.cloud.nsf.core.k8s.empty.EmptyConfigMap;
 import com.netease.cloud.nsf.core.k8s.merger.RateLimitConfigMapMerger;
 import com.netease.cloud.nsf.core.k8s.operator.IntegratedResourceOperator;
+import com.netease.cloud.nsf.core.k8s.subtracter.GatewayDestinationRuleSubtracter;
+import com.netease.cloud.nsf.core.k8s.subtracter.GatewayVirtualServiceSubtracter;
 import com.netease.cloud.nsf.core.k8s.subtracter.RateLimitConfigMapSubtracter;
 import com.netease.cloud.nsf.core.plugin.FragmentHolder;
 import com.netease.cloud.nsf.core.template.TemplateTranslator;
@@ -115,7 +117,9 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
             List<String> rawGateways = defaultModelProcessor.process(apiGateway, api, new BaseGatewayAPIDataHandler(enableHttp10));
             resourcePacks.addAll(generateK8sPack(rawGateways));
             List<String> rawDestinationRules = defaultModelProcessor.process(apiDestinationRule, api, new BaseDestinationRuleAPIDataHandler(extraDestination));
-            resourcePacks.addAll(generateK8sPack(rawDestinationRules));
+            //TODO 名字写死容易出错
+            resourcePacks.addAll(generateK8sPack(rawDestinationRules,
+                    new GatewayDestinationRuleSubtracter(String.format("%s-%s", api.getService(), api.getName()))));
         } else {
             //gportal
             vsHandler = new PortalVirtualServiceAPIDataHandler(
@@ -128,7 +132,7 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
         List<String> rawGatewayPlugins = renderTwiceModelProcessor.process(gatewayPlugin, api,
                 new ApiGatewayPluginDataHandler(rawResourceContainer.getVirtualServices(), globalConfig.getResourceNamespace()));
 
-        resourcePacks.addAll(generateK8sPack(rawVirtualServices, r -> r, this::adjust));
+        resourcePacks.addAll(generateK8sPack(rawVirtualServices, new GatewayVirtualServiceSubtracter(vsHandler.getApiName(api)), r -> r, this::adjust));
         // rate limit configmap
         resourcePacks.addAll(generateK8sPack(rawSharedConfigs,
                 new RateLimitConfigMapMerger(),
@@ -164,7 +168,6 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
     }
 
     public List<K8sResourcePack> translate(PluginOrder po) {
-
         List<K8sResourcePack> resources = new ArrayList<>();
         List<String> pluginManagers = defaultModelProcessor.process(pluginManager, po, new PluginOrderDataHandler());
         resources.addAll(generateK8sPack(pluginManagers));
@@ -188,7 +191,7 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
         resources.addAll(generateK8sPack(rawSharedConfigs,
                 new RateLimitConfigMapMerger(),
                 new RateLimitConfigMapSubtracter(gp.getGateway(), gp.getCode()),
-                new GatewayIstioModelEngine.EmptyResourceGenerator(new EmptyConfigMap(rateLimitConfigMapName))));
+                new EmptyResourceGenerator(new EmptyConfigMap(rateLimitConfigMapName))));
 
         return resources;
     }

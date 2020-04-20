@@ -116,7 +116,7 @@ public abstract class APIDataHandler implements DataHandler<API> {
         return api.getHosts();
     }
 
-    String getApiName(API api) {
+    public String getApiName(API api) {
         return api.getName();
     }
 }
