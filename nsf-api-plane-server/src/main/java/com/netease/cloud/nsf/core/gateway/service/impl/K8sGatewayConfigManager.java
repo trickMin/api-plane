@@ -1,6 +1,5 @@
 package com.netease.cloud.nsf.core.gateway.service.impl;
 
-import com.google.common.collect.ImmutableMap;
 import com.netease.cloud.nsf.core.AbstractConfigManagerSupport;
 import com.netease.cloud.nsf.core.editor.PathExpressionEnum;
 import com.netease.cloud.nsf.core.editor.ResourceGenerator;
@@ -64,12 +63,7 @@ public class K8sGatewayConfigManager extends AbstractConfigManagerSupport implem
     @Override
     public void deleteConfig(API api) {
         List<K8sResourcePack> resources = modelEngine.translate(api, true);
-
-        ImmutableMap<String, String> toBeDeletedMap = ImmutableMap
-                .of(K8sResourceEnum.VirtualService.name(), api.getName(),
-                        K8sResourceEnum.DestinationRule.name(), String.format("%s-%s", api.getService(), api.getName()));
-
-        delete(resources, resource -> modelEngine.subtract(resource, toBeDeletedMap));
+        delete(resources);
     }
 
     @Override
@@ -211,6 +205,10 @@ public class K8sGatewayConfigManager extends AbstractConfigManagerSupport implem
 
     private void delete(List<K8sResourcePack> resources, Subtracter<HasMetadata> fun) {
         delete(resources, (i1, i2) -> 0, fun, configStore, modelEngine);
+    }
+
+    private void delete(List<K8sResourcePack> resources) {
+        delete(resources, (i1, i2) -> 0, null, configStore, modelEngine);
     }
 
     private Subtracter<HasMetadata> clearResource() {

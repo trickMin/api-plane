@@ -25,7 +25,6 @@ public class BaseDestinationRuleAPIDataHandler extends APIDataHandler {
     List<TemplateParams> doHandle(TemplateParams baseParams, API api) {
         // 带porxyService的情况下，不需要创建destinationrule
         if (!CollectionUtils.isEmpty(api.getProxyServices())) return Collections.emptyList();
-        List<String> destinationRules = new ArrayList<>();
         Set<String> destinations = new HashSet(api.getProxyUris());
         // 根据插件中的目标服务 得到额外的destination rule
         if (!CollectionUtils.isEmpty(api.getPlugins())) {

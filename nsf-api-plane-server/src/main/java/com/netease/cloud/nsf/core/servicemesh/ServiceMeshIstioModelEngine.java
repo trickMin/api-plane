@@ -8,6 +8,7 @@ import com.netease.cloud.nsf.core.gateway.processor.RenderTwiceModelProcessor;
 import com.netease.cloud.nsf.core.k8s.K8sResourcePack;
 import com.netease.cloud.nsf.core.k8s.empty.EmptyGatewayPlugin;
 import com.netease.cloud.nsf.core.k8s.empty.EmptySmartLimiter;
+import com.netease.cloud.nsf.core.k8s.merger.CircuitConfigMapMerger;
 import com.netease.cloud.nsf.core.k8s.merger.MeshRateLimitGatewayPluginMerger;
 import com.netease.cloud.nsf.core.k8s.merger.SmartLimiterMerger;
 import com.netease.cloud.nsf.core.k8s.merger.CircuitConfigMapMerger;
@@ -15,6 +16,7 @@ import com.netease.cloud.nsf.core.k8s.operator.IntegratedResourceOperator;
 import com.netease.cloud.nsf.core.k8s.subtracter.MeshRateLimitGatewayPluginSubtracter;
 import com.netease.cloud.nsf.core.k8s.subtracter.SmartLimiterSubtracter;
 import com.netease.cloud.nsf.core.plugin.FragmentHolder;
+import com.netease.cloud.nsf.core.servicemesh.handler.CircuitBreakerDataHandler;
 import com.netease.cloud.nsf.core.template.TemplateParams;
 import com.netease.cloud.nsf.core.plugin.FragmentHolder;
 import com.netease.cloud.nsf.core.servicemesh.handler.CircuitBreakerDataHandler;
@@ -22,9 +24,11 @@ import com.netease.cloud.nsf.core.template.TemplateTranslator;
 import com.netease.cloud.nsf.meta.ServiceInfo;
 import com.netease.cloud.nsf.meta.ServiceInfo;
 import com.netease.cloud.nsf.meta.ServiceMeshCircuitBreaker;
+import com.netease.cloud.nsf.meta.ServiceMeshCircuitBreaker;
 import com.netease.cloud.nsf.meta.ServiceMeshRateLimit;
 import com.netease.cloud.nsf.meta.SidecarVersionManagement;
 import com.netease.cloud.nsf.service.PluginService;
+import com.netease.cloud.nsf.util.Const;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.netease.cloud.nsf.util.Const;
@@ -35,6 +39,9 @@ import org.springframework.util.StringUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -88,12 +95,24 @@ public class ServiceMeshIstioModelEngine extends IstioModelEngine {
         resourcePacks.addAll(generateK8sPack(rawSmartLimiter,
                 new SmartLimiterMerger(),
                 new SmartLimiterSubtracter(),
-                new EmptyResourceGenerator(new EmptySmartLimiter(rateLimit.getHost(), rateLimit.getNamespace()))));
+                new RawSmartLimiterPreHandler(),
+                new EmptyResourceGenerator(new EmptySmartLimiter(rateLimit.getServiceName(), rateLimit.getNamespace()))));
         resourcePacks.addAll(generateK8sPack(rawGatewayPlugin,
                 new MeshRateLimitGatewayPluginMerger(),
                 new MeshRateLimitGatewayPluginSubtracter(),
                 new EmptyResourceGenerator(new EmptyGatewayPlugin(rateLimit.getHost(), rateLimit.getNamespace()))));
         return resourcePacks;
+    }
+
+    /**
+     * 由于原先插件渲染domain为数组，去掉domain前面的 -
+     */
+    private class RawSmartLimiterPreHandler implements Function<String, String> {
+
+        @Override
+        public String apply(String s) {
+            return s.replace("- domain:", "  domain:");
+        }
     }
 
     public List<K8sResourcePack> translate(ServiceMeshCircuitBreaker circuitBreaker) {
@@ -115,4 +134,6 @@ public class ServiceMeshIstioModelEngine extends IstioModelEngine {
                 new CircuitConfigMapMerger(Const.SERVICE_MESH_PLUGIN_NAME_CIRCUIT_BREAKER), null, r -> r, this::str2HasMetadata, hsm -> hsm));
         return resources;
     }
+
+
 }

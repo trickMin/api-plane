@@ -6,7 +6,6 @@
 | pre_condition.operator             | 比较符        | ≈，!≈，=，!=，present        |                      |    |
 | pre_condition.right_value          | 匹配的value   |                     |                      |    |
 | pre_condition.invert(可选)          | 条件反转   | true或false                    |默认为false                      |    |
-| type | 限流类型 | 可选项:Local、Global、LocalAvg | |
 ```
 场景1：不配置条件，对整个api限流
 {
@@ -146,30 +145,6 @@
     }
     ],
     "hour": 1
-  }
-  ]
-}
-```
-```
-场景9：配置限流方式为单机限流
-{
-  "kind": "ianus-rate-limiting",
-  "limit_by_list": [
-  {
-    "pre_condition": [
-    {
-      "custom_extractor": "Header[plugin1]",
-      "operator": "present",
-      "invert": true
-    },
-    {
-      "custom_extractor": "Header[plugin2]",
-      "operator": "=",
-      "right_value": "ratelimit"
-    }
-    ],
-    "hour": 1,
-    "type": "Local"
   }
   ]
 }

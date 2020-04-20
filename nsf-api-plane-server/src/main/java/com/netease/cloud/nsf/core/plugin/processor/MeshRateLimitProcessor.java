@@ -1,11 +1,11 @@
 package com.netease.cloud.nsf.core.plugin.processor;
 
-import com.netease.cloud.nsf.core.plugin.PluginGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.plugin.FragmentHolder;
 import com.netease.cloud.nsf.core.plugin.FragmentTypeEnum;
 import com.netease.cloud.nsf.core.plugin.FragmentWrapper;
+import com.netease.cloud.nsf.core.plugin.PluginGenerator;
 import com.netease.cloud.nsf.meta.ServiceInfo;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import org.apache.commons.lang3.StringUtils;
@@ -15,20 +15,15 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * @auther wupenghuai@corp.netease.com
- * @date 2019/8/22
- **/
 @Component
-public class RateLimitProcessor extends AbstractSchemaProcessor implements SchemaProcessor<ServiceInfo> {
+public class MeshRateLimitProcessor extends AbstractSchemaProcessor implements SchemaProcessor<ServiceInfo> {
     @Override
     public String getName() {
-        return "RateLimitProcessor";
+        return "MeshRateLimitProcessor";
     }
 
     @Override
     public FragmentHolder process(String plugin, ServiceInfo serviceInfo) {
-        //todo: XUser
         FragmentHolder holder = new FragmentHolder();
         PluginGenerator total = PluginGenerator.newInstance(plugin, ResourceType.JSON, editorContext);
         String xUserId = getAndDeleteXUserId(total);
@@ -50,7 +45,7 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
                     descriptorId = "hash:" + Objects.hash(limit, unit, duration);
                 }
                 String headerDescriptor = getHeaderDescriptor(serviceInfo, xUserId, descriptorId);
-                rateLimitGen.addJsonElement("$.rate_limits", createRateLimits(rg, serviceInfo, headerDescriptor, null));
+                rateLimitGen.addJsonElement("$.rate_limits", createRateLimits(rg, serviceInfo, headerDescriptor));
                 shareConfigGen.addJsonElement("$[0].descriptors", createShareConfig(rg, serviceInfo, headerDescriptor, unit, duration));
             });
         });
@@ -73,20 +68,22 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
         return holder;
     }
 
-    private String createRateLimits(PluginGenerator rg, ServiceInfo serviceInfo, String headerDescriptor, String xUserId) {
+    private String createRateLimits(PluginGenerator rg, ServiceInfo serviceInfo, String headerDescriptor) {
         PluginGenerator vs = PluginGenerator.newInstance("{\"stage\":0,\"actions\":[]}");
-
-        vs.addJsonElement("$.actions",
-                String.format("{\"header_value_match\":{\"headers\":[],\"descriptor_value\":\"%s\"}}", headerDescriptor));
-        vs.addJsonElement("$.actions[0].header_value_match.headers",
-                String.format("{\"name\":\":authority\",\"regex_match\":\"%s\",\"invert_match\":false}", getOrDefault(serviceInfo.getHosts(), ".*")));
-
+        boolean hasCondition;
         int length = 0;
         if (rg.contain("$.pre_condition")) {
             length = rg.getValue("$.pre_condition.length()");
         }
-
-        if (length != 0) {
+        // 如果condition数量为0，则使用generic_key，否则使用header_value_match
+        if (length == 0) {
+            hasCondition = false;
+            vs.addJsonElement("$.actions",
+                    String.format("{\"generic_key\":{\"descriptor_value\":\"%s\"}}", headerDescriptor));
+        } else {
+            hasCondition = true;
+            vs.addJsonElement("$.actions",
+                    String.format("{\"header_value_match\":{\"headers\":[],\"descriptor_value\":\"%s\"}}", headerDescriptor));
             String matchHeader = getMatchHeader(rg, "", "$.identifier_extractor");
             for (int i = 0; i < length; i++) {
                 String operator = rg.getValue(String.format("$.pre_condition[%d].operator", i));
@@ -131,6 +128,7 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
                 }
             }
         }
+
         if (length == 0 && rg.contain("$.identifier_extractor") && !StringUtils.isEmpty(rg.getValue("$.identifier_extractor", String.class))) {
             String matchHeader = getMatchHeader(rg, "", "$.identifier_extractor");
             String descriptorKey = String.format("WithoutValueHeader[%s]", matchHeader);
@@ -145,21 +143,64 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
         if (rg.contain("$.pre_condition")) {
             length = rg.getValue("$.pre_condition.length()");
         }
+        // use when and then
+        String when = null, then = null;
+        boolean useWhenThen = false;
+        if (rg.contain("$.when") && rg.contain("$.then")) {
+            useWhenThen = true;
+            when = rg.getValue("$.when");
+            then = rg.getValue("$.then");
+
+            // replace @ to unit value
+            if (StringUtils.contains(then, "@")) {
+                then = StringUtils.replace(then, "@", String.valueOf(duration));
+            }
+        }
+        // transform unit
+        switch (unit) {
+            case "SECOND":
+                unit = "1";
+                break;
+            case "MINUTE":
+                unit = "2";
+                break;
+            case "HOUR":
+                unit = "3";
+                break;
+            case "DAY":
+                unit = "4";
+                break;
+        }
         if (length == 0 && rg.contain("$.identifier_extractor") && !StringUtils.isEmpty(rg.getValue("$.identifier_extractor", String.class))) {
             String matchHeader = getMatchHeader(rg, "", "$.identifier_extractor");
             String descriptorKey = String.format("WithoutValueHeader[%s]", matchHeader);
-            shareConfig = PluginGenerator.newInstance(String.format("{\"key\":\"header_match\",\"value\":\"%s\",\"descriptors\":[{\"key\":\"%s\",\"rate_limit\":{\"unit\":\"%s\",\"requests_per_unit\":\"%d\"}}]}",
+            shareConfig = PluginGenerator.newInstance(String.format("{\"key\":\"generic_key\",\"value\":\"%s\",\"descriptors\":[{\"key\":\"%s\",\"unit\":%s}]}",
                     headerDescriptor,
                     descriptorKey,
-                    unit,
-                    duration
+                    unit
             ));
-        } else {
-            shareConfig = PluginGenerator.newInstance(String.format("{\"key\":\"header_match\",\"value\":\"%s\",\"rate_limit\":{\"unit\":\"%s\",\"requests_per_unit\":%d}}",
+            if (useWhenThen) {
+                shareConfig.createOrUpdateValue("$.descriptors[0]", "when", when);
+                shareConfig.createOrUpdateValue("$.descriptors[0]", "then", then);
+            }
+        } else if (length == 0) {
+            shareConfig = PluginGenerator.newInstance(String.format("{\"key\":\"generic_key\",\"value\":\"%s\",\"unit\":%s}",
                     headerDescriptor,
-                    unit,
-                    duration
+                    unit
             ));
+            if (useWhenThen) {
+                shareConfig.createOrUpdateValue("$", "when", when);
+                shareConfig.createOrUpdateValue("$", "then", then);
+            }
+        } else {
+            shareConfig = PluginGenerator.newInstance(String.format("{\"key\":\"header_match\",\"value\":\"%s\",\"unit\":%s}",
+                    headerDescriptor,
+                    unit
+            ));
+            if (useWhenThen) {
+                shareConfig.createOrUpdateValue("$", "when", when);
+                shareConfig.createOrUpdateValue("$", "then", then);
+            }
         }
         return shareConfig.jsonString();
     }

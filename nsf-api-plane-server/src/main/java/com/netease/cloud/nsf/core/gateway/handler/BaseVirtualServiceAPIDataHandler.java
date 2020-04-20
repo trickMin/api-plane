@@ -6,8 +6,8 @@ import com.netease.cloud.nsf.core.plugin.FragmentWrapper;
 import com.netease.cloud.nsf.core.template.TemplateParams;
 import com.netease.cloud.nsf.meta.API;
 import com.netease.cloud.nsf.meta.Endpoint;
-import com.netease.cloud.nsf.util.PriorityUtil;
 import com.netease.cloud.nsf.util.HandlerUtil;
+import com.netease.cloud.nsf.util.PriorityUtil;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
 
@@ -25,6 +25,7 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
     static final String apiVirtualServiceExtra = "gateway/api/virtualServiceExtra";
     static final String apiVirtualServiceRoute = "gateway/api/virtualServiceRoute";
     static final String apiVirtualServiceHttpRetry = "gateway/api/virtualServiceHttpRetry";
+    static final String apiVirtualServiceMeta = "gateway/api/virtualServiceMeta";
 
     ModelProcessor subModelProcessor;
     List<FragmentWrapper> fragments;
@@ -53,6 +54,7 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
 
         String matchYaml = produceMatch(baseParams);
         String httpRetryYaml = produceHttpRetry(baseParams);
+
         TemplateParams vsParams = TemplateParams.instance()
                 .setParent(baseParams)
                 .put(VIRTUAL_SERVICE_MATCH_YAML, matchYaml)
@@ -66,7 +68,7 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
                     String subset = buildVirtualServiceSubsetName(api.getService(), api.getName(), gw);
                     String route = produceRoute(api, endpoints, subset);
 
-                    return TemplateParams.instance()
+                    TemplateParams tmpParams = TemplateParams.instance()
                             .setParent(vsParams)
                             .put(GATEWAY_NAME, buildGatewayName(api.getService(), gw))
                             .put(VIRTUAL_SERVICE_NAME, buildVirtualServiceName(api.getService(), api.getName(), gw))
@@ -74,6 +76,9 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
                             .put(VIRTUAL_SERVICE_ROUTE_YAML, route)
                             .put(VIRTUAL_SERVICE_EXTRA_YAML, productExtra(vsParams))
                             .put(SERVICE_INFO_VIRTUAL_SERVICE_SUBSET_NAME, subset);
+
+                    tmpParams.put(VIRTUAL_SERVICE_META_YAML, produceMeta(tmpParams));
+                    return tmpParams;
                 })
                 .collect(Collectors.toList());
 
@@ -94,6 +99,10 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
 
     String produceHttpRetry(TemplateParams params) {
         return subModelProcessor.process(apiVirtualServiceHttpRetry, params);
+    }
+
+    String produceMeta(TemplateParams params) {
+        return subModelProcessor.process(apiVirtualServiceMeta, params);
     }
 
     String buildVirtualServiceSubsetName(String serviceName, String apiName, String gw) {

@@ -42,7 +42,7 @@ public abstract class AbstractConfigManagerSupport implements ConfigManager{
                 handle(merged, configStore, modelEngine);
                 continue;
             }
-            configStore.update(latest);
+            handle(latest, configStore, modelEngine);
         }
     }
 
@@ -66,14 +66,17 @@ public abstract class AbstractConfigManagerSupport implements ConfigManager{
                     if (p.hasSubtracter()) {
                         return p.getSubtracter().subtract(resource);
                     }
-                    return fun.subtract(resource);
+                    if (fun != null) {
+                        return fun.subtract(resource);
+                    }
+                    return resource;
                 })
                 .filter(i -> i != null)
                 .forEach(r -> handle(r, configStore, modelEngine));
     }
 
     private void handle(HasMetadata i, ConfigStore configStore, IstioModelEngine modelEngine) {
-        if (modelEngine.isUseless(i)) {
+        if (modelEngine.isUseless(i) || i instanceof EmptyResource) {
             try {
                 configStore.delete(i);
             } catch (Exception e) {

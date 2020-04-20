@@ -1,5 +1,6 @@
 package com.netease.cloud.nsf.core.plugin.processor;
 
+import com.netease.cloud.nsf.core.plugin.FragmentHolder;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -69,8 +70,46 @@ public class DynamicDowngradeProcessorTest extends BasePluginTest {
                 "\t\t\t\"headers\": [\"comefrom\"]\n" +
                 "\t\t}\n" +
                 "\t}\n" +
-                "}\n";
+                "}";
 
-        dynamicDowngradeProcessor.process(p1, serviceInfo);
+        String p2 = "{\n" +
+                "  \"condition\": {\n" +
+                "    \"request\": {\n" +
+                "      \"requestSwitch\": true,\n" +
+                "      \"path\": {\n" +
+                "        \"match_type\": \"safe_regex_match\",\n" +
+                "        \"value\": \"/anything/anythin.\"\n" +
+                "      },\n" +
+                "      \"host\": {\n" +
+                "        \"match_type\": \"safe_regex_match\",\n" +
+                "        \"value\": \"103.196.65.17.\"\n" +
+                "      },\n" +
+                "      \"headers\": [\n" +
+                "        {\n" +
+                "          \"headerKey\": \"key\",\n" +
+                "          \"match_type\": \"exact_match\",\n" +
+                "          \"value\": \"va\"\n" +
+                "        }\n" +
+                "      ],\n" +
+                "      \"method\": [\n" +
+                "        \"GET\"\n" +
+                "      ]\n" +
+                "    },\n" +
+                "    \"response\": {\n" +
+                "      \"code\": {\n" +
+                "        \"match_type\": \"exact_match\",\n" +
+                "        \"value\": \"200\"\n" +
+                "      },\n" +
+                "      \"headers\": []\n" +
+                "    }\n" +
+                "  },\n" +
+                "  \"kind\": \"dynamic-downgrade\",\n" +
+                "  \"httpx\":{\n" +
+                "    \"uri\":\"http://httpbin.org/anything\"\n" +
+                "  }\n" +
+                "}";
+
+        FragmentHolder f1 = dynamicDowngradeProcessor.process(p1, serviceInfo);
+        FragmentHolder f2 = dynamicDowngradeProcessor.process(p2, serviceInfo);
     }
 }
