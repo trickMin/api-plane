@@ -48,6 +48,7 @@ public class K8sServiceMeshConfigManagerTest extends BaseTest {
         rateLimit.setHost(host);
         rateLimit.setNamespace(namespace);
         rateLimit.setPlugin(plugin);
+        rateLimit.setServiceName(host.split("\\.")[0]);
         return rateLimit;
     }
 
