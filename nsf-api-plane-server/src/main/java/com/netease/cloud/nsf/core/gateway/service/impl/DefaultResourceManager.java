@@ -19,7 +19,6 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 import java.util.function.Predicate;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -62,6 +61,8 @@ public class DefaultResourceManager implements ResourceManager {
     @Override
     public List<Gateway> getGatewayList() {
         return istioHttpClient.getGatewayList(gateway ->
+                // 过滤静态服务
+                !isServiceEntry(gateway.getHostname()) &&
                 // 包含gw_cluster label
                 Objects.nonNull(gateway.getLabels()) &&
                         gateway.getLabels().containsKey("gw_cluster"));
