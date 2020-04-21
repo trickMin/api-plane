@@ -20,9 +20,11 @@ import com.netease.cloud.nsf.service.VersionManagerService;
 import com.netease.cloud.nsf.util.Const;
 import com.netease.cloud.nsf.util.RestTemplateClient;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
+import io.fabric8.kubernetes.api.model.EndpointAddress;
 import io.fabric8.kubernetes.api.model.Endpoints;
+import io.fabric8.kubernetes.api.model.HasMetadata;
+import io.fabric8.kubernetes.api.model.ObjectReference;
 import io.fabric8.kubernetes.api.model.Pod;
-import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.apiextensions.CustomResourceDefinition;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import me.snowdrop.istio.api.networking.v1alpha3.DoneableMixerUrlPattern;
@@ -40,7 +42,14 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -501,12 +510,17 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
 
     @Override
     public String getAppNameByPod(String clusterId, String namespace, String name) {
+        return getPodLabel(clusterId, namespace, name, meshConfig.getSelectorAppKey());
+    }
+
+    @Override
+    public String getPodLabel(String clusterId, String namespace, String name, String labelName) {
         OwnerReferenceSupportStore<Pod> store = ResourceStoreFactory.getResourceStore(clusterId);
         Pod pod = store.get(Pod.name(), namespace, name);
         if (pod == null || pod.getMetadata() == null || pod.getMetadata().getLabels() == null) {
             return "";
         } else {
-            return Strings.nullToEmpty(pod.getMetadata().getLabels().get(meshConfig.getSelectorAppKey()));
+            return Strings.nullToEmpty(pod.getMetadata().getLabels().get(labelName));
         }
     }
 
