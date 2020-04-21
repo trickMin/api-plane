@@ -35,4 +35,12 @@ public interface ServiceMeshConfigManager extends ConfigManager {
     void updateRateLimit(ServiceMeshRateLimit rateLimit);
 
     void deleteRateLimit(ServiceMeshRateLimit rateLimit);
+
+    /**
+     *
+     * @param sourceService  源服务名 , app
+     * @param sourceNamespace 源服务namespace
+     * @param targetService 目标服务，全名 - a.default.svc.cluster.local
+     */
+    void updateSidecarScope(String sourceService, String sourceNamespace, String targetService);
 }
