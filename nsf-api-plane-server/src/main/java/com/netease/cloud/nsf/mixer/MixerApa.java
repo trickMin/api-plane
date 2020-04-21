@@ -84,10 +84,10 @@ public class MixerApa extends HandleNsfmetaServiceGrpc.HandleNsfmetaServiceImplB
 			sourceApp = sourcePod.appName;
 			sourceNamespace = sourcePod.namespace;
 		}
+		logger.info("recording call relation: sourceApp: {}, sourceNamespace: {}, targetHosts: {}, isIngress: {}", sourceApp, sourceNamespace, targetHosts, sourcePod.isIngress);
 
 		if (!StringUtils.isEmpty(sourceApp) && !StringUtils.isEmpty(sourceNamespace)) {
 			for (String targetHost : targetHosts) {
-				logger.info("recording call relation: sourceApp: {}, sourceNamespace: {}, targetHost: {}", sourceApp, sourceNamespace, targetHost);
 				serviceMeshConfigManager.updateSidecarScope(sourceApp, sourceNamespace, targetHost);
 			}
 		}
