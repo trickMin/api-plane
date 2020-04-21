@@ -23,7 +23,16 @@ public class ServiceMeshCircuitBreakerDTO {
     private Integer status;
     @JsonProperty(value = "Namespace")
     private String namespace;
+    @JsonProperty(value = "ruleType")
+    private String ruleType;
 
+    public String getRuleType() {
+        return ruleType;
+    }
+
+    public void setRuleType(String ruleType) {
+        this.ruleType = ruleType;
+    }
 
     public Integer getStatus() {
         return status;

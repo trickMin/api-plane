@@ -48,6 +48,7 @@ public class ServiceMeshEnhanceServiceImpl implements ServiceMeshEnhanceService 
         serviceMeshCircuitBreaker.setPlugins(circuitBreakerDTO.getPlugins());
         serviceMeshCircuitBreaker.setStatus(circuitBreakerDTO.getStatus());
         serviceMeshCircuitBreaker.setNamespace(circuitBreakerDTO.getNamespace());
+        serviceMeshCircuitBreaker.setRuleType(circuitBreakerDTO.getRuleType());
         return serviceMeshCircuitBreaker;
     }
 

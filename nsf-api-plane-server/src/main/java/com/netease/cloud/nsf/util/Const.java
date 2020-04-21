@@ -79,5 +79,8 @@ public interface Const {
     String CONTAINER_STATUS_TERMINATED = "Terminated";
 
     String SERVICE_MESH_PLUGIN_NAME_CIRCUIT_BREAKER = "com.netease.circuitbreaker";
+    String SERVICE_MESH_CIRCUIT_BREAKER_KIND = "circuit-breaker";
+    String SERVICE_MESH_PLUGIN_NAME_DOWNGRADE = "com.netease.dynamicdowngrade";
+    String SERVICE_MESH_DOWNGRADE_KIND = "dynamic-downgrade";
 
 }

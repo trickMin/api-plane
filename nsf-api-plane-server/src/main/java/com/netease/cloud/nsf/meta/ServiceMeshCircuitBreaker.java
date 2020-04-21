@@ -12,6 +12,15 @@ public class ServiceMeshCircuitBreaker {
     private String plugins;
     private Integer status;
     private String namespace;
+    private String ruleType;
+
+    public String getRuleType() {
+        return ruleType;
+    }
+
+    public void setRuleType(String ruleType) {
+        this.ruleType = ruleType;
+    }
 
     public Integer getStatus() {
         return status;
