@@ -2,6 +2,7 @@ package com.netease.cloud.nsf.mixer;
 
 import com.google.common.base.Strings;
 import com.netease.cloud.nsf.cache.ResourceCache;
+import com.netease.cloud.nsf.core.servicemesh.ServiceMeshConfigManager;
 import com.netease.cloud.nsf.service.ServiceMeshService;
 import io.grpc.stub.StreamObserver;
 import net.devh.springboot.autoconfigure.grpc.server.GrpcService;
@@ -26,6 +27,7 @@ public class MixerApa extends HandleNsfmetaServiceGrpc.HandleNsfmetaServiceImplB
 
 	@Autowired private ResourceCache resourceCache;
 	@Autowired private ServiceMeshService serviceMeshService;
+	@Autowired private ServiceMeshConfigManager serviceMeshConfigManager;
 	private static final Logger logger = LoggerFactory.getLogger(MixerApa.class);
 
 	@Override
@@ -85,13 +87,10 @@ public class MixerApa extends HandleNsfmetaServiceGrpc.HandleNsfmetaServiceImplB
 
 		if (!StringUtils.isEmpty(sourceApp) && !StringUtils.isEmpty(sourceNamespace)) {
 			for (String targetHost : targetHosts) {
-				recordCallRelation(sourceApp, sourceNamespace, targetHost);
+				logger.info("recording call relation: sourceApp: {}, sourceNamespace: {}, targetHost: {}", sourceApp, sourceNamespace, targetHost);
+				serviceMeshConfigManager.updateSidecarScope(sourceApp, sourceNamespace, targetHost);
 			}
 		}
-
-	}
-
-	private void recordCallRelation(String sourceApp, String sourceNamespace, String targetHost) {
 
 	}
 
@@ -129,7 +128,7 @@ public class MixerApa extends HandleNsfmetaServiceGrpc.HandleNsfmetaServiceImplB
 				podName = fullPodName.substring(0, lastDot);
 				namespace = fullPodName.substring(lastDot + 1);
 				appName = resourceCache.getAppNameByPod(clusterId, namespace, podName);
-				isIngress = "true".equals("nsf.skiff.netease.com/isIngress");
+				isIngress = "true".equals(resourceCache.getPodLabel(clusterId, namespace, podName, "nsf.skiff.netease.com/isIngress"));
 			} else {
 				namespace = appName = podName = "";
 				isIngress = false;
