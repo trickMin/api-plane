@@ -90,6 +90,15 @@ message InstanceMsg {
     
     string url_path = 3;
     
+    
+    string x_nsf_app = 4;
+    
+    
+    string host = 5;
+    
+    
+    string destination_host = 6;
+    
 }
 
 // Contains inferred type information about specific instance of 'nsfmeta' template. This is passed to
@@ -110,6 +119,15 @@ message InstanceParam {
     
     
     string url_path = 3;
+    
+    
+    string x_nsf_app = 4;
+    
+    
+    string host = 5;
+    
+    
+    string destination_host = 6;
     // Attribute names to expression mapping. These expressions can use the fields from the output object
     // returned by the attribute producing adapters using $out.<fieldName> notation. For example:
     // source.ip : $out.source_pod_ip
