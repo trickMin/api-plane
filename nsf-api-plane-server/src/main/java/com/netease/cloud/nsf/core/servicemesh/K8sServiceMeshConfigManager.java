@@ -76,6 +76,13 @@ public class K8sServiceMeshConfigManager extends AbstractConfigManagerSupport im
     }
 
     @Override
+    public void updateCircuitBreaker(ServiceMeshCircuitBreaker circuitBreaker) {
+        List<K8sResourcePack> packs = modelEngine.translate(circuitBreaker);
+        update(multiK8sConfigStore, packs, modelEngine);
+
+    }
+
+    @Override
     public void deleteRateLimit(ServiceMeshRateLimit rateLimit) {
         List<K8sResourcePack> packs = modelEngine.translate(rateLimit);
         delete(multiK8sConfigStore, packs, modelEngine);

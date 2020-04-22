@@ -34,6 +34,8 @@ public interface ServiceMeshConfigManager extends ConfigManager {
 
     void updateRateLimit(ServiceMeshRateLimit rateLimit);
 
+    void updateCircuitBreaker(ServiceMeshCircuitBreaker circuitBreaker);
+
     void deleteRateLimit(ServiceMeshRateLimit rateLimit);
 
     /**
