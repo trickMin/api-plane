@@ -26,6 +26,9 @@ public class GatewayPluginOperator implements k8sResourceOperator<GatewayPlugin>
         latest.getSpec().setRoute(fresh.getSpec().getRoute());
         latest.getSpec().setUser(fresh.getSpec().getUser());
         latest.getSpec().setService(fresh.getSpec().getService());
+        if (fresh.getMetadata() != null && fresh.getMetadata().getLabels() != null) {
+            latest.getMetadata().setLabels(fresh.getMetadata().getLabels());
+        }
         return latest;
     }
 

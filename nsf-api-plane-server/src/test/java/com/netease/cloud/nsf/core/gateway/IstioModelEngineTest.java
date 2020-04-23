@@ -110,7 +110,7 @@ public class IstioModelEngineTest extends BaseTest {
 
         List<K8sResourcePack> resources = gatewayIstioModelEngine.translate(api);
 
-        Assert.assertTrue(resources.size() == 7);
+        Assert.assertTrue(resources.size() == 8);
 
         resources.stream()
                 .map(r -> r.getResource())

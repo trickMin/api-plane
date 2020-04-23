@@ -1,19 +1,18 @@
 package com.netease.cloud.nsf.core.gateway.service.impl;
 
+import com.netease.cloud.nsf.core.ConfigStore;
 import com.netease.cloud.nsf.core.GlobalConfig;
 import com.netease.cloud.nsf.core.editor.ResourceType;
-import com.netease.cloud.nsf.core.ConfigStore;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.k8s.KubernetesClient;
+import com.netease.cloud.nsf.core.template.TemplateConst;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
-import me.snowdrop.istio.api.networking.v1alpha3.GatewayPlugin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,8 +30,6 @@ public class K8sConfigStore implements ConfigStore {
 
     @Autowired
     GlobalConfig globalConfig;
-
-    List<Class<? extends HasMetadata>> globalCrds = Arrays.asList(GatewayPlugin.class);
 
     @Override
     public void delete(HasMetadata resource) {
@@ -58,16 +55,25 @@ public class K8sConfigStore implements ConfigStore {
 
     @Override
     public HasMetadata get(String kind, String namespace, String name) {
+        if (StringUtils.isEmpty(namespace)) {
+            namespace = globalConfig.getResourceNamespace();
+        }
         return client.getObject(kind, namespace, name);
     }
 
     @Override
     public List<HasMetadata> get(String kind, String namespace) {
+        if (StringUtils.isEmpty(namespace)) {
+            namespace = globalConfig.getResourceNamespace();
+        }
         return client.getObjectList(kind, namespace);
     }
 
     @Override
     public List<HasMetadata> get(String kind, String namespace, Map<String, String> labels) {
+        if (StringUtils.isEmpty(namespace)) {
+            namespace = globalConfig.getResourceNamespace();
+        }
         return client.getObjectList(kind, namespace, labels);
     }
 
@@ -81,8 +87,8 @@ public class K8sConfigStore implements ConfigStore {
             }
             HashMap<String, String> oldLabels = metadata.getLabels() == null ?
                     new HashMap<>() : new HashMap<>(metadata.getLabels());
-            oldLabels.put("skiff-api-plane-type", globalConfig.getApiPlaneType());
-            oldLabels.put("skiff-api-plane-version", globalConfig.getApiPlaneVersion());
+            oldLabels.put(TemplateConst.LABEL_API_PLANE_TYPE, globalConfig.getApiPlaneType());
+            oldLabels.put(TemplateConst.LABEL_API_PLANE_VERSION, globalConfig.getApiPlaneVersion());
             metadata.setLabels(oldLabels);
         }
     }

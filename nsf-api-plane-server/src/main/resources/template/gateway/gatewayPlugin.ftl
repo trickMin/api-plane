@@ -5,6 +5,7 @@ metadata:
 <#if t_gateway_plugin_namespace?has_content>
   namespace: ${t_gateway_plugin_namespace}
 </#if>
+<@indent count=2><#include "../common/identityLabel.ftl"/></@indent>
 spec:
 <#if t_gateway_plugin_gateways?has_content>
   gateway:
