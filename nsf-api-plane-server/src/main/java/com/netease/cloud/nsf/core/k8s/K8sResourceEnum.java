@@ -44,6 +44,7 @@ public enum K8sResourceEnum {
     MixerUrlPattern(MixerUrlPattern.class, MixerUrlPatternList.class, "/apis/networking.istio.io/v1alpha3/namespaces/%s/mixerurlpatterns"),
     ConfigMap(ConfigMap.class, ConfigMapList.class, "/api/v1/namespaces/%s/configmaps"),
     SmartLimiter(com.netease.slime.api.microservice.v1alpha1.SmartLimiter.class, SmartLimiterList.class, "/apis/microservice.netease.com/v1alpha1/namespaces/%s/smartlimiters"),
+    Sidecar(me.snowdrop.istio.api.networking.v1alpha3.Sidecar.class, SidecarList.class, "/apis/networking.istio.io/v1alpha3/namespaces/%s/sidecars")
     ;
 
     private Class<? extends HasMetadata> mappingType;
