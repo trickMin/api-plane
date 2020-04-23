@@ -98,7 +98,7 @@ public class CommonUtil {
         try {
             return getYamlMapper().readValue(yaml, clazz);
         } catch (IOException e) {
-            logger.warn("yaml {} to obj failed,", yaml);
+            logger.warn("yaml {} to obj failed,", yaml, e);
         }
         return null;
     }

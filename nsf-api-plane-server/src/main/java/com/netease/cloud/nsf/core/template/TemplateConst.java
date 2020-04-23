@@ -228,6 +228,13 @@ public interface TemplateConst {
     String SMART_LIMITER_CONFIG = "t_smart_limiter_config";
 
 
+    /**
+     * Sidecar
+     */
+    String SIDECAR_SOURCE_APP = "t_sidecar_source_app";
+    String SIDECAR_EGRESS_HOSTS = "t_sidecar_egress_hosts";
+
+
     /** ---------- 模板占位符名 end ---------- **/
 
 }

@@ -14,6 +14,7 @@ import com.netease.cloud.nsf.core.k8s.operator.IntegratedResourceOperator;
 import com.netease.cloud.nsf.core.k8s.subtracter.MeshRateLimitGatewayPluginSubtracter;
 import com.netease.cloud.nsf.core.k8s.subtracter.SmartLimiterSubtracter;
 import com.netease.cloud.nsf.core.plugin.FragmentHolder;
+import com.netease.cloud.nsf.core.template.TemplateConst;
 import com.netease.cloud.nsf.core.template.TemplateParams;
 import com.netease.cloud.nsf.core.template.TemplateTranslator;
 import com.netease.cloud.nsf.meta.ServiceInfo;
@@ -47,6 +48,7 @@ public class ServiceMeshIstioModelEngine extends IstioModelEngine {
     private static final String versionManager = "sidecarVersionManagement";
     private static final String smartLimiter = "mesh/smartLimiter";
     private static final String gatewayPlugin = "mesh/globalGatewayPlugin";
+    private static final String sidecar = "mesh/sidecar";
 
     @Autowired
     public ServiceMeshIstioModelEngine(IntegratedResourceOperator operator, TemplateTranslator templateTranslator, PluginService pluginService) {
@@ -88,6 +90,18 @@ public class ServiceMeshIstioModelEngine extends IstioModelEngine {
                 new MeshRateLimitGatewayPluginSubtracter(),
                 new EmptyResourceGenerator(new EmptyGatewayPlugin(rateLimit.getHost(), rateLimit.getNamespace()))));
         return resourcePacks;
+    }
+
+    public List<K8sResourcePack> translateSidecar(String sourceApp, String sourceNamespace, String targetService) {
+        List<K8sResourcePack> resources = new ArrayList<>();
+        TemplateParams params = TemplateParams.instance()
+                .put(TemplateConst.NAMESPACE, sourceNamespace)
+                .put(TemplateConst.SIDECAR_SOURCE_APP, sourceApp)
+                .put(TemplateConst.SIDECAR_EGRESS_HOSTS, Arrays.asList(targetService))
+                ;
+        String rawSidecar = defaultModelProcessor.process(sidecar, params);
+        resources.addAll(generateK8sPack(Arrays.asList(rawSidecar)));
+        return resources;
     }
 
     /**
