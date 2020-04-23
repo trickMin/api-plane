@@ -8,19 +8,23 @@ import com.netease.cloud.nsf.core.gateway.processor.RenderTwiceModelProcessor;
 import com.netease.cloud.nsf.core.k8s.K8sResourcePack;
 import com.netease.cloud.nsf.core.k8s.empty.EmptyGatewayPlugin;
 import com.netease.cloud.nsf.core.k8s.empty.EmptySmartLimiter;
+import com.netease.cloud.nsf.core.k8s.merger.CircuitConfigMapMerger;
 import com.netease.cloud.nsf.core.k8s.merger.MeshRateLimitGatewayPluginMerger;
 import com.netease.cloud.nsf.core.k8s.merger.SmartLimiterMerger;
 import com.netease.cloud.nsf.core.k8s.operator.IntegratedResourceOperator;
 import com.netease.cloud.nsf.core.k8s.subtracter.MeshRateLimitGatewayPluginSubtracter;
 import com.netease.cloud.nsf.core.k8s.subtracter.SmartLimiterSubtracter;
 import com.netease.cloud.nsf.core.plugin.FragmentHolder;
+import com.netease.cloud.nsf.core.servicemesh.handler.CircuitBreakerDataHandler;
 import com.netease.cloud.nsf.core.template.TemplateConst;
 import com.netease.cloud.nsf.core.template.TemplateParams;
 import com.netease.cloud.nsf.core.template.TemplateTranslator;
 import com.netease.cloud.nsf.meta.ServiceInfo;
+import com.netease.cloud.nsf.meta.ServiceMeshCircuitBreaker;
 import com.netease.cloud.nsf.meta.ServiceMeshRateLimit;
 import com.netease.cloud.nsf.meta.SidecarVersionManagement;
 import com.netease.cloud.nsf.service.PluginService;
+import com.netease.cloud.nsf.util.Const;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2020/4/8
@@ -46,6 +51,7 @@ public class ServiceMeshIstioModelEngine extends IstioModelEngine {
     private NeverReturnNullModelProcessor neverNullRenderTwiceProcessor;
 
     private static final String versionManager = "sidecarVersionManagement";
+    private static final String circuitGatewayPlugin = "mesh/gatewayPlugin";
     private static final String smartLimiter = "mesh/smartLimiter";
     private static final String gatewayPlugin = "mesh/globalGatewayPlugin";
     private static final String sidecar = "mesh/sidecar";
@@ -114,4 +120,32 @@ public class ServiceMeshIstioModelEngine extends IstioModelEngine {
             return s.replace("- domain:", "  domain:");
         }
     }
+
+    public List<K8sResourcePack> translate(ServiceMeshCircuitBreaker circuitBreaker) {
+        List<K8sResourcePack> resources = new ArrayList<>();
+        List<String> extraCircuitBreaker;
+        if (circuitBreaker.getStatus() == 1) {
+            List<FragmentHolder> pluginHolders = pluginService.processPlugin(Arrays.asList(circuitBreaker.getPlugins()), new ServiceInfo());
+            extraCircuitBreaker = pluginHolders
+                    .stream()
+                    .map(h -> h.getGatewayPluginsFragment().getContent())
+                    .collect(Collectors.toList());
+
+        }else {
+            extraCircuitBreaker = new ArrayList<>();
+        }
+        List<String> circuitBreakers = defaultModelProcessor.process(circuitGatewayPlugin, circuitBreaker,
+                new CircuitBreakerDataHandler(extraCircuitBreaker));
+        String pluginName;
+        if (Const.SERVICE_MESH_CIRCUIT_BREAKER_KIND.equals(circuitBreaker.getRuleType())){
+            pluginName = Const.SERVICE_MESH_PLUGIN_NAME_CIRCUIT_BREAKER;
+        }else {
+            pluginName = Const.SERVICE_MESH_PLUGIN_NAME_DOWNGRADE;
+        }
+        resources.addAll(generateK8sPack(circuitBreakers,
+                new CircuitConfigMapMerger(pluginName), null, r -> r, this::str2HasMetadata, hsm -> hsm));
+        return resources;
+    }
+
+
 }

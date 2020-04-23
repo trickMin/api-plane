@@ -6,6 +6,9 @@ message Template {
     string source_uid = 1;
     string destination_uid = 2;
     string url_path = 3;
+    string x_nsf_app = 4;
+    string host = 5;
+    string destination_host = 6;
 }
 message OutputTemplate {
     string source_project = 1;

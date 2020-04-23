@@ -74,6 +74,8 @@ public interface ResourceCache {
 
     String getAppNameByPod(String clusterId, String namespace, String name);
 
+    String getPodLabel(String clusterId, String namespace, String name, String labelName);
+
     List getEndPointByService(String clusterId, String namespace, String name);
 
     List<ServiceDto> getServiceByProjectCode(String projectCode, String clusterId);
