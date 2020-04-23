@@ -20,10 +20,11 @@ public class CircuitBreakerDataHandler implements DataHandler<ServiceMeshCircuit
     @Override
     public List<TemplateParams> handle(ServiceMeshCircuitBreaker serviceMeshCircuitBreaker) {
         String circuitBreakerPluginName = serviceMeshCircuitBreaker.getHost() + "." + serviceMeshCircuitBreaker.getRouterName();
+        String routerName = serviceMeshCircuitBreaker.getHost() + "/" + serviceMeshCircuitBreaker.getRouterName();
         TemplateParams tp = TemplateParams.instance()
                 .put(GATEWAY_PLUGIN_NAME, circuitBreakerPluginName)
               //  .put(GATEWAY_PLUGIN_HOSTS, Arrays.asList(serviceMeshCircuitBreaker.getHost()))
-                .put(GATEWAY_PLUGIN_ROUTES, Arrays.asList(serviceMeshCircuitBreaker.getRouterName()))
+                .put(GATEWAY_PLUGIN_ROUTES, Arrays.asList(routerName))
                 .put(GATEWAY_PLUGIN_NAMESPACE, serviceMeshCircuitBreaker.getNamespace());
         return doHandle(tp, serviceMeshCircuitBreaker);
 
