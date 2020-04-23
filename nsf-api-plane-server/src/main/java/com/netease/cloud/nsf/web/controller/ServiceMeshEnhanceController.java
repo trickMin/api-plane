@@ -7,6 +7,8 @@ import com.netease.cloud.nsf.service.ServiceMeshEnhanceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2020/4/8
  *
@@ -23,21 +25,21 @@ public class ServiceMeshEnhanceController extends BaseController {
     private ServiceMeshConfigManager configManager;
 
     @RequestMapping(params = "Action=UpdateRateLimit", method = RequestMethod.POST)
-    public String updateRateLimit(@RequestBody ServiceMeshRateLimitDTO rateLimitDTO) {
+    public String updateRateLimit(@Valid @RequestBody ServiceMeshRateLimitDTO rateLimitDTO) {
 
         serviceMeshEnhanceService.updateRateLimit(rateLimitDTO);
         return apiReturn(SUCCESS, "Success", null, null);
     }
 
     @RequestMapping(params = "Action=DeleteRateLimit", method = RequestMethod.POST)
-    public String deleteRateLimit(@RequestBody ServiceMeshRateLimitDTO rateLimitDTO) {
+    public String deleteRateLimit(@Valid @RequestBody ServiceMeshRateLimitDTO rateLimitDTO) {
 
         serviceMeshEnhanceService.deleteRateLimit(rateLimitDTO);
         return apiReturn(SUCCESS, "Success", null, null);
     }
 
     @RequestMapping(params = "Action=UpdateCircuitBreaker", method = RequestMethod.POST)
-    public String updateCircuitBreaker(@RequestBody ServiceMeshCircuitBreakerDTO circuitBreakerDTO) {
+    public String updateCircuitBreaker(@Valid @RequestBody ServiceMeshCircuitBreakerDTO circuitBreakerDTO) {
 
         serviceMeshEnhanceService.updateServiceMeshCircuitBreaker(circuitBreakerDTO);
 
