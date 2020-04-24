@@ -70,18 +70,15 @@ public class MeshRateLimitProcessor extends AbstractSchemaProcessor implements S
 
     private String createRateLimits(PluginGenerator rg, ServiceInfo serviceInfo, String headerDescriptor) {
         PluginGenerator vs = PluginGenerator.newInstance("{\"stage\":0,\"actions\":[]}");
-        boolean hasCondition;
         int length = 0;
         if (rg.contain("$.pre_condition")) {
             length = rg.getValue("$.pre_condition.length()");
         }
         // 如果condition数量为0，则使用generic_key，否则使用header_value_match
         if (length == 0) {
-            hasCondition = false;
             vs.addJsonElement("$.actions",
                     String.format("{\"generic_key\":{\"descriptor_value\":\"%s\"}}", headerDescriptor));
         } else {
-            hasCondition = true;
             vs.addJsonElement("$.actions",
                     String.format("{\"header_value_match\":{\"headers\":[],\"descriptor_value\":\"%s\"}}", headerDescriptor));
             String matchHeader = getMatchHeader(rg, "", "$.identifier_extractor");

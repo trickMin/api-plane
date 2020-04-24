@@ -88,11 +88,33 @@ public class RateLimitProcessorTest extends BasePluginTest {
                 "  ]\n" +
                 "}";
 
+        String plugin5 = "{\n" +
+                "  \"kind\": \"ianus-rate-limiting\",\n" +
+                "  \"limit_by_list\": [\n" +
+                "    {\n" +
+                "      \"hour\": 1\n" +
+                "    }\n" +
+                "  ]\n" +
+                "}";
+
+        String plugin6 = "{\n" +
+                "  \"kind\": \"ianus-rate-limiting\",\n" +
+                "  \"limit_by_list\": [\n" +
+                "  {\n" +
+                "    \"identifier_extractor\": \"Header[plugin]\",\n" +
+                "    \"second\": 5,\n" +
+                "    \"hour\": 10\n" +
+                "  }\n" +
+                "  ]\n" +
+                "}";
+
         FragmentHolder fragment1 = processor.process(plugin1, serviceInfo);
         FragmentHolder fragment2 = processor.process(plugin2, serviceInfo);
         FragmentHolder fragment3 = processor.process(plugin3, serviceInfo);
         FragmentHolder fragment4 = processor.process(plugin4, serviceInfo);
         FragmentHolder fragment5 = processor.process(plugin4, nullInfo);
+        FragmentHolder fragment6 = processor.process(plugin5, serviceInfo);
+        FragmentHolder fragment7 = processor.process(plugin6, serviceInfo);
         //TODO assert
     }
 
