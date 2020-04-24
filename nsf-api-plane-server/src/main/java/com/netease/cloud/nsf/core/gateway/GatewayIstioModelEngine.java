@@ -104,15 +104,23 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
 
         List<K8sResourcePack> resourcePacks = new ArrayList<>();
 
+        boolean isGPortal = !CollectionUtils.isEmpty(api.getProxyServices());
+        BaseVirtualServiceAPIDataHandler apiHandler = isGPortal ?
+                new PortalVirtualServiceAPIDataHandler(defaultModelProcessor) : new YxVirtualServiceAPIDataHandler(defaultModelProcessor);
+
+        String matchYaml = apiHandler.produceMatch(apiHandler.handleApi(api));
         RawResourceContainer rawResourceContainer = new RawResourceContainer();
-        rawResourceContainer.add(renderPlugins(api));
+        rawResourceContainer.add(renderPlugins(api, matchYaml));
 
         List<String> extraDestination = CollectionUtils.isEmpty(api.getPlugins()) ?
                 Collections.emptyList() : pluginService.extractService(api.getPlugins());
         BaseVirtualServiceAPIDataHandler vsHandler;
 
-        if (CollectionUtils.isEmpty(api.getProxyServices())) {
-            //yx
+        if (isGPortal) {
+            vsHandler = new PortalVirtualServiceAPIDataHandler(
+                    defaultModelProcessor, rawResourceContainer.getVirtualServices(), simple);
+        } else {
+            //yx 一个API发布关联到gateway、vs、dr
             List<Endpoint> endpoints = resourceManager.getEndpointList();
             vsHandler = new YxVirtualServiceAPIDataHandler(
                     defaultModelProcessor, rawResourceContainer.getVirtualServices(), endpoints, simple);
@@ -122,10 +130,6 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
             //TODO 名字写死容易出错
             resourcePacks.addAll(generateK8sPack(rawDestinationRules,
                     new GatewayDestinationRuleSubtracter(String.format("%s-%s", api.getService(), api.getName()))));
-        } else {
-            //gportal
-            vsHandler = new PortalVirtualServiceAPIDataHandler(
-                    defaultModelProcessor, rawResourceContainer.getVirtualServices(), simple);
         }
 
         List<String> rawVirtualServices = renderTwiceModelProcessor.process(apiVirtualService, api, vsHandler);
@@ -204,15 +208,18 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
         return resources;
     }
 
-    private List<FragmentHolder> renderPlugins(API api) {
+    private List<FragmentHolder> renderPlugins(API api, String matchYaml) {
 
         if (CollectionUtils.isEmpty(api.getPlugins())) return Collections.emptyList();
+        ServiceInfo serviceInfo = new ServiceInfo();
+        serviceInfo.setMatchYaml(matchYaml);
+
         List<String> plugins = api.getPlugins().stream()
                 .filter(p -> !StringUtils.isEmpty(p))
                 .collect(Collectors.toList());
         api.setPlugins(plugins);
 
-        return pluginService.processPlugin(plugins, new ServiceInfo());
+        return pluginService.processPlugin(plugins, serviceInfo);
     }
 
     private HasMetadata adjust(HasMetadata rawVs) {

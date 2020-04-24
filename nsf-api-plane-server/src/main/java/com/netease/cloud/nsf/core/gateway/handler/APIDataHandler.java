@@ -18,7 +18,11 @@ public abstract class APIDataHandler implements DataHandler<API> {
 
     @Override
     public List<TemplateParams> handle(API api) {
+        TemplateParams tp = handleApi(api);
+        return doHandle(tp, api);
+    }
 
+    public TemplateParams handleApi(API api) {
         String uris = getUris(api);
         String methods = getMethods(api);
         String apiName = getApiName(api);
@@ -66,7 +70,7 @@ public abstract class APIDataHandler implements DataHandler<API> {
                 .put(SERVICE_INFO_VIRTUAL_SERVICE_HOST_HEADERS, getOrDefault(hostHeaders, ".*"))
                 .put(VIRTUAL_SERVICE_REQUEST_HEADERS, api.getRequestOperation());
 
-        return doHandle(tp, api);
+        return tp;
     }
 
     protected String getOrDefault(String value, String defaultValue) {

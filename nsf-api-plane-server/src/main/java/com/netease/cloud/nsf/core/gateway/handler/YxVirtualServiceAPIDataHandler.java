@@ -13,6 +13,10 @@ import java.util.List;
  **/
 public class YxVirtualServiceAPIDataHandler extends BaseVirtualServiceAPIDataHandler {
 
+    public YxVirtualServiceAPIDataHandler(ModelProcessor modelProcessor){
+        super(modelProcessor);
+    }
+
     public YxVirtualServiceAPIDataHandler(ModelProcessor subModelProcessor, List<FragmentWrapper> fragments, List<Endpoint> endpoints, boolean simple) {
         super(subModelProcessor, fragments, endpoints, simple);
     }
