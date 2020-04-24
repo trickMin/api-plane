@@ -10,6 +10,8 @@ spec:
   egress:
   - bind: "0.0.0.0"
     hosts:
+    - "istio-system/*"
+    - "istio-telemetry/*"
 <#if t_sidecar_egress_hosts??>
   <#list t_sidecar_egress_hosts as h>
     - "*/${h}"

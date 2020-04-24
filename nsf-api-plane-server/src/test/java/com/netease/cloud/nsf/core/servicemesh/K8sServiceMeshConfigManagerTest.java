@@ -51,6 +51,8 @@ public class K8sServiceMeshConfigManagerTest extends BaseTest {
     public void testUpdateSidecarScope() throws InterruptedException {
 
         int threadCount = 16;
+        //2个固定的hosts
+        int fixedHosts = 2;
         CountDownLatch startLatch = new CountDownLatch(1);
         CountDownLatch endLatch = new CountDownLatch(threadCount);
         String source = "a";
@@ -70,7 +72,7 @@ public class K8sServiceMeshConfigManagerTest extends BaseTest {
 
         Assert.assertEquals(1, k8sConfigStore.size());
         Sidecar sidecar = (Sidecar) k8sConfigStore.get(K8sResourceEnum.Sidecar.name(), ns, source);
-        Assert.assertEquals(threadCount, sidecar.getSpec().getEgress().get(0).getHosts().size());
+        Assert.assertEquals(threadCount + fixedHosts, sidecar.getSpec().getEgress().get(0).getHosts().size());
 
     }
 
