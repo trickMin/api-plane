@@ -1,4 +1,4 @@
-image: hub.c.163.com/qingzhou/maven-tomcat:8-jdk8-4
+image: hub.c.163.com/qingzhou/maven-tomcat:8-jdk8-5
 variables:
   # Please edit to your GitLab project
   CI_REGISTRY_IMAGE: ${CI_REGISTRY}/qingzhou/nsf-api-plane-server
