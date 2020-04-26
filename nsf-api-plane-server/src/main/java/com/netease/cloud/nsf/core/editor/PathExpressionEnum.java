@@ -21,6 +21,9 @@ public enum PathExpressionEnum {
     GET_NAMESPACE("$.metadata.namespace", 0),
     GET_APIVERSION("$.apiVersion", 0),
     GET_RESOURCEVERSION("$.metadata.resourceVersion", 0),
+    GET_ANNOTATIONS("$.metadata.annotations", 0),
+    GET_CREATETIME("$.metadata.creationTimestamp", 0),
+    GET_SPEC("$.spec", 0),
     GET_ITEMS("$.items", 0),
 
     /** rbac **/

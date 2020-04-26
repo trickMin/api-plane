@@ -14,7 +14,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  **/
 
 @SpringBootApplication
-@PropertySource(value = "classpath:k8s.yaml", factory = YamlPropertyLoaderFactory.class)
+@PropertySource(value = {"classpath:k8s.yaml", "classpath:jdbc.yaml"}, factory = YamlPropertyLoaderFactory.class)
 @EnableConfigurationProperties
 @EnableScheduling
 public class ApiPlaneApplication extends SpringBootServletInitializer {
