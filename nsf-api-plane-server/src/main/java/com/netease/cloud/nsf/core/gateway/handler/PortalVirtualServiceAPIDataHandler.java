@@ -20,6 +20,10 @@ import static com.netease.cloud.nsf.core.template.TemplateConst.VIRTUAL_SERVICE_
  **/
 public class PortalVirtualServiceAPIDataHandler extends BaseVirtualServiceAPIDataHandler {
 
+    public PortalVirtualServiceAPIDataHandler(ModelProcessor modelProcessor){
+        super(modelProcessor);
+    };
+
     public PortalVirtualServiceAPIDataHandler(ModelProcessor subModelProcessor, List<FragmentWrapper> fragments, boolean simple) {
         super(subModelProcessor, fragments, Collections.emptyList(), simple);
     }

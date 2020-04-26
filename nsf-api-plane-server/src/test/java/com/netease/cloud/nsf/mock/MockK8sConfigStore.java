@@ -4,10 +4,7 @@ import com.netease.cloud.nsf.core.k8s.MultiClusterK8sClient;
 import com.netease.cloud.nsf.core.servicemesh.MultiK8sConfigStore;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2020/4/17
@@ -51,7 +48,15 @@ public class MockK8sConfigStore extends MultiK8sConfigStore {
 
     @Override
     public List<HasMetadata> get(String kind, String namespace, Map<String, String> labels) {
-        throw new UnsupportedOperationException();
+        List<HasMetadata> resources = new ArrayList<>();
+        for (HasMetadata res : store.values()) {
+            if (kind.equals(res.getKind()) &&
+                namespace.equals(res.getMetadata().getNamespace()) &&
+                res.getMetadata().getLabels().entrySet().containsAll(labels.entrySet())) {
+                resources.add(res);
+            }
+        }
+        return resources;
     }
 
     @Override

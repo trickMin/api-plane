@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 
@@ -75,6 +76,10 @@ public abstract class IstioModelEngine {
         return generateK8sPack(raws, null, null, r -> r, this::str2HasMetadata, hsm -> hsm);
     }
 
+    protected List<K8sResourcePack> generateK8sPack(List<String> raws, Function<String, HasMetadata> transFun) {
+        return generateK8sPack(raws, null, null, r -> r, transFun, hsm -> hsm);
+    }
+
     protected List<K8sResourcePack> generateK8sPack(List<String> raws, Subtracter subtracter) {
         return generateK8sPack(raws, null, subtracter, r -> r, this::str2HasMetadata, hsm -> hsm);
     }
@@ -124,6 +129,21 @@ public abstract class IstioModelEngine {
         @Override
         public HasMetadata apply(String s) {
             if (NEVER_NULL.equals(s)) return hmd;
+            return str2HasMetadata(s);
+        }
+    }
+
+    protected class DynamicResourceGenerator implements Function<String, HasMetadata> {
+
+        private Supplier<HasMetadata> supplier;
+
+        public DynamicResourceGenerator(Supplier supplier) {
+            this.supplier = supplier;
+        }
+
+        @Override
+        public HasMetadata apply(String s) {
+            if (NEVER_NULL.equals(s)) return supplier.get();
             return str2HasMetadata(s);
         }
     }

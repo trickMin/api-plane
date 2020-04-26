@@ -32,6 +32,8 @@ public class ServiceInfo {
 
     private String priority = wrap(SERVICE_INFO_VIRTUAL_SERVICE_PLUGIN_MATCH_PRIORITY);
 
+    private String matchYaml;
+
     public static ServiceInfo instance() {
         ServiceInfo serviceInfo = new ServiceInfo();
         serviceInfo.setPriority(null);
@@ -107,6 +109,14 @@ public class ServiceInfo {
 
     public void setPriority(String priority) {
         this.priority = priority;
+    }
+
+    public String getMatchYaml() {
+        return matchYaml;
+    }
+
+    public void setMatchYaml(String matchYaml) {
+        this.matchYaml = matchYaml;
     }
 
     @Override

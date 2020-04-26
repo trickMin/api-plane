@@ -40,6 +40,7 @@ public class ApiGatewayPluginDataHandler extends APIDataHandler {
                 TemplateParams pmParams = TemplateParams.instance()
                         .setParent(tp)
                         .put(GATEWAY_PLUGIN_NAME, getGatewayPluginName(gw, api.getName(), user))
+                        .put(RESOURCE_IDENTITY, getIdentity(api.getName(), gw))
                         .put(GATEWAY_PLUGIN_GATEWAYS, Arrays.asList(String.format("%s/%s", gatewayNamespace, gw)))
                         .put(GATEWAY_PLUGIN_ROUTES, Arrays.asList(api.getName()))
                         .put(GATEWAY_PLUGIN_PLUGINS, plugins);
@@ -56,11 +57,12 @@ public class ApiGatewayPluginDataHandler extends APIDataHandler {
     public String getGatewayPluginName(String gateway, String api, String user) {
 
         List<String> parts = new ArrayList<>();
-        if (!StringUtils.isEmpty(gateway)) {
-            parts.add(gateway);
-        }
+
         if (!StringUtils.isEmpty(api)) {
             parts.add(api);
+        }
+        if (!StringUtils.isEmpty(gateway)) {
+            parts.add(gateway);
         }
         if (!StringUtils.isEmpty(user)) {
             parts.add(user);
@@ -68,6 +70,10 @@ public class ApiGatewayPluginDataHandler extends APIDataHandler {
 
         if (CollectionUtils.isEmpty(parts)) return null;
         return String.join("-", parts);
+    }
+
+    public String getIdentity(String api, String gw) {
+        return String.format("%s-%s", api, gw);
     }
 
     List<TemplateParams> doHandle(TemplateParams params) {

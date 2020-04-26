@@ -32,6 +32,10 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
     List<Endpoint> endpoints;
     boolean simple;
 
+    public BaseVirtualServiceAPIDataHandler(ModelProcessor modelProcessor) {
+        this.subModelProcessor = modelProcessor;
+    }
+
     public BaseVirtualServiceAPIDataHandler(ModelProcessor subModelProcessor, List<FragmentWrapper> fragments, List<Endpoint> endpoints, boolean simple) {
         this.subModelProcessor = subModelProcessor;
         this.fragments = fragments;
@@ -93,7 +97,7 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
         return subModelProcessor.process(apiVirtualServiceExtra, params);
     }
 
-    String produceMatch(TemplateParams params) {
+    public String produceMatch(TemplateParams params) {
         return subModelProcessor.process(apiVirtualServiceMatch, params);
     }
 

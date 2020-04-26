@@ -9,10 +9,12 @@ import com.netease.cloud.nsf.core.gateway.processor.NeverReturnNullModelProcesso
 import com.netease.cloud.nsf.core.gateway.processor.RenderTwiceModelProcessor;
 import com.netease.cloud.nsf.core.gateway.service.ResourceManager;
 import com.netease.cloud.nsf.core.k8s.K8sResourcePack;
+import com.netease.cloud.nsf.core.k8s.empty.DynamicGatewayPluginSupplier;
 import com.netease.cloud.nsf.core.k8s.empty.EmptyConfigMap;
 import com.netease.cloud.nsf.core.k8s.merger.RateLimitConfigMapMerger;
 import com.netease.cloud.nsf.core.k8s.operator.IntegratedResourceOperator;
 import com.netease.cloud.nsf.core.k8s.subtracter.GatewayDestinationRuleSubtracter;
+import com.netease.cloud.nsf.core.k8s.subtracter.GatewayPluginNormalSubtracter;
 import com.netease.cloud.nsf.core.k8s.subtracter.GatewayVirtualServiceSubtracter;
 import com.netease.cloud.nsf.core.k8s.subtracter.RateLimitConfigMapSubtracter;
 import com.netease.cloud.nsf.core.plugin.FragmentHolder;
@@ -102,15 +104,23 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
 
         List<K8sResourcePack> resourcePacks = new ArrayList<>();
 
+        boolean isGPortal = !CollectionUtils.isEmpty(api.getProxyServices());
+        BaseVirtualServiceAPIDataHandler apiHandler = isGPortal ?
+                new PortalVirtualServiceAPIDataHandler(defaultModelProcessor) : new YxVirtualServiceAPIDataHandler(defaultModelProcessor);
+
+        String matchYaml = apiHandler.produceMatch(apiHandler.handleApi(api));
         RawResourceContainer rawResourceContainer = new RawResourceContainer();
-        rawResourceContainer.add(renderPlugins(api));
+        rawResourceContainer.add(renderPlugins(api, matchYaml));
 
         List<String> extraDestination = CollectionUtils.isEmpty(api.getPlugins()) ?
                 Collections.emptyList() : pluginService.extractService(api.getPlugins());
         BaseVirtualServiceAPIDataHandler vsHandler;
 
-        if (CollectionUtils.isEmpty(api.getProxyServices())) {
-            //yx
+        if (isGPortal) {
+            vsHandler = new PortalVirtualServiceAPIDataHandler(
+                    defaultModelProcessor, rawResourceContainer.getVirtualServices(), simple);
+        } else {
+            //yx 一个API发布关联到gateway、vs、dr
             List<Endpoint> endpoints = resourceManager.getEndpointList();
             vsHandler = new YxVirtualServiceAPIDataHandler(
                     defaultModelProcessor, rawResourceContainer.getVirtualServices(), endpoints, simple);
@@ -120,16 +130,12 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
             //TODO 名字写死容易出错
             resourcePacks.addAll(generateK8sPack(rawDestinationRules,
                     new GatewayDestinationRuleSubtracter(String.format("%s-%s", api.getService(), api.getName()))));
-        } else {
-            //gportal
-            vsHandler = new PortalVirtualServiceAPIDataHandler(
-                    defaultModelProcessor, rawResourceContainer.getVirtualServices(), simple);
         }
 
         List<String> rawVirtualServices = renderTwiceModelProcessor.process(apiVirtualService, api, vsHandler);
         List<String> rawSharedConfigs = neverNullRenderTwiceProcessor.process(apiSharedConfigConfigMap, api, new BaseSharedConfigAPIDataHandler(rawResourceContainer.getSharedConfigs(), rateLimitConfigMapName));
         // vs上的插件转移到gatewayplugin上
-        List<String> rawGatewayPlugins = renderTwiceModelProcessor.process(gatewayPlugin, api,
+        List<String> rawGatewayPlugins = neverNullRenderTwiceProcessor.process(gatewayPlugin, api,
                 new ApiGatewayPluginDataHandler(rawResourceContainer.getVirtualServices(), globalConfig.getResourceNamespace()));
 
         resourcePacks.addAll(generateK8sPack(rawVirtualServices, new GatewayVirtualServiceSubtracter(vsHandler.getApiName(api)), r -> r, this::adjust));
@@ -138,7 +144,13 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
                 new RateLimitConfigMapMerger(),
                 new RateLimitConfigMapSubtracter(String.join("|", api.getGateways()), api.getName()),
                 new EmptyResourceGenerator(new EmptyConfigMap(rateLimitConfigMapName))));
-        resourcePacks.addAll(generateK8sPack(rawGatewayPlugins));
+
+        //当插件传入为空时，生成空的gatewayplugin，删除时使用
+        DynamicGatewayPluginSupplier dynamicGatewayPluginSupplier = new DynamicGatewayPluginSupplier(api.getGateways(), api.getName(), "%s-%s");
+        resourcePacks.addAll(generateK8sPack(rawGatewayPlugins,
+                null,
+                new GatewayPluginNormalSubtracter(),
+                new DynamicResourceGenerator(dynamicGatewayPluginSupplier)));
 
         return resourcePacks;
     }
@@ -196,15 +208,18 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
         return resources;
     }
 
-    private List<FragmentHolder> renderPlugins(API api) {
+    private List<FragmentHolder> renderPlugins(API api, String matchYaml) {
 
         if (CollectionUtils.isEmpty(api.getPlugins())) return Collections.emptyList();
+        ServiceInfo serviceInfo = new ServiceInfo();
+        serviceInfo.setMatchYaml(matchYaml);
+
         List<String> plugins = api.getPlugins().stream()
                 .filter(p -> !StringUtils.isEmpty(p))
                 .collect(Collectors.toList());
         api.setPlugins(plugins);
 
-        return pluginService.processPlugin(plugins, new ServiceInfo());
+        return pluginService.processPlugin(plugins, serviceInfo);
     }
 
     private HasMetadata adjust(HasMetadata rawVs) {
@@ -219,6 +234,5 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
         }
         return rawVs;
     }
-
 
 }
