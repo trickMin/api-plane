@@ -35,9 +35,10 @@ public class Connection {
         String collection = req.getCollection();
         if (StringUtils.isEmpty(req.getResponseNonce())) {
             logger.info("MCP: connection {}: inc={} SUBSCRIBE for {}", this, req.getIncremental(), collection);
-            watcher.watch(this, collection);
             if (!McpUtils.isSupportedCollection(mcpOptions.getSnapshotCollections(), collection)) {
                 pushEmpty(collection);
+            } else {
+                watcher.watch(this, collection);
             }
         } else {
             if (req.hasErrorDetail()) {
