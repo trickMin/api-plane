@@ -6,9 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
-import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
  * @author wupenghuai@corp.netease.com
@@ -19,13 +17,13 @@ public class Connection {
     private static final Logger logger = LoggerFactory.getLogger(Connection.class);
 
     private final StreamObserver<Mcp.Resources> stream;
+    private final McpResourceWatcher watcher;
     private final McpOptions mcpOptions;
-    private final Set<String> subscribeCollection;
 
-    public Connection(StreamObserver<Mcp.Resources> stream, McpOptions mcpOptions) {
+    public Connection(StreamObserver<Mcp.Resources> stream, McpResourceWatcher watcher, McpOptions mcpOptions) {
         this.stream = stream;
+        this.watcher = watcher;
         this.mcpOptions = mcpOptions;
-        this.subscribeCollection = new CopyOnWriteArraySet<>();
     }
 
     public StreamObserver<Mcp.Resources> getStream() {
@@ -37,12 +35,10 @@ public class Connection {
         String collection = req.getCollection();
         if (StringUtils.isEmpty(req.getResponseNonce())) {
             logger.info("MCP: connection {}: inc={} SUBSCRIBE for {}", this, req.getIncremental(), collection);
-            if (!McpUtils.isSupportedCollection(mcpOptions.getRegisteredCollections(), collection)) {
-                logger.warn("--MCP: unsupported collection :{}, connection {}", collection, this);
-            } else {
-                subscribeCollection(collection);
+            watcher.watch(this, collection);
+            if (!McpUtils.isSupportedCollection(mcpOptions.getSnapshotCollections(), collection)) {
+                pushEmpty(collection);
             }
-            pushEmpty(collection);
         } else {
             if (req.hasErrorDetail()) {
                 // NACK Response
@@ -72,13 +68,5 @@ public class Connection {
         Mcp.Resources resources = Mcp.Resources.newBuilder().setCollection(collection).build();
         WatchResponse response = new WatchResponse("empty", resources);
         push(response);
-    }
-
-    public void subscribeCollection(String collection) {
-        this.subscribeCollection.add(collection);
-    }
-
-    public boolean isSubscribeCollection(String collection) {
-        return this.subscribeCollection.contains(collection);
     }
 }

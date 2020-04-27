@@ -21,8 +21,7 @@ public class ResourceSourceImpl extends ResourceSourceGrpc.ResourceSourceImplBas
 
     @Override
     public StreamObserver<Mcp.RequestResources> establishResourceStream(StreamObserver<Mcp.Resources> resp) {
-        Connection conn = newConnection(resp);
-        watcher.watch(conn);
+        Connection conn = new Connection(resp, watcher, options);
         return new StreamObserver<Mcp.RequestResources>() {
             @Override
             public void onNext(Mcp.RequestResources req) {
@@ -39,9 +38,5 @@ public class ResourceSourceImpl extends ResourceSourceGrpc.ResourceSourceImplBas
                 watcher.release(conn);
             }
         };
-    }
-
-    private Connection newConnection(StreamObserver<Mcp.Resources> resp) {
-        return new Connection(resp, options);
     }
 }

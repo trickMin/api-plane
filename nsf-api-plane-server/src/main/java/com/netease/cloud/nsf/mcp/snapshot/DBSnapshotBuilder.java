@@ -45,10 +45,10 @@ public class DBSnapshotBuilder implements SnapshotBuilder {
     public SnapshotOuterClass.Snapshot build() {
         SnapshotOuterClass.Snapshot.Builder builder = SnapshotOuterClass.Snapshot.newBuilder();
         Map<String, Mcp.Resources.Builder> resourcesMap = new ConcurrentHashMap<>();
-        for (String collection : mcpOptions.getRegisteredCollections()) {
+        for (String collection : mcpOptions.getSnapshotCollections()) {
             // 1. 取出对应collection资源
             List<Resource> resources = resourceDao.list(collection);
-            // 2. 将Resource转化为ResourceOuterClass.Resource
+            // 2. 将Resource转化为ResourceOuterClass.Resource，用parallelStream提升性能
             Collection<ResourceOuterClass.Resource> rsList = resources.parallelStream().map(item -> getResource(item.getConfig())).collect(Collectors.toList());
             Mcp.Resources.Builder rsBuilder = Mcp.Resources.newBuilder();
             rsBuilder.addAllResources(rsList);

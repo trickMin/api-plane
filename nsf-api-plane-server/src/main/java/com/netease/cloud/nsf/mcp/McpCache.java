@@ -1,12 +1,13 @@
 package com.netease.cloud.nsf.mcp;
 
 import istio.mcp.nsf.SnapshotOuterClass;
+import istio.mcp.v1alpha1.Mcp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * @author wupenghuai@corp.netease.com
@@ -15,51 +16,54 @@ import java.util.Objects;
 public class McpCache implements McpResourceDistributor, McpResourceWatcher {
     private static final Logger logger = LoggerFactory.getLogger(McpCache.class);
 
+    private ExecutorService scheduleThread = Executors.newSingleThreadExecutor();
+
     private SnapshotOuterClass.Snapshot snapshot;
 
-    private final List<Connection> connections = new ArrayList<>();
+    private final Map<String, Set<Connection>> watchMap = new HashMap<>();
 
     @Override
-    public void watch(Connection connection) {
-        synchronized (this) {
-            this.connections.add(connection);
-            if (Objects.nonNull(snapshot)) {
-                distribute(connection, snapshot);
+    public synchronized void watch(Connection connection, String collection) {
+        watchMap.putIfAbsent(collection, new HashSet<>());
+        Set<Connection> subscribeConnection = watchMap.get(collection);
+        if (subscribeConnection.add(connection) && Objects.nonNull(snapshot)) {
+            scheduleThread.submit(() -> distribute(connection, collection, snapshot));
+        }
+    }
+
+    @Override
+    public synchronized void release(Connection connection) {
+        for (Map.Entry<String, Set<Connection>> entry : watchMap.entrySet()) {
+            entry.getValue().remove(connection);
+        }
+    }
+
+    @Override
+    public synchronized void setSnapshot(SnapshotOuterClass.Snapshot snapshot) {
+        this.snapshot = snapshot;
+        scheduleThread.submit(() -> distribute(snapshot));
+    }
+
+    @Override
+    public synchronized void clearSnapshot() {
+        snapshot = null;
+    }
+
+    private void distribute(SnapshotOuterClass.Snapshot snapshot) {
+        for (String collection : snapshot.getResourcesMap().keySet()) {
+            for (Connection connection : watchMap.get(collection)) {
+                distribute(connection, collection, snapshot);
             }
         }
     }
 
-    @Override
-    public void release(Connection connection) {
-        synchronized (this) {
-            this.connections.remove(connection);
-        }
-    }
-
-    @Override
-    public void setSnapshot(SnapshotOuterClass.Snapshot snapshot) {
-        synchronized (this) {
-            this.snapshot = snapshot;
-            for (Connection connection : connections) {
-                distribute(connection, snapshot);
-            }
-        }
-    }
-
-    @Override
-    public void clearSnapshot() {
-        synchronized (this) {
-            snapshot = null;
-        }
-    }
-
-    private void distribute(Connection connection, SnapshotOuterClass.Snapshot snapshot) {
-        List<String> collections = new ArrayList<>(snapshot.getResourcesMap().keySet());
-        for (String collection : collections) {
-            if (connection.isSubscribeCollection(collection)) {
-                WatchResponse response = new WatchResponse(snapshot.getVersion(), snapshot.getResourcesMap().get(collection));
-                connection.push(response);
-            }
+    private void distribute(Connection connection, String collection, SnapshotOuterClass.Snapshot snapshot) {
+        Mcp.Resources resources = snapshot.getResourcesMap().get(collection);
+        if (Objects.nonNull(resources)) {
+            WatchResponse response = new WatchResponse(snapshot.getVersion(), resources);
+            connection.push(response);
+        } else {
+            logger.warn("MCP: Distribute: No resources(collection=[{}]) were found in the snapshot(version=[{}])", collection, snapshot.getVersion());
         }
     }
 }

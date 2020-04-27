@@ -47,11 +47,11 @@ public class GatewayNonK8sConfiguration {
         McpOptions options = new McpOptions();
         options.setStatusCheckIntervalMs(1000L);
 
-        options.registerCollection(McpResourceEnum.VirtualService.getCollection());
-        options.registerCollection(McpResourceEnum.Gateway.getCollection());
-        options.registerCollection(McpResourceEnum.DestinationRule.getCollection());
-        options.registerCollection(McpResourceEnum.GatewayPlugin.getCollection());
-        options.registerCollection(McpResourceEnum.PluginManager.getCollection());
+        options.registerSnapshotCollection(McpResourceEnum.VirtualService.getCollection());
+        options.registerSnapshotCollection(McpResourceEnum.Gateway.getCollection());
+        options.registerSnapshotCollection(McpResourceEnum.DestinationRule.getCollection());
+        options.registerSnapshotCollection(McpResourceEnum.GatewayPlugin.getCollection());
+        options.registerSnapshotCollection(McpResourceEnum.PluginManager.getCollection());
 
         options.registerDescriptor(SnapshotOuterClass.getDescriptor().getMessageTypes());
         options.registerDescriptor(ResourceOuterClass.getDescriptor().getMessageTypes());
