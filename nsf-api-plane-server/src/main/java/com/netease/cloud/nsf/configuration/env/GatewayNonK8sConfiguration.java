@@ -45,6 +45,7 @@ public class GatewayNonK8sConfiguration {
     @Bean
     public McpOptions options() {
         McpOptions options = new McpOptions();
+        options.setStatusCheckIntervalMs(1000L);
 
         options.registerCollection(McpResourceEnum.VirtualService.getCollection());
         options.registerCollection(McpResourceEnum.Gateway.getCollection());
@@ -70,8 +71,9 @@ public class GatewayNonK8sConfiguration {
         StatusMonitor monitor = new StatusMonitorImpl(options.getStatusCheckIntervalMs(), productor);
         monitor.registerHandler(StatusConst.RESOURCES_VERSION, ((event, property) -> {
             Logger logger = LoggerFactory.getLogger(builder.getClass());
-            logger.info("MCP: SnapshotBuilder: build snapshot for version:[{}]", property.value);
+            long start = System.currentTimeMillis();
             SnapshotOuterClass.Snapshot snapshot = builder.build();
+            logger.info("MCP: SnapshotBuilder: build snapshot for version:[{}], consume:[{}]", property.value, System.currentTimeMillis() - start + "ms");
             for (Map.Entry<String, Mcp.Resources> entry : snapshot.getResourcesMap().entrySet()) {
                 logger.info("--MCP: SnapshotBuilder: collection:[{}], count:[{}]", entry.getKey(), entry.getValue().getResourcesList().size());
             }
@@ -82,6 +84,9 @@ public class GatewayNonK8sConfiguration {
         return monitor;
     }
 
+    /**
+     * Grpc Server
+     */
     @Bean
     public Server server(McpResourceWatcher watcher, McpOptions options) throws IOException {
         return ServerBuilder.forPort(port)
@@ -111,6 +116,9 @@ public class GatewayNonK8sConfiguration {
         return new McpMarshaller(options);
     }
 
+    /**
+     * Distributor
+     */
     @Bean
     public McpCache cache() {
         return new McpCache();

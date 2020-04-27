@@ -4,10 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 
@@ -30,7 +27,8 @@ public class StatusMonitorImpl implements StatusMonitor {
         this.status = new AtomicReference<>(new Status(new Status.Property[0]));
         this.handlers = new HashMap<>();
         this.timerTask = Executors.newScheduledThreadPool(1);
-        this.notifyQueue = Executors.newFixedThreadPool(2);
+        // core:2, max:4, timeout:10s, queue_length: 5, rejectPolicy: AbortPolicy
+        this.notifyQueue = new ThreadPoolExecutor(2, 8, 10L, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(20), new ThreadPoolExecutor.AbortPolicy());
         this.timerIntervalMs = checkIntervalMs;
         this.statusProductor = productor;
     }

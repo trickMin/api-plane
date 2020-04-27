@@ -20,6 +20,8 @@ import org.slf4j.LoggerFactory;
 
 import java.text.ParseException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * @author wupenghuai@corp.netease.com
@@ -42,15 +44,14 @@ public class DBSnapshotBuilder implements SnapshotBuilder {
     @Override
     public SnapshotOuterClass.Snapshot build() {
         SnapshotOuterClass.Snapshot.Builder builder = SnapshotOuterClass.Snapshot.newBuilder();
-        Map<String, Mcp.Resources.Builder> resourcesMap = new HashMap<>();
+        Map<String, Mcp.Resources.Builder> resourcesMap = new ConcurrentHashMap<>();
         for (String collection : mcpOptions.getRegisteredCollections()) {
             // 1. 取出对应collection资源
             List<Resource> resources = resourceDao.list(collection);
             // 2. 将Resource转化为ResourceOuterClass.Resource
+            Collection<ResourceOuterClass.Resource> rsList = resources.parallelStream().map(item -> getResource(item.getConfig())).collect(Collectors.toList());
             Mcp.Resources.Builder rsBuilder = Mcp.Resources.newBuilder();
-            for (Resource item : resources) {
-                rsBuilder.addResources(getResources(item.getConfig()));
-            }
+            rsBuilder.addAllResources(rsList);
             resourcesMap.put(collection, rsBuilder);
         }
 
@@ -70,7 +71,7 @@ public class DBSnapshotBuilder implements SnapshotBuilder {
         return String.format("count:[%s]", resources.getResourcesList());
     }
 
-    public ResourceOuterClass.Resource getResources(String json) {
+    public ResourceOuterClass.Resource getResource(String json) {
         K8sResourceGenerator itemGen = K8sResourceGenerator.newInstance(json);
         Object spec = itemGen.getSpec();
         String kind = itemGen.getKind();

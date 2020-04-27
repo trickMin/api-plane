@@ -31,22 +31,4 @@ public class McpUtils {
         }
         return namespace + "/" + name;
     }
-
-    public static String getName(String resourceName) {
-        int index = 0;
-        if ((index = resourceName.indexOf("/")) != -1) {
-            return resourceName.substring(index + 1);
-        } else {
-            return resourceName;
-        }
-    }
-
-    public static String getNamespace(String resourceName) {
-        int index = 0;
-        if ((index = resourceName.indexOf("/")) != -1) {
-            return resourceName.substring(0, index);
-        } else {
-            return null;
-        }
-    }
 }
