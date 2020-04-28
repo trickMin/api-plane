@@ -10,6 +10,7 @@ import com.netease.cloud.nsf.cache.meta.WorkLoadDTO;
 import com.netease.cloud.nsf.configuration.ApiPlaneConfig;
 import com.netease.cloud.nsf.configuration.MeshConfig;
 import com.netease.cloud.nsf.core.editor.ResourceType;
+import com.netease.cloud.nsf.core.istio.PilotHttpClient;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.k8s.KubernetesClient;
 import com.netease.cloud.nsf.core.k8s.MultiClusterK8sClient;
@@ -20,11 +21,9 @@ import com.netease.cloud.nsf.service.VersionManagerService;
 import com.netease.cloud.nsf.util.Const;
 import com.netease.cloud.nsf.util.RestTemplateClient;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
-import io.fabric8.kubernetes.api.model.EndpointAddress;
 import io.fabric8.kubernetes.api.model.Endpoints;
-import io.fabric8.kubernetes.api.model.HasMetadata;
-import io.fabric8.kubernetes.api.model.ObjectReference;
 import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.apiextensions.CustomResourceDefinition;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import me.snowdrop.istio.api.networking.v1alpha3.DoneableMixerUrlPattern;
@@ -42,14 +41,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -79,6 +71,9 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
 
     @Autowired
     private MultiClusterK8sClient multiClusterK8sClient;
+
+    @Autowired
+    private PilotHttpClient pilotHttpClient;
 
     private Map<K8sResourceEnum, K8sResourceInformer> resourceInformerMap = new HashMap<com.netease.cloud.nsf.core.k8s.K8sResourceEnum, K8sResourceInformer>();
     private static final Logger log = LoggerFactory.getLogger(K8sResourceCache.class);
@@ -333,16 +328,23 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     }
 
     @Override
-    public List<PodDTO<T>> getPodDtoByWorkLoadInfo(String clusterId, String kind, String namespace, String name) {
+    public List<PodDTO> getPodDtoByWorkLoadInfo(String clusterId, String kind, String namespace, String name) {
         OwnerReferenceSupportStore store = ResourceStoreFactory.getResourceStore(clusterId);
         T obj = (T) store.get(kind, namespace, name);
         if (obj == null) {
             return new ArrayList<>();
         }
-        return (List<PodDTO<T>>) store.listResourceByOwnerReference(Pod.name(), obj)
+        return ((List<Pod>) store.listResourceByOwnerReference(Pod.name(), obj))
                 .stream()
-                .map(po -> new PodDTO<T>((T) po, clusterId))
+                .map(po -> createPodDto(po, clusterId))
                 .collect(Collectors.toList());
+    }
+
+    private PodDTO createPodDto(Pod po, String clusterId) {
+        PodDTO pod = new PodDTO(po, clusterId);
+        Map<String, String> syncInfo = pilotHttpClient.getSidecarSyncStatus(po.getMetadata().getName(), po.getMetadata().getNamespace());
+        pod.setSyncInfo(syncInfo);
+        return pod;
     }
 
     @Override
@@ -450,11 +452,11 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     }
 
     @Override
-    public List<PodDTO<T>> getPodListWithSidecarVersion(List podDTOList, String expectedVersion) {
+    public List<PodDTO> getPodListWithSidecarVersion(List podDTOList, String expectedVersion) {
         if (CollectionUtils.isEmpty(podDTOList)) {
             return new ArrayList<>();
         }
-        podDTOList.forEach(podDTO -> addSidecarVersionOnPod((PodDTO<T>) podDTO, expectedVersion));
+        podDTOList.forEach(podDTO -> addSidecarVersionOnPod((PodDTO) podDTO, expectedVersion));
         return podDTOList;
     }
 
@@ -599,7 +601,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
 
     @Override
     public List<String> getSidecarVersionOnWorkLoad(String clusterId, String namespace, String kind, String name) {
-        List<PodDTO<T>> podByWorkLoadInfo = getPodDtoByWorkLoadInfo(clusterId, kind, namespace, name);
+        List<PodDTO> podByWorkLoadInfo = getPodDtoByWorkLoadInfo(clusterId, kind, namespace, name);
         PodVersion queryVersion = new PodVersion();
         queryVersion.setClusterId(clusterId);
         queryVersion.setNamespace(namespace);
@@ -638,7 +640,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     }
 
 
-    private PodDTO<T> addSidecarVersionOnPod(PodDTO<T> podDTO, String expectedVersion) {
+    private PodDTO addSidecarVersionOnPod(PodDTO podDTO, String expectedVersion) {
         PodVersion queryVersion = new PodVersion();
         queryVersion.setClusterId(podDTO.getClusterId());
         queryVersion.setNamespace(podDTO.getNamespace());
@@ -673,7 +675,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
 
 
     private WorkLoadDTO<T> addSidecarVersionOnWorkLoad(WorkLoadDTO<T> workLoadDTO) {
-        List<PodDTO<T>> podByWorkLoadInfo = getPodDtoByWorkLoadInfo(workLoadDTO.getClusterId(), workLoadDTO.getKind(), workLoadDTO.getNamespace(),
+        List<PodDTO> podByWorkLoadInfo = getPodDtoByWorkLoadInfo(workLoadDTO.getClusterId(), workLoadDTO.getKind(), workLoadDTO.getNamespace(),
                 workLoadDTO.getName());
         PodVersion queryVersion = new PodVersion();
         queryVersion.setClusterId(workLoadDTO.getClusterId());

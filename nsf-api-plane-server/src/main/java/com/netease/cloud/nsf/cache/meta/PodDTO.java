@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 /**
  * @author zhangzihao
  */
-public class PodDTO<T extends HasMetadata> extends K8sResourceDTO {
+public class PodDTO extends K8sResourceDTO<Pod> {
 
     private static final String RESOURCE_VALUE_PATTERN = "[\\d]+(?=\\D*)";
     private static final String LIMIT_CPU_FORMAT = "%.1f Cores";
@@ -38,11 +38,15 @@ public class PodDTO<T extends HasMetadata> extends K8sResourceDTO {
 
     private boolean isInjected;
 
+    private String sidecarImage;
+
     private int versionManagerCrdStatus;
 
     private String sidecarContainerStatus;
 
     private final IptablesConfig iptablesConfig;
+
+    private Map<String, String> syncInfo;
 
     public String getSidecarContainerStatus() {
         return sidecarContainerStatus;
@@ -102,48 +106,66 @@ public class PodDTO<T extends HasMetadata> extends K8sResourceDTO {
         this.podIp = podIp;
     }
 
-    public PodDTO(T obj, String clusterId) {
-        super(obj, clusterId);
-        if (obj instanceof Pod) {
-            Pod pod = (Pod) obj;
-            this.hostIp = pod.getStatus().getHostIP();
-            this.podIp = pod.getStatus().getPodIP();
-            this.status = pod.getStatus().getPhase();
-            this.isInjected = isInjected(pod);
+    public PodDTO(Pod pod, String clusterId) {
+        super(pod, clusterId);
+        this.hostIp = pod.getStatus().getHostIP();
+        this.podIp = pod.getStatus().getPodIP();
+        this.status = pod.getStatus().getPhase();
+        this.isInjected = isInjected(pod);
 
-            Map<String, ContainerInfo> containerInfoMap = new HashMap<>();
-            // 更新容器资源信息
+        Map<String, ContainerInfo> containerInfoMap = new HashMap<>();
+        // 更新容器资源信息
 
-            pod.getSpec().getContainers().forEach(c -> {
-                Objects.requireNonNull(containerInfoMap.computeIfAbsent(c.getName(),
-                        ContainerInfo::new))
-                        .setRequestResource(c.getResources().getRequests())
-                        .setLimitResource(c.getResources().getLimits());
+        pod.getSpec().getContainers().forEach(c -> {
+            Objects.requireNonNull(containerInfoMap.computeIfAbsent(c.getName(),
+                ContainerInfo::new))
+                .setRequestResource(c.getResources().getRequests())
+                .setLimitResource(c.getResources().getLimits());
 
-                this.totalLimitCpuValue += getLimitCpuValue(c.getResources().getLimits());
-                this.totalLimitMemoryValue += getLimitMeValue(c.getResources().getLimits());
-            });
-            // 更新容器状态信息
-            pod.getStatus().getContainerStatuses().forEach(cs -> {
-                Objects.requireNonNull(containerInfoMap.computeIfAbsent(cs.getName(), ContainerInfo::new))
-                        .setStatusInfo("restartCount", cs.getRestartCount().toString())
-                        .setCurrState(cs.getState());
-                totalRestartCount += cs.getRestartCount();
-            });
-            if (this.totalLimitCpuValue > 0){
-                this.totalLimitCpu = String.format(LIMIT_CPU_FORMAT, this.totalLimitCpuValue);
-            }
-            if (this.totalLimitMemoryValue > 0){
-                this.totalLimitMemory = String.format(LIMIT_MEMORY_FORMAT, this.totalLimitMemoryValue);
-            }
-            containerInfoList.addAll(containerInfoMap.values());
-
+            this.totalLimitCpuValue += getLimitCpuValue(c.getResources().getLimits());
+            this.totalLimitMemoryValue += getLimitMeValue(c.getResources().getLimits());
+        });
+        // 更新容器状态信息
+        pod.getStatus().getContainerStatuses().forEach(cs -> {
+            Objects.requireNonNull(containerInfoMap.computeIfAbsent(cs.getName(), ContainerInfo::new))
+                .setStatusInfo("restartCount", cs.getRestartCount().toString())
+                .setCurrState(cs.getState());
+            totalRestartCount += cs.getRestartCount();
+        });
+        if (this.totalLimitCpuValue > 0){
+            this.totalLimitCpu = String.format(LIMIT_CPU_FORMAT, this.totalLimitCpuValue);
         }
-        iptablesConfig = IptablesConfig.readFromJson(obj.getMetadata().getAnnotations().get("envoy.io/iptablesDetail"));
+        if (this.totalLimitMemoryValue > 0){
+            this.totalLimitMemory = String.format(LIMIT_MEMORY_FORMAT, this.totalLimitMemoryValue);
+        }
+        containerInfoList.addAll(containerInfoMap.values());
+
+        sidecarImage = pod.getSpec().getContainers().stream()
+            .filter(c -> "istio-proxy".equals(c.getName()))
+            .findAny()
+            .map(Container::getImage)
+            .orElse(null);
+        iptablesConfig = IptablesConfig.readFromJson(pod.getMetadata().getAnnotations().get("envoy.io/iptablesDetail"));
     }
 
     public IptablesConfig getIptablesConfig() {
         return iptablesConfig;
+    }
+
+    public String getSidecarImage() {
+        return sidecarImage;
+    }
+
+    public void setSidecarImage(String sidecarImage) {
+        this.sidecarImage = sidecarImage;
+    }
+
+    public Map<String, String> getSyncInfo() {
+        return syncInfo;
+    }
+
+    public void setSyncInfo(Map<String, String> syncInfo) {
+        this.syncInfo = syncInfo;
     }
 
 
