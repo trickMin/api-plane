@@ -44,7 +44,7 @@ public class DBSnapshotBuilder implements SnapshotBuilder {
     @Override
     public SnapshotOuterClass.Snapshot build() {
         SnapshotOuterClass.Snapshot.Builder builder = SnapshotOuterClass.Snapshot.newBuilder();
-        Map<String, Mcp.Resources.Builder> resourcesMap = new ConcurrentHashMap<>();
+        Map<String, Mcp.Resources.Builder> resourcesMap = new HashMap<>();
         for (String collection : mcpOptions.getSnapshotCollections()) {
             // 1. 取出对应collection资源
             List<Resource> resources = resourceDao.list(collection);

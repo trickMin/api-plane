@@ -1,9 +1,9 @@
 package com.netease.cloud.nsf.mcp.status;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -16,6 +16,7 @@ import java.util.function.BiConsumer;
  * @date 2020/4/23
  **/
 public class StatusMonitorImpl implements StatusMonitor {
+    private static final Logger logger = LoggerFactory.getLogger(StatusMonitorImpl.class);
 
     private AtomicReference<Status> status;
     private final Map<String, List<BiConsumer<Event, Status.Property>>> handlers;
@@ -72,8 +73,11 @@ public class StatusMonitorImpl implements StatusMonitor {
     }
 
     private void notify(StatusMonitor.Event event, Status.Property property) {
-        for (BiConsumer<Event, Status.Property> handle : this.handlers.get(property.key)) {
-            this.notifyQueue.submit(() -> handle.accept(event, property));
+        List<BiConsumer<Event, Status.Property>> handlers = this.handlers.get(property.key);
+        if (Objects.nonNull(handlers)) {
+            for (BiConsumer<Event, Status.Property> handle : this.handlers.get(property.key)) {
+                this.notifyQueue.submit(() -> handle.accept(event, property));
+            }
         }
     }
 }
