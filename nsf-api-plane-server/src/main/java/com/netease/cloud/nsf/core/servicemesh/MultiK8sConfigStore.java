@@ -24,7 +24,7 @@ public class MultiK8sConfigStore extends K8sConfigStore {
     }
 
     public void update(HasMetadata t, String clusterId) {
-        supply(t);
+//        supply(t);
         resolve(clusterId).createOrUpdate(t, ResourceType.OBJECT);
     }
 
@@ -46,7 +46,7 @@ public class MultiK8sConfigStore extends K8sConfigStore {
 
     @Override
     public void update(HasMetadata resource) {
-        supply(resource);
+//        supply(resource);
         resolve(getDefaultClusterId()).createOrUpdate(resource, ResourceType.OBJECT);
     }
 
