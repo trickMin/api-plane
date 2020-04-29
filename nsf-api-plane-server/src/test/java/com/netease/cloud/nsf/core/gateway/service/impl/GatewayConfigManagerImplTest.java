@@ -2,6 +2,7 @@ package com.netease.cloud.nsf.core.gateway.service.impl;
 
 import com.google.common.collect.ImmutableMap;
 import com.netease.cloud.nsf.core.BaseTest;
+import com.netease.cloud.nsf.core.GlobalConfig;
 import com.netease.cloud.nsf.core.gateway.GatewayIstioModelEngine;
 import com.netease.cloud.nsf.core.gateway.service.ResourceManager;
 import com.netease.cloud.nsf.meta.*;
@@ -20,7 +21,7 @@ import java.util.Map;
 import static org.mockito.Mockito.when;
 
 
-public class K8sGatewayConfigManagerTest extends BaseTest {
+public class GatewayConfigManagerImplTest extends BaseTest {
 
     @Autowired
     GatewayIstioModelEngine modelEngine;
@@ -28,7 +29,10 @@ public class K8sGatewayConfigManagerTest extends BaseTest {
     @MockBean
     ResourceManager resourceManager;
 
-    K8sGatewayConfigManager mockConfigManager;
+    @Autowired
+    GlobalConfig globalConfig;
+
+    GatewayConfigManagerImpl mockConfigManager;
     MockK8sConfigStore mockK8sConfigStore;
 
     List<Endpoint> fixedEndpoints = Arrays.asList(buildEndpoint("a.default", "www.testa.com", 80),
@@ -44,7 +48,7 @@ public class K8sGatewayConfigManagerTest extends BaseTest {
         when(resourceManager.getGatewayList()).thenReturn(fixedGateways);
 
         mockK8sConfigStore = new MockK8sConfigStore();
-        mockConfigManager = new K8sGatewayConfigManager(modelEngine, mockK8sConfigStore);
+        mockConfigManager = new GatewayConfigManagerImpl(modelEngine, mockK8sConfigStore, globalConfig);
     }
 
     @Test
@@ -144,7 +148,7 @@ public class K8sGatewayConfigManagerTest extends BaseTest {
 
     private Service buildProxyService(String backendService, String type, Integer weight, Integer port) {
 
-        return buildProxyService(backendService, type, weight, port, null, null ,null, null);
+        return buildProxyService(backendService, type, weight, port, null, null, null, null);
     }
 
     private Service buildProxyService(String backendService, String type, Integer weight, Integer port,
