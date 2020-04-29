@@ -1,6 +1,8 @@
 package com.netease.cloud.nsf.core.gateway.service.impl;
 
 import com.netease.cloud.nsf.core.AbstractConfigManagerSupport;
+import com.netease.cloud.nsf.core.ConfigStore;
+import com.netease.cloud.nsf.core.GlobalConfig;
 import com.netease.cloud.nsf.core.editor.PathExpressionEnum;
 import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
@@ -13,14 +15,10 @@ import com.netease.cloud.nsf.meta.*;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.function.Subtracter;
 import io.fabric8.kubernetes.api.model.HasMetadata;
-import io.fabric8.kubernetes.api.model.ObjectMeta;
 import me.snowdrop.istio.api.IstioResource;
-import me.snowdrop.istio.api.networking.v1alpha3.Gateway;
 import me.snowdrop.istio.api.networking.v1alpha3.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -30,18 +28,18 @@ import java.util.stream.Collectors;
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/7/25
  **/
-@Component
-public class K8sGatewayConfigManager extends AbstractConfigManagerSupport implements GatewayConfigManager {
+public class GatewayConfigManagerImpl extends AbstractConfigManagerSupport implements GatewayConfigManager {
 
-    private static final Logger logger = LoggerFactory.getLogger(K8sGatewayConfigManager.class);
+    private static final Logger logger = LoggerFactory.getLogger(GatewayConfigManagerImpl.class);
 
-    private K8sConfigStore configStore;
+    private ConfigStore configStore;
     private GatewayIstioModelEngine modelEngine;
+    private GlobalConfig globalConfig;
 
-    @Autowired
-    public K8sGatewayConfigManager(GatewayIstioModelEngine modelEngine, K8sConfigStore k8sConfigStore) {
+    public GatewayConfigManagerImpl(GatewayIstioModelEngine modelEngine, ConfigStore k8sConfigStore, GlobalConfig globalConfig) {
         this.modelEngine = modelEngine;
         this.configStore = k8sConfigStore;
+        this.globalConfig = globalConfig;
     }
 
     @Override
@@ -103,7 +101,7 @@ public class K8sGatewayConfigManager extends AbstractConfigManagerSupport implem
                     DestinationRule dr = gen.object(DestinationRule.class);
                     if (CollectionUtils.isEmpty(dr.getSpec().getSubsets())) noSubsets = true;
                     return dr;
-                } else if (r.getClass() == seClz){
+                } else if (r.getClass() == seClz) {
                     // 若没有subset，则删除整个se
                     if (noSubsets) {
                         r.setApiVersion(null);
@@ -145,12 +143,8 @@ public class K8sGatewayConfigManager extends AbstractConfigManagerSupport implem
             return null;
         }
         final String gwClusgterKey = "gw_cluster";
-        Gateway gwt = new Gateway();
-        gwt.setMetadata(new ObjectMeta());
-        configStore.supply(gwt);
-        ObjectMeta metadata = gwt.getMetadata();
         //获取所有Gateway资源
-        List<HasMetadata> istioResources = configStore.get(gwt.getKind(), metadata.getNamespace());
+        List<HasMetadata> istioResources = configStore.get("Gateway", globalConfig.getResourceNamespace());
         Optional<HasMetadata> first = istioResources.stream().filter(g ->
         {
             IstioResource ir = (IstioResource) g;

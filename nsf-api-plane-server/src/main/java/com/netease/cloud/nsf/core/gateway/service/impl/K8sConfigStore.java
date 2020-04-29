@@ -3,14 +3,12 @@ package com.netease.cloud.nsf.core.gateway.service.impl;
 import com.netease.cloud.nsf.core.ConfigStore;
 import com.netease.cloud.nsf.core.GlobalConfig;
 import com.netease.cloud.nsf.core.editor.ResourceType;
+import com.netease.cloud.nsf.core.ConfigStore;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.k8s.KubernetesClient;
 import com.netease.cloud.nsf.core.template.TemplateConst;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Primary;
-import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
@@ -21,15 +19,16 @@ import java.util.Map;
  * 使用k8s作为存储
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/7/25
  **/
-@Component
-@Primary
 public class K8sConfigStore implements ConfigStore {
 
-    @Autowired
     KubernetesClient client;
 
-    @Autowired
     GlobalConfig globalConfig;
+
+    public K8sConfigStore(KubernetesClient client, GlobalConfig globalConfig) {
+        this.client = client;
+        this.globalConfig = globalConfig;
+    }
 
     @Override
     public void delete(HasMetadata resource) {
