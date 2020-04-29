@@ -6,8 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
-import java.util.UUID;
-
 /**
  * @author wupenghuai@corp.netease.com
  * @date 2020/4/10
@@ -34,7 +32,7 @@ public class Connection {
         if (McpUtils.isTriggerResponse(req)) return;
         String collection = req.getCollection();
         if (StringUtils.isEmpty(req.getResponseNonce())) {
-            logger.info("MCP: connection {}: inc={} SUBSCRIBE for {}", this, req.getIncremental(), collection);
+            logger.info("MCP: connection={} inc={} watch for {}", this, req.getIncremental(), collection);
             if (!McpUtils.isSupportedCollection(mcpOptions.getSnapshotCollections(), collection)) {
                 pushEmpty(collection);
             } else {
@@ -43,11 +41,11 @@ public class Connection {
         } else {
             if (req.hasErrorDetail()) {
                 // NACK Response
-                logger.warn("MCP: connection {}: NACK collection={} with nonce={} error={} inc={}", // nolint: lll
+                logger.warn("MCP: connection={} NACK collection={} with nonce={} error={} inc={}", // nolint: lll
                         this, collection, req.getResponseNonce(), req.getErrorDetail().getMessage(), req.getIncremental());
             } else {
                 // ASK Response
-                logger.info("MCP: connection {} ACK collection={} with nonce={} inc={}",
+                logger.info("MCP: connection={} ACK collection={} with nonce={} inc={}",
                         this, collection, req.getResponseNonce(), req.getIncremental());
             }
         }
@@ -57,17 +55,34 @@ public class Connection {
         Mcp.Resources msg = Mcp.Resources.newBuilder(resp.getResource())
                 .setSystemVersionInfo(String.format("Snapshot:[%s],Resource:[%s]", resp.getSnapshotVersion(), resp.getResource().getSystemVersionInfo()))
                 .setIncremental(false)
-                .setNonce(String.valueOf(UUID.randomUUID()))
+                .setNonce(String.format("Snapshot:[%s]", resp.getSnapshotVersion()))
                 .build();
 
-        getStream().onNext(msg);
         logger.debug("MCP: connection {}: SEND collection={} version={} nonce={} inc={}",
                 this, msg.getCollection(), msg.getSystemVersionInfo(), msg.getNonce(), msg.getIncremental());
+        try {
+            getStream().onNext(msg);
+        } catch (Exception e) {
+            logger.warn("MCP: connection {} an error occurs when SEND collection={} version={} nonce={} inc={}, err={}",
+                    this, msg.getCollection(), msg.getSystemVersionInfo(), msg.getNonce(), msg.getIncremental(), e.getMessage());
+            this.close(e);
+            this.watcher.release(this);
+        }
     }
 
     public void pushEmpty(String collection) {
         Mcp.Resources resources = Mcp.Resources.newBuilder().setCollection(collection).build();
-        WatchResponse response = new WatchResponse("empty", resources);
+        WatchResponse response = new WatchResponse("", resources);
         push(response);
+    }
+
+
+    public void close(Throwable throwable) {
+        logger.info("MCP: close connection {}", this);
+        try {
+            getStream().onError(throwable);
+        } catch (Exception e) {
+            logger.warn("MCP: connection {} an error occurs when CLOSE connection", this);
+        }
     }
 }

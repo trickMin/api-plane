@@ -8,6 +8,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.web.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/7/15
@@ -17,6 +18,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @PropertySource(value = {"classpath:k8s.yaml", "classpath:jdbc.yaml"}, factory = YamlPropertyLoaderFactory.class)
 @EnableConfigurationProperties
 @EnableScheduling
+@EnableTransactionManagement
 public class ApiPlaneApplication extends SpringBootServletInitializer {
 
     public static void main(String[] args) {

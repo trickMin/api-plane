@@ -28,9 +28,15 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author wupenghuai@corp.netease.com
@@ -67,17 +73,32 @@ public class GatewayNonK8sConfiguration {
      * Monitor
      */
     @Bean
-    public StatusMonitor monitor(McpOptions options, StatusProductor productor, SnapshotBuilder builder, McpResourceDistributor distributor) {
+    public StatusMonitor monitor(McpOptions options, StatusProductor productor, SnapshotBuilder builder, McpResourceDistributor distributor, TransactionTemplate transactionTemplate) {
         StatusMonitor monitor = new StatusMonitorImpl(options.getStatusCheckIntervalMs(), productor);
         monitor.registerHandler(StatusConst.RESOURCES_VERSION, ((event, property) -> {
             Logger logger = LoggerFactory.getLogger(builder.getClass());
-            long start = System.currentTimeMillis();
-            SnapshotOuterClass.Snapshot snapshot = builder.build();
-            logger.info("MCP: SnapshotBuilder: build snapshot for version:[{}], consume:[{}]", property.value, System.currentTimeMillis() - start + "ms");
-            for (Map.Entry<String, Mcp.Resources> entry : snapshot.getResourcesMap().entrySet()) {
-                logger.info("--MCP: SnapshotBuilder: collection:[{}], count:[{}]", entry.getKey(), entry.getValue().getResourcesList().size());
+            SnapshotOuterClass.Snapshot snapshot = transactionTemplate.execute(new TransactionCallback<SnapshotOuterClass.Snapshot>() {
+                @Override
+                public SnapshotOuterClass.Snapshot doInTransaction(TransactionStatus transactionStatus) {
+                    String thisVersion = property.value;
+                    String dbVersion = productor.product().get(StatusConst.RESOURCES_VERSION);
+                    if (Objects.equals(thisVersion, dbVersion)) {
+                        long start = System.currentTimeMillis();
+                        SnapshotOuterClass.Snapshot snapshot = builder.build();
+                        logger.info("MCP: SnapshotBuilder: build snapshot for version:[{}], consume:[{}]", property.value, System.currentTimeMillis() - start + "ms");
+                        for (Map.Entry<String, Mcp.Resources> entry : snapshot.getResourcesMap().entrySet()) {
+                            logger.info("--MCP: SnapshotBuilder: collection:[{}], count:[{}]", entry.getKey(), entry.getValue().getResourcesList().size());
+                        }
+                        return snapshot;
+                    } else {
+                        logger.info("MCP: SnapshotBuilder: Skip building snapshots for outdated resource versions:[{}], current version:[{}]", thisVersion, dbVersion);
+                        return null;
+                    }
+                }
+            });
+            if (Objects.nonNull(snapshot)) {
+                distributor.setSnapshot(snapshot);
             }
-            distributor.setSnapshot(snapshot);
         }));
         // 启动monitor
         monitor.start();
@@ -106,6 +127,20 @@ public class GatewayNonK8sConfiguration {
     @Bean
     public StatusDao statusDao(NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
         return new StatusDaoImpl(namedParameterJdbcTemplate);
+    }
+
+    @Bean
+    public TransactionTemplate transactionTemplate(PlatformTransactionManager transactionManager) {
+        TransactionTemplate template = new TransactionTemplate(transactionManager);
+        // 传播级别
+        template.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
+        // 隔离级别，容忍幻读
+        template.setIsolationLevel(TransactionTemplate.ISOLATION_REPEATABLE_READ);
+        // 只读
+        template.setReadOnly(true);
+        // 事务超时时间
+        template.setTimeout(5);
+        return template;
     }
 
     /**

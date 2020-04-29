@@ -20,10 +20,12 @@ public class McpCache implements McpResourceDistributor, McpResourceWatcher {
 
     private SnapshotOuterClass.Snapshot snapshot;
 
+    private final Set<Connection> connections = new HashSet<>();
     private final Map<String, Set<Connection>> watchMap = new HashMap<>();
 
     @Override
     public synchronized void watch(Connection connection, String collection) {
+        connections.add(connection);
         watchMap.putIfAbsent(collection, new HashSet<>());
         Set<Connection> subscribeConnection = watchMap.get(collection);
         if (subscribeConnection.add(connection) && Objects.nonNull(snapshot)) {
@@ -33,6 +35,8 @@ public class McpCache implements McpResourceDistributor, McpResourceWatcher {
 
     @Override
     public synchronized void release(Connection connection) {
+        connections.remove(connection);
+        logger.info("MCP: release connection:{}, remain count:{}", connection, connections.size());
         for (Map.Entry<String, Set<Connection>> entry : watchMap.entrySet()) {
             entry.getValue().remove(connection);
         }
