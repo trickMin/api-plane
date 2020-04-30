@@ -6,7 +6,6 @@ import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.mcp.dao.ResourceDao;
 import com.netease.cloud.nsf.mcp.dao.meta.Resource;
-import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import org.slf4j.Logger;
@@ -93,7 +92,13 @@ public class McpConfigStore implements ConfigStore {
 
     @Override
     public List<HasMetadata> get(String kind, String namespace, Map<String, String> labels) {
-        throw new ApiPlaneException(String.format("Unsupported get resource:[%s] by labels", kind));
+        if (isUnSupportedType(kind)) return new ArrayList<>();
+        List<HasMetadata> ret = new ArrayList<>();
+        String collection = getCollectionByKind(kind);
+        String labelString = McpUtils.getLabelMatch(labels);
+        List<Resource> rss = resourceDao.list(collection, namespace, labelString);
+        rss.forEach(rs -> ret.add(toHasMetadata(rs)));
+        return ret;
     }
 
     private boolean isUnSupportedType(String kind) {
@@ -107,10 +112,12 @@ public class McpConfigStore implements ConfigStore {
     private Resource toResource(HasMetadata hasMetadata) {
         String json = ResourceGenerator.obj2json(hasMetadata);
         String name = McpUtils.getResourceName(hasMetadata.getMetadata().getNamespace(), hasMetadata.getMetadata().getName());
+        String label = McpUtils.getLabel(hasMetadata.getMetadata().getLabels());
         String collection = getCollectionByKind(hasMetadata.getKind());
         Resource resource = new Resource();
         resource.setConfig(json);
         resource.setName(name);
+        resource.setLabel(label);
         resource.setCollection(collection);
         return resource;
     }

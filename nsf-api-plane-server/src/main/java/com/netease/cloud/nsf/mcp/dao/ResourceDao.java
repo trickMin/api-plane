@@ -24,4 +24,6 @@ public interface ResourceDao {
     List<Resource> list(String collection);
 
     List<Resource> list(String collection, String namespace);
+
+    List<Resource> list(String collection, String namespace, String labelMatch);
 }

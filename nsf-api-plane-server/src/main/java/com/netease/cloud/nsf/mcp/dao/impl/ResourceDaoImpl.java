@@ -10,8 +10,6 @@ import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -42,7 +40,7 @@ public class ResourceDaoImpl implements ResourceDao {
 
     @Override
     public void add(Resource resource) {
-        String sql = "insert into resource(collection, name, config) values(:collection, :name, :config)";
+        String sql = "insert into resource(collection, name, label, config) values(:collection, :name, :label, :config)";
         SqlParameterSource ps = new BeanPropertySqlParameterSource(resource);
         namedTemplate.update(sql, ps);
     }
@@ -58,7 +56,7 @@ public class ResourceDaoImpl implements ResourceDao {
 
     @Override
     public void update(Resource resource) {
-        String sql = "update resource set config=:config where collection=:collection and name=:name";
+        String sql = "update resource set config=:config, label=:label where collection=:collection and name=:name";
         SqlParameterSource ps = new BeanPropertySqlParameterSource(resource);
         namedTemplate.update(sql, ps);
     }
@@ -92,9 +90,20 @@ public class ResourceDaoImpl implements ResourceDao {
 
     @Override
     public List<Resource> list(String collection, String namespace) {
-        String sql = "select * from resource where collection=:collection and name like :namespace/%";
+        String sql = "select * from resource where collection=:collection and name like :namespace";
         SqlParameterSource ps = new MapSqlParameterSource()
-                .addValue("collection", collection);
+                .addValue("collection", collection)
+                .addValue("namespace", namespace + "/%");
+        return namedTemplate.query(sql, ps, new ResourceRowMapper());
+    }
+
+    @Override
+    public List<Resource> list(String collection, String namespace, String labelMatch) {
+        String sql = "select * from resource where collection=:collection and name like :namespace and label like :label";
+        SqlParameterSource ps = new MapSqlParameterSource()
+                .addValue("collection", collection)
+                .addValue("namespace", namespace + "/%")
+                .addValue("label", labelMatch);
         return namedTemplate.query(sql, ps, new ResourceRowMapper());
     }
 
@@ -106,6 +115,7 @@ public class ResourceDaoImpl implements ResourceDao {
             Resource resource = new Resource();
             resource.setCollection(resultSet.getString("collection"));
             resource.setName(resultSet.getString("name"));
+            resource.setLabel(resultSet.getString("label"));
             resource.setConfig(resultSet.getString("config"));
             return resource;
         }

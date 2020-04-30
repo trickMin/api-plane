@@ -7,6 +7,7 @@ package com.netease.cloud.nsf.mcp.dao.meta;
 public class Resource {
     private String collection;
     private String name;
+    private String label;
     private String config;
 
     public String getCollection() {
@@ -23,6 +24,14 @@ public class Resource {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getLabel() {
+        return label;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
     }
 
     public String getConfig() {
