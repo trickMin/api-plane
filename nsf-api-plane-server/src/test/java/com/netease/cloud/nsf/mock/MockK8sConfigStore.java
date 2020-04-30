@@ -66,6 +66,10 @@ public class MockK8sConfigStore extends MultiK8sConfigStore {
         // do nothing
     }
 
+    public void clear() {
+        store.clear();
+    }
+
     public int size() {
         return store.size();
     }
