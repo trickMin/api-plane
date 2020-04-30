@@ -1,7 +1,6 @@
 package com.netease.cloud.nsf.core;
 
 import com.netease.cloud.nsf.core.k8s.K8sResourcePack;
-import com.netease.cloud.nsf.core.k8s.empty.EmptyBatchResource;
 import com.netease.cloud.nsf.core.k8s.empty.EmptyResource;
 import com.netease.cloud.nsf.util.function.Subtracter;
 import io.fabric8.kubernetes.api.model.HasMetadata;
@@ -26,17 +25,6 @@ public abstract class AbstractConfigManagerSupport implements ConfigManager{
 
         for (K8sResourcePack pack : resources) {
             HasMetadata latest = pack.getResource();
-
-            if (latest instanceof EmptyBatchResource && pack.hasSubtracter()) {
-                //批量空的资源
-                List<HasMetadata> batchResources = configStore.get(latest.getKind(), latest.getMetadata().getNamespace(), latest.getMetadata().getLabels());
-                if (CollectionUtils.isEmpty(batchResources)) continue;
-                for (HasMetadata resource : batchResources) {
-                    HasMetadata subtracted = pack.getSubtracter().subtract(resource);
-                    handle(subtracted, configStore, modelEngine);
-                }
-                continue;
-            }
 
             HasMetadata old = configStore.get(latest);
             if (old != null) {

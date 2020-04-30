@@ -18,6 +18,13 @@ public class EmptyGatewayPlugin extends GatewayPlugin implements HasMetadata, Em
         this.om = tom;
     }
 
+    public EmptyGatewayPlugin(String name) {
+        ObjectMeta tom = new ObjectMeta();
+        tom.setName(name);
+        this.om = tom;
+    }
+
+
     @Override
     public ObjectMeta getMetadata() {
         return om;

@@ -1,12 +1,10 @@
 package com.netease.cloud.nsf.core.k8s.operator;
 
-import com.netease.cloud.nsf.core.k8s.operator.GatewayPluginOperator;
 import me.snowdrop.istio.api.networking.v1alpha3.GatewayPlugin;
 import me.snowdrop.istio.api.networking.v1alpha3.GatewayPluginSpec;
 import me.snowdrop.istio.api.networking.v1alpha3.Plugins;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.util.CollectionUtils;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -32,15 +30,13 @@ public class GatewayPluginOperatorTest {
                 Arrays.asList("host1", "host2"),
                 Arrays.asList(getPlugins("p1", Collections.emptyMap())),
                 Arrays.asList("route1", "route2"),
-                Arrays.asList("service1", "service2"),
-                Arrays.asList("user1")));
+                Arrays.asList("service1", "service2")));
 
         GatewayPlugin gp2 = getGatewayPlugin(getGatewayPluginSpec(Arrays.asList("gw-3"),
                 Arrays.asList("host3", "host4"),
                 Arrays.asList(getPlugins("p2", Collections.emptyMap())),
                 Arrays.asList("route3"),
-                Arrays.asList("service3"),
-                Collections.emptyList()));
+                Arrays.asList("service3")));
 
         GatewayPlugin merge = operator.merge(gp1, gp2);
 
@@ -54,7 +50,6 @@ public class GatewayPluginOperatorTest {
         assertEquals(1, spec.getRoute().size());
         assertEquals("route3", spec.getRoute().get(0));
         assertEquals("service3", spec.getService().get(0));
-        assertTrue(CollectionUtils.isEmpty(spec.getUser()));
     }
 
 
@@ -65,14 +60,13 @@ public class GatewayPluginOperatorTest {
     }
 
     private static GatewayPluginSpec getGatewayPluginSpec(List<String> gateway, List<String> hosts, List<Plugins> plugins,
-                                                          List<String> routes, List<String> service, List<String> user) {
+                                                          List<String> routes, List<String> service) {
         GatewayPluginSpec spec = new GatewayPluginSpec();
         spec.setGateway(gateway);
         spec.setHost(hosts);
         spec.setPlugins(plugins);
         spec.setRoute(routes);
         spec.setService(service);
-        spec.setUser(user);
         return spec;
     }
 

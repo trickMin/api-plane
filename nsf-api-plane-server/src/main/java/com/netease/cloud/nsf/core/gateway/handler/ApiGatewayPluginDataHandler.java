@@ -35,26 +35,22 @@ public class ApiGatewayPluginDataHandler extends APIDataHandler {
         List<String> gateways = api.getGateways();
         List<TemplateParams> params = new ArrayList<>();
 
-        apiPlugins.forEach((user, plugins) -> {
-            gateways.forEach(gw -> {
-                TemplateParams pmParams = TemplateParams.instance()
-                        .setParent(tp)
-                        .put(GATEWAY_PLUGIN_NAME, getGatewayPluginName(gw, api.getName(), user))
-                        .put(RESOURCE_IDENTITY, getIdentity(api.getName(), gw))
-                        .put(GATEWAY_PLUGIN_GATEWAYS, Arrays.asList(String.format("%s/%s", gatewayNamespace, gw)))
-                        .put(GATEWAY_PLUGIN_ROUTES, Arrays.asList(api.getName()))
-                        .put(GATEWAY_PLUGIN_PLUGINS, plugins);
+        gateways.forEach(gw -> {
+            TemplateParams pmParams = TemplateParams.instance()
+                    .setParent(tp)
+                    .put(GATEWAY_PLUGIN_NAME, getGatewayPluginName(gw, api.getName()))
+                    .put(RESOURCE_IDENTITY, getIdentity(api.getName(), gw))
+                    .put(GATEWAY_PLUGIN_GATEWAYS, Arrays.asList(String.format("%s/%s", gatewayNamespace, gw)))
+                    .put(GATEWAY_PLUGIN_ROUTES, Arrays.asList(api.getName()))
+                    .put(GATEWAY_PLUGIN_PLUGINS, apiPlugins);
 
-                if (!StringUtils.isEmpty(user)) pmParams.put(GATEWAY_PLUGIN_USERS, Arrays.asList(user));
-
-                params.addAll(doHandle(pmParams));
-            });
+            params.addAll(doHandle(pmParams));
         });
 
         return params;
     }
 
-    public String getGatewayPluginName(String gateway, String api, String user) {
+    public String getGatewayPluginName(String gateway, String api) {
 
         List<String> parts = new ArrayList<>();
 
@@ -63,9 +59,6 @@ public class ApiGatewayPluginDataHandler extends APIDataHandler {
         }
         if (!StringUtils.isEmpty(gateway)) {
             parts.add(gateway);
-        }
-        if (!StringUtils.isEmpty(user)) {
-            parts.add(user);
         }
 
         if (CollectionUtils.isEmpty(parts)) return null;

@@ -54,6 +54,7 @@ public class GatewayConfigManagerImplTest extends BaseTest {
     @Test
     public void testUpdateAPI() {
 
+        //gportal 路由插件
         API api = buildAPI(list("gw1"), "apiName", list("host1"), list("/any"),
                 list("GET"), "svc",
                 list("{\"kind\":\"ianus-router\",\"rule\":[{\"name\":\"rewrite\",\"matcher\":[{\"source_type\":\"Header\",\"left_value\":\"plugin\",\"op\":\"=\",\"right_value\":\"rewrite\"}],\"action\":{\"action_type\":\"rewrite\",\"rewrite_regex\":\"/rewrite/{group1}/{group2}\",\"target\":\"/anything/{{group2}}/{{group1}}\"}}]}"),
@@ -74,12 +75,28 @@ public class GatewayConfigManagerImplTest extends BaseTest {
                 null,
                 Arrays.asList("a.default", "b.default"),
                 UriMatch.EXACT);
+
         mockConfigManager.updateConfig(api1);
         Assert.assertEquals(4, mockK8sConfigStore.size());
         mockConfigManager.deleteConfig(api1);
         //保留gateway
         Assert.assertEquals(1, mockK8sConfigStore.size());
 
+        mockK8sConfigStore.clear();
+
+        //gportal 带gatewayplugin的多租户插件
+        API api2 = buildAPI(Arrays.asList("gw1", "gw2"), "apiName", list("host1"), list("/any"),
+                list("GET"), "svc",
+                list("{\"kind\": \"ip-restriction\",  \"type\": \"1\",  \"list\": [    \"127.0.0.1\"  ],  \"x_user_id\":\"user1\"}\",\"{  \"kind\": \"ip-restriction\",  \"type\": \"1\",  \"list\": [    \"127.0.0.1\"  ],  \"x_user_id\":\"user2\"}\",\"{  \"kind\": \"ip-restriction\",  \"type\": \"1\",  \"list\": [    \"127.0.0.1\"  ]}"),
+                "HTTP",
+                Arrays.asList(buildProxyService("www.163.com", "STATIC", 100, 80)),
+                null,
+                UriMatch.EXACT);
+
+        mockConfigManager.updateConfig(api2);
+        Assert.assertEquals(4, mockK8sConfigStore.size());
+        mockConfigManager.deleteConfig(api2);
+        Assert.assertEquals(0, mockK8sConfigStore.size());
     }
 
     @Test
