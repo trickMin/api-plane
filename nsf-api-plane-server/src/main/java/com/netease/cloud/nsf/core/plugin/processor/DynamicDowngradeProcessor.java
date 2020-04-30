@@ -146,16 +146,19 @@ public class DynamicDowngradeProcessor extends AbstractSchemaProcessor implement
     }
 
     private void createCacheTtls(PluginGenerator source, PluginGenerator builder) {
-        builder.createOrUpdateJson("$", "cache_ttls", "{\"RedisHttpCache\":{}}");
+        builder.createOrUpdateJson("$", "cache_ttls", "{\"LocalHttpCache\":{},\"RedisHttpCache\":{}}");
         if (source.contain("$.cache.ttls.default")) {
+            builder.createOrUpdateValue("$.cache_ttls.LocalHttpCache", "default", 30000);
             builder.createOrUpdateValue("$.cache_ttls.RedisHttpCache", "default", 30000);
         }
         if (source.contain("$.cache.ttls.custom")) {
+            builder.createOrUpdateJson("$.cache_ttls.LocalHttpCache", "customs", "{}");
             builder.createOrUpdateJson("$.cache_ttls.RedisHttpCache", "customs", "{}");
             List<Map<String, Object>> customs = source.getValue("$.cache.ttls.custom", List.class);
             customs.forEach(item -> {
                 String code = (String) Optional.ofNullable(item.get("code")).orElse("200");
                 Object ttl = item.get("ttl");
+                builder.createOrUpdateValue("$.cache_ttls.LocalHttpCache.customs", code, ttl);
                 builder.createOrUpdateValue("$.cache_ttls.RedisHttpCache.customs", code, ttl);
             });
         }
