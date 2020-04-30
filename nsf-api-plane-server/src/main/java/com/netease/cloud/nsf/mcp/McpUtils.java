@@ -1,9 +1,13 @@
 package com.netease.cloud.nsf.mcp;
 
+import com.google.common.collect.ImmutableMap;
 import istio.mcp.v1alpha1.Mcp;
+import org.apache.commons.collections.MapUtils;
 import org.springframework.util.StringUtils;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -31,4 +35,36 @@ public class McpUtils {
         }
         return namespace + "/" + name;
     }
+
+    public static String getLabel(Map<String, String> label) {
+        if (MapUtils.isEmpty(label)) label = ImmutableMap.of();
+        Map.Entry<String, String>[] entries = sortMap(label);
+        StringBuilder sb = new StringBuilder();
+        sb.append("{");
+        for (Map.Entry<String, String> entry : entries) {
+            sb.append(String.format("[%s,%s]", entry.getKey(), entry.getValue()));
+        }
+        sb.append("}");
+        return sb.toString();
+    }
+
+    public static String getLabelMatch(Map<String, String> label) {
+        if (MapUtils.isEmpty(label)) label = ImmutableMap.of();
+        Map.Entry<String, String>[] entries = sortMap(label);
+        StringBuilder sb = new StringBuilder();
+        sb.append("{");
+        for (Map.Entry<String, String> entry : entries) {
+            sb.append("%").append(String.format("[%s,%s]", entry.getKey(), entry.getValue()));
+        }
+        sb.append("%");
+        sb.append("}");
+        return sb.toString();
+    }
+
+    private static Map.Entry<String, String>[] sortMap(Map<String, String> map) {
+        Map.Entry<String, String>[] entries = map.entrySet().toArray(new Map.Entry[0]);
+        Arrays.sort(entries, Map.Entry.comparingByKey());
+        return entries;
+    }
+
 }
