@@ -32,7 +32,7 @@ public class TopoServiceImpl implements TopoService {
     private MultiClusterK8sClient multiClusterK8sClient;
 
     @Override
-    public Graph getAppGraph(String namespaces, String duration, String graphType) {
+    public Graph getAppGraph(String namespaces, String duration, String graphType, boolean injectServices) {
 
         Set<String> existNss = new HashSet<>();
 
@@ -55,6 +55,6 @@ public class TopoServiceImpl implements TopoService {
         }
         if (safeNss.isEmpty()) return new Graph();
         //传入安全的namespace,多集群下可能还是有问题，看具体拓扑的数据
-        return kialiHttpClient.getGraph(String.join(",", safeNss), graphType, duration);
+        return kialiHttpClient.getGraph(String.join(",", safeNss), graphType, duration, injectServices);
     }
 }
