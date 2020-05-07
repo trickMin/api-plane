@@ -1,7 +1,5 @@
 package com.netease.cloud.nsf.core.k8s.empty;
 
-import com.google.common.collect.ImmutableMap;
-import com.netease.cloud.nsf.core.template.TemplateConst;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import me.snowdrop.istio.api.networking.v1alpha3.GatewayPlugin;
 
@@ -30,7 +28,7 @@ public class DynamicGatewayPluginSupplier implements Supplier<GatewayPlugin> {
     @Override
     public GatewayPlugin get() {
         if (index > limit) throw new ApiPlaneException("out of limit, gateway plugin supplier");
-        String realName = String.format(format, name, gws.get(index));
-        return new EmptyBatchGatewayPlugin(ImmutableMap.of(TemplateConst.LABEL_RESOURCE_IDENTITY, realName));
+        String realName = String.format(format, name, gws.get(index++));
+        return new EmptyGatewayPlugin(realName);
     }
 }

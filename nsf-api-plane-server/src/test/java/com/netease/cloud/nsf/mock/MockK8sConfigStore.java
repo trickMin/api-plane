@@ -1,5 +1,7 @@
 package com.netease.cloud.nsf.mock;
 
+import com.netease.cloud.nsf.core.GlobalConfig;
+import com.netease.cloud.nsf.core.k8s.KubernetesClient;
 import com.netease.cloud.nsf.core.k8s.MultiClusterK8sClient;
 import com.netease.cloud.nsf.core.servicemesh.MultiK8sConfigStore;
 import io.fabric8.kubernetes.api.model.HasMetadata;
@@ -13,12 +15,12 @@ public class MockK8sConfigStore extends MultiK8sConfigStore {
 
     private Map<ResourceId, HasMetadata> store = new HashMap<>();
 
-    public MockK8sConfigStore(MultiClusterK8sClient multiClient) {
-        super(multiClient);
+    public MockK8sConfigStore(MultiClusterK8sClient multiClient, KubernetesClient client, GlobalConfig globalConfig) {
+        super(multiClient, client, globalConfig);
     }
 
     public MockK8sConfigStore() {
-        super(null);
+        super(null,null,null);
     }
 
     @Override
@@ -51,8 +53,8 @@ public class MockK8sConfigStore extends MultiK8sConfigStore {
         List<HasMetadata> resources = new ArrayList<>();
         for (HasMetadata res : store.values()) {
             if (kind.equals(res.getKind()) &&
-                namespace.equals(res.getMetadata().getNamespace()) &&
-                res.getMetadata().getLabels().entrySet().containsAll(labels.entrySet())) {
+                    namespace.equals(res.getMetadata().getNamespace()) &&
+                    res.getMetadata().getLabels().entrySet().containsAll(labels.entrySet())) {
                 resources.add(res);
             }
         }
@@ -62,6 +64,10 @@ public class MockK8sConfigStore extends MultiK8sConfigStore {
     @Override
     protected void supply(HasMetadata resource) {
         // do nothing
+    }
+
+    public void clear() {
+        store.clear();
     }
 
     public int size() {

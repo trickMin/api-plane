@@ -2,6 +2,7 @@ package com.netease.cloud.nsf.core.gateway.service.impl;
 
 import com.google.common.collect.ImmutableMap;
 import com.netease.cloud.nsf.core.BaseTest;
+import com.netease.cloud.nsf.core.GlobalConfig;
 import com.netease.cloud.nsf.core.gateway.GatewayIstioModelEngine;
 import com.netease.cloud.nsf.core.gateway.service.ResourceManager;
 import com.netease.cloud.nsf.meta.*;
@@ -20,7 +21,7 @@ import java.util.Map;
 import static org.mockito.Mockito.when;
 
 
-public class K8sGatewayConfigManagerTest extends BaseTest {
+public class GatewayConfigManagerImplTest extends BaseTest {
 
     @Autowired
     GatewayIstioModelEngine modelEngine;
@@ -28,7 +29,10 @@ public class K8sGatewayConfigManagerTest extends BaseTest {
     @MockBean
     ResourceManager resourceManager;
 
-    K8sGatewayConfigManager mockConfigManager;
+    @Autowired
+    GlobalConfig globalConfig;
+
+    GatewayConfigManagerImpl mockConfigManager;
     MockK8sConfigStore mockK8sConfigStore;
 
     List<Endpoint> fixedEndpoints = Arrays.asList(buildEndpoint("a.default", "www.testa.com", 80),
@@ -44,12 +48,13 @@ public class K8sGatewayConfigManagerTest extends BaseTest {
         when(resourceManager.getGatewayList()).thenReturn(fixedGateways);
 
         mockK8sConfigStore = new MockK8sConfigStore();
-        mockConfigManager = new K8sGatewayConfigManager(modelEngine, mockK8sConfigStore);
+        mockConfigManager = new GatewayConfigManagerImpl(modelEngine, mockK8sConfigStore, globalConfig);
     }
 
     @Test
     public void testUpdateAPI() {
 
+        //gportal 路由插件
         API api = buildAPI(list("gw1"), "apiName", list("host1"), list("/any"),
                 list("GET"), "svc",
                 list("{\"kind\":\"ianus-router\",\"rule\":[{\"name\":\"rewrite\",\"matcher\":[{\"source_type\":\"Header\",\"left_value\":\"plugin\",\"op\":\"=\",\"right_value\":\"rewrite\"}],\"action\":{\"action_type\":\"rewrite\",\"rewrite_regex\":\"/rewrite/{group1}/{group2}\",\"target\":\"/anything/{{group2}}/{{group1}}\"}}]}"),
@@ -70,12 +75,28 @@ public class K8sGatewayConfigManagerTest extends BaseTest {
                 null,
                 Arrays.asList("a.default", "b.default"),
                 UriMatch.EXACT);
+
         mockConfigManager.updateConfig(api1);
         Assert.assertEquals(4, mockK8sConfigStore.size());
         mockConfigManager.deleteConfig(api1);
         //保留gateway
         Assert.assertEquals(1, mockK8sConfigStore.size());
 
+        mockK8sConfigStore.clear();
+
+        //gportal 带gatewayplugin的多租户插件
+        API api2 = buildAPI(Arrays.asList("gw1", "gw2"), "apiName", list("host1"), list("/any"),
+                list("GET"), "svc",
+                list("{\"kind\": \"ip-restriction\",  \"type\": \"1\",  \"list\": [    \"127.0.0.1\"  ],  \"x_user_id\":\"user1\"}\",\"{  \"kind\": \"ip-restriction\",  \"type\": \"1\",  \"list\": [    \"127.0.0.1\"  ],  \"x_user_id\":\"user2\"}\",\"{  \"kind\": \"ip-restriction\",  \"type\": \"1\",  \"list\": [    \"127.0.0.1\"  ]}"),
+                "HTTP",
+                Arrays.asList(buildProxyService("www.163.com", "STATIC", 100, 80)),
+                null,
+                UriMatch.EXACT);
+
+        mockConfigManager.updateConfig(api2);
+        Assert.assertEquals(4, mockK8sConfigStore.size());
+        mockConfigManager.deleteConfig(api2);
+        Assert.assertEquals(0, mockK8sConfigStore.size());
     }
 
     @Test
@@ -144,7 +165,7 @@ public class K8sGatewayConfigManagerTest extends BaseTest {
 
     private Service buildProxyService(String backendService, String type, Integer weight, Integer port) {
 
-        return buildProxyService(backendService, type, weight, port, null, null ,null, null);
+        return buildProxyService(backendService, type, weight, port, null, null, null, null);
     }
 
     private Service buildProxyService(String backendService, String type, Integer weight, Integer port,

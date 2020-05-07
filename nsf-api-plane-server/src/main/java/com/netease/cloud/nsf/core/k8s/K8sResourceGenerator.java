@@ -47,12 +47,20 @@ public final class K8sResourceGenerator extends ResourceGenerator {
         return getValue(GET_KIND.translate());
     }
 
+    public Object getSpec() {
+        return getValue(GET_SPEC.translate());
+    }
+
     public String getApiVersion() {
         return getValue(GET_APIVERSION.translate());
     }
 
     public String getResourceVersion() {
         return getValue(GET_RESOURCEVERSION.translate());
+    }
+
+    public String getCreateTimestamp() {
+        return getValue(GET_CREATETIME.translate());
     }
 
     public void setName(String name) {
@@ -71,7 +79,13 @@ public final class K8sResourceGenerator extends ResourceGenerator {
         updateValue(GET_APIVERSION.translate(), apiVersion);
     }
 
-    public Map<String,String> getLabels(){return getValue(GET_LABEL.translate());}
+    public Map<String, String> getLabels() {
+        return getValue(GET_LABEL.translate());
+    }
+
+    public Map<String, String> getAnnotations() {
+        return getValue(GET_ANNOTATIONS.translate());
+    }
 
     public void setResourceVersion(String resourceVersion) {
         updateValue(GET_RESOURCEVERSION.translate(), resourceVersion);

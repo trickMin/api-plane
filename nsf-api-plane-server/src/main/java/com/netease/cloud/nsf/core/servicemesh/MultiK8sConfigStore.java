@@ -1,5 +1,6 @@
 package com.netease.cloud.nsf.core.servicemesh;
 
+import com.netease.cloud.nsf.core.GlobalConfig;
 import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.gateway.service.impl.K8sConfigStore;
 import com.netease.cloud.nsf.core.k8s.KubernetesClient;
@@ -19,12 +20,13 @@ public class MultiK8sConfigStore extends K8sConfigStore {
     private MultiClusterK8sClient multiClient;
 
     @Autowired
-    public MultiK8sConfigStore(MultiClusterK8sClient multiClient) {
+    public MultiK8sConfigStore(MultiClusterK8sClient multiClient, KubernetesClient client, GlobalConfig globalConfig) {
+        super(client, globalConfig);
         this.multiClient = multiClient;
     }
 
     public void update(HasMetadata t, String clusterId) {
-        supply(t);
+//        supply(t);
         resolve(clusterId).createOrUpdate(t, ResourceType.OBJECT);
     }
 
@@ -46,7 +48,7 @@ public class MultiK8sConfigStore extends K8sConfigStore {
 
     @Override
     public void update(HasMetadata resource) {
-        supply(resource);
+//        supply(resource);
         resolve(getDefaultClusterId()).createOrUpdate(resource, ResourceType.OBJECT);
     }
 

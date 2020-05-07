@@ -2,7 +2,10 @@ package com.netease.cloud.nsf.service.impl;
 
 import com.netease.cloud.nsf.core.gateway.service.GatewayConfigManager;
 import com.netease.cloud.nsf.core.gateway.service.ResourceManager;
-import com.netease.cloud.nsf.meta.*;
+import com.netease.cloud.nsf.meta.Gateway;
+import com.netease.cloud.nsf.meta.IstioGateway;
+import com.netease.cloud.nsf.meta.PluginOrder;
+import com.netease.cloud.nsf.meta.ServiceHealth;
 import com.netease.cloud.nsf.meta.dto.*;
 import com.netease.cloud.nsf.service.GatewayService;
 import com.netease.cloud.nsf.util.Const;
@@ -18,8 +21,6 @@ import me.snowdrop.istio.api.networking.v1alpha3.Plugin;
 import me.snowdrop.istio.api.networking.v1alpha3.PluginManager;
 import me.snowdrop.istio.api.networking.v1alpha3.Server;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
@@ -32,7 +33,6 @@ import java.util.stream.Collectors;
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/7/25
  **/
-@Service
 public class GatewayServiceImpl implements GatewayService {
 
     private static final String COLON = ":";
@@ -45,11 +45,14 @@ public class GatewayServiceImpl implements GatewayService {
     private static final String SERVICE_LOADBALANCER_HASH_HTTPCOOKIE = "HttpCookie";
     private static final String SERVICE_LOADBALANCER_HASH_USESOURCEIP = "UseSourceIp";
 
-    @Autowired
     private ResourceManager resourceManager;
 
-    @Autowired
     private GatewayConfigManager configManager;
+
+    public GatewayServiceImpl(ResourceManager resourceManager, GatewayConfigManager configManager) {
+        this.resourceManager = resourceManager;
+        this.configManager = configManager;
+    }
 
     @Override
     public void updateAPI(YxAPIDTO api) {
@@ -75,6 +78,7 @@ public class GatewayServiceImpl implements GatewayService {
     public void updateService(PortalServiceDTO service) {
         configManager.updateConfig(Trans.portalService2Service(service));
     }
+
     /**
      * 校验服务和版本负载均衡策略 & 连接池 且 根据Type字段将冗余字段置空不处理
      *
@@ -264,11 +268,14 @@ public class GatewayServiceImpl implements GatewayService {
 
     private boolean matchType(String type, String name, String registryId) {
         if (StringUtils.isEmpty(type)) return true;
-        if (type.equalsIgnoreCase(Const.SERVICE_TYPE_CONSUL) && StringUtils.isEmpty(registryId) && Pattern.compile(".*\\.consul\\.(.*?)").matcher(name).find()) return true;
-        if (type.equalsIgnoreCase(Const.SERVICE_TYPE_CONSUL) && name.endsWith(String.format(".consul.%s", registryId))) return true;
+        if (type.equalsIgnoreCase(Const.SERVICE_TYPE_CONSUL) && StringUtils.isEmpty(registryId) && Pattern.compile(".*\\.consul\\.(.*?)").matcher(name).find())
+            return true;
+        if (type.equalsIgnoreCase(Const.SERVICE_TYPE_CONSUL) && name.endsWith(String.format(".consul.%s", registryId)))
+            return true;
         if (type.equalsIgnoreCase(Const.SERVICE_TYPE_K8S) && name.endsWith(".svc.cluster.local")) return true;
         return false;
     }
+
     @Override
     public void updateIstioGateway(PortalIstioGatewayDTO portalGateway) {
         configManager.updateConfig(Trans.portalGW2GW(portalGateway));
@@ -285,7 +292,7 @@ public class GatewayServiceImpl implements GatewayService {
         GatewaySpec spec = (GatewaySpec) config.getSpec();
         final String gwCluster = "gw_cluster";
         Map<String, String> selector = spec.getSelector();
-        if (CollectionUtils.isEmpty(selector)){
+        if (CollectionUtils.isEmpty(selector)) {
             selector.get(gwCluster);
         }
         istioGateway.setName(config.getMetadata().getName());

@@ -8,6 +8,6 @@ import com.netease.cloud.nsf.meta.Graph;
  **/
 public interface TopoService {
 
-    Graph getAppGraph(String namespaces, String duration, String graphType);
+    Graph getAppGraph(String namespaces, String duration, String graphType, boolean injectServices);
 
 }
