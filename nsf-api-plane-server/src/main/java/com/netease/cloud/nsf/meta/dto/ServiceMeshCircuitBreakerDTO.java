@@ -3,6 +3,8 @@ package com.netease.cloud.nsf.meta.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 /**
  * @author zhangzihao
@@ -11,13 +13,13 @@ public class ServiceMeshCircuitBreakerDTO {
 
 
     @JsonProperty(value = "Host")
-    @NotBlank
+    @NotNull
     private String host;
     @JsonProperty(value = "RouterName")
-    @NotBlank
+    @NotNull
     private String routerName;
     @JsonProperty(value = "Plugins")
-    @NotBlank
+    @NotNull
     private String plugins;
     @JsonProperty(value = "Status")
     private Integer status;
