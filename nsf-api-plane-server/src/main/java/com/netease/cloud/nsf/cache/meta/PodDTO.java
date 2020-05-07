@@ -1,6 +1,7 @@
 package com.netease.cloud.nsf.cache.meta;
 
 import com.netease.cloud.nsf.meta.IptablesConfig;
+import com.netease.cloud.nsf.util.CommonUtil;
 import com.netease.cloud.nsf.util.Const;
 import io.fabric8.kubernetes.api.model.*;
 import org.springframework.util.StringUtils;
@@ -139,7 +140,7 @@ public class PodDTO<T extends HasMetadata> extends K8sResourceDTO {
             containerInfoList.addAll(containerInfoMap.values());
 
         }
-        iptablesConfig = IptablesConfig.readFromJson(obj.getMetadata().getAnnotations().get("envoy.io/iptablesDetail"));
+        iptablesConfig = IptablesConfig.readFromJson(CommonUtil.safelyGet(() -> obj.getMetadata().getAnnotations().get("envoy.io/iptablesDetail")));
     }
 
     public IptablesConfig getIptablesConfig() {

@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 /**
@@ -167,4 +168,13 @@ public class CommonUtil {
         String kind = source.getValue("$.kind");
         return "lua".equals(type) || "trace".equals(kind);
     }
+
+    public static <T> T safelyGet(Supplier<T> getter) {
+         try {
+             return getter.get();
+         } catch (NullPointerException npe) {
+             return null;
+         }
+    }
+
 }
