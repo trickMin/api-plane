@@ -65,7 +65,7 @@ public class RestTemplateClient {
         } catch (RestClientException e) {
             throw new ApiPlaneException(e.getMessage(), e.getCause());
         }
-        return responseEntity.getBody();
+        return (responseEntity ==null)?null:responseEntity.getBody();
     }
 
 

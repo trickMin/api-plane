@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -47,9 +48,13 @@ public class WhiteListController extends BaseController {
     public String getGatewayIps() throws IOException {
         Map<String, Object> result = new HashMap<>();
 		Properties properties = new Properties();
-		properties.load(new FileInputStream("/etc/qz-api/gateway-ips.properties"));
-		for(String key: Arrays.asList("ingressKong", "egressKong", "ingress", "egress")) {
-            result.put(key, Arrays.asList(properties.getProperty(key, "").split(",")));
+        try (InputStream in = new FileInputStream("/etc/qz-api/gateway-ips.properties")){
+            properties.load(in);
+            for(String key: Arrays.asList("ingressKong", "egressKong", "ingress", "egress")) {
+                result.put(key, Arrays.asList(properties.getProperty(key, "").split(",")));
+            }
+        } catch (IOException e) {
+            throw e;
         }
         return apiReturn(SUCCESS, "Success", null, result);
     }
