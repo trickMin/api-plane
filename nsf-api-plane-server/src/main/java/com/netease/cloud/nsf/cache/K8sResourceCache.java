@@ -177,6 +177,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         try {
             mupCrd = allClients.get("default").originalK8sClient.customResourceDefinitions().withName("mixerurlpatterns.networking.istio.io").get();
         } catch (Exception ignored) {
+            log.error("get crd definition error", ignored);
         }
 
         if (mupCrd != null) {
@@ -279,11 +280,10 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
 //        List<ClusterResourceList> result = new ArrayList<>();
 //        allClients.forEach((name, client) -> {
 //            if (!StringUtils.isEmpty(name)) {
-//                result.add(new ClusterResourceList(client.originalK8sClient
+//                result.add(new ClusterResourceList(client.originalK//                        .list(), name));8sClient
 //                        .apps()
 //                        .statefulSets()
 //                        .inAnyNamespace()
-//                        .list(), name));
 //            }
 //        });
 //        return result;
