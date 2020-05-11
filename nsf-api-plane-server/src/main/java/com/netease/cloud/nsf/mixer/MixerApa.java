@@ -58,7 +58,9 @@ public class MixerApa extends HandleNsfmetaServiceGrpc.HandleNsfmetaServiceImplB
 	private void recordCallRelation(PodInfo sourcePod, String xNsfAppHeader, String authority, String destinationHost) {
 		ArrayList<String> targetHosts = new ArrayList<>();
 		if(!StringUtils.isEmpty(authority)) {
-			targetHosts.add(authority);
+			if (authority.contains(".")) {
+				targetHosts.add(authority);
+			}
 			String[] hostParts = authority.split("\\.");
 			if (hostParts.length == 1) {
 				targetHosts.add(String.format("%s.%s.cluster.local", hostParts[0], sourcePod.namespace));
