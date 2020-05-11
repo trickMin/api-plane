@@ -58,22 +58,23 @@ public class RlsClusterClient {
             marshaller.merge(json, builder);
             configs.add(builder.build());
         }
+
+        logger.info("MCP: RateLimit: sync ratelimit config, count:[{}].", resourceList.size());
+
         Config.SyncRatelimitConfReq req = Config.SyncRatelimitConfReq.newBuilder().addAllConfigs(configs).build();
         for (RatelimitConfigServiceGrpc.RatelimitConfigServiceStub stub : stubs) {
             stub.syncAllRatelimitConfig(req, new StreamObserver<Config.SyncRatelimitConfResp>() {
                 @Override
                 public void onNext(Config.SyncRatelimitConfResp syncRatelimitConfResp) {
-                    //todo:
                 }
 
                 @Override
                 public void onError(Throwable throwable) {
-                    //todo:
+                    logger.warn("MCP: RateLimit: sync error:{}.", throwable.getMessage());
                 }
 
                 @Override
                 public void onCompleted() {
-                    //todo:
                 }
             });
         }
