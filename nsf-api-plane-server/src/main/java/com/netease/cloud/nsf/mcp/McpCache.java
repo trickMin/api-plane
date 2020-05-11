@@ -68,6 +68,7 @@ public class McpCache implements McpResourceDistributor, McpResourceWatcher {
             connection.push(response);
         } else {
             logger.warn("MCP: Distribute: No resources(collection=[{}]) were found in the snapshot(version=[{}])", collection, snapshot.getVersion());
+            connection.pushEmpty(collection);
         }
     }
 }
