@@ -44,12 +44,12 @@ public class PathExpressionEnumTest {
                 "}";
 
         List<String> desc1 = JsonPath.read(json,
-                PathExpressionEnum.REMOVE_RATELIMIT_CONFIGMAP_BY_VALUE.translate("gw1", "116"));
+                PathExpressionEnum.REMOVE_GATEWAY_RATELIMIT_CONFIGMAP_BY_VALUE.translate("gw1", "116"));
 
         Assert.assertEquals(2, desc1.size());
 
         List<String> desc2 = JsonPath.read(json,
-                PathExpressionEnum.REMOVE_RATELIMIT_CONFIGMAP_BY_VALUE.translate("gw2", "httpbin"));
+                PathExpressionEnum.REMOVE_GATEWAY_RATELIMIT_CONFIGMAP_BY_VALUE.translate("gw2", "httpbin"));
 
         Assert.assertEquals(1, desc2.size());
     }

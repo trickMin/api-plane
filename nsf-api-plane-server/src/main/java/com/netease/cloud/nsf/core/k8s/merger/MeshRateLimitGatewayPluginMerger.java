@@ -46,7 +46,6 @@ public class MeshRateLimitGatewayPluginMerger implements Merger<GatewayPlugin> {
         return old;
     }
 
-
     private boolean isNull(GatewayPlugin gp) {
         return gp == null ||
                 gp.getSpec() == null ||

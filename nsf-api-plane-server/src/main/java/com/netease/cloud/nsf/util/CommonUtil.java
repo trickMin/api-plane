@@ -3,12 +3,14 @@ package com.netease.cloud.nsf.util;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.k8s.K8sResourceGenerator;
+import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.function.Equals;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import org.apache.commons.lang3.StringUtils;
@@ -32,6 +34,7 @@ public class CommonUtil {
     private static final Logger logger = LoggerFactory.getLogger(CommonUtil.class);
 
     private static YAMLMapper yamlMapper;
+    private static ObjectMapper objectMapper = new ObjectMapper();
     /**
      * match ip:port
      * 127.0.0.1:8080
@@ -100,8 +103,8 @@ public class CommonUtil {
             return getYamlMapper().readValue(yaml, clazz);
         } catch (IOException e) {
             logger.warn("yaml {} to obj failed,", yaml, e);
+            throw new ApiPlaneException("yaml to obj failed");
         }
-        return null;
     }
 
     private static YAMLMapper getYamlMapper() {
@@ -177,4 +180,18 @@ public class CommonUtil {
          }
     }
 
+    /**
+     * @param t
+     * @param <T>
+     * @return
+     */
+    public static <T> T copy(T t) {
+
+        try {
+            return (T) objectMapper.readValue(objectMapper.writeValueAsString(t), t.getClass());
+        } catch (Exception e) {
+            logger.warn("copy object failed", e);
+            throw new RuntimeException(e);
+        }
+    }
 }

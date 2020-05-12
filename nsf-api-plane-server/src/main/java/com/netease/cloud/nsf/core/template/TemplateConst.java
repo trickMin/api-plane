@@ -239,6 +239,13 @@ public interface TemplateConst {
     String SIDECAR_SOURCE_APP = "t_sidecar_source_app";
     String SIDECAR_EGRESS_HOSTS = "t_sidecar_egress_hosts";
 
+    /**
+     * rls = rate limit server
+     * rls configmap
+     */
+    String RLS_CONFIG_MAP_NAME = "t_rls_cm_name";
+    String RLS_CONFIG_MAP_DESCRIPTOR = "t_rls_cm_descriptor";
+
 
     /** ---------- 模板占位符名 end ---------- **/
 

@@ -45,6 +45,9 @@ public class K8sServiceMeshConfigManagerTest extends BaseTest {
         Assert.assertEquals(2, k8sConfigStore.size());
         meshConfigManager.deleteRateLimit(rateLimit);
         Assert.assertEquals(0, k8sConfigStore.size());
+
+        //TODO 全局插件
+
     }
 
     @Test

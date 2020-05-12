@@ -9,49 +9,52 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-public class RateLimitConfigMapMergerTest {
+/**
+ * @Author chenjiahan | chenjiahan@corp.netease.com | 2020/5/12
+ **/
+public class MeshRateLimitConfigMapMergerTest {
 
     @Test
-    public void merge() {
+    public void testMerge() {
 
-        RateLimitConfigMapMerger merger = new RateLimitConfigMapMerger();
+        RateLimitConfigMapMerger merger = new MeshRateLimitConfigMapMerger();
 
         Map<String, String> data1 = buildData("config.yaml",
                 "  descriptors:\n" +
-                        "  - key: auto-test1-gw1\n" +
+                        "  - key: auto-test1\n" +
                         "    rate_limit:\n" +
                         "      requests_per_unit: 1\n" +
                         "      unit: HOUR\n" +
-                        "    value: Service[httpbin]-User[none]-Gateway[gw1]-Api[test1]-Id[08638e47-48db\n" +
+                        "    value: Service[a.default]-User[none]-Gateway[null]-Api[null]-Id[08638e47-48db\n" +
                         "  - key: auto-test2\n" +
                         "    rate_limit:\n" +
                         "      requests_per_unit: 1\n" +
                         "      unit: HOUR\n" +
-                        "    value: Service[httpbin]-User[none]-Gateway[gw2]-Api[test2]-Id[08638e47-48db\n" +
+                        "    value: Service[b.default]-User[none]-Gateway[null]-Api[null]-Id[08638e47-48db\n" +
                         "  - key: auto-test3\n" +
                         "    rate_limit:\n" +
                         "      requests_per_unit: 1\n" +
                         "      unit: HOUR\n" +
-                        "    value: Service[httpbin]-User[none]-Gateway[gw3]-Api[test3]-Id[08638e47-48db\n" +
+                        "    value: Service[c.default]-User[none]-Gateway[null]-Api[null]-Id[08638e47-48db\n" +
                         "  domain: qingzhou");
 
         Map<String, String> data2 = buildData("config.yaml",
                 "  descriptors:\n" +
-                        "  - key: auto-test1-gw2\n" +
+                        "  - key: auto-test4\n" +
                         "    rate_limit:\n" +
                         "      requests_per_unit: 2\n" +
                         "      unit: MINUTE\n" +
-                        "    value: Service[httpbin]-User[none]-Gateway[gw2]-Api[test1]-Id[08638e47-b\n" +
-                        "  - key: auto-test4\n" +
+                        "    value: Service[a.default]-User[none]-Gateway[null]-Api[null]-Id[08638e47-b\n" +
+                        "  - key: auto-test5\n" +
                         "    rate_limit:\n" +
                         "      requests_per_unit: 1\n" +
                         "      unit: HOUR\n" +
-                        "    value: Service[httpbin]-User[none]-Gateway[gw4]-Api[test4]-Id[08638e47-48db\n" +
-                        "  - key: auto-test3\n" +
+                        "    value: Service[a.default]-User[none]-Gateway[gw4]-Api[test4]-Id[08638e47-48db\n" +
+                        "  - key: auto-test6\n" +
                         "    rate_limit:\n" +
                         "      requests_per_unit: 1\n" +
                         "      unit: HOUR\n" +
-                        "    value: Service[httpbin]-User[none]-Gateway[gw3]-Api[test3]-Id[08638e47-48db\n" +
+                        "    value: Service[d.default]-User[none]-Gateway[gw3]-Api[test3]-Id[08638e47-48db\n" +
                         "  domain: qingzhou\n");
 
 
@@ -74,15 +77,15 @@ public class RateLimitConfigMapMergerTest {
         Assert.assertEquals(5, cmrl.getDescriptors().size());
 
         for (ConfigMapRateLimit.ConfigMapRateLimitDescriptor desc : cmrl.getDescriptors()) {
-            if (desc.getKey().equals("auto-test1-gw1")) {
+            if (desc.getKey().equals("auto-test3")) {
                 Assert.assertEquals("HOUR", desc.getRateLimit().getUnit());
                 Assert.assertEquals(new Integer(1), desc.getRateLimit().getRequestsPerUnit());
-            } else if (desc.getKey().equals("auto-test1-gw2")) {
+            } else if (desc.getKey().equals("auto-test4")) {
                 Assert.assertEquals("MINUTE", desc.getRateLimit().getUnit());
                 Assert.assertEquals(new Integer(2), desc.getRateLimit().getRequestsPerUnit());
             } else if (desc.getKey().equals("auto-test2")) {
                 Assert.assertEquals("HOUR", desc.getRateLimit().getUnit());
-            } else if (desc.getKey().equals("auto-test4")) {
+            } else if (desc.getKey().equals("auto-test6")) {
                 Assert.assertEquals("HOUR", desc.getRateLimit().getUnit());
                 Assert.assertEquals(new Integer(1), desc.getRateLimit().getRequestsPerUnit());
             }
@@ -100,4 +103,5 @@ public class RateLimitConfigMapMergerTest {
         data.put(key, val);
         return data;
     }
+
 }

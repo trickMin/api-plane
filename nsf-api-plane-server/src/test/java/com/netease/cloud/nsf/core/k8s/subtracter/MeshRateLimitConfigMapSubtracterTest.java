@@ -9,10 +9,13 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-public class RateLimitConfigMapSubtracterTest {
+/**
+ * @Author chenjiahan | chenjiahan@corp.netease.com | 2020/5/12
+ **/
+public class MeshRateLimitConfigMapSubtracterTest {
 
     @Test
-    public void subtract() {
+    public void testSubtract() {
 
         Map<String, String> data1 = buildData("config.yaml",
                 "  descriptors:\n" +
@@ -20,26 +23,26 @@ public class RateLimitConfigMapSubtracterTest {
                         "    rate_limit:\n" +
                         "      requests_per_unit: 1\n" +
                         "      unit: HOUR\n" +
-                        "    value: Service[httpbin]-User[none]-Gateway[gw1]-Api[test1]-Id[08638e47-48db\n" +
+                        "    value: Service[a.default]-User[none]-Gateway[gw1]-Api[test1]-Id[08638e47-48db\n" +
                         "  - key: auto-test1\n" +
                         "    rate_limit:\n" +
                         "      requests_per_unit: 1\n" +
                         "      unit: MINUTE\n" +
-                        "    value: Service[httpbin]-User[none]-Gateway[gw1]-Api[test1]-Id[08638e47-\n" +
+                        "    value: Service[a.default]-User[none]-Gateway[gw1]-Api[test1]-Id[08638e47-\n" +
                         "  - key: auto-test3\n" +
                         "    rate_limit:\n" +
                         "      requests_per_unit: 1\n" +
                         "      unit: HOUR\n" +
-                        "    value: Service[httpbin]-User[none]-Gateway[gw1]-Api[test3]-Id[08638e47-48db\n" +
+                        "    value: Service[b.default]-User[none]-Gateway[gw1]-Api[test3]-Id[08638e47-48db\n" +
                         "  - key: auto-test1\n" +
                         "    rate_limit:\n" +
                         "      requests_per_unit: 1\n" +
                         "      unit: MINUTE\n" +
-                        "    value: Service[httpbin]-User[none]-Gateway[gw2]-Api[test1]-Id[08638e47-\n" +
+                        "    value: Service[c.default]-User[none]-Gateway[gw2]-Api[test1]-Id[08638e47-\n" +
                         "  domain: qingzhou");
 
 
-        RateLimitConfigMapSubtracter subtracter = new RateLimitConfigMapSubtracter("gw1", "test1");
+        RateLimitConfigMapSubtracter subtracter = new MeshRateLimitConfigMapSubtracter("a.default");
         ConfigMap configMap1 = buildConfigMap(data1);
         ConfigMap subtracted = subtracter.subtract(configMap1);
 

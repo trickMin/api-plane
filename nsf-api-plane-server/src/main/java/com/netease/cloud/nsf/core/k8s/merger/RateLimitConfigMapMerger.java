@@ -12,15 +12,12 @@ import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 
 /**
  * for ratelimit server config map
  */
-public class RateLimitConfigMapMerger implements Merger<ConfigMap> {
+public abstract class RateLimitConfigMapMerger implements Merger<ConfigMap> {
 
     private static final Logger logger = LoggerFactory.getLogger(RateLimitConfigMapMerger.class);
 
@@ -41,7 +38,7 @@ public class RateLimitConfigMapMerger implements Merger<ConfigMap> {
         if (latestCmrl == null) return old;
 
         List mergedDescriptors = CommonUtil.mergeList(
-                oldCmrl.getDescriptors(), latestCmrl.getDescriptors(), new RateLimitDescriptorEquals());
+                oldCmrl.getDescriptors(), latestCmrl.getDescriptors(), getDescriptorEquals());
 
         //对descriptors、domain进行覆盖
         oldCmrl.setDescriptors(mergedDescriptors);
@@ -54,26 +51,7 @@ public class RateLimitConfigMapMerger implements Merger<ConfigMap> {
         return old;
     }
 
-
-    private class RateLimitDescriptorEquals implements Equals<ConfigMapRateLimit.ConfigMapRateLimitDescriptor> {
-        @Override
-        public boolean apply(ConfigMapRateLimit.ConfigMapRateLimitDescriptor or, ConfigMapRateLimit.ConfigMapRateLimitDescriptor nr) {
-
-            String oldVal = or.getValue();
-            String newVal = nr.getValue();
-
-            //eg. Service[httpbin]-User[none]-Gateway[gw]-Api[httpbin]-Id[08638e47-48db-43bc-9c21-07ef892b5494]
-            // 当Api[]和Gateway[]中的值分别相等时，才认为两者相当
-            Pattern pattern = Pattern.compile("(Service.*)-(User.*)-(Gateway.*)-(Api.*)-(Id.*)");
-            Matcher oldMatcher = pattern.matcher(oldVal);
-            Matcher newMatcher = pattern.matcher(newVal);
-            if (oldMatcher.find() && newMatcher.find()) {
-                return Objects.equals(oldMatcher.group(3), newMatcher.group(3)) &&
-                        Objects.equals(oldMatcher.group(4), newMatcher.group(4));
-            }
-            return false;
-        }
-    }
+    abstract Equals<ConfigMapRateLimit.ConfigMapRateLimitDescriptor> getDescriptorEquals();
 
     private String limitConfig2Str(ConfigMapRateLimit cmrl) {
         return CommonUtil.obj2yaml(cmrl);
