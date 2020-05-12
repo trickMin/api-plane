@@ -10,7 +10,7 @@ public class MeshConfig {
     private String versionKey;
     @Value("${meshAppKey:nsf.skiff.netease.com/app}")
     private String appKey;
-    @Value("${selectorAppKey:app}")
+    @Value("${selectorAppKey:nsf.skiff.netease.com/app}")
     private String selectorAppKey;
 
     public String getSelectorAppKey() {
