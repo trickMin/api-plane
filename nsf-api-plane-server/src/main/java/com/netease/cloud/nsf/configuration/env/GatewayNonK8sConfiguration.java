@@ -6,10 +6,13 @@ import com.netease.cloud.nsf.core.gateway.service.GatewayConfigManager;
 import com.netease.cloud.nsf.core.gateway.service.ResourceManager;
 import com.netease.cloud.nsf.core.gateway.service.impl.GatewayConfigManagerImpl;
 import com.netease.cloud.nsf.mcp.*;
+import com.netease.cloud.nsf.mcp.aop.ConfigStoreAop;
+import com.netease.cloud.nsf.mcp.aop.GatewayServiceAop;
 import com.netease.cloud.nsf.mcp.dao.ResourceDao;
 import com.netease.cloud.nsf.mcp.dao.StatusDao;
 import com.netease.cloud.nsf.mcp.dao.impl.ResourceDaoImpl;
 import com.netease.cloud.nsf.mcp.dao.impl.StatusDaoImpl;
+import com.netease.cloud.nsf.mcp.ratelimit.RlsClusterClient;
 import com.netease.cloud.nsf.mcp.snapshot.DBSnapshotBuilder;
 import com.netease.cloud.nsf.mcp.snapshot.SnapshotBuilder;
 import com.netease.cloud.nsf.mcp.status.*;
@@ -21,6 +24,7 @@ import istio.mcp.nsf.SnapshotOuterClass;
 import istio.mcp.v1alpha1.Mcp;
 import istio.mcp.v1alpha1.ResourceOuterClass;
 import istio.networking.v1alpha3.*;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,6 +39,7 @@ import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.Map;
 import java.util.Objects;
 
@@ -48,6 +53,9 @@ public class GatewayNonK8sConfiguration {
     @Value("${mcpPort:8899}")
     private Integer port;
 
+    @Value("${rlsAddresses:#{null}}")
+    private String rlsAddresses;
+
     @Bean
     public McpOptions options() {
         McpOptions options = new McpOptions();
@@ -58,6 +66,7 @@ public class GatewayNonK8sConfiguration {
         options.registerSnapshotCollection(McpResourceEnum.DestinationRule.getCollection());
         options.registerSnapshotCollection(McpResourceEnum.GatewayPlugin.getCollection());
         options.registerSnapshotCollection(McpResourceEnum.PluginManager.getCollection());
+        options.registerSnapshotCollection(McpResourceEnum.ServiceEntry.getCollection());
 
         options.registerDescriptor(SnapshotOuterClass.getDescriptor().getMessageTypes());
         options.registerDescriptor(ResourceOuterClass.getDescriptor().getMessageTypes());
@@ -66,6 +75,14 @@ public class GatewayNonK8sConfiguration {
         options.registerDescriptor(GatewayOuterClass.getDescriptor().getMessageTypes());
         options.registerDescriptor(PluginManagerOuterClass.getDescriptor().getMessageTypes());
         options.registerDescriptor(GatewayPluginOuterClass.getDescriptor().getMessageTypes());
+        options.registerDescriptor(ServiceEntryOuterClass.getDescriptor().getMessageTypes());
+
+        if (!StringUtils.isEmpty(rlsAddresses)) {
+            String[] addresses = StringUtils.split(rlsAddresses, ",");
+            for (String address : addresses) {
+                options.registerRls(address);
+            }
+        }
         return options;
     }
 
@@ -73,7 +90,7 @@ public class GatewayNonK8sConfiguration {
      * Monitor
      */
     @Bean
-    public StatusMonitor monitor(McpOptions options, StatusProductor productor, SnapshotBuilder builder, McpResourceDistributor distributor, TransactionTemplate transactionTemplate) {
+    public StatusMonitor monitor(McpOptions options, StatusProductor productor, SnapshotBuilder builder, McpResourceDistributor distributor, TransactionTemplate transactionTemplate, RlsClusterClient rlsClusterClient) {
         StatusMonitor monitor = new StatusMonitorImpl(options.getStatusCheckIntervalMs(), productor);
         monitor.registerHandler(StatusConst.RESOURCES_VERSION, ((event, property) -> {
             Logger logger = LoggerFactory.getLogger(builder.getClass());
@@ -100,6 +117,9 @@ public class GatewayNonK8sConfiguration {
                 distributor.setSnapshot(snapshot);
             }
         }));
+        monitor.registerHandler(StatusConst.RATELIMIT_VERSION, (((event, property) -> {
+            rlsClusterClient.sync();
+        })));
         // 启动monitor
         monitor.start();
         return monitor;
@@ -136,8 +156,6 @@ public class GatewayNonK8sConfiguration {
         template.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
         // 隔离级别，容忍幻读
         template.setIsolationLevel(TransactionTemplate.ISOLATION_REPEATABLE_READ);
-        // 只读
-        template.setReadOnly(true);
         // 事务超时时间
         template.setTimeout(5);
         return template;
@@ -175,6 +193,18 @@ public class GatewayNonK8sConfiguration {
         return new StatusProductorImpl(statusDao);
     }
 
+    @Bean
+    public StatusNotifier statusNotifier(StatusDao statusDao) {
+        return new StatusNotifierImpl(statusDao, key -> new Date().toString());
+    }
+
+    /**
+     * Ratelimit Server Client
+     */
+    @Bean
+    public RlsClusterClient rlsClusterClient(McpOptions mcpOptions, ResourceDao resourceDao, McpMarshaller marshaller) {
+        return new RlsClusterClient(mcpOptions, resourceDao, marshaller);
+    }
 
     /**
      * ConfigManager
@@ -193,8 +223,22 @@ public class GatewayNonK8sConfiguration {
      * Service
      */
     @Bean
-    public GatewayService gatewayService(ResourceManager resourceManager, GatewayConfigManager configManager, StatusDao statusDao) {
-        GatewayService innerService = new GatewayServiceImpl(resourceManager, configManager);
-        return new McpGatewayService(innerService, statusDao);
+    public GatewayService gatewayService(ResourceManager resourceManager, GatewayConfigManager configManager) {
+        return new GatewayServiceImpl(resourceManager, configManager);
+    }
+
+    /**
+     * AOP
+     * 1. 为GatewayService开启事务
+     * 2. 执行特定方法后更新Status表
+     */
+    @Bean
+    public GatewayServiceAop gatewayServiceAop(TransactionTemplate transactionTemplate, StatusNotifier statusNotifier) {
+        return new GatewayServiceAop(transactionTemplate, statusNotifier);
+    }
+
+    @Bean
+    public ConfigStoreAop configStoreAop(TransactionTemplate transactionTemplate, StatusNotifier statusNotifier) {
+        return new ConfigStoreAop(transactionTemplate, statusNotifier);
     }
 }
