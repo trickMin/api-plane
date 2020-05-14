@@ -37,9 +37,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -113,10 +111,10 @@ public class ServiceMeshIstioModelEngine extends IstioModelEngine {
         resourcePacks.addAll(handleGlobalShareRateLimit(globalRateLimit));
 
         //处理非全局限流
-        ServiceMeshRateLimit otherRateLimit = CommonUtil.copy(rateLimit);
-        String other = CollectionUtils.isEmpty(otherPlugin.getRules()) ? null : ResourceGenerator.obj2json(otherPlugin);
-        otherRateLimit.setPlugin(other);
-        resourcePacks.addAll(handleOtherRateLimit(otherRateLimit));
+//        ServiceMeshRateLimit otherRateLimit = CommonUtil.copy(rateLimit);
+//        String other = CollectionUtils.isEmpty(otherPlugin.getRules()) ? null : ResourceGenerator.obj2json(otherPlugin);
+//        otherRateLimit.setPlugin(other);
+//        resourcePacks.addAll(handleOtherRateLimit(otherRateLimit));
 
         return resourcePacks;
     }

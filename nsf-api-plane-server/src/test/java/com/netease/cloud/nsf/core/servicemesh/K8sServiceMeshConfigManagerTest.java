@@ -36,6 +36,7 @@ public class K8sServiceMeshConfigManagerTest extends BaseTest {
     @Test
     public void testUpdateRateLimit() {
 
+        //单机
         ServiceMeshRateLimit rateLimit =
                 buildMeshRateLimit("z.default",
                         "default",
@@ -48,6 +49,9 @@ public class K8sServiceMeshConfigManagerTest extends BaseTest {
 
         //TODO 全局插件
 
+
+
+        //TODO 全局+单机混用
     }
 
     @Test
