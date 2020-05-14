@@ -34,8 +34,8 @@ public class MeshRateLimitProcessor extends AbstractSchemaProcessor implements S
         List<Object> limits = total.getValue("$.limit_by_list");
 
         PluginGenerator rateLimitGen = PluginGenerator.newInstance("{\"rate_limits\":[]}");
-        PluginGenerator smartLimiterGen = PluginGenerator.newInstance("[{\"domain\":\"qingzhou\",\"descriptors\":[]}]");
-        PluginGenerator shareConfigGen = PluginGenerator.newInstance("[{\"domain\":\"qingzhou\",\"descriptors\":[]}]");
+        PluginGenerator smartLimiterGen = PluginGenerator.newInstance("{\"domain\":\"qingzhou\",\"descriptors\":[]}");
+        PluginGenerator shareConfigGen = PluginGenerator.newInstance("{\"domain\":\"qingzhou\",\"descriptors\":[]}");
 
         limits.forEach(limit -> {
             PluginGenerator rg = PluginGenerator.newInstance(limit, ResourceType.OBJECT, editorContext);
@@ -52,10 +52,10 @@ public class MeshRateLimitProcessor extends AbstractSchemaProcessor implements S
                 String headerDescriptor = getHeaderDescriptor(serviceInfo, xUserId, descriptorId);
                 rateLimitGen.addJsonElement("$.rate_limits", createRateLimits(rg, serviceInfo, headerDescriptor));
                 if ("local".equals(type)) {
-                    smartLimiterGen.addJsonElement("$[0].descriptors", createSmartLimiter(rg, serviceInfo, headerDescriptor, unit, duration));
+                    smartLimiterGen.addJsonElement("$.descriptors", createSmartLimiter(rg, serviceInfo, headerDescriptor, unit, duration));
                 }
                 if ("global".equals(type)) {
-                    shareConfigGen.addJsonElement("$[0].descriptors", createShareConfig(rg, serviceInfo, headerDescriptor, unit, duration));
+                    shareConfigGen.addJsonElement("$.descriptors", createShareConfig(rg, serviceInfo, headerDescriptor, unit, duration));
                 }
             });
         });
@@ -67,22 +67,26 @@ public class MeshRateLimitProcessor extends AbstractSchemaProcessor implements S
                         .withContent(rateLimitGen.yamlString())
                         .build()
         );
-        holder.setSmartLimiterFragment(
-                new FragmentWrapper.Builder()
-                        .withXUserId(xUserId)
-                        .withFragmentType(FragmentTypeEnum.OTHERS)
-                        .withResourceType(K8sResourceEnum.SmartLimiter)
-                        .withContent(smartLimiterGen.yamlString())
-                        .build()
-        );
-        holder.setSharedConfigFragment(
-                new FragmentWrapper.Builder()
-                        .withXUserId(xUserId)
-                        .withFragmentType(FragmentTypeEnum.OTHERS)
-                        .withResourceType(K8sResourceEnum.ConfigMap)
-                        .withContent(shareConfigGen.yamlString())
-                        .build()
-        );
+        if (smartLimiterGen.getValue("$.descriptors.length()", Integer.class) != 0) {
+            holder.setSmartLimiterFragment(
+                    new FragmentWrapper.Builder()
+                            .withXUserId(xUserId)
+                            .withFragmentType(FragmentTypeEnum.OTHERS)
+                            .withResourceType(K8sResourceEnum.SmartLimiter)
+                            .withContent(smartLimiterGen.yamlString())
+                            .build()
+            );
+        }
+        if (shareConfigGen.getValue("$.descriptors.length()", Integer.class) != 0) {
+            holder.setSharedConfigFragment(
+                    new FragmentWrapper.Builder()
+                            .withXUserId(xUserId)
+                            .withFragmentType(FragmentTypeEnum.OTHERS)
+                            .withResourceType(K8sResourceEnum.ConfigMap)
+                            .withContent(shareConfigGen.yamlString())
+                            .build()
+            );
+        }
         return holder;
     }
 
