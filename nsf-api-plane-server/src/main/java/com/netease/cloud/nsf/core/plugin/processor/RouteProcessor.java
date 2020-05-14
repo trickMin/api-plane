@@ -3,12 +3,12 @@ package com.netease.cloud.nsf.core.plugin.processor;
 import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.gateway.service.ResourceManager;
+import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.plugin.FragmentHolder;
 import com.netease.cloud.nsf.core.plugin.FragmentTypeEnum;
 import com.netease.cloud.nsf.core.plugin.FragmentWrapper;
 import com.netease.cloud.nsf.meta.Endpoint;
 import com.netease.cloud.nsf.meta.ServiceInfo;
-import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,9 +17,9 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 
-import java.util.List;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -197,12 +197,13 @@ public class RouteProcessor extends AbstractSchemaProcessor implements SchemaPro
     }
 
     public void customMatchAndPriority(ResourceGenerator rg, ResourceGenerator ret, ServiceInfo info, String xUserId) {
-        // 如果插件没有自带的match条件，则不渲染match和priority
+        // priority = 默认路由priority+1
+        ret.createOrUpdateJson("$", "priority", info.getPriority());
+        // 如果插件没有自带的match条件，则不渲染match
         // 后续freemarker <supply></supply>标记会自动填充match
         if (!rg.contain("$.matcher") || rg.getValue("$.matcher.length()", Integer.class) == 0) {
             return;
         }
         ret.createOrUpdateJson("$", "match", createMatch(rg, info, xUserId));
-        ret.createOrUpdateJson("$", "priority", info.getPriority());
     }
 }
