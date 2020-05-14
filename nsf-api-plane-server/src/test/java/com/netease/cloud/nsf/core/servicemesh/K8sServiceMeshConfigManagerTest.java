@@ -39,9 +39,10 @@ public class K8sServiceMeshConfigManagerTest extends BaseTest {
         ServiceMeshRateLimit rateLimit =
                 buildMeshRateLimit("z.default",
                         "default",
-                        "{\"kind\":\"mesh-rate-limiting\",\"limit_by_list\":[{\"pre_condition\":[{\"custom_extractor\":\"Header[plugin1]\",\"operator\":\"present\",\"invert\":true},{\"custom_extractor\":\"Header[plugin2]\",\"operator\":\"=\",\"right_value\":\"ratelimit\"}],\"hour\":2,\"second\":2,\"type\":\"Local\"},{\"pre_condition\":[{\"custom_extractor\":\"Header[plugin1]\",\"operator\":\"present\",\"invert\":true},{\"custom_extractor\":\"Header[plugin2]\",\"operator\":\"=\",\"right_value\":\"ratelimit\"}],\"hour\":2,\"second\":2,\"type\":\"Local\"}]}");
+                        "{\"kind\":\"mesh-rate-limiting\",\"limit_by_list\":[{\"pre_condition\":[{\"custom_extractor\":\"Header[plugin1]\",\"operator\":\"present\",\"invert\":true},{\"custom_extractor\":\"Header[plugin2]\",\"operator\":\"=\",\"right_value\":\"ratelimit\"}],\"hour\":2,\"second\":2,\"type\":\"global\"},{\"pre_condition\":[{\"custom_extractor\":\"Header[plugin1]\",\"operator\":\"present\",\"invert\":true},{\"custom_extractor\":\"Header[plugin2]\",\"operator\":\"=\",\"right_value\":\"ratelimit\"}],\"hour\":2,\"second\":2,\"type\":\"local\"}]}");
 
         meshConfigManager.updateRateLimit(rateLimit);
+        //todo: 没有判断是否生成configmap
         Assert.assertEquals(2, k8sConfigStore.size());
         meshConfigManager.deleteRateLimit(rateLimit);
         Assert.assertEquals(0, k8sConfigStore.size());

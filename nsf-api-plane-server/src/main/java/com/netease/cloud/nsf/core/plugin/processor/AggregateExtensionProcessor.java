@@ -1,7 +1,6 @@
 package com.netease.cloud.nsf.core.plugin.processor;
 
 import com.google.common.collect.Lists;
-import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.plugin.FragmentHolder;
@@ -17,10 +16,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -144,15 +140,29 @@ public class AggregateExtensionProcessor extends AbstractSchemaProcessor impleme
 
         // 根据租户将插件分类
         MultiValueMap<String, FragmentWrapper> xUserMap = new LinkedMultiValueMap<>();
+        // 一个租户下最多配置一个限流插件
+        Map<String, FragmentWrapper> sharedConfigMap = new LinkedHashMap<>();
+        Map<String, FragmentWrapper> smartLimiterMap = new LinkedHashMap<>();
         holders.forEach(holder -> {
             FragmentWrapper wrapper = holder.getVirtualServiceFragment();
+            FragmentWrapper sharedConfig = holder.getSharedConfigFragment();
+            FragmentWrapper smartLimiter = holder.getSmartLimiterFragment();
             if (wrapper == null) return;
             String xUserId = wrapper.getXUserId();
+            String xUser;
             if (StringUtils.isEmpty(xUserId)) {
-                xUserMap.add("NoneUser", wrapper);
+                xUser = "NoneUser";
             } else {
-                xUserMap.add(xUserId, wrapper);
+                xUser = xUserId;
             }
+            xUserMap.add(xUser, wrapper);
+            if (Objects.nonNull(sharedConfig)) {
+                sharedConfigMap.put(xUser, wrapper);
+            }
+            if (Objects.nonNull(smartLimiter)) {
+                smartLimiterMap.put(xUser, wrapper);
+            }
+
         });
         List<FragmentHolder> ret = new ArrayList<>();
         for (Map.Entry<String, List<FragmentWrapper>> userMap : xUserMap.entrySet()) {
@@ -170,6 +180,12 @@ public class AggregateExtensionProcessor extends AbstractSchemaProcessor impleme
                     .withXUserId(xUserId)
                     .build();
             holder.setVirtualServiceFragment(wrapper);
+            if (sharedConfigMap.containsKey(userMap.getKey())) {
+                holder.setSharedConfigFragment(sharedConfigMap.get(userMap.getKey()));
+            }
+            if (smartLimiterMap.containsKey(userMap.getKey())) {
+                holder.setSmartLimiterFragment(smartLimiterMap.get(userMap.getKey()));
+            }
             ret.add(holder);
         }
         return ret;

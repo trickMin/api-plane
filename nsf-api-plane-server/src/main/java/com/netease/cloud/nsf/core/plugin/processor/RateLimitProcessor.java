@@ -60,7 +60,7 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
         holder.setSharedConfigFragment(
                 new FragmentWrapper.Builder()
                         .withXUserId(xUserId)
-                        .withFragmentType(FragmentTypeEnum.SHARECONFIG)
+                        .withFragmentType(FragmentTypeEnum.OTHERS)
                         .withResourceType(K8sResourceEnum.SharedConfig)
                         .withContent(shareConfigGen.yamlString())
                         .build()

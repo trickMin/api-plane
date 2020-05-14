@@ -7,9 +7,14 @@ package com.netease.cloud.nsf.core.plugin;
 public class FragmentHolder {
     private FragmentWrapper virtualServiceFragment;
 
+    // ratelimit插件的configmap
     private FragmentWrapper sharedConfigFragment;
 
     private FragmentWrapper gatewayPluginsFragment;
+
+    // ratelimit插件的smartLimiter
+    private FragmentWrapper smartLimiterFragment;
+
 
     public FragmentWrapper getVirtualServiceFragment() {
         return virtualServiceFragment;
@@ -33,5 +38,13 @@ public class FragmentHolder {
 
     public void setGatewayPluginsFragment(FragmentWrapper gatewayPluginsFragment) {
         this.gatewayPluginsFragment = gatewayPluginsFragment;
+    }
+
+    public FragmentWrapper getSmartLimiterFragment() {
+        return smartLimiterFragment;
+    }
+
+    public void setSmartLimiterFragment(FragmentWrapper smartLimiterFragment) {
+        this.smartLimiterFragment = smartLimiterFragment;
     }
 }

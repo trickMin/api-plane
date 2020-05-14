@@ -11,7 +11,10 @@ import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,12 +34,14 @@ public class MeshRateLimitProcessor extends AbstractSchemaProcessor implements S
         List<Object> limits = total.getValue("$.limit_by_list");
 
         PluginGenerator rateLimitGen = PluginGenerator.newInstance("{\"rate_limits\":[]}");
+        PluginGenerator smartLimiterGen = PluginGenerator.newInstance("[{\"domain\":\"qingzhou\",\"descriptors\":[]}]");
         PluginGenerator shareConfigGen = PluginGenerator.newInstance("[{\"domain\":\"qingzhou\",\"descriptors\":[]}]");
 
         limits.forEach(limit -> {
             PluginGenerator rg = PluginGenerator.newInstance(limit, ResourceType.OBJECT, editorContext);
             // 频控计算的不同维度，例如second, minute, hour, day(month, year暂时不支持)
             getUnits(rg).forEach((unit, duration) -> {
+                String type = rg.getValue("type", String.class);
                 String descriptorId;
                 if (rg.contain("$.limit_id")) {
                     descriptorId = rg.getValue("$.limit_id", String.class);
@@ -46,23 +51,36 @@ public class MeshRateLimitProcessor extends AbstractSchemaProcessor implements S
                 }
                 String headerDescriptor = getHeaderDescriptor(serviceInfo, xUserId, descriptorId);
                 rateLimitGen.addJsonElement("$.rate_limits", createRateLimits(rg, serviceInfo, headerDescriptor));
-                shareConfigGen.addJsonElement("$[0].descriptors", createShareConfig(rg, serviceInfo, headerDescriptor, unit, duration));
+                if ("local".equals(type)) {
+                    smartLimiterGen.addJsonElement("$[0].descriptors", createSmartLimiter(rg, serviceInfo, headerDescriptor, unit, duration));
+                }
+                if ("global".equals(type)) {
+                    shareConfigGen.addJsonElement("$[0].descriptors", createShareConfig(rg, serviceInfo, headerDescriptor, unit, duration));
+                }
             });
         });
-        holder.setSharedConfigFragment(
-                new FragmentWrapper.Builder()
-                        .withXUserId(xUserId)
-                        .withFragmentType(FragmentTypeEnum.SHARECONFIG)
-                        .withResourceType(K8sResourceEnum.SharedConfig)
-                        .withContent(shareConfigGen.yamlString())
-                        .build()
-        );
         holder.setVirtualServiceFragment(
                 new FragmentWrapper.Builder()
                         .withXUserId(xUserId)
                         .withFragmentType(FragmentTypeEnum.VS_API)
                         .withResourceType(K8sResourceEnum.VirtualService)
                         .withContent(rateLimitGen.yamlString())
+                        .build()
+        );
+        holder.setSmartLimiterFragment(
+                new FragmentWrapper.Builder()
+                        .withXUserId(xUserId)
+                        .withFragmentType(FragmentTypeEnum.OTHERS)
+                        .withResourceType(K8sResourceEnum.SmartLimiter)
+                        .withContent(smartLimiterGen.yamlString())
+                        .build()
+        );
+        holder.setSharedConfigFragment(
+                new FragmentWrapper.Builder()
+                        .withXUserId(xUserId)
+                        .withFragmentType(FragmentTypeEnum.OTHERS)
+                        .withResourceType(K8sResourceEnum.ConfigMap)
+                        .withContent(shareConfigGen.yamlString())
                         .build()
         );
         return holder;
@@ -134,7 +152,7 @@ public class MeshRateLimitProcessor extends AbstractSchemaProcessor implements S
         return vs.jsonString();
     }
 
-    private String createShareConfig(PluginGenerator rg, ServiceInfo serviceInfo, String headerDescriptor, String unit, Long duration) {
+    private String createSmartLimiter(PluginGenerator rg, ServiceInfo serviceInfo, String headerDescriptor, String unit, Long duration) {
         PluginGenerator shareConfig;
         int length = 0;
         if (rg.contain("$.pre_condition")) {
@@ -198,6 +216,37 @@ public class MeshRateLimitProcessor extends AbstractSchemaProcessor implements S
                 shareConfig.createOrUpdateValue("$", "when", when);
                 shareConfig.createOrUpdateValue("$", "then", then);
             }
+        }
+        return shareConfig.jsonString();
+    }
+
+    private String createShareConfig(PluginGenerator rg, ServiceInfo serviceInfo, String headerDescriptor, String unit, Long duration) {
+        PluginGenerator shareConfig;
+        int length = 0;
+        if (rg.contain("$.pre_condition")) {
+            length = rg.getValue("$.pre_condition.length()");
+        }
+        if (length == 0 && rg.contain("$.identifier_extractor") && !StringUtils.isEmpty(rg.getValue("$.identifier_extractor", String.class))) {
+            String matchHeader = getMatchHeader(rg, "", "$.identifier_extractor");
+            String descriptorKey = String.format("WithoutValueHeader[%s]", matchHeader);
+            shareConfig = PluginGenerator.newInstance(String.format("{\"key\":\"generic_key\",\"value\":\"%s\",\"descriptors\":[{\"key\":\"%s\",\"rate_limit\":{\"unit\":\"%s\",\"requests_per_unit\":%d}}]}",
+                    headerDescriptor,
+                    descriptorKey,
+                    unit,
+                    duration
+            ));
+        } else if (length == 0) {
+            shareConfig = PluginGenerator.newInstance(String.format("{\"key\":\"generic_key\",\"value\":\"%s\",\"rate_limit\":{\"unit\":\"%s\",\"requests_per_unit\":%d}}",
+                    headerDescriptor,
+                    unit,
+                    duration
+            ));
+        } else {
+            shareConfig = PluginGenerator.newInstance(String.format("{\"key\":\"header_match\",\"value\":\"%s\",\"rate_limit\":{\"unit\":\"%s\",\"requests_per_unit\":%d}}",
+                    headerDescriptor,
+                    unit,
+                    duration
+            ));
         }
         return shareConfig.jsonString();
     }
