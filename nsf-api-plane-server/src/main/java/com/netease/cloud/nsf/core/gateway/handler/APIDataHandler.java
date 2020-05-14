@@ -5,6 +5,7 @@ import com.netease.cloud.nsf.meta.API;
 import com.netease.cloud.nsf.meta.UriMatch;
 import com.netease.cloud.nsf.util.CommonUtil;
 import com.netease.cloud.nsf.util.PriorityUtil;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -95,9 +96,10 @@ public abstract class APIDataHandler implements DataHandler<API> {
         if (api.getUriMatch().equals(UriMatch.PREFIX)) {
             suffix.append(".*");
         }
-        return String.join("|", api.getRequestUris().stream()
+        String url = String.join("|", api.getRequestUris().stream()
                 .map(u -> u + suffix.toString())
                 .collect(Collectors.toList()));
+        return StringEscapeUtils.escapeJava(url);
     }
 
     String getHosts(API api) {

@@ -1,6 +1,6 @@
 match:
 - uri:
-    regex: ${t_api_request_uris}
+    regex: "${t_api_request_uris}"
 <#if t_api_methods?has_content>
   method:
     regex: ${t_api_methods}
