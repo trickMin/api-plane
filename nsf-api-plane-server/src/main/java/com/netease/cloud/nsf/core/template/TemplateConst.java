@@ -51,6 +51,7 @@ public interface TemplateConst {
     String VIRTUAL_SERVICE_ROUTE_YAML = "t_virtual_service_route_yaml";
     String VIRTUAL_SERVICE_EXTRA_YAML = "t_virtual_service_extra_yaml";
     String VIRTUAL_SERVICE_META_YAML = "t_virtual_service_meta_yaml";
+    String VIRTUAL_SERVICE_MATCH_PRIORITY_YAML = "t_virtual_service_priority_yaml";
     String VIRTUAL_SERVICE_HTTP_RETRY_YAML = "t_virtual_service_http_retry_yaml";
     String VIRTUAL_SERVICE_HOSTS = "t_virtual_service_hosts";
     String VIRTUAL_SERVICE_HOST_HEADERS = "t_virtual_service_host_headers";

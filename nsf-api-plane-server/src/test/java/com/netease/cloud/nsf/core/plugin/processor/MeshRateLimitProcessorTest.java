@@ -18,6 +18,7 @@ public class MeshRateLimitProcessorTest extends BasePluginTest {
                 "  \"kind\": \"mesh-rate-limiting\",\n" +
                 "  \"limit_by_list\": [\n" +
                 "    {\n" +
+                "      \"type\":\"local\",\n" +
                 "      \"pre_condition\": [\n" +
                 "        {\n" +
                 "          \"custom_extractor\": \"Header[plugin1]\",\n" +
@@ -44,6 +45,7 @@ public class MeshRateLimitProcessorTest extends BasePluginTest {
                 "  \"kind\": \"mesh-rate-limiting\",\n" +
                 "  \"limit_by_list\": [\n" +
                 "  {\n" +
+                "    \"type\":\"local\",\n" +
                 "    \"hour\": 1,\n" +
                 "    \"second\": 2,\n" +
                 "    \"minute\": 3,\n" +
@@ -58,6 +60,7 @@ public class MeshRateLimitProcessorTest extends BasePluginTest {
                 "  \"kind\": \"mesh-rate-limiting\",\n" +
                 "  \"limit_by_list\": [\n" +
                 "    {\n" +
+                "      \"type\":\"local\",\n" +
                 "      \"identifier_extractor\": \"Header[plugin]\",\n" +
                 "      \"hour\": 1,\n" +
                 "      \"second\": 2,\n" +
@@ -68,8 +71,36 @@ public class MeshRateLimitProcessorTest extends BasePluginTest {
                 "    }\n" +
                 "  ]\n" +
                 "}";
+
+        String plugin4 = "{\n" +
+                "  \"kind\": \"mesh-rate-limiting\",\n" +
+                "  \"limit_by_list\": [\n" +
+                "    {\n" +
+                "      \"type\":\"global\",\n" +
+                "      \"pre_condition\": [\n" +
+                "        {\n" +
+                "          \"custom_extractor\": \"Header[plugin1]\",\n" +
+                "          \"operator\": \"present\",\n" +
+                "          \"invert\": true\n" +
+                "        },\n" +
+                "        {\n" +
+                "          \"custom_extractor\": \"Header[plugin2]\",\n" +
+                "          \"operator\": \"=\",\n" +
+                "          \"right_value\": \"ratelimit\"\n" +
+                "        }\n" +
+                "      ],\n" +
+                "      \"hour\": 1,\n" +
+                "      \"second\": 2,\n" +
+                "      \"minute\": 3,\n" +
+                "      \"day\": 4\n" +
+                "    }\n" +
+                "  ]\n" +
+                "}";
+
+        String plugin5 = "";
         FragmentHolder fragment1 = processor.process(plugin1, serviceInfo);
         FragmentHolder fragment2 = processor.process(plugin2, serviceInfo);
         FragmentHolder fragment3 = processor.process(plugin3, serviceInfo);
+        FragmentHolder fragment4 = processor.process(plugin4, serviceInfo);
     }
 }

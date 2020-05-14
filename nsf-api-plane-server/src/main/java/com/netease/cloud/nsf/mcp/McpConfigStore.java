@@ -27,7 +27,9 @@ public class McpConfigStore implements ConfigStore {
             K8sResourceEnum.DestinationRule,
             K8sResourceEnum.Gateway,
             K8sResourceEnum.GatewayPlugin,
-            K8sResourceEnum.PluginManager
+            K8sResourceEnum.PluginManager,
+            K8sResourceEnum.ServiceEntry,
+            K8sResourceEnum.ConfigMap
     );
 
     private ResourceDao resourceDao;

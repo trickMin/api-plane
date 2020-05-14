@@ -26,6 +26,7 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
     static final String apiVirtualServiceRoute = "gateway/api/virtualServiceRoute";
     static final String apiVirtualServiceHttpRetry = "gateway/api/virtualServiceHttpRetry";
     static final String apiVirtualServiceMeta = "gateway/api/virtualServiceMeta";
+    static final String apiVirtualServiceMatchPriority = "gateway/api/virtualServiceMatchPriority";
 
     ModelProcessor subModelProcessor;
     List<FragmentWrapper> fragments;
@@ -58,10 +59,12 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
 
         String matchYaml = produceMatch(baseParams);
         String httpRetryYaml = produceHttpRetry(baseParams);
+        String matchPriorityYaml = produceMatchPriority(baseParams);
 
         TemplateParams vsParams = TemplateParams.instance()
                 .setParent(baseParams)
                 .put(VIRTUAL_SERVICE_MATCH_YAML, matchYaml)
+                .put(VIRTUAL_SERVICE_MATCH_PRIORITY_YAML, matchPriorityYaml)
                 .put(API_MATCH_PLUGINS, matchPlugins)
                 .put(VIRTUAL_SERVICE_HTTP_RETRY_YAML, httpRetryYaml)
                 .put(VIRTUAL_SERVICE_PLUGIN_MATCH_PRIORITY, pluginPriority)
@@ -103,6 +106,10 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
 
     String produceHttpRetry(TemplateParams params) {
         return subModelProcessor.process(apiVirtualServiceHttpRetry, params);
+    }
+
+    String produceMatchPriority(TemplateParams params) {
+        return subModelProcessor.process(apiVirtualServiceMatchPriority, params);
     }
 
     String produceMeta(TemplateParams params) {

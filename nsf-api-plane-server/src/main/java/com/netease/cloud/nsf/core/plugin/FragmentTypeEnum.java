@@ -11,5 +11,5 @@ public enum FragmentTypeEnum {
 
     VS_MATCH,
 
-    SHARECONFIG,
+    OTHERS,
 }
