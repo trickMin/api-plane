@@ -12,8 +12,14 @@ public class TemplateParams {
 
     private Map<String, Object> params = new HashMap<>();
 
+    private static TemplateParams EMPTY = new TemplateParams();
+
     public static TemplateParams instance() {
         return new TemplateParams();
+    }
+
+    public static TemplateParams empty() {
+        return EMPTY;
     }
 
     public TemplateParams setParent(TemplateParams parent) {

@@ -1,10 +1,9 @@
 package com.netease.cloud.nsf.core.servicemesh.handler;
 
 import com.netease.cloud.nsf.core.gateway.handler.DataHandler;
-import com.netease.cloud.nsf.core.plugin.FragmentHolder;
+import com.netease.cloud.nsf.core.plugin.FragmentWrapper;
 import com.netease.cloud.nsf.core.template.TemplateParams;
 import com.netease.cloud.nsf.meta.ServiceMeshRateLimit;
-import org.springframework.util.CollectionUtils;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -15,25 +14,22 @@ import static com.netease.cloud.nsf.core.template.TemplateConst.*;
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2020/4/10
  **/
-public class RateLimiterDataHandler implements DataHandler<ServiceMeshRateLimit> {
+public class RateLimiterGatewayPluginDataHandler implements DataHandler<ServiceMeshRateLimit> {
 
-    List<FragmentHolder> fragmentHolders;
+    FragmentWrapper fragmentWrapper;
 
-    public RateLimiterDataHandler(List<FragmentHolder> fragmentHolder) {
-        this.fragmentHolders = fragmentHolder;
+    public RateLimiterGatewayPluginDataHandler(FragmentWrapper fragmentWrapper) {
+        this.fragmentWrapper = fragmentWrapper;
     }
 
     @Override
     public List<TemplateParams> handle(ServiceMeshRateLimit rateLimit) {
 
-        if (CollectionUtils.isEmpty(fragmentHolders)) return Collections.EMPTY_LIST;
-        String smartLimiterConfig = fragmentHolders.get(0).getSharedConfigFragment().getContent();
-        String gatewayPluginConfig = fragmentHolders.get(0).getGatewayPluginsFragment().getContent();
+        if (fragmentWrapper == null) return Collections.EMPTY_LIST;
+        String gatewayPluginConfig = fragmentWrapper.getContent();
 
         TemplateParams tp = TemplateParams.instance()
-                .put(SMART_LIMITER_NAME, rateLimit.getServiceName())
                 .put(NAMESPACE, rateLimit.getNamespace())
-                .put(SMART_LIMITER_CONFIG, smartLimiterConfig)
                 .put(GATEWAY_PLUGIN_NAME, rateLimit.getHost())
                 .put(GATEWAY_PLUGIN_SERVICES, Arrays.asList(rateLimit.getHost()))
                 .put(GATEWAY_PLUGIN_PLUGINS, Arrays.asList(gatewayPluginConfig));
