@@ -67,6 +67,10 @@ public class ServiceMeshIstioModelEngine extends IstioModelEngine {
     @Value(value = "${rateLimitConfigMapName:rate-limit-config}")
     String rateLimitConfigMapName;
 
+    @Value(value = "${meshRateLimitServerNamespace:gateway-system}")
+    String meshRateLimitServerNamespace;
+
+
     @Autowired
     public ServiceMeshIstioModelEngine(IntegratedResourceOperator operator, TemplateTranslator templateTranslator, PluginService pluginService) {
         super(operator);
@@ -107,7 +111,7 @@ public class ServiceMeshIstioModelEngine extends IstioModelEngine {
         List<String> rawGatewayPlugin = neverNullRenderTwiceProcessor.process(gatewayPlugin, rateLimit,
                 new RateLimiterGatewayPluginDataHandler(firstFragmentHodler.getGatewayPluginsFragment()));
         List<String> rawConfigMap = neverNullRenderTwiceProcessor.process(rlsConfigMap, rateLimit,
-                new RateLimiterConfigMapDataHandler(firstFragmentHodler.getSharedConfigFragment(), rateLimitConfigMapName));
+                new RateLimiterConfigMapDataHandler(firstFragmentHodler.getSharedConfigFragment(), rateLimitConfigMapName, meshRateLimitServerNamespace));
 
         resourcePacks.addAll(generateK8sPack(rawSmartLimiter,
                 new SmartLimiterMerger(),

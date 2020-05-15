@@ -18,10 +18,12 @@ public class RateLimiterConfigMapDataHandler implements DataHandler<ServiceMeshR
 
     FragmentWrapper fragmentWrapper;
     String configMapName;
+    String configMapNamespace;
 
-    public RateLimiterConfigMapDataHandler(FragmentWrapper fragmentWrapper, String configMapName) {
+    public RateLimiterConfigMapDataHandler(FragmentWrapper fragmentWrapper, String configMapName, String configMapNamespace) {
         this.fragmentWrapper = fragmentWrapper;
         this.configMapName = configMapName;
+        this.configMapNamespace = configMapNamespace;
     }
 
     @Override
@@ -32,6 +34,7 @@ public class RateLimiterConfigMapDataHandler implements DataHandler<ServiceMeshR
 
         TemplateParams tp = TemplateParams.instance()
                 .put(RLS_CONFIG_MAP_NAME, configMapName)
+                .put(NAMESPACE, configMapNamespace)
                 .put(RLS_CONFIG_MAP_DESCRIPTOR, Arrays.asList(configMapConfig));
 
         return Arrays.asList(tp);
