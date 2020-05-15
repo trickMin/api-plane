@@ -6,10 +6,8 @@ release 1.2
 - 路由插件中增加meta信息
 
 网格：
-- 增加单机+自适应限流插件
+- 增加单机+全局限流插件
 - 网格资源sidecar scope
-
-
 
 
 release 1.1

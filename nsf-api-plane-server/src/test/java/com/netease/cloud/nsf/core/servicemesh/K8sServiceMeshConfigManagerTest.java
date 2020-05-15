@@ -5,6 +5,7 @@ import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.meta.ServiceMeshRateLimit;
 import com.netease.cloud.nsf.mock.MockK8sConfigStore;
 import com.netease.cloud.nsf.service.PluginService;
+import io.fabric8.kubernetes.api.model.HasMetadata;
 import me.snowdrop.istio.api.networking.v1alpha3.Sidecar;
 import org.junit.Assert;
 import org.junit.Before;
@@ -12,6 +13,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.TestPropertySource;
 
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 @TestPropertySource(properties = {"globalPluginConfigEnv = mesh"})
@@ -36,22 +38,74 @@ public class K8sServiceMeshConfigManagerTest extends BaseTest {
     @Test
     public void testUpdateRateLimit() {
 
-        //单机
+        boolean hasConfigMap = false;
+        boolean hasGatewayPlugin = false;
+        boolean hasSmartLimiter = false;
+
+        //单机 smartlimiter + gatewayplugin
         ServiceMeshRateLimit rateLimit =
                 buildMeshRateLimit("z.default",
                         "default",
                         "{\"kind\":\"mesh-rate-limiting\",\"limit_by_list\":[{\"pre_condition\":[{\"custom_extractor\":\"Header[plugin1]\",\"operator\":\"present\",\"invert\":true},{\"custom_extractor\":\"Header[plugin2]\",\"operator\":\"=\",\"right_value\":\"ratelimit\"}],\"hour\":2,\"second\":2,\"type\":\"local\"},{\"pre_condition\":[{\"custom_extractor\":\"Header[plugin1]\",\"operator\":\"present\",\"invert\":true},{\"custom_extractor\":\"Header[plugin2]\",\"operator\":\"=\",\"right_value\":\"ratelimit\"}],\"hour\":2,\"second\":2,\"type\":\"local\"}]}");
 
         meshConfigManager.updateRateLimit(rateLimit);
-        Assert.assertEquals(3, k8sConfigStore.size());
+        Assert.assertEquals(2, k8sConfigStore.size());
+
+        for (Map.Entry<MockK8sConfigStore.ResourceId, HasMetadata> entry : k8sConfigStore.map().entrySet()) {
+            String kind = entry.getValue().getKind();
+            if (kind.equals(K8sResourceEnum.SmartLimiter.name())) hasSmartLimiter = true;
+            if (kind.equals(K8sResourceEnum.GatewayPlugin.name())) hasGatewayPlugin = true;
+        }
+        Assert.assertTrue(hasSmartLimiter && hasGatewayPlugin);
+        hasSmartLimiter = false;
+        hasGatewayPlugin = false;
+
+        meshConfigManager.deleteRateLimit(rateLimit);
+        Assert.assertEquals(0, k8sConfigStore.size());
+
+        // 全局插件 configmap + gatewayplugin
+        ServiceMeshRateLimit rateLimit1 =
+                buildMeshRateLimit("z.default",
+                        "default",
+                        "{\"kind\":\"mesh-rate-limiting\",\"limit_by_list\":[{\"pre_condition\":[{\"custom_extractor\":\"Header[plugin1]\",\"operator\":\"present\",\"invert\":true},{\"custom_extractor\":\"Header[plugin2]\",\"operator\":\"=\",\"right_value\":\"ratelimit\"}],\"hour\":2,\"second\":2,\"type\":\"global\"},{\"pre_condition\":[{\"custom_extractor\":\"Header[plugin1]\",\"operator\":\"present\",\"invert\":true},{\"custom_extractor\":\"Header[plugin2]\",\"operator\":\"=\",\"right_value\":\"ratelimit\"}],\"hour\":2,\"second\":2,\"type\":\"global\"}]}");
+
+        meshConfigManager.updateRateLimit(rateLimit1);
+        Assert.assertEquals(2, k8sConfigStore.size());
+
+        for (Map.Entry<MockK8sConfigStore.ResourceId, HasMetadata> entry : k8sConfigStore.map().entrySet()) {
+            String kind = entry.getValue().getKind();
+            if (kind.equals(K8sResourceEnum.ConfigMap.name())) hasConfigMap = true;
+            if (kind.equals(K8sResourceEnum.GatewayPlugin.name())) hasGatewayPlugin = true;
+        }
+        Assert.assertTrue(hasConfigMap && hasGatewayPlugin);
+        hasConfigMap = false;
+        hasGatewayPlugin = false;
+
+        //不清理configmap
         meshConfigManager.deleteRateLimit(rateLimit);
         Assert.assertEquals(1, k8sConfigStore.size());
 
-        //TODO 全局插件
 
+        // 全局+单机混用
+        ServiceMeshRateLimit rateLimit2 =
+                buildMeshRateLimit("z.default",
+                        "default",
+                        "{\"kind\":\"mesh-rate-limiting\",\"limit_by_list\":[{\"pre_condition\":[{\"custom_extractor\":\"Header[plugin1]\",\"operator\":\"present\",\"invert\":true},{\"custom_extractor\":\"Header[plugin2]\",\"operator\":\"=\",\"right_value\":\"ratelimit\"}],\"hour\":2,\"second\":2,\"type\":\"global\"},{\"pre_condition\":[{\"custom_extractor\":\"Header[plugin1]\",\"operator\":\"present\",\"invert\":true},{\"custom_extractor\":\"Header[plugin2]\",\"operator\":\"=\",\"right_value\":\"ratelimit\"}],\"hour\":2,\"second\":2,\"type\":\"local\"}]}");
 
+        meshConfigManager.updateRateLimit(rateLimit2);
+        Assert.assertEquals(3, k8sConfigStore.size());
 
-        //TODO 全局+单机混用
+        for (Map.Entry<MockK8sConfigStore.ResourceId, HasMetadata> entry : k8sConfigStore.map().entrySet()) {
+            String kind = entry.getValue().getKind();
+            if (kind.equals(K8sResourceEnum.ConfigMap.name())) hasConfigMap = true;
+            if (kind.equals(K8sResourceEnum.GatewayPlugin.name())) hasGatewayPlugin = true;
+            if (kind.equals(K8sResourceEnum.SmartLimiter.name())) hasSmartLimiter = true;
+
+        }
+        Assert.assertTrue(hasConfigMap && hasGatewayPlugin && hasSmartLimiter);
+
+        meshConfigManager.deleteRateLimit(rateLimit2);
+        Assert.assertEquals(1, k8sConfigStore.size());
     }
 
     @Test

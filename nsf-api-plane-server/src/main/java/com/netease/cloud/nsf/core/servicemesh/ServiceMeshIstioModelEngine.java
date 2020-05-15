@@ -25,7 +25,10 @@ import com.netease.cloud.nsf.core.servicemesh.handler.RateLimiterSmartLimiterDat
 import com.netease.cloud.nsf.core.template.TemplateConst;
 import com.netease.cloud.nsf.core.template.TemplateParams;
 import com.netease.cloud.nsf.core.template.TemplateTranslator;
-import com.netease.cloud.nsf.meta.*;
+import com.netease.cloud.nsf.meta.ServiceInfo;
+import com.netease.cloud.nsf.meta.ServiceMeshCircuitBreaker;
+import com.netease.cloud.nsf.meta.ServiceMeshRateLimit;
+import com.netease.cloud.nsf.meta.SidecarVersionManagement;
 import com.netease.cloud.nsf.service.PluginService;
 import com.netease.cloud.nsf.util.Const;
 import org.slf4j.Logger;
@@ -33,10 +36,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import java.util.*;
-import java.util.function.Function;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -96,7 +101,7 @@ public class ServiceMeshIstioModelEngine extends IstioModelEngine {
 
         List<K8sResourcePack> resourcePacks = new ArrayList<>();
 
-        FragmentHolder firstFragmentHodler = fragmentHolders.get(0);
+        FragmentHolder firstFragmentHodler = CollectionUtils.isEmpty(fragmentHolders) ? new FragmentHolder() : fragmentHolders.get(0);
         List<String> rawSmartLimiter = neverNullRenderTwiceProcessor.process(smartLimiter, rateLimit,
                 new RateLimiterSmartLimiterDataHandler(firstFragmentHodler.getSmartLimiterFragment()));
         List<String> rawGatewayPlugin = neverNullRenderTwiceProcessor.process(gatewayPlugin, rateLimit,
@@ -107,7 +112,6 @@ public class ServiceMeshIstioModelEngine extends IstioModelEngine {
         resourcePacks.addAll(generateK8sPack(rawSmartLimiter,
                 new SmartLimiterMerger(),
                 new SmartLimiterSubtracter(),
-                new RawSmartLimiterPreHandler(),
                 new EmptyResourceGenerator(new EmptySmartLimiter(rateLimit.getServiceName(), rateLimit.getNamespace()))));
         resourcePacks.addAll(generateK8sPack(rawGatewayPlugin,
                 new MeshRateLimitGatewayPluginMerger(),
@@ -131,18 +135,6 @@ public class ServiceMeshIstioModelEngine extends IstioModelEngine {
         String rawSidecar = defaultModelProcessor.process(sidecar, params);
         resources.addAll(generateK8sPack(Arrays.asList(rawSidecar)));
         return resources;
-    }
-
-
-    /**
-     * 由于原先插件渲染domain为数组，去掉domain前面的 -
-     */
-    private class RawSmartLimiterPreHandler implements Function<String, String> {
-
-        @Override
-        public String apply(String s) {
-            return s.replace("- domain:", "  domain:");
-        }
     }
 
     public List<K8sResourcePack> translate(ServiceMeshCircuitBreaker circuitBreaker) {

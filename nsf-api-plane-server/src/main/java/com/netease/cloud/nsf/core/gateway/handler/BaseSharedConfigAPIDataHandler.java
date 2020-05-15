@@ -33,11 +33,7 @@ public class BaseSharedConfigAPIDataHandler extends APIDataHandler {
         List<String> descriptors = fragments.stream()
                 .filter(f -> f != null)
                 // 因配置迁移，模型有变，不再为数组
-                .map(f -> {
-                    String content = f.getContent();
-                    if (content.startsWith("-")) content = content.replaceFirst("-", " ");
-                    return content;
-                })
+                .map(f -> f.getContent())
                 .collect(Collectors.toList());
 
         return Arrays.asList(TemplateParams.instance()
