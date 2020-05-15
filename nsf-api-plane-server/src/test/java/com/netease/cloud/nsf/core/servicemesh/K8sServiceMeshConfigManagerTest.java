@@ -43,7 +43,7 @@ public class K8sServiceMeshConfigManagerTest extends BaseTest {
 
         meshConfigManager.updateRateLimit(rateLimit);
         //todo: 没有判断是否生成configmap
-        Assert.assertEquals(2, k8sConfigStore.size());
+        Assert.assertEquals(1, k8sConfigStore.size());
         meshConfigManager.deleteRateLimit(rateLimit);
         Assert.assertEquals(0, k8sConfigStore.size());
     }

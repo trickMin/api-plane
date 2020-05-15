@@ -39,7 +39,7 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
         List<Object> limits = total.getValue("$.limit_by_list");
 
         PluginGenerator rateLimitGen = PluginGenerator.newInstance("{\"rate_limits\":[]}");
-        PluginGenerator shareConfigGen = PluginGenerator.newInstance("[{\"domain\":\"qingzhou\",\"descriptors\":[]}]");
+        PluginGenerator shareConfigGen = PluginGenerator.newInstance("{\"domain\":\"qingzhou\",\"descriptors\":[]}");
 
         limits.forEach(limit -> {
             PluginGenerator rg = PluginGenerator.newInstance(limit, ResourceType.OBJECT, editorContext);
@@ -54,7 +54,7 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
                 }
                 String headerDescriptor = getHeaderDescriptor(serviceInfo, xUserId, descriptorId);
                 rateLimitGen.addJsonElement("$.rate_limits", createRateLimits(rg, serviceInfo, headerDescriptor, null));
-                shareConfigGen.addJsonElement("$[0].descriptors", createShareConfig(rg, serviceInfo, headerDescriptor, unit, duration));
+                shareConfigGen.addJsonElement("$.descriptors", createShareConfig(rg, serviceInfo, headerDescriptor, unit, duration));
             });
         });
         holder.setSharedConfigFragment(
