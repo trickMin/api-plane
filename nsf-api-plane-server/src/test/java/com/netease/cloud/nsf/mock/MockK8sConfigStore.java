@@ -66,6 +66,10 @@ public class MockK8sConfigStore extends MultiK8sConfigStore {
         // do nothing
     }
 
+    public Map<ResourceId, HasMetadata> map() {
+        return store;
+    }
+
     public void clear() {
         store.clear();
     }
@@ -82,7 +86,7 @@ public class MockK8sConfigStore extends MultiK8sConfigStore {
         return new ResourceId(kind, name, namespace);
     }
 
-    class ResourceId {
+    public static class ResourceId {
         private String kind;
         private String name;
         private String namespace;

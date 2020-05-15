@@ -6,16 +6,22 @@ import com.netease.cloud.nsf.core.gateway.processor.DefaultModelProcessor;
 import com.netease.cloud.nsf.core.gateway.processor.NeverReturnNullModelProcessor;
 import com.netease.cloud.nsf.core.gateway.processor.RenderTwiceModelProcessor;
 import com.netease.cloud.nsf.core.k8s.K8sResourcePack;
+import com.netease.cloud.nsf.core.k8s.empty.EmptyConfigMap;
 import com.netease.cloud.nsf.core.k8s.empty.EmptyGatewayPlugin;
 import com.netease.cloud.nsf.core.k8s.empty.EmptySmartLimiter;
 import com.netease.cloud.nsf.core.k8s.merger.CircuitConfigMapMerger;
+import com.netease.cloud.nsf.core.k8s.merger.MeshRateLimitConfigMapMerger;
 import com.netease.cloud.nsf.core.k8s.merger.MeshRateLimitGatewayPluginMerger;
 import com.netease.cloud.nsf.core.k8s.merger.SmartLimiterMerger;
 import com.netease.cloud.nsf.core.k8s.operator.IntegratedResourceOperator;
+import com.netease.cloud.nsf.core.k8s.subtracter.MeshRateLimitConfigMapSubtracter;
 import com.netease.cloud.nsf.core.k8s.subtracter.MeshRateLimitGatewayPluginSubtracter;
 import com.netease.cloud.nsf.core.k8s.subtracter.SmartLimiterSubtracter;
 import com.netease.cloud.nsf.core.plugin.FragmentHolder;
 import com.netease.cloud.nsf.core.servicemesh.handler.CircuitBreakerDataHandler;
+import com.netease.cloud.nsf.core.servicemesh.handler.RateLimiterConfigMapDataHandler;
+import com.netease.cloud.nsf.core.servicemesh.handler.RateLimiterGatewayPluginDataHandler;
+import com.netease.cloud.nsf.core.servicemesh.handler.RateLimiterSmartLimiterDataHandler;
 import com.netease.cloud.nsf.core.template.TemplateConst;
 import com.netease.cloud.nsf.core.template.TemplateParams;
 import com.netease.cloud.nsf.core.template.TemplateTranslator;
@@ -28,13 +34,14 @@ import com.netease.cloud.nsf.util.Const;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -55,6 +62,10 @@ public class ServiceMeshIstioModelEngine extends IstioModelEngine {
     private static final String smartLimiter = "mesh/smartLimiter";
     private static final String gatewayPlugin = "mesh/globalGatewayPlugin";
     private static final String sidecar = "mesh/sidecar";
+    private static final String rlsConfigMap = "mesh/rlsConfigMap";
+
+    @Value(value = "${rateLimitConfigMapName:rate-limit-config}")
+    String rateLimitConfigMapName;
 
     @Autowired
     public ServiceMeshIstioModelEngine(IntegratedResourceOperator operator, TemplateTranslator templateTranslator, PluginService pluginService) {
@@ -72,7 +83,15 @@ public class ServiceMeshIstioModelEngine extends IstioModelEngine {
         return resources;
     }
 
+    /**
+     * 限流分为全局和单机，
+     * 全局需要创建gateayplugin + configmap
+     * 单机需要创建gatewayplugin + smartlimiter
+     * @param rateLimit
+     * @return
+     */
     public List<K8sResourcePack> translate(ServiceMeshRateLimit rateLimit) {
+
         ServiceInfo serviceInfo = ServiceInfo.instance();
         serviceInfo.setServiceName(rateLimit.getHost());
         List<FragmentHolder> fragmentHolders = new ArrayList<>();
@@ -82,19 +101,27 @@ public class ServiceMeshIstioModelEngine extends IstioModelEngine {
 
         List<K8sResourcePack> resourcePacks = new ArrayList<>();
 
-        List<TemplateParams> params = new RateLimiterDataHandler(fragmentHolders).handle(rateLimit);
-        List<String> rawSmartLimiter = neverNullRenderTwiceProcessor.process(smartLimiter, params);
-        List<String> rawGatewayPlugin = neverNullRenderTwiceProcessor.process(gatewayPlugin, params);
+        FragmentHolder firstFragmentHodler = CollectionUtils.isEmpty(fragmentHolders) ? new FragmentHolder() : fragmentHolders.get(0);
+        List<String> rawSmartLimiter = neverNullRenderTwiceProcessor.process(smartLimiter, rateLimit,
+                new RateLimiterSmartLimiterDataHandler(firstFragmentHodler.getSmartLimiterFragment()));
+        List<String> rawGatewayPlugin = neverNullRenderTwiceProcessor.process(gatewayPlugin, rateLimit,
+                new RateLimiterGatewayPluginDataHandler(firstFragmentHodler.getGatewayPluginsFragment()));
+        List<String> rawConfigMap = neverNullRenderTwiceProcessor.process(rlsConfigMap, rateLimit,
+                new RateLimiterConfigMapDataHandler(firstFragmentHodler.getSharedConfigFragment(), rateLimitConfigMapName));
 
         resourcePacks.addAll(generateK8sPack(rawSmartLimiter,
                 new SmartLimiterMerger(),
                 new SmartLimiterSubtracter(),
-                new RawSmartLimiterPreHandler(),
                 new EmptyResourceGenerator(new EmptySmartLimiter(rateLimit.getServiceName(), rateLimit.getNamespace()))));
         resourcePacks.addAll(generateK8sPack(rawGatewayPlugin,
                 new MeshRateLimitGatewayPluginMerger(),
                 new MeshRateLimitGatewayPluginSubtracter(),
                 new EmptyResourceGenerator(new EmptyGatewayPlugin(rateLimit.getHost(), rateLimit.getNamespace()))));
+        resourcePacks.addAll(generateK8sPack(rawConfigMap,
+                new MeshRateLimitConfigMapMerger(),
+                new MeshRateLimitConfigMapSubtracter(rateLimit.getHost()),
+                new EmptyResourceGenerator(new EmptyConfigMap(rateLimitConfigMapName))));
+
         return resourcePacks;
     }
 
@@ -108,17 +135,6 @@ public class ServiceMeshIstioModelEngine extends IstioModelEngine {
         String rawSidecar = defaultModelProcessor.process(sidecar, params);
         resources.addAll(generateK8sPack(Arrays.asList(rawSidecar)));
         return resources;
-    }
-
-    /**
-     * 由于原先插件渲染domain为数组，去掉domain前面的 -
-     */
-    private class RawSmartLimiterPreHandler implements Function<String, String> {
-
-        @Override
-        public String apply(String s) {
-            return s.replace("- domain:", "  domain:");
-        }
     }
 
     public List<K8sResourcePack> translate(ServiceMeshCircuitBreaker circuitBreaker) {

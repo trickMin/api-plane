@@ -40,7 +40,9 @@ public enum PathExpressionEnum {
 
     REMOVE_SC_RATELIMITDESC_BY_CODE("$.spec.rateLimitConfigs[*].descriptors[?(@.code == '%s')]", 1),
 
-    REMOVE_RATELIMIT_CONFIGMAP_BY_VALUE("$.descriptors[?(@.value =~ /.+Gateway\\[%s\\]-Api\\[%s\\].+/i)]",2),
+    REMOVE_GATEWAY_RATELIMIT_CONFIGMAP_BY_VALUE("$.descriptors[?(@.value =~ /.+Gateway\\[%s\\]-Api\\[%s\\].+/i)]",2),
+
+    REMOVE_MESH_RATELIMIT_CONFIGMAP_BY_VALUE("$.descriptors[?(@.value =~ /^Service\\[%s\\]-.+/i)]",1),
 
     REMOVE_SMART_LIMIT_BY_VALUE("$.spec..descriptors[?(@.value =~ /^Service\\[%s\\]-.*-Api\\[%s\\].+/i)]",2),
     /** plugin **/

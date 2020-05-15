@@ -11,12 +11,12 @@ import com.netease.cloud.nsf.core.gateway.service.ResourceManager;
 import com.netease.cloud.nsf.core.k8s.K8sResourcePack;
 import com.netease.cloud.nsf.core.k8s.empty.DynamicGatewayPluginSupplier;
 import com.netease.cloud.nsf.core.k8s.empty.EmptyConfigMap;
-import com.netease.cloud.nsf.core.k8s.merger.RateLimitConfigMapMerger;
+import com.netease.cloud.nsf.core.k8s.merger.GatewayRateLimitConfigMapMerger;
 import com.netease.cloud.nsf.core.k8s.operator.IntegratedResourceOperator;
 import com.netease.cloud.nsf.core.k8s.subtracter.GatewayDestinationRuleSubtracter;
 import com.netease.cloud.nsf.core.k8s.subtracter.GatewayPluginNormalSubtracter;
+import com.netease.cloud.nsf.core.k8s.subtracter.GatewayRateLimitConfigMapSubtracter;
 import com.netease.cloud.nsf.core.k8s.subtracter.GatewayVirtualServiceSubtracter;
-import com.netease.cloud.nsf.core.k8s.subtracter.RateLimitConfigMapSubtracter;
 import com.netease.cloud.nsf.core.plugin.FragmentHolder;
 import com.netease.cloud.nsf.core.template.TemplateTranslator;
 import com.netease.cloud.nsf.meta.*;
@@ -141,8 +141,8 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
         resourcePacks.addAll(generateK8sPack(rawVirtualServices, new GatewayVirtualServiceSubtracter(vsHandler.getApiName(api)), r -> r, this::adjust));
         // rate limit configmap
         resourcePacks.addAll(generateK8sPack(rawSharedConfigs,
-                new RateLimitConfigMapMerger(),
-                new RateLimitConfigMapSubtracter(String.join("|", api.getGateways()), api.getName()),
+                new GatewayRateLimitConfigMapMerger(),
+                new GatewayRateLimitConfigMapSubtracter(String.join("|", api.getGateways()), api.getName()),
                 new EmptyResourceGenerator(new EmptyConfigMap(rateLimitConfigMapName))));
 
         //当插件传入为空时，生成空的gatewayplugin，删除时使用
@@ -201,8 +201,8 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
                 new GatewayPluginSharedConfigDataHandler(rawResourceContainer.getSharedConfigs(), gateways, rateLimitConfigMapName));
         resources.addAll(generateK8sPack(rawGatewayPlugins));
         resources.addAll(generateK8sPack(rawSharedConfigs,
-                new RateLimitConfigMapMerger(),
-                new RateLimitConfigMapSubtracter(gp.getGateway(), gp.getCode()),
+                new GatewayRateLimitConfigMapMerger(),
+                new GatewayRateLimitConfigMapSubtracter(gp.getGateway(), gp.getCode()),
                 new EmptyResourceGenerator(new EmptyConfigMap(rateLimitConfigMapName))));
 
         return resources;
