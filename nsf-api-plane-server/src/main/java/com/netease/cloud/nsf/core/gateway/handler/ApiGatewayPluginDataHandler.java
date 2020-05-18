@@ -8,6 +8,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.netease.cloud.nsf.core.template.TemplateConst.*;
 
@@ -34,6 +35,9 @@ public class ApiGatewayPluginDataHandler extends APIDataHandler {
         Map<String, List<String>> apiPlugins = HandlerUtil.getApiPlugins(fragments);
         List<String> gateways = api.getGateways();
         List<TemplateParams> params = new ArrayList<>();
+        List<String> routes = api.getHosts().stream()
+                .map(h -> h + "/" + api.getName())
+                .collect(Collectors.toList());
 
         gateways.forEach(gw -> {
             TemplateParams pmParams = TemplateParams.instance()
@@ -41,7 +45,7 @@ public class ApiGatewayPluginDataHandler extends APIDataHandler {
                     .put(GATEWAY_PLUGIN_NAME, getGatewayPluginName(gw, api.getName()))
                     .put(RESOURCE_IDENTITY, getIdentity(api.getName(), gw))
                     .put(GATEWAY_PLUGIN_GATEWAYS, Arrays.asList(String.format("%s/%s", gatewayNamespace, gw)))
-                    .put(GATEWAY_PLUGIN_ROUTES, Arrays.asList(api.getName()))
+                    .put(GATEWAY_PLUGIN_ROUTES, routes)
                     .put(GATEWAY_PLUGIN_PLUGINS, apiPlugins);
 
             params.addAll(doHandle(pmParams));
