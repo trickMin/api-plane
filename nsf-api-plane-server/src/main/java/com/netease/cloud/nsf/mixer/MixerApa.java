@@ -11,6 +11,7 @@ import nsfmeta.TemplateHandlerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.StringUtils;
 
@@ -30,6 +31,9 @@ public class MixerApa extends HandleNsfmetaServiceGrpc.HandleNsfmetaServiceImplB
 	@Autowired private ServiceMeshConfigManager serviceMeshConfigManager;
 	private static final Logger logger = LoggerFactory.getLogger(MixerApa.class);
 
+	@Value(value = "${enableASG:false}")
+	private boolean enableASG;
+
 	@Override
 	public void handleNsfmeta(TemplateHandlerService.HandleNsfmetaRequest request, StreamObserver<TemplateHandlerService.OutputMsg> responseObserver) {
 		TemplateHandlerService.InstanceMsg instance = request.getInstance();
@@ -41,7 +45,9 @@ public class MixerApa extends HandleNsfmetaServiceGrpc.HandleNsfmetaServiceImplB
 		PodInfo destPod = new PodInfo(clusterId, instance.getDestinationUid());
 		PodInfo sourcePod = new PodInfo(clusterId, instance.getSourceUid());
 		String urlPath = instance.getUrlPath();
-		recordCallRelation(sourcePod, xNsfApp, host, destinationHost);
+		if (enableASG) {
+			recordCallRelation(sourcePod, xNsfApp, host, destinationHost);
+		}
 
 		String destProject = getProjectId(destPod);
 		String sourceProject = getProjectId(sourcePod);
@@ -63,9 +69,9 @@ public class MixerApa extends HandleNsfmetaServiceGrpc.HandleNsfmetaServiceImplB
 			}
 			String[] hostParts = authority.split("\\.");
 			if (hostParts.length == 1) {
-				targetHosts.add(String.format("%s.%s.cluster.local", hostParts[0], sourcePod.namespace));
+				targetHosts.add(String.format("%s.%s.svc.cluster.local", hostParts[0], sourcePod.namespace));
 			} else if (hostParts.length == 2) {
-				targetHosts.add(String.format("%s.%s.cluster.local", hostParts[0], hostParts[1]));
+				targetHosts.add(String.format("%s.%s.svc.cluster.local", hostParts[0], hostParts[1]));
 			}
 		}
 		if (!StringUtils.isEmpty(destinationHost)) {
