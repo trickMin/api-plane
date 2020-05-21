@@ -316,7 +316,9 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
             }
             if (service.getMetadata().getLabels().get(meshConfig.getProjectKey()) != null &&
                     service.getMetadata().getLabels().get(meshConfig.getProjectKey()).equals(projectId) &&
-                    service.getMetadata().getName().equals(serviceName)) {
+                    service.getMetadata().getLabels().get(meshConfig.getAppKey()) != null &&
+                    service.getMetadata().getLabels().get(meshConfig.getAppKey()).equals(serviceName)
+            ) {
 
                 return getWorkLoadByServiceSelector((io.fabric8.kubernetes.api.model.Service)service,clusterId).stream()
                         .map(obj -> new WorkLoadDTO<>(obj, getServiceName(service), clusterId,
