@@ -1,6 +1,5 @@
 package com.netease.cloud.nsf.core.k8s.operator;
 
-import com.google.common.collect.ImmutableMap;
 import com.netease.cloud.nsf.util.CommonUtil;
 import me.snowdrop.istio.api.networking.v1alpha3.Endpoint;
 import me.snowdrop.istio.api.networking.v1alpha3.ServiceEntry;
@@ -9,7 +8,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 public class ServiceEntryOperatorTest {
@@ -29,12 +27,15 @@ public class ServiceEntryOperatorTest {
                 "  - address: test.a\n" +
                 "    labels:\n" +
                 "      gw_cluster: gw1\n" +
+                "      version: v1\n" +
                 "  - address: test.b\n" +
                 "    labels:\n" +
                 "      gw_cluster: gw1\n" +
+                "      version: v1\n" +
                 "  - address: test.c\n" +
                 "    labels:\n" +
                 "      gw_cluster: gw2\n" +
+                "      version: v2\n" +
                 "  exportTo:\n" +
                 "  - '*'\n" +
                 "  hosts:\n" +
@@ -53,15 +54,18 @@ public class ServiceEntryOperatorTest {
                 "  namespace: gateway-system\n" +
                 "spec:\n" +
                 "  endpoints:\n" +
-                "  - address: test.d\n" +
+                "  - address: test.b\n" +
                 "    labels:\n" +
                 "      gw_cluster: gw1\n" +
+                "      version: v2\n" +
                 "  - address: test.f\n" +
                 "    labels:\n" +
                 "      gw_cluster: gw3\n" +
+                "      version: v2\n" +
                 "  - address: test.z\n" +
                 "    labels:\n" +
                 "      gw_cluster: gw4\n" +
+                "      version: v4\n" +
                 "  exportTo:\n" +
                 "  - '*'\n" +
                 "  hosts:\n" +
@@ -85,7 +89,8 @@ public class ServiceEntryOperatorTest {
         List<Endpoint> gw1 = filterByGwLabel(spec.getEndpoints(), "gw1");
 
         Assert.assertEquals(1, gw1.size());
-        Assert.assertEquals("test.d", gw1.get(0).getAddress());
+        Assert.assertEquals("test.b", gw1.get(0).getAddress());
+        Assert.assertEquals("v2", gw1.get(0).getLabels().get("version"));
 
         List<Endpoint> gw2 = filterByGwLabel(spec.getEndpoints(), "gw2");
 
@@ -106,12 +111,8 @@ public class ServiceEntryOperatorTest {
 
     private List<Endpoint> filterByGwLabel(List<Endpoint> endpoints, String gateway) {
         return endpoints.stream()
-                .filter(e -> e.getLabels().equals(buildGatewayLabel(gateway)))
+                .filter(e -> e.getLabels().get("gw_cluster").equals(gateway))
                 .collect(Collectors.toList());
-    }
-
-    private Map<String, String> buildGatewayLabel(String gateway) {
-        return ImmutableMap.of("gw_cluster",  gateway);
     }
 
 }

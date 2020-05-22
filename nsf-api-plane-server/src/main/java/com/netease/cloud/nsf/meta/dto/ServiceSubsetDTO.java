@@ -6,6 +6,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.Valid;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -23,6 +24,9 @@ public class ServiceSubsetDTO {
     @Valid
     @JsonProperty(value = "TrafficPolicy")
     private PortalTrafficPolicyDTO trafficPolicy;
+
+    @JsonProperty(value = "StaticAddrList")
+    private List<String> staticAddrs;
 
     public String getName() {
         return name;
@@ -46,6 +50,14 @@ public class ServiceSubsetDTO {
 
     public void setTrafficPolicy(PortalTrafficPolicyDTO trafficPolicy) {
         this.trafficPolicy = trafficPolicy;
+    }
+
+    public List<String> getStaticAddrs() {
+        return staticAddrs;
+    }
+
+    public void setStaticAddrs(List<String> staticAddrs) {
+        this.staticAddrs = staticAddrs;
     }
 
     @Override
