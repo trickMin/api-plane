@@ -212,6 +212,7 @@ public class Trans {
                         ss.setLabels(sd.getLabels());
                         ss.setName(sd.getName());
                         ss.setTrafficPolicy(subsetTrafficPolicyDtoTosubsetTrafficPolicy(sd.getTrafficPolicy()));
+                        ss.setStaticAddrs(sd.getStaticAddrs());
                         return ss;
                     })
                     .collect(Collectors.toList());

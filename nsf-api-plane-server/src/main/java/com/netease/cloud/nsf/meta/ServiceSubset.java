@@ -6,6 +6,7 @@ import com.netease.cloud.nsf.meta.dto.PortalServiceConnectionPoolDTO;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -18,6 +19,8 @@ public class ServiceSubset {
     private Map<String, String> labels;
 
     private TrafficPolicy trafficPolicy;
+
+    private List<String> staticAddrs;
 
     public String getName() {
         return name;
@@ -41,6 +44,14 @@ public class ServiceSubset {
 
     public void setTrafficPolicy(TrafficPolicy trafficPolicy) {
         this.trafficPolicy = trafficPolicy;
+    }
+
+    public List<String> getStaticAddrs() {
+        return staticAddrs;
+    }
+
+    public void setStaticAddrs(List<String> staticAddrs) {
+        this.staticAddrs = staticAddrs;
     }
 
     public static class TrafficPolicy {

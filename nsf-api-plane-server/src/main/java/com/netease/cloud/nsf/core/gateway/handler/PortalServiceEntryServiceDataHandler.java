@@ -3,11 +3,14 @@ package com.netease.cloud.nsf.core.gateway.handler;
 import com.netease.cloud.nsf.core.template.TemplateParams;
 import com.netease.cloud.nsf.meta.Endpoint;
 import com.netease.cloud.nsf.meta.Service;
+import com.netease.cloud.nsf.meta.ServiceSubset;
 import com.netease.cloud.nsf.util.CommonUtil;
 import com.netease.cloud.nsf.util.Const;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static com.netease.cloud.nsf.core.template.TemplateConst.*;
@@ -44,7 +47,7 @@ public class PortalServiceEntryServiceDataHandler extends ServiceDataHandler {
             } else {
                 addrs.add(backendService);
             }
-
+            List<ServiceSubset> subsets = CollectionUtils.isEmpty(service.getSubsets()) ? Collections.EMPTY_LIST : service.getSubsets();
             addrs.stream()
                     .forEach(addr -> {
                         Endpoint e = new Endpoint();
@@ -55,6 +58,15 @@ public class PortalServiceEntryServiceDataHandler extends ServiceDataHandler {
                         } else {
                             e.setAddress(addr);
                         }
+
+                        for (ServiceSubset subset : subsets) {
+                            if (!CollectionUtils.isEmpty(subset.getStaticAddrs())
+                                    && subset.getStaticAddrs().contains(addr)) {
+                                e.setLabels(subset.getLabels());
+                                break;
+                            }
+                        }
+
                         endpoints.add(e);
                     });
 

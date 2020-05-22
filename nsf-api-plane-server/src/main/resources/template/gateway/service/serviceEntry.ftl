@@ -8,6 +8,11 @@ spec:
   - address: ${e.address}
     labels:
       gw_cluster: ${t_api_gateway}
+<#if e.labels ??>
+<#list e.labels as k,v>
+      ${k}: ${v}
+</#list>
+</#if>
 <#if e.port ??>
     ports:
       ${t_service_entry_protocol_name}: ${e.port?c}
