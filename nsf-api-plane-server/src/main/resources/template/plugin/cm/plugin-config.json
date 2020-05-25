@@ -167,6 +167,30 @@
       "pluginScope": "routeRule,global",
       "pluginPriority": "3400",
       "instructionForUse": "熔断降级插件"
+    },
+    {
+      "name": "neBotDetection",
+      "schema": "plugin/portal/bot-detection.json",
+      "description": "",
+      "processor": "AggregateExtensionProcessor",
+      "author": "system",
+      "createTime": "1572537600000",
+      "updateTime": "1572537600000",
+      "pluginScope": "global,routeRule",
+      "pluginPriority": "1000",
+      "instructionForUse": "UA 黑白名单插件"
+    },
+    {
+      "name": "neSecurity",
+      "schema": "plugin/portal/security.json",
+      "description": "",
+      "processor": "AggregateExtensionProcessor",
+      "author": "system",
+      "createTime": "1572537600000",
+      "updateTime": "1572537600000",
+      "pluginScope": "global,routeRule",
+      "pluginPriority": "1000",
+      "instructionForUse": "安全拦截插件"
     }
   ]
 }
