@@ -19,10 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
@@ -178,6 +175,10 @@ public class CommonUtil {
          } catch (NullPointerException npe) {
              return null;
          }
+    }
+
+    public static <T> Optional<T> safely(Supplier<T> getter) {
+     	return Optional.ofNullable(safelyGet(getter));
     }
 
     /**
