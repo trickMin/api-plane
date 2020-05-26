@@ -18,15 +18,15 @@ public class AuthProcessor extends AbstractSchemaProcessor implements SchemaProc
     @Override
     public FragmentHolder process(String plugin, ServiceInfo serviceInfo) {
         ResourceGenerator source = ResourceGenerator.newInstance(plugin);
-        ResourceGenerator builder = ResourceGenerator.newInstance("{\"use_authentication\":\"false\", \"failure_auth_allow\":\"false\"}");
+        ResourceGenerator builder = ResourceGenerator.newInstance("{\"need_authorization\":\"false\", \"failure_auth_allow\":\"false\"}");
          String authType = source.getValue("$.authnType", String.class);
-        if ("aksk_authz_type".equals(authType)) {
-            builder.createOrUpdateJson("$", "aksk_authz_type", "{}");
+        if ("aksk_authn_type".equals(authType)) {
+            builder.createOrUpdateJson("$", "aksk_authn_type", "{}");
         } else {
-            builder.createOrUpdateJson("$", "jwt_authz_type", "{}");
+            builder.createOrUpdateJson("$", "jwt_authn_type", "{}");
         }
 
-        builder.updateValue("$.use_authentication", source.getValue("$.useAuthz", Boolean.class));
+        builder.updateValue("$.need_authorization", source.getValue("$.useAuthz", Boolean.class));
         Boolean failureAuthAllow = source.getValue("$.failureAuthAllow", Boolean.class);
         failureAuthAllow = null == failureAuthAllow ? false : failureAuthAllow;
         builder.updateValue("$.failure_auth_allow", failureAuthAllow);
