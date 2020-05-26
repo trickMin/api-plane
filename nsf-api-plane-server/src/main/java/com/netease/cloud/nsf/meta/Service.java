@@ -52,6 +52,11 @@ public class Service extends CommonModel {
     private Integer maxEjectionPercent;
 
     /**
+     * 最小健康比例
+     */
+    private Integer minHealthPercent;
+
+    /**
      * 健康检查路径
      */
     private String path;
@@ -225,6 +230,14 @@ public class Service extends CommonModel {
 
     public void setMaxEjectionPercent(Integer maxEjectionPercent) {
         this.maxEjectionPercent = maxEjectionPercent;
+    }
+
+    public Integer getMinHealthPercent() {
+        return minHealthPercent;
+    }
+
+    public void setMinHealthPercent(Integer minHealthPercent) {
+        this.minHealthPercent = minHealthPercent;
     }
 
     public String getPath() {

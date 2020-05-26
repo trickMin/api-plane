@@ -149,6 +149,7 @@ public class Trans {
                 s.setConsecutiveErrors(outlierDetection.getConsecutiveErrors());
                 s.setBaseEjectionTime(outlierDetection.getBaseEjectionTime());
                 s.setMaxEjectionPercent(outlierDetection.getMaxEjectionPercent());
+                s.setMinHealthPercent(outlierDetection.getMinHealthPercent());
             }
 
             if (healthCheck != null) {

@@ -29,6 +29,14 @@ public class PortalOutlierDetectionDTO {
     @Max(value = 100, message = "maxEjectionPercent")
     private Integer maxEjectionPercent;
 
+    /**
+     * 最小健康比例
+     */
+    @JsonProperty(value = "MinHealthPercent")
+    @Min(value = 0, message = "minHealthPercent")
+    @Max(value = 100, message = "minHealthPercent")
+    private Integer minHealthPercent;
+
     public Integer getConsecutiveErrors() {
         return consecutiveErrors;
     }
@@ -51,5 +59,13 @@ public class PortalOutlierDetectionDTO {
 
     public void setMaxEjectionPercent(Integer maxEjectionPercent) {
         this.maxEjectionPercent = maxEjectionPercent;
+    }
+
+    public Integer getMinHealthPercent() {
+        return minHealthPercent;
+    }
+
+    public void setMinHealthPercent(Integer minHealthPercent) {
+        this.minHealthPercent = minHealthPercent;
     }
 }

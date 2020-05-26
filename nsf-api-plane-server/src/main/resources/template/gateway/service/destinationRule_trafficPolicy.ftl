@@ -67,6 +67,9 @@ trafficPolicy:
 <#if t_destination_rule_max_ejection_percent?has_content>
     maxEjectionPercent: ${t_destination_rule_max_ejection_percent}
 </#if>
+<#if t_destination_rule_min_health_percent?has_content>
+    minHealthPercent: ${t_destination_rule_min_health_percent}
+</#if>
   healthCheck:
 <#if t_destination_rule_path?has_content || t_destination_rule_expected_statuses?has_content>
     host: ${t_destination_rule_host}
