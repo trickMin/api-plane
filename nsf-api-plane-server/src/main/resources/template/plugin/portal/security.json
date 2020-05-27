@@ -48,13 +48,14 @@
     },{
       "key": "response",
       "alias": "降级后响应内容",
+      "help": "响应header和响应body可以使用{{x-secure-id}}，系统会自动替换成安全接口返回的request_id",
       "type": "layouts",
       "layouts": [
         {
           "key": "code",
-          "type": "input",
+          "type": "number",
           "help": "默认403",
-          "default": "403",
+          "default": 403,
           "alias": "响应状态码",
           "rules": [
             "Required",
