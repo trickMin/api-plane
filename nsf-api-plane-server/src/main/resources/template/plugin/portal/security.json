@@ -8,7 +8,7 @@
       "timeout": "&timeout",
       "ignore": "&ignore",
       "response": {
-        "code": "&response.code",
+        "status": "&response.status",
         "headers": "@response.headers",
         "body": "&response.body"
       }
@@ -52,7 +52,7 @@
       "type": "layouts",
       "layouts": [
         {
-          "key": "code",
+          "key": "status",
           "type": "number",
           "help": "默认403",
           "default": 403,
