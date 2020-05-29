@@ -2,7 +2,7 @@
 |:--------------------|:-----|:------------------------------------------|:---|:---|
 | kind                | 插件类型 | ianus-router                              |    |    |
 | matcher.source_type | 匹配目标 | 支持：Header、Args、Cookie、User-Agent、URI、Host |    |    |
-| matcher.op          | 匹配方式 | 支持：=、!=、≈、!≈、startsWith、endsWith          |    |    |
+| matcher.op          | 匹配方式 | 支持：=、!=、≈、!≈、startsWith、endsWith          | !≈与!=慎用，复杂表达式可能匹配不准确   |    |
 ```
 场景1：使用路由插件的rewrite插件，regex和target为新用法
 {

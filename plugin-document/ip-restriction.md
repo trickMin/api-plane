@@ -7,7 +7,7 @@
 场景1：配置白名单
 {
   "kind": "ip-restriction",
-  "type": 1,
+  "type": "1",
   "list": [
     "127.0.0.1"
   ]
@@ -18,7 +18,7 @@
 场景2：配置黑名单
 {
   "kind": "ip-restriction",
-  "type": 0,
+  "type": "0",
   "list": [
     "127.0.0.1"
   ]
