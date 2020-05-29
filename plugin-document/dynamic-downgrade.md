@@ -58,7 +58,7 @@
 				}]
 			}
 		},
-		"ttls": {
+		"ttl": {
 			"default": 30000,
 			"custom": [{
 				"code": "200",

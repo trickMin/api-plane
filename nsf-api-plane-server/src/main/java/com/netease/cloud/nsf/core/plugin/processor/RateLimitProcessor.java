@@ -110,22 +110,21 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
                                 String.format("{\"name\":\"%s\",\"regex_match\":\"%s\",\"invert_match\":%s}", matchHeader, expression, invertMatch));
                         break;
                     case "!≈":
-                        expression = String.format("((?!%s).)*", escapeBackSlash(rightValue));
+                        expression = escapeBackSlash(rightValue);
                         vs.addJsonElement("$.actions[0].header_value_match.headers",
-                                String.format("{\"name\":\"%s\",\"regex_match\":\"%s\",\"invert_match\":%s}", matchHeader, expression, invertMatch));
+                                String.format("{\"name\":\"%s\",\"regex_match\":\"%s\",\"invert_match\":%s}", matchHeader, expression, !invertMatch));
                         break;
                     case "=":
-                        expression = String.format("%s", escapeExprSpecialWord(rightValue));
+                        expression = rightValue;
                         vs.addJsonElement("$.actions[0].header_value_match.headers",
-                                String.format("{\"name\":\"%s\",\"regex_match\":\"%s\",\"invert_match\":%s}", matchHeader, expression, invertMatch));
+                                String.format("{\"name\":\"%s\",\"exact_match\":\"%s\",\"invert_match\":%s}", matchHeader, expression, invertMatch));
                         break;
                     case "!=":
-                        expression = String.format("((?!%s).)*", escapeExprSpecialWord(rightValue));
+                        expression = rightValue;
                         vs.addJsonElement("$.actions[0].header_value_match.headers",
-                                String.format("{\"name\":\"%s\",\"regex_match\":\"%s\",\"invert_match\":%s}", matchHeader, expression, invertMatch));
+                                String.format("{\"name\":\"%s\",\"exact_match\":\"%s\",\"invert_match\":%s}", matchHeader, expression, !invertMatch));
                         break;
                     case "present":
-                        //todo: envoy bug: presentMatch always true. Use invertMatch if need not present.
                         vs.addJsonElement("$.actions[0].header_value_match.headers",
                                 String.format("{\"name\":\"%s\",\"present_match\":true,\"invert_match\":%s}", matchHeader, invertMatch));
                         break;
