@@ -31,7 +31,7 @@ public class StatusMonitorImpl implements StatusMonitor {
         this.status = new AtomicReference<>(new Status(new Status.Property[0]));
         this.handlers = new HashMap<>();
         this.timerTask = Executors.newScheduledThreadPool(1);
-        // 使用单线程执行分发任务
+        // 使用单线程执行分发任务，要求是任务不能导致单线程阻塞
         this.notifyQueue = Executors.newSingleThreadExecutor();
         this.timerIntervalMs = checkIntervalMs;
         this.statusProductor = productor;
@@ -47,7 +47,17 @@ public class StatusMonitorImpl implements StatusMonitor {
 
     @Override
     public void start() {
-        this.timerTask.scheduleAtFixedRate(this::process, 0, this.timerIntervalMs, TimeUnit.MILLISECONDS);
+        // 在上一次任务执行完成后固定时间间隔执行下一个任务,避免任务积压
+        // 要求任务不能阻塞
+        this.timerTask.scheduleWithFixedDelay(() -> {
+            // catch exception 避免定时任务被中止
+            try {
+                process();
+            } catch (Exception e) {
+                e.printStackTrace();
+                logger.warn("an error occurred while performing periodic state checks", e);
+            }
+        }, 0, this.timerIntervalMs, TimeUnit.MILLISECONDS);
     }
 
     @Override
@@ -57,6 +67,7 @@ public class StatusMonitorImpl implements StatusMonitor {
 
     private void process() {
         Status oldStatus = this.status.get();
+        // 涉及db io，可能会阻塞线程，需要配置db超时时间
         Status newStatus = statusProductor.product();
         if (this.status.compareAndSet(oldStatus, newStatus)) {
             Status.Difference diff = oldStatus.compare(newStatus);
@@ -76,7 +87,7 @@ public class StatusMonitorImpl implements StatusMonitor {
         List<BiConsumer<Event, Status.Property>> handlers = this.handlers.get(property.key);
         if (Objects.nonNull(handlers)) {
             for (BiConsumer<Event, Status.Property> handle : this.handlers.get(property.key)) {
-                this.notifyQueue.submit(() -> handle.accept(event, property));
+                this.notifyQueue.execute(() -> handle.accept(event, property));
             }
         }
     }
