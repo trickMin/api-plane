@@ -102,7 +102,7 @@ public class GatewayNonK8sConfiguration {
                     if (Objects.equals(thisVersion, dbVersion)) {
                         long start = System.currentTimeMillis();
                         SnapshotOuterClass.Snapshot snapshot = builder.build();
-                        logger.info("MCP: SnapshotBuilder: build snapshot for version:[{}], consume:[{}]", property.value, System.currentTimeMillis() - start + "ms");
+                        logger.info("MCP: SnapshotBuilder: build snapshot for version:[{}], consume:[{}]", snapshot.getVersion(), System.currentTimeMillis() - start + "ms");
                         for (Map.Entry<String, Mcp.Resources> entry : snapshot.getResourcesMap().entrySet()) {
                             logger.info("--MCP: SnapshotBuilder: collection:[{}], count:[{}]", entry.getKey(), entry.getValue().getResourcesList().size());
                         }

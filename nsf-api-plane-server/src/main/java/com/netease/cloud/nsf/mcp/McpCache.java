@@ -29,7 +29,7 @@ public class McpCache implements McpResourceDistributor, McpResourceWatcher {
         watchMap.putIfAbsent(collection, new HashSet<>());
         Set<Connection> subscribeConnection = watchMap.get(collection);
         if (subscribeConnection.add(connection) && Objects.nonNull(snapshot)) {
-            scheduleThread.submit(() -> distribute(connection, collection, snapshot));
+            scheduleThread.execute(() -> distribute(connection, collection, snapshot));
         }
     }
 
@@ -45,7 +45,7 @@ public class McpCache implements McpResourceDistributor, McpResourceWatcher {
     @Override
     public synchronized void setSnapshot(SnapshotOuterClass.Snapshot snapshot) {
         this.snapshot = snapshot;
-        scheduleThread.submit(() -> distribute(snapshot));
+        scheduleThread.execute(() -> distribute(snapshot));
     }
 
     @Override
