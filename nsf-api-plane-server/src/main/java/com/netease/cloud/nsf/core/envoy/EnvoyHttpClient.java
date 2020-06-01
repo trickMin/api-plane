@@ -6,6 +6,7 @@ import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.k8s.KubernetesClient;
 import com.netease.cloud.nsf.meta.EndpointHealth;
+import com.netease.cloud.nsf.meta.HealthServiceSubset;
 import com.netease.cloud.nsf.meta.ServiceHealth;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
@@ -52,6 +53,9 @@ public class EnvoyHttpClient {
 
     private static final String SUBSET_PATTERN = ".+\\|\\d+\\|.+\\|.*";
 
+    private static final String HEALTHY = "HEALTHY";
+    private static final String UNHEALTHY = "UNHEALTHY";
+
     private String getEnvoyUrl() {
         if (!StringUtils.isEmpty(envoyUrl)) return envoyUrl;
         //envoy service暂时未暴露管理端口，直接拿pod ip
@@ -67,14 +71,14 @@ public class EnvoyHttpClient {
         return healthPod.get() + ":" + port;
     }
 
-    public List<ServiceHealth> getServiceHealth(Function<String, String> nameHandler, Predicate filter) {
+    public List<ServiceHealth> getServiceHealth(Function<String, HealthServiceSubset> nameHandler, Predicate<HealthServiceSubset> filter) {
 
         Map<String, List<EndpointHealth>> healthMap = new HashMap<>();
         String resp = restTemplate.getForObject(getEnvoyUrl() + GET_CLUSTER_HEALTH_JSON, String.class);
         ResourceGenerator rg = ResourceGenerator.newInstance(resp, ResourceType.JSON);
 
         List endpoints = rg.getValue("$.cluster_statuses[?(@.host_statuses)]");
-        Function<String, String> nameFunction = nameHandler == null ? n -> n : nameHandler;
+        Function<String, HealthServiceSubset> nameFunction = nameHandler == null ? n -> new HealthServiceSubset(n) : nameHandler;
         Predicate serviceFilter = filter == null ? n -> true : filter;
         if (CollectionUtils.isEmpty(endpoints)) return Collections.emptyList();
         endpoints.stream()
@@ -82,11 +86,9 @@ public class EnvoyHttpClient {
                     ResourceGenerator gen = ResourceGenerator.newInstance(e, ResourceType.OBJECT);
 
                     String serviceName = gen.getValue("$.name");
-                    //忽略subset
-                    if (isSubset(serviceName)) return;
                     //不同端口的服务算一个服务，以后缀为服务名
-                    String handledName = nameFunction.apply(serviceName);
-                    if (!serviceFilter.test(handledName)) return;
+                    HealthServiceSubset serviceSubset = nameFunction.apply(serviceName);
+                    if (!serviceFilter.test(serviceSubset)) return;
                     List<String> addrs = gen.getValue("$..socket_address.address");
                     List<Integer> ports = gen.getValue("$..socket_address.port_value");
 
@@ -99,15 +101,34 @@ public class EnvoyHttpClient {
                         EndpointHealth eh = new EndpointHealth();
                         eh.setAddress(addrs.get(i) + ":" + ports.get(i));
                         eh.setStatus(healthStatus(gen, i));
-                        healthMap.computeIfAbsent(handledName, v -> new ArrayList()).add(eh);
+                        eh.setSubset(serviceSubset.getSubset());
+                        healthMap.computeIfAbsent(serviceSubset.getHost(), v -> new ArrayList()).add(eh);
                     }
                 });
 
         List<ServiceHealth> shs = new ArrayList<>();
         healthMap.forEach((name, ehs) -> {
             ServiceHealth sh = new ServiceHealth();
+            Map<EndpointHealth, String> mergedEhs = new HashMap<>();
+            ehs.stream().forEach(eh -> {
+                if (mergedEhs.containsKey(eh)) {
+                    // 有任何一个实例不健康，则整体不健康
+                    if (Objects.equals(eh.getStatus(), UNHEALTHY)
+                            || Objects.equals(mergedEhs.get(eh), UNHEALTHY)) {
+                        mergedEhs.put(eh, UNHEALTHY);
+                    }
+                } else {
+                    mergedEhs.put(eh, eh.getStatus());
+                }
+            });
             sh.setName(name);
-            sh.setEps(ehs.stream().distinct().collect(Collectors.toList()));
+            sh.setEps(
+                    mergedEhs.entrySet().stream()
+                            .map(e -> {
+                                e.getKey().setStatus(e.getValue());
+                                return e.getKey(); })
+                            .collect(Collectors.toList())
+            );
             shs.add(sh);
         });
         return shs;
@@ -120,7 +141,7 @@ public class EnvoyHttpClient {
         boolean active = failedActive == null ? false : true;
         boolean outlier = failedOutlier == null ? false : true;
 
-        return !(active|outlier) ? "HEALTHY" : "UNHEALTHY";
+        return !(active|outlier) ? HEALTHY : UNHEALTHY;
     }
 
     private boolean isSubset(String name) {

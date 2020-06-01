@@ -195,4 +195,32 @@ public class CommonUtil {
             throw new RuntimeException(e);
         }
     }
+
+    /**
+     * 返回第n次出现的字符串的索引
+     *
+     * e.g.
+     * str = outbound|9901|subset1|istio-galley.istio-system.svc.cluster.local
+     * occur = |
+     *
+     * order = 0
+     * return 8
+     *
+     * order = 1
+     * return 13
+     *
+     * order = 2
+     * return 21
+     *
+     * @param str
+     * @param occur
+     * @param order
+     * @return
+     */
+    public static int xIndexOf(String str, String occur, int order) {
+        if (StringUtils.isEmpty(str) || StringUtils.isEmpty(occur) || order < 0) return -1;
+        if (order == 0) return str.indexOf(occur);
+        return str.indexOf(occur, xIndexOf(str, occur, order-1) + 1);
+    }
+
 }

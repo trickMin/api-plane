@@ -262,8 +262,8 @@ public class GatewayServiceImpl implements GatewayService {
     }
 
     @Override
-    public List<ServiceHealth> getServiceHealthList(String host) {
-        return resourceManager.getServiceHealthList(host);
+    public List<ServiceHealth> getServiceHealthList(String host, List<String> subsets) {
+        return resourceManager.getServiceHealthList(host, subsets);
     }
 
     private boolean matchType(String type, String name, String registryId) {

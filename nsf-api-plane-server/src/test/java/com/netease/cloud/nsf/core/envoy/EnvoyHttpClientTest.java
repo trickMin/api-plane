@@ -39,7 +39,7 @@ public class EnvoyHttpClientTest extends BaseTest {
 
         List<ServiceHealth> serviceHealth = envoyHttpClient.getServiceHealth(null, null);
 
-        Assert.assertTrue(serviceHealth.size() == 3);
+        Assert.assertEquals(4, serviceHealth.size());
     }
 
     private Pod getPod(PodSpec spec, PodStatus status) {
