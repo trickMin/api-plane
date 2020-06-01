@@ -19,6 +19,9 @@ public class EndpointHealth {
     @JsonIgnore
     private Integer port;
 
+    @JsonIgnore
+    private String subset;
+
     public String getAddress() {
         return address;
     }
@@ -43,17 +46,24 @@ public class EndpointHealth {
         this.port = port;
     }
 
+    public String getSubset() {
+        return subset;
+    }
+
+    public void setSubset(String subset) {
+        this.subset = subset;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         EndpointHealth that = (EndpointHealth) o;
-        return Objects.equals(address, that.address);
+        return address.equals(that.address);
     }
 
     @Override
     public int hashCode() {
-
         return Objects.hash(address);
     }
 }

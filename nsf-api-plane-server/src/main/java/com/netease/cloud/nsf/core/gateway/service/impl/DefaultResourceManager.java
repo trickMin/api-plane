@@ -3,10 +3,8 @@ package com.netease.cloud.nsf.core.gateway.service.impl;
 import com.netease.cloud.nsf.core.envoy.EnvoyHttpClient;
 import com.netease.cloud.nsf.core.gateway.service.ResourceManager;
 import com.netease.cloud.nsf.core.istio.PilotHttpClient;
-import com.netease.cloud.nsf.meta.Endpoint;
-import com.netease.cloud.nsf.meta.Gateway;
-import com.netease.cloud.nsf.meta.ServiceAndPort;
-import com.netease.cloud.nsf.meta.ServiceHealth;
+import com.netease.cloud.nsf.meta.*;
+import com.netease.cloud.nsf.util.CommonUtil;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -118,11 +116,24 @@ public class DefaultResourceManager implements ResourceManager {
     }
 
     @Override
-    public List<ServiceHealth> getServiceHealthList(String host) {
-        List<ServiceHealth> serviceHealth = envoyHttpClient.getServiceHealth(name -> {
-            if (!name.contains("|")) return name;
-            return name.substring(name.lastIndexOf("|") + 1);
-        }, s -> s.equals(host));
+    public List<ServiceHealth> getServiceHealthList(String host, List<String> subsets) {
+        final List<String> ss = subsets;
+        List<ServiceHealth> serviceHealth = envoyHttpClient.getServiceHealth(
+                name -> {
+                    if (!name.contains("|")) return new HealthServiceSubset(name);
+                    // 截取到第二个|
+                    // e.g. outbound|9901|subset1|istio-galley.istio-system.svc.cluster.local -> subset1
+                    String subset = name.substring(CommonUtil.xIndexOf(name, "|", 1) + 1, name.lastIndexOf("|"));
+                    String h = name.substring(name.lastIndexOf("|")  + 1);
+                    return new HealthServiceSubset(h, subset);
+                },
+                serviceSubset -> {
+                    for (String subset : ss) {
+                        if (Objects.equals(serviceSubset.getHost(), host)
+                                && Objects.equals(serviceSubset.getSubset(), subset)) return true;
+                    }
+                    return false;
+                });
 
         return serviceHealth;
     }
@@ -136,4 +147,7 @@ public class DefaultResourceManager implements ResourceManager {
     private boolean isServiceEntry(String hostname) {
         return StringUtils.contains(hostname, "com.netease.static");
     }
+
+
+
 }

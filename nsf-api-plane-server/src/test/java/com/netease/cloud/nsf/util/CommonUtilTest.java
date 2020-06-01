@@ -229,4 +229,20 @@ public class CommonUtilTest {
         }
         return count;
     }
+
+    @Test
+    public void testXIndexOf() {
+
+        String str = "outbound|9901|subset1|istio-galley.istio-system.svc.cluster.local";
+        String occur = "|";
+
+        Assert.assertEquals(-1, CommonUtil.xIndexOf("", occur, 0));
+        Assert.assertEquals(-1, CommonUtil.xIndexOf(str, "", 0));
+        Assert.assertEquals(-1, CommonUtil.xIndexOf(str, occur, -1));
+        Assert.assertEquals(8, CommonUtil.xIndexOf(str, occur, 0));
+        Assert.assertEquals(13, CommonUtil.xIndexOf(str, occur, 1));
+        Assert.assertEquals(21, CommonUtil.xIndexOf(str, occur, 2));
+        Assert.assertEquals(-1, CommonUtil.xIndexOf(str, occur, 3));
+
+    }
 }
