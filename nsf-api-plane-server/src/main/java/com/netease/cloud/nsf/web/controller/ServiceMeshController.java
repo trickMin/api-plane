@@ -44,28 +44,32 @@ public class ServiceMeshController extends BaseController {
     private static final String DURATION_PATTERN = "\\d+(s|m|h|d)";
 
     @RequestMapping(params = "Action=UpdateConfig", method = RequestMethod.POST)
-    public String updateConfig(@RequestBody String resource) {
-        serviceMeshService.updateIstioResource(StringEscapeUtils.unescapeJava(resource));
+    public String updateConfig(@RequestBody String resource,
+                               @RequestParam(name = "ClusterId", required = false) String clusterId) {
+        serviceMeshService.updateIstioResource(StringEscapeUtils.unescapeJava(resource), clusterId);
         return apiReturn(SUCCESS, "Success", null, null);
     }
 
     @RequestMapping(params = "Action=DeleteConfig", method = RequestMethod.POST)
-    public String deleteConfig(@RequestBody String resource) {
-        serviceMeshService.deleteIstioResource(StringEscapeUtils.unescapeJava(resource));
+    public String deleteConfig(@RequestBody String resource,
+                               @RequestParam(name = "ClusterId", required = false) String clusterId) {
+        serviceMeshService.deleteIstioResource(StringEscapeUtils.unescapeJava(resource), clusterId);
         return apiReturn(SUCCESS, "Success", null, null);
     }
 
     @RequestMapping(params = "Action=GetConfig", method = RequestMethod.GET)
     public String getConfig(@RequestParam(name = "Name")String name,
-                               @RequestParam(name = "Namespace")String namespace,
-                               @RequestParam(name = "Kind")String kind) {
-        return apiReturn(ImmutableMap.of(RESULT, serviceMeshService.getIstioResource(name, namespace, kind)));
+                            @RequestParam(name = "Namespace")String namespace,
+                            @RequestParam(name = "Kind")String kind,
+                            @RequestParam(name = "ClusterId", required = false) String clusterId) {
+        return apiReturn(ImmutableMap.of(RESULT, serviceMeshService.getIstioResource(clusterId, name, namespace, kind)));
     }
 
     @RequestMapping(params = "Action=GetConfigsByNamespaces", method = RequestMethod.GET)
     public String getConfigsByNamespaces(@RequestParam(name = "Namespaces") String namespaces,
-                               @RequestParam(name = "Kind")String kind) {
-        return apiReturn(ImmutableMap.of(RESULT_LIST, serviceMeshService.getIstioResourceList(namespaces, kind)));
+                                         @RequestParam(name = "Kind") String kind,
+                                         @RequestParam(name = "ClusterId", required = false) String clusterId) {
+        return apiReturn(ImmutableMap.of(RESULT_LIST, serviceMeshService.getIstioResourceList(clusterId, namespaces, kind)));
     }
 
     @RequestMapping(params = {"Action=InjectSidecar"}, method = RequestMethod.GET)

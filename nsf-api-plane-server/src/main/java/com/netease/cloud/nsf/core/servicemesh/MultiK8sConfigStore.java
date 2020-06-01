@@ -26,8 +26,11 @@ public class MultiK8sConfigStore extends K8sConfigStore {
     }
 
     public void update(HasMetadata t, String clusterId) {
-//        supply(t);
         resolve(clusterId).createOrUpdate(t, ResourceType.OBJECT);
+    }
+
+    public void delete(HasMetadata t, String clusterId) {
+        resolve(clusterId).delete(t.getKind(), t.getMetadata().getNamespace(), t.getMetadata().getName());
     }
 
     public HasMetadata get(String kind, String namespace, String name, String clusterId) {
@@ -48,7 +51,6 @@ public class MultiK8sConfigStore extends K8sConfigStore {
 
     @Override
     public void update(HasMetadata resource) {
-//        supply(resource);
         resolve(getDefaultClusterId()).createOrUpdate(resource, ResourceType.OBJECT);
     }
 
