@@ -99,47 +99,46 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
     MeshConfig meshConfig;
 
     @Override
-    public void updateIstioResource(String json) {
-
+    public void updateIstioResource(String json, String clusterId) {
         json = optimize(json);
-        configStore.update(json2Resource(json));
+        clusterId = StringUtils.isEmpty(clusterId) ? getDefaultClusterId() : clusterId;
+        configStore.update(json2Resource(json), clusterId);
     }
 
     @Override
-    public void deleteIstioResource(String json) {
-
+    public void deleteIstioResource(String json, String clusterId) {
         json = optimize(json);
-        configStore.delete(json2Resource(json));
+        clusterId = StringUtils.isEmpty(clusterId) ? getDefaultClusterId() : clusterId;
+        configStore.delete(json2Resource(json), clusterId);
     }
 
     @Override
-    public List<ResourceWrapperDTO> getIstioResourceList(String namespaces, String kind) {
+    public List<ResourceWrapperDTO> getIstioResourceList(String clusterId, String namespaces, String kind) {
 
         if (StringUtils.isEmpty(namespaces)) throw new ApiPlaneException(ExceptionConst.RESOURCE_NON_EXIST, 404);
         List<ResourceWrapperDTO> wrapperDTOS = new ArrayList<>();
-        String defaultClusterId = getDefaultClusterId();
+        clusterId = StringUtils.isEmpty(clusterId) ? getDefaultClusterId() : clusterId;
 
         for (String ns : namespaces.split(",")) {
             if (StringUtils.isEmpty(ns)) continue;
             List<HasMetadata> resources;
             try {
-                resources = configStore.getList(kind, ns, defaultClusterId);
+                resources = configStore.getList(kind, ns, clusterId);
             } catch (Exception e) {
                 logger.warn("find resources failed", e);
                 continue;
             }
             for (HasMetadata r : resources) {
-                wrapperDTOS.add(new ResourceWrapperDTO(r, defaultClusterId));
+                wrapperDTOS.add(new ResourceWrapperDTO(r, clusterId));
             }
         }
         return wrapperDTOS;
     }
 
     @Override
-    public HasMetadata getIstioResource(String name, String namespace, String kind) {
-
-        String defaultClusterId = getDefaultClusterId();
-        HasMetadata resource = configStore.get(kind, namespace, name, defaultClusterId);
+    public HasMetadata getIstioResource(String clusterId, String name, String namespace, String kind) {
+        clusterId = StringUtils.isEmpty(clusterId) ? getDefaultClusterId() : clusterId;
+        HasMetadata resource = configStore.get(kind, namespace, name, clusterId);
         if (resource == null) {
             throw new ApiPlaneException(ExceptionConst.RESOURCE_NON_EXIST, 404);
         }

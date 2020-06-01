@@ -9,13 +9,13 @@ import java.util.List;
 
 public interface ServiceMeshService {
 
-    void updateIstioResource(String json);
+    void updateIstioResource(String json, String clusterId);
 
-    void deleteIstioResource(String json);
+    void deleteIstioResource(String json, String clusterId);
 
-    HasMetadata getIstioResource(String name, String namespace, String kind);
+    HasMetadata getIstioResource(String clusterId, String name, String namespace, String kind);
 
-    List<ResourceWrapperDTO> getIstioResourceList(String namespaces, String kind);
+    List<ResourceWrapperDTO> getIstioResourceList(String clusterId, String namespaces, String kind);
 
     ErrorCode sidecarInject(String clusterId, String kind, String namespace, String name, String version, String expectedVersion, String appName);
 
