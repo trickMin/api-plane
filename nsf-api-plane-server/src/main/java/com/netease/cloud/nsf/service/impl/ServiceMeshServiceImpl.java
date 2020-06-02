@@ -93,7 +93,7 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
     PilotHttpClient pilotHttpClient;
 
     @Autowired
-    private MultiClusterK8sClient multiClusterK8sClient;
+    MultiClusterK8sClient multiClusterK8sClient;
 
     @Autowired
     MeshConfig meshConfig;
@@ -412,6 +412,11 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
             }
         }
         return ApiPlaneErrorCode.Success;
+    }
+
+    @Override
+    public String getLogs(String clusterId, String namespace, String podName, String container, Integer tailLines, Long sinceSeconds) {
+        return configStore.getPodLog(clusterId, podName, namespace, container, tailLines, sinceSeconds);
     }
 
     private String doGetProjectCodeByApp(String namespace, String appName ,String clusterId){
