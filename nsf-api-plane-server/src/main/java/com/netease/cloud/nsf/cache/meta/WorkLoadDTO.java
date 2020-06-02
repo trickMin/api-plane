@@ -8,7 +8,6 @@ import io.fabric8.kubernetes.api.model.apps.StatefulSet;
 import io.fabric8.kubernetes.api.model.apps.StatefulSetStatus;
 import org.springframework.util.StringUtils;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -29,7 +28,7 @@ public class WorkLoadDTO<T extends HasMetadata> extends K8sResourceDTO {
 
     private Map<String, String> labels;
 
-    private Map<String, String> statusInfo = new HashMap<>();
+    private String statusInfo;
 
     private String lastUpdateTime;
 
@@ -45,16 +44,15 @@ public class WorkLoadDTO<T extends HasMetadata> extends K8sResourceDTO {
         if (obj instanceof Deployment) {
             Deployment deployment = (Deployment) obj;
             DeploymentStatus status = deployment.getStatus();
-            statusInfo.put("desired", getValueOrDefault(deployment.getSpec().getReplicas()).toString());
-            statusInfo.put("current", getValueOrDefault(status.getReplicas()).toString());
-            statusInfo.put("up-to-date", getValueOrDefault(status.getUpdatedReplicas()).toString());
-            statusInfo.put("available", getValueOrDefault(status.getAvailableReplicas()).toString());
+            String total = getValueOrDefault(deployment.getSpec().getReplicas()).toString();
+            String ready = getValueOrDefault(status.getReplicas()).toString();
+            statusInfo =  ready + "/" + total;
         } else if (obj instanceof StatefulSet) {
             StatefulSet statefulSet = (StatefulSet) obj;
             StatefulSetStatus status = statefulSet.getStatus();
-            statusInfo.put("desired", getValueOrDefault(statefulSet.getSpec().getReplicas()).toString());
-            statusInfo.put("current", getValueOrDefault(status.getReplicas()).toString());
-            statusInfo.put("up-to-date", getValueOrDefault(status.getUpdatedReplicas()).toString());
+            String total = getValueOrDefault(statefulSet.getSpec().getReplicas()).toString();
+            String ready = getValueOrDefault(status.getReplicas()).toString();
+            statusInfo =  ready + "/" + total;
         }
         this.setProjectCode(projectCode);
         this.setEnvName(envName);
@@ -145,11 +143,11 @@ public class WorkLoadDTO<T extends HasMetadata> extends K8sResourceDTO {
     }
 
 
-    public Map<String, String> getStatusInfo() {
+    public String getStatusInfo() {
         return statusInfo;
     }
 
-    public void setStatusInfo(Map<String, String> statusInfo) {
+    public void setStatusInfo(String statusInfo) {
         this.statusInfo = statusInfo;
     }
 
