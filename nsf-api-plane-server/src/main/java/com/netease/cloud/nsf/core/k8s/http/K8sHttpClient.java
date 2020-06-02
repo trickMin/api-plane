@@ -11,6 +11,13 @@ public interface K8sHttpClient {
 
     String get(String url);
 
+    /**
+     * 基本等于get, 不打印response
+     * @param url
+     * @return
+     */
+    String getInSilent(String url);
+
     String put(String url, String resource);
 
     String post(String url, String resource);

@@ -8,6 +8,7 @@ release 1.2
 网格：
 - 增加单机+全局限流插件
 - 网格资源sidecar scope
+- 增加pod日志查询接口
 
 
 release 1.1

@@ -171,6 +171,18 @@ public class ServiceMeshController extends BaseController {
         return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), null);
     }
 
+    @RequestMapping(params = "Action=GetPodLogs", method = RequestMethod.GET)
+    public String getPodLogs(@RequestParam(value = "ClusterId", required = false) String clusterId,
+                             @RequestParam(value = "Namespace") String namespace,
+                             @RequestParam(value = "Pod") String pod,
+                             @RequestParam(value = "Container", required = false) String container,
+                             @RequestParam(value = "TailLines", required = false) Integer tailLines,
+                             @RequestParam(value = "SinceSeconds", required = false) Long sinceSeconds) {
+
+        String logs = serviceMeshService.getLogs(clusterId, namespace, pod, container, tailLines, sinceSeconds);
+        return apiReturnInSilent(ImmutableMap.of(RESULT, StringUtils.isEmpty(logs) ? "" : logs));
+    }
+
     private String optimize(String json) {
         if (json.startsWith("\"") && json.startsWith("\"")) {
             json = json.substring(1, json.length() - 1);
