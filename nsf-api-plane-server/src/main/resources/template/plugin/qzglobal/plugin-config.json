@@ -1,6 +1,18 @@
 {
   "item": [
     {
+      "name": "function",
+      "schema": "plugin/portal/function.json",
+      "description": "function插件",
+      "processor": "AggregateGlobalProcessor",
+      "author": "system",
+      "createTime": "1572537600000",
+      "updateTime": "1572537600000",
+      "pluginScope": "routeRule",
+      "pluginPriority": "1000",
+      "instructionForUse": "自定义脚本运行"
+    },
+    {
       "name": "jsonp",
       "schema": "plugin/portal/jsonp.json",
       "description": "jsonp插件",
