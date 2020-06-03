@@ -1,4 +1,4 @@
-package com.netease.cloud.nsf.core.gateway.handler.Meta;
+package com.netease.cloud.nsf.core.gateway.handler.meta;
 
 import com.netease.cloud.nsf.meta.UriMatch;
 

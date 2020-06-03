@@ -1,6 +1,6 @@
 package com.netease.cloud.nsf.core.gateway.handler;
 
-import com.netease.cloud.nsf.core.gateway.handler.Meta.UriMatchMeta;
+import com.netease.cloud.nsf.core.gateway.handler.meta.UriMatchMeta;
 import com.netease.cloud.nsf.core.template.TemplateParams;
 import com.netease.cloud.nsf.meta.API;
 import com.netease.cloud.nsf.meta.UriMatch;
