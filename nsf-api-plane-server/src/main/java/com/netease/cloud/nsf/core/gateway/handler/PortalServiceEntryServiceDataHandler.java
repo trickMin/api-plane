@@ -20,11 +20,7 @@ import static com.netease.cloud.nsf.core.template.TemplateConst.*;
  **/
 public class PortalServiceEntryServiceDataHandler extends ServiceDataHandler {
 
-    private static final String HTTP = "HTTP";
-    private static final String HTTPS = "HTTPS";
-
-    private static int HTTP_DEFAULT_PORT = 80;
-    private static int HTTPS_DEFAULT_PORT = 443;
+    private static int DEFAULT_PORT = 80;
 
     @Override
     List<TemplateParams> doHandle(TemplateParams tp, Service service) {
@@ -70,10 +66,9 @@ public class PortalServiceEntryServiceDataHandler extends ServiceDataHandler {
                         endpoints.add(e);
                     });
 
-            boolean isHTTPS = service.getProtocol().equalsIgnoreCase(HTTPS);
-            String protocol = isHTTPS ? "TLS" : HTTP;
-            String protocolName = isHTTPS ? HTTPS.toLowerCase() : HTTP.toLowerCase();
-            int protocolPort = isHTTPS ? HTTPS_DEFAULT_PORT : HTTP_DEFAULT_PORT;
+            String protocol = protocolMapping(service.getProtocol());
+            String protocolName = service.getProtocol().toLowerCase();
+            int protocolPort = DEFAULT_PORT;
 
             params.put(SERVICE_ENTRY_PROTOCOL, protocol);
             params.put(SERVICE_ENTRY_PROTOCOL_NAME, protocolName);
@@ -85,5 +80,17 @@ public class PortalServiceEntryServiceDataHandler extends ServiceDataHandler {
                     .put(SERVICE_ENTRY_HOST, host);
         }
         return Arrays.asList(params);
+    }
+
+    private static String protocolMapping(String protocol) {
+
+        switch (protocol) {
+            case "https":
+                return "TLS";
+            case "grpc":
+                return "GRPC";
+            default:
+                return "HTTP";
+        }
     }
 }
