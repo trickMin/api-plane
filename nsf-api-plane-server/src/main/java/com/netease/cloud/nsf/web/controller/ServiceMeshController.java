@@ -15,8 +15,11 @@ import com.netease.cloud.nsf.util.errorcode.ErrorCode;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -30,6 +33,7 @@ import java.util.regex.Pattern;
  **/
 @RestController
 @RequestMapping(value = "/api/servicemesh", params = "Version=2019-07-25")
+@Validated
 public class ServiceMeshController extends BaseController {
 
     @Autowired
@@ -176,8 +180,8 @@ public class ServiceMeshController extends BaseController {
                              @RequestParam(value = "Namespace") String namespace,
                              @RequestParam(value = "Pod") String pod,
                              @RequestParam(value = "Container", required = false) String container,
-                             @RequestParam(value = "TailLines", required = false) Integer tailLines,
-                             @RequestParam(value = "SinceSeconds", required = false) Long sinceSeconds) {
+                             @RequestParam(value = "TailLines", required = false) @Min(1) @Max(100000) Integer tailLines,
+                             @RequestParam(value = "SinceSeconds", required = false) @Min(1) @Max(86400) Long sinceSeconds) {
 
         String logs = serviceMeshService.getLogs(clusterId, namespace, pod, container, tailLines, sinceSeconds);
         return apiReturnInSilent(ImmutableMap.of(RESULT, StringUtils.isEmpty(logs) ? "" : logs));
