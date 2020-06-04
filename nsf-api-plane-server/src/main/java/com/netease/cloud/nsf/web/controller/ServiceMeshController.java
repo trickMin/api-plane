@@ -15,6 +15,7 @@ import com.netease.cloud.nsf.util.errorcode.ErrorCode;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.Max;
@@ -32,6 +33,7 @@ import java.util.regex.Pattern;
  **/
 @RestController
 @RequestMapping(value = "/api/servicemesh", params = "Version=2019-07-25")
+@Validated
 public class ServiceMeshController extends BaseController {
 
     @Autowired
