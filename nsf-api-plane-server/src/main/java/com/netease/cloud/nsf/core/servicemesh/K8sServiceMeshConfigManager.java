@@ -3,9 +3,12 @@ package com.netease.cloud.nsf.core.servicemesh;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.collect.ImmutableMap;
 import com.netease.cloud.nsf.core.AbstractConfigManagerSupport;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.k8s.K8sResourcePack;
+import com.netease.cloud.nsf.core.k8s.event.NotifyRateLimitServerEvent;
+import com.netease.cloud.nsf.core.k8s.event.RlsInfo;
 import com.netease.cloud.nsf.core.k8s.operator.VersionManagerOperator;
 import com.netease.cloud.nsf.meta.*;
 import com.netease.cloud.nsf.service.PluginService;
@@ -15,8 +18,11 @@ import me.snowdrop.istio.api.networking.v1alpha3.VersionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -33,17 +39,25 @@ public class K8sServiceMeshConfigManager extends AbstractConfigManagerSupport im
     ServiceMeshIstioModelEngine modelEngine;
     MultiK8sConfigStore multiK8sConfigStore;
     PluginService pluginService;
+    ApplicationEventPublisher eventPublisher;
 
     private static final String VM_RESOURCE_NAME = "version-manager";
 
     LoadingCache<ResourceMeta, Set<String>> sidecarCache;
     private Object sidecarRefreshLock = new Object();
 
+    @Value("${rlsNamespace:istio-system}")
+    String rlsNamespace;
+
+    @Value("${rlsApp:rate-limit}")
+    String rlsApp;
+
     @Autowired
-    public K8sServiceMeshConfigManager(ServiceMeshIstioModelEngine modelEngine, MultiK8sConfigStore multiK8sConfigStore, PluginService pluginService) {
+    public K8sServiceMeshConfigManager(ServiceMeshIstioModelEngine modelEngine, MultiK8sConfigStore multiK8sConfigStore, PluginService pluginService, ApplicationEventPublisher eventPublisher) {
         this.modelEngine = modelEngine;
         this.multiK8sConfigStore = multiK8sConfigStore;
         this.pluginService = pluginService;
+        this.eventPublisher = eventPublisher;
         initSidecarCache();
     }
 
@@ -88,19 +102,29 @@ public class K8sServiceMeshConfigManager extends AbstractConfigManagerSupport im
     public void updateRateLimit(ServiceMeshRateLimit rateLimit) {
         List<K8sResourcePack> packs = modelEngine.translate(rateLimit);
         update(multiK8sConfigStore, packs, modelEngine);
+        notifyRateLimitServer(rateLimit);
+    }
+
+
+    private void notifyRateLimitServer(ServiceMeshRateLimit rateLimit) {
+        String clusterId = StringUtils.isEmpty(rateLimit.getClusterId()) ? multiK8sConfigStore.getDefaultClusterId() : rateLimit.getClusterId();
+        RlsInfo rlsInfo = new RlsInfo(ImmutableMap.of("app", rlsApp), clusterId,
+                rlsNamespace, "configmap/version", System.currentTimeMillis() + "");
+        NotifyRateLimitServerEvent notifyRateLimitServerEvent = new NotifyRateLimitServerEvent(rlsInfo);
+        eventPublisher.publishEvent(notifyRateLimitServerEvent);
     }
 
     @Override
     public void updateCircuitBreaker(ServiceMeshCircuitBreaker circuitBreaker) {
         List<K8sResourcePack> packs = modelEngine.translate(circuitBreaker);
         update(multiK8sConfigStore, packs, modelEngine);
-
     }
 
     @Override
     public void deleteRateLimit(ServiceMeshRateLimit rateLimit) {
         List<K8sResourcePack> packs = modelEngine.translate(rateLimit);
         delete(multiK8sConfigStore, packs, modelEngine);
+        notifyRateLimitServer(rateLimit);
     }
 
     @Override
@@ -198,4 +222,11 @@ public class K8sServiceMeshConfigManager extends AbstractConfigManagerSupport im
         }
     }
 
+    public void setRlsNamespace(String rlsNamespace) {
+        this.rlsNamespace = rlsNamespace;
+    }
+
+    public void setRlsApp(String rlsApp) {
+        this.rlsApp = rlsApp;
+    }
 }
