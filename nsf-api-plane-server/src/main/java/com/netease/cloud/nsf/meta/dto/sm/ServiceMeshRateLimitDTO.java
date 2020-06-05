@@ -16,6 +16,9 @@ public class ServiceMeshRateLimitDTO {
     @JsonProperty("Plugin")
     private String plugin;
 
+    @JsonProperty("ClusterId")
+    private String clusterId;
+
     public String getHost() {
         return host;
     }
@@ -32,4 +35,11 @@ public class ServiceMeshRateLimitDTO {
         this.plugin = plugin;
     }
 
+    public String getClusterId() {
+        return clusterId;
+    }
+
+    public void setClusterId(String clusterId) {
+        this.clusterId = clusterId;
+    }
 }

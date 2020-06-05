@@ -74,7 +74,7 @@ public class MultiK8sConfigStore extends K8sConfigStore {
         return client.getInSilent(urlBuilder.toString());
     }
 
-    private String getDefaultClusterId() {
+    public String getDefaultClusterId() {
         return multiClient.DEFAULT_CLUSTER_NAME;
     }
 }

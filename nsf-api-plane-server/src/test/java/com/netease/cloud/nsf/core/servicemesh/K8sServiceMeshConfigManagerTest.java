@@ -3,6 +3,7 @@ package com.netease.cloud.nsf.core.servicemesh;
 import com.netease.cloud.nsf.core.BaseTest;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.meta.ServiceMeshRateLimit;
+import com.netease.cloud.nsf.mock.MockEventPublisher;
 import com.netease.cloud.nsf.mock.MockK8sConfigStore;
 import com.netease.cloud.nsf.service.PluginService;
 import io.fabric8.kubernetes.api.model.HasMetadata;
@@ -29,10 +30,11 @@ public class K8sServiceMeshConfigManagerTest extends BaseTest {
 
     MockK8sConfigStore k8sConfigStore;
 
+
     @Before
     public void init() {
         k8sConfigStore = new MockK8sConfigStore();
-        meshConfigManager = new K8sServiceMeshConfigManager(modelEngine, k8sConfigStore, pluginService);
+        meshConfigManager = new K8sServiceMeshConfigManager(modelEngine, k8sConfigStore, pluginService, new MockEventPublisher());
     }
 
     @Test

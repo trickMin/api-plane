@@ -64,6 +64,7 @@ public class ServiceMeshEnhanceServiceImpl implements ServiceMeshEnhanceService 
         rl.setServiceName(metas[0]);
         rl.setNamespace(metas[1]);
         rl.setPlugin(rateLimitDTO.getPlugin());
+        rl.setClusterId(rateLimitDTO.getClusterId());
         return rl;
     }
 }

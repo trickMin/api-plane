@@ -13,14 +13,7 @@ public class ServiceMeshRateLimit {
 
     private String plugin;
 
-    public static ServiceMeshRateLimit copy(ServiceMeshRateLimit rateLimit) {
-        ServiceMeshRateLimit _rateLimit = new ServiceMeshRateLimit();
-        _rateLimit.setServiceName(rateLimit.getServiceName());
-        _rateLimit.setNamespace(rateLimit.getNamespace());
-        _rateLimit.setPlugin(rateLimit.getPlugin());
-        _rateLimit.setHost(rateLimit.getHost());
-        return _rateLimit;
-    }
+    private String clusterId;
 
     public String getHost() {
         return host;
@@ -52,5 +45,13 @@ public class ServiceMeshRateLimit {
 
     public void setServiceName(String serviceName) {
         this.serviceName = serviceName;
+    }
+
+    public String getClusterId() {
+        return clusterId;
+    }
+
+    public void setClusterId(String clusterId) {
+        this.clusterId = clusterId;
     }
 }
