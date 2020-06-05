@@ -35,6 +35,7 @@ public class K8sServiceMeshConfigManagerTest extends BaseTest {
     public void init() {
         k8sConfigStore = new MockK8sConfigStore();
         meshConfigManager = new K8sServiceMeshConfigManager(modelEngine, k8sConfigStore, pluginService, new MockEventPublisher());
+        meshConfigManager.setRlsApp("rate-limit");
     }
 
     @Test

@@ -222,4 +222,11 @@ public class K8sServiceMeshConfigManager extends AbstractConfigManagerSupport im
         }
     }
 
+    public void setRlsNamespace(String rlsNamespace) {
+        this.rlsNamespace = rlsNamespace;
+    }
+
+    public void setRlsApp(String rlsApp) {
+        this.rlsApp = rlsApp;
+    }
 }
