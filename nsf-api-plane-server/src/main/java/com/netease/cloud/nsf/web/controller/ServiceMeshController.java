@@ -108,7 +108,7 @@ public class ServiceMeshController extends BaseController {
                           @RequestParam(name = "FocalizeSize", required = false, defaultValue = "0") int focalizeSize) {
 
         if (StringUtils.isEmpty(namespaces)) {
-            return apiReturn(ApiPlaneErrorCode.InvalidFormat("duration"));
+            return apiReturn(ApiPlaneErrorCode.InvalidFormat("namespaces"));
         }
 
         if (!"app".equals(graphType) && !"versionedApp".equals(graphType)) {
