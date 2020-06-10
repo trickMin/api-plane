@@ -57,6 +57,7 @@ public interface TemplateConst {
     String VIRTUAL_SERVICE_HOST_HEADERS = "t_virtual_service_host_headers";
     String VIRTUAL_SERVICE_MATCH_PRIORITY = "t_virtual_service_match_priority";
     String VIRTUAL_SERVICE_PLUGIN_MATCH_PRIORITY = "t_virtual_service_plugin_match_priority";
+    String VIRTUAL_SERVICE_URL_MATCH = "t_virtual_service_url_match";
     String VIRTUAL_SERVICE_SERVICE_TAG = "t_virtual_service_service_tag";
     String VIRTUAL_SERVICE_API_ID = "t_virtual_service_api_id";
     String VIRTUAL_SERVICE_TENANT_ID = "t_virtual_service_tenant_id";
@@ -125,6 +126,7 @@ public interface TemplateConst {
     String DESTINATION_RULE_CONSECUTIVE_ERRORS = "t_destination_rule_consecutive_errors";
     String DESTINATION_RULE_BASE_EJECTION_TIME = "t_destination_rule_base_ejection_time";
     String DESTINATION_RULE_MAX_EJECTION_PERCENT = "t_destination_rule_max_ejection_percent";
+    String DESTINATION_RULE_MIN_HEALTH_PERCENT = "t_destination_rule_min_health_percent";
     String DESTINATION_RULE_PATH = "t_destination_rule_path";
     String DESTINATION_RULE_TIMEOUT = "t_destination_rule_timeout";
     String DESTINATION_RULE_EXPECTED_STATUSES = "t_destination_rule_expected_statuses";

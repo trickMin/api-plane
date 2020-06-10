@@ -33,6 +33,7 @@ public class PortalDestinationRuleServiceDataHandler extends ServiceDataHandler 
                 .put(DESTINATION_RULE_CONSECUTIVE_ERRORS, service.getConsecutiveErrors())
                 .put(DESTINATION_RULE_BASE_EJECTION_TIME, service.getBaseEjectionTime())
                 .put(DESTINATION_RULE_MAX_EJECTION_PERCENT, service.getMaxEjectionPercent())
+                .put(DESTINATION_RULE_MIN_HEALTH_PERCENT, service.getMinHealthPercent())
                 .put(DESTINATION_RULE_PATH, service.getPath())
                 .put(DESTINATION_RULE_TIMEOUT, service.getTimeout())
                 .put(DESTINATION_RULE_EXPECTED_STATUSES, service.getExpectedStatuses())

@@ -104,7 +104,7 @@ public class IstioModelEngineTest extends BaseTest {
         //base api test
         API api = getAPI("api-name", "service-zero", ImmutableList.of("gateway1", "gateway2"),
                 ImmutableList.of("service-a", "service-b"), ImmutableList.of("/a", "/b"), ImmutableList.of("HTTP", "POST"),
-                ImmutableList.of("a.default.svc.cluster.local", "b.default.svc.cluster.local"), UriMatch.PREFIX, Collections.EMPTY_LIST,
+                ImmutableList.of("a.default.svc.cluster.local", "b.default.svc.cluster.local"), UriMatch.prefix, Collections.EMPTY_LIST,
                 ImmutableList.of(getPairMatch("k1", "v1", "exact"), getPairMatch("k2", "v2", "regex")),
                 ImmutableList.of(getPairMatch("k3", "v3", "prefix"), getPairMatch("k4", "v4", "regex")));
 
@@ -138,7 +138,7 @@ public class IstioModelEngineTest extends BaseTest {
 
         API api1 = getAPI("api-name", "default", ImmutableList.of("gateway1"),
                 ImmutableList.of("service-a", "service-b"), ImmutableList.of("/a", "/b"),
-                ImmutableList.of("HTTP", "POST"), Collections.EMPTY_LIST, UriMatch.REGEX, Collections.EMPTY_LIST,
+                ImmutableList.of("HTTP", "POST"), Collections.EMPTY_LIST, UriMatch.regex, Collections.EMPTY_LIST,
                 Collections.EMPTY_LIST, Collections.EMPTY_LIST);
 
         Service s1 = getService(Const.PROXY_SERVICE_TYPE_DYNAMIC, "a.default.svc.cluster.local",

@@ -149,6 +149,7 @@ public class Trans {
                 s.setConsecutiveErrors(outlierDetection.getConsecutiveErrors());
                 s.setBaseEjectionTime(outlierDetection.getBaseEjectionTime());
                 s.setMaxEjectionPercent(outlierDetection.getMaxEjectionPercent());
+                s.setMinHealthPercent(outlierDetection.getMinHealthPercent());
             }
 
             if (healthCheck != null) {
@@ -274,7 +275,7 @@ public class Trans {
         api.setGateways(Arrays.asList(portalAPI.getGateway().toLowerCase()));
         api.setName(portalAPI.getCode());
         api.setMethods(Collections.EMPTY_LIST);
-        api.setUriMatch(UriMatch.REGEX);
+        api.setUriMatch(UriMatch.regex);
         api.setRequestUris(Collections.EMPTY_LIST);
         api.setHosts(Collections.EMPTY_LIST);
         api.setProxyServices(ImmutableList.of(new Service()));

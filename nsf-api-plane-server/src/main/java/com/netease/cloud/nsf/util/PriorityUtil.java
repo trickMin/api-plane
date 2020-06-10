@@ -19,9 +19,9 @@ public class PriorityUtil {
 
     private static final Map<UriMatch, Integer> matchScore =
             ImmutableMap.of(
-                UriMatch.EXACT, 2,
-                UriMatch.PREFIX, 1,
-                UriMatch.REGEX, 0
+                UriMatch.exact, 2,
+                UriMatch.prefix, 1,
+                UriMatch.regex, 0
             );
 
     public static int calculate(API api) {

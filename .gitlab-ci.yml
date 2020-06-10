@@ -23,7 +23,7 @@ job_unit_test:
   script:
     - pwd
     - git status
-    - $MAVEN_HOME/bin/mvn clean package -U 
+    - $MAVEN_HOME/bin/mvn clean package -U
     - git status
     - echo "now unit_test finished."
   artifacts:

@@ -1,5 +1,6 @@
 package com.netease.cloud.nsf.core.gateway.handler;
 
+import com.netease.cloud.nsf.core.gateway.handler.meta.UriMatchMeta;
 import com.netease.cloud.nsf.core.template.TemplateParams;
 import com.netease.cloud.nsf.meta.API;
 import com.netease.cloud.nsf.meta.UriMatch;
@@ -24,7 +25,7 @@ public abstract class APIDataHandler implements DataHandler<API> {
     }
 
     public TemplateParams handleApi(API api) {
-        String uris = getUris(api);
+        UriMatchMeta uriMatchMeta = getUris(api);
         String methods = getMethods(api);
         String apiName = getApiName(api);
         // host用于virtualservice的host
@@ -40,7 +41,8 @@ public abstract class APIDataHandler implements DataHandler<API> {
                 .put(API_IDENTITY_NAME, apiName)
                 .put(API_LOADBALANCER, api.getLoadBalancer())
                 .put(API_GATEWAYS, api.getGateways())
-                .put(API_REQUEST_URIS, uris)
+                .put(API_REQUEST_URIS, uriMatchMeta.getUri())
+                .put(VIRTUAL_SERVICE_URL_MATCH, uriMatchMeta.getUriMatch())
                 .put(API_MATCH_PLUGINS, api.getPlugins())
                 .put(API_METHODS, methods)
                 .put(API_RETRIES, api.getRetries())
@@ -67,7 +69,7 @@ public abstract class APIDataHandler implements DataHandler<API> {
                 .put(SERVICE_INFO_API_NAME, apiName)
                 .put(SERVICE_INFO_API_SERVICE, getOrDefault(api.getService(), "NoneService"))
                 .put(SERVICE_INFO_API_METHODS, getOrDefault(methods, ".*"))
-                .put(SERVICE_INFO_API_REQUEST_URIS, getOrDefault(uris, ".*"))
+                .put(SERVICE_INFO_API_REQUEST_URIS, getOrDefault(uriMatchMeta.getUri(), ".*"))
                 .put(SERVICE_INFO_VIRTUAL_SERVICE_HOST_HEADERS, getOrDefault(hostHeaders, ".*"))
                 .put(VIRTUAL_SERVICE_REQUEST_HEADERS, api.getRequestOperation());
 
@@ -90,16 +92,25 @@ public abstract class APIDataHandler implements DataHandler<API> {
 
     abstract List<TemplateParams> doHandle(TemplateParams tp, API api);
 
-    String getUris(API api) {
-
-        final StringBuffer suffix = new StringBuffer();
-        if (api.getUriMatch().equals(UriMatch.PREFIX)) {
-            suffix.append(".*");
+    UriMatchMeta getUris(API api) {
+        //only one path，return
+        String uri;
+        UriMatch uriMatch;
+        if (!CollectionUtils.isEmpty(api.getRequestUris()) && api.getRequestUris().size() == 1
+                && UriMatch.exact.equals(api.getUriMatch())) {
+            uri = api.getRequestUris().get(0);
+            uriMatch = api.getUriMatch();
+        } else {
+            final StringBuffer suffix = new StringBuffer();
+            if (api.getUriMatch().equals(UriMatch.prefix)) {
+                suffix.append(".*");
+            }
+            uriMatch = UriMatch.regex;
+            uri = String.join("|", api.getRequestUris().stream()
+                    .map(u -> u + suffix.toString())
+                    .collect(Collectors.toList()));
         }
-        String url = String.join("|", api.getRequestUris().stream()
-                .map(u -> u + suffix.toString())
-                .collect(Collectors.toList()));
-        return StringEscapeUtils.escapeJava(url);
+        return new UriMatchMeta(uriMatch, StringEscapeUtils.escapeJava(uri));
     }
 
     String getHosts(API api) {

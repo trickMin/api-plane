@@ -128,6 +128,13 @@ public class PortalAPIDTO {
     @Valid
     private RequestOperationDTO requestOperation;
 
+    /**
+     * VirtualCluster配置
+     */
+    @JsonProperty(value = "VirtualCluster")
+    @Valid
+    private VirtualClusterDTO virtualClusterDTO;
+
     public String getGateway() {
         return gateway;
     }
@@ -278,5 +285,13 @@ public class PortalAPIDTO {
 
     public void setRequestOperation(RequestOperationDTO requestOperation) {
         this.requestOperation = requestOperation;
+    }
+
+    public VirtualClusterDTO getVirtualClusterDTO() {
+        return virtualClusterDTO;
+    }
+
+    public void setVirtualClusterDTO(VirtualClusterDTO virtualClusterDTO) {
+        this.virtualClusterDTO = virtualClusterDTO;
     }
 }
