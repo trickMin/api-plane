@@ -4,6 +4,7 @@ import com.google.common.base.Strings;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.netease.cloud.nsf.cache.extractor.ResourceExtractorManager;
 import com.netease.cloud.nsf.cache.meta.PodDTO;
 import com.netease.cloud.nsf.cache.meta.ServiceDto;
 import com.netease.cloud.nsf.cache.meta.WorkLoadDTO;
@@ -71,6 +72,9 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
 
     @Autowired
     private MultiClusterK8sClient multiClusterK8sClient;
+
+    @Autowired
+    private ResourceExtractorManager extractor;
 
     @Autowired
     private PilotHttpClient pilotHttpClient;
@@ -314,8 +318,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
             if (service.getMetadata().getLabels() == null || service.getMetadata().getLabels().isEmpty()) {
                 continue;
             }
-            if (service.getMetadata().getLabels().get(meshConfig.getProjectKey()) != null &&
-                    service.getMetadata().getLabels().get(meshConfig.getProjectKey()).equals(projectId) &&
+            if (extractor.getResourceInfo(service,Const.RESOURCE_TARGET,projectId)!=null &&
                     service.getMetadata().getLabels().get(meshConfig.getAppKey()) != null &&
                     service.getMetadata().getLabels().get(meshConfig.getAppKey()).equals(serviceName)
             ) {
@@ -378,7 +381,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         if (!StringUtils.isEmpty(projectId)) {
             serviceList = serviceList.stream()
                     .filter(s -> s.getMetadata().getLabels() != null
-                            && projectId.equals(s.getMetadata().getLabels().get(meshConfig.getProjectKey())))
+                            && extractor.getResourceInfo(s,Const.RESOURCE_TARGET,projectId) !=null)
                     .collect(Collectors.toList());
 
         }
@@ -416,7 +419,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         if (service.getMetadata().getLabels() == null) {
             return null;
         }
-        return service.getMetadata().getLabels().get(meshConfig.getProjectKey());
+        return extractor.getResourceInfo(service,Const.RESOURCE_TARGET);
     }
 
     private String getEnvNameFromService(T service) {
@@ -626,11 +629,10 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         return  ((List<T>)store.listByKind(Service.name()))
                 .stream()
                 .filter(s->s.getMetadata().getLabels()!=null&&!s.getMetadata().getLabels().isEmpty()
-                        &&s.getMetadata().getLabels().get(meshConfig.getProjectKey())!=null
-                        &&s.getMetadata().getLabels().get(meshConfig.getProjectKey()).equals(projectCode))
+                        &&extractor.getResourceInfo(s,Const.RESOURCE_TARGET,projectCode)!=null)
                 .map(s->{
                     ServiceDto<T> tServiceDto = new ServiceDto<>(s, clusterId);
-                    tServiceDto.setAppName(tServiceDto.getLabels().get(meshConfig.getAppKey()));
+                    tServiceDto.setAppName(tServiceDto.getSelectLabels().get(meshConfig.getSelectorAppKey()));
                     return tServiceDto;
                 })
                 .collect(Collectors.toList());
@@ -890,72 +892,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         return result;
     }
 
-    public class VersionUpdateListener implements ResourceUpdatedListener {
 
-        private static final String CREATE_VERSION_URL = "/api/metadata?Version=2018-11-1&Action=CreateVersionForService";
-        //"&ServiceName={serviceName}&ProjectCode={projectId}&ServiceVersion={serviceVersion}&EnvName={envName}";
-
-        @Override
-        public void notify(ResourceUpdateEvent e) {
-            String clusterId = e.getClusterId();
-            OwnerReferenceSupportStore store = ResourceStoreFactory.getResourceStore(clusterId);
-            List<T> currentService = (List<T>) store.listByKindAndNamespace(Service.name(), e.getNamespace());
-            T obj = (T) e.getResourceObject();
-            T serviceToUpdate = null;
-            for (T service : currentService) {
-                List<T> workLoadList = K8sResourceCache.this.getWorkLoadByIndex(clusterId,
-                        e.getNamespace(),
-                        service.getMetadata().getName());
-                for (T load : workLoadList) {
-                    if (isIdentical(obj, load)) {
-                        serviceToUpdate = service;
-                        break;
-                    }
-                }
-            }
-            if (serviceToUpdate == null) {
-                log.info("no service to update version");
-                return;
-            }
-            String serviceName = serviceToUpdate.getMetadata().getName() + "."
-                    + serviceToUpdate.getMetadata().getNamespace();
-
-            String projectId = serviceToUpdate.getMetadata().getLabels().get(meshConfig.getProjectKey());
-            String version = obj.getMetadata().getLabels().get(meshConfig.getVersionKey());
-            String envName = obj.getMetadata().getLabels().get(Const.LABEL_NSF_ENV);
-            updateVersion(serviceName, projectId, version, envName);
-
-        }
-
-        private void updateVersion(String serviceName, String projectId, String version, String envName) {
-            Map<String, String> requestParam = new HashMap<>(4);
-            requestParam.put("serviceName", serviceName);
-            requestParam.put("projectCode", projectId);
-            requestParam.put("serviceVersion", version);
-            requestParam.put("envName", envName);
-            String url = restTemplateClient.buildRequestUrlWithParameter(K8sResourceCache.this.config.getNsfMetaUrl()
-                            + CREATE_VERSION_URL,
-                    requestParam);
-            try {
-                K8sResourceCache.this.restTemplateClient.getForValue(url
-                        , requestParam
-                        , Const.GET_METHOD
-                        , String.class);
-            } catch (ApiPlaneException e) {
-                log.warn("create version error {}", e.getMessage());
-                return;
-            }
-            log.info("create version [{}] for service [{}] in projectId [{}]", version, serviceName, projectId);
-        }
-
-
-        private boolean isIdentical(T obj1, T obj2) {
-            return obj1.getKind().equals(obj2.getKind()) &&
-                    obj1.getMetadata().getNamespace().equals(obj2.getMetadata().getNamespace()) &&
-                    obj1.getMetadata().getName().equals(obj2.getMetadata().getName());
-        }
-
-    }
 
     public class WorkLoadIndex {
         private String clusterId;
