@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
  **/
 
 @SpringBootApplication
-@PropertySource(value = {"classpath:k8s.yaml", "classpath:jdbc.yaml"}, factory = YamlPropertyLoaderFactory.class)
+@PropertySource(value = {"classpath:k8s.yaml", "classpath:jdbc.yaml","classpath:resourceExtractorConfig.yaml"}, factory = YamlPropertyLoaderFactory.class)
 @EnableConfigurationProperties
 @EnableScheduling
 @EnableTransactionManagement

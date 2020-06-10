@@ -83,4 +83,5 @@ public interface Const {
     String SERVICE_MESH_PLUGIN_NAME_DOWNGRADE = "com.netease.dynamicdowngrade";
     String SERVICE_MESH_DOWNGRADE_KIND = "dynamic-downgrade";
 
+    String RESOURCE_TARGET = "project";
 }

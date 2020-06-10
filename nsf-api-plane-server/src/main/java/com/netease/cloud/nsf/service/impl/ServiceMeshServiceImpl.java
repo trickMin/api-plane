@@ -5,6 +5,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.netease.cloud.nsf.cache.K8sResourceCache;
 import com.netease.cloud.nsf.cache.ResourceStoreFactory;
+import com.netease.cloud.nsf.cache.extractor.ResourceExtractorManager;
 import com.netease.cloud.nsf.cache.meta.PodDTO;
 import com.netease.cloud.nsf.cache.meta.ServiceDto;
 import com.netease.cloud.nsf.configuration.ApiPlaneConfig;
@@ -97,6 +98,9 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
 
     @Autowired
     MeshConfig meshConfig;
+
+    @Autowired
+    ResourceExtractorManager extractor;
 
     @Override
     public void updateIstioResource(String json, String clusterId) {
@@ -426,11 +430,13 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
             return null;
         }
         for (T s : serviceList) {
+
             if (s.getMetadata().getLabels()!=null
-                    &&appName.equals(s.getMetadata().getLabels().get(meshConfig.getAppKey()))
-                    &&s.getMetadata().getLabels().get(meshConfig.getProjectKey())!=null){
-                projectCode = s.getMetadata().getLabels().get(meshConfig.getProjectKey());
-                break;
+                    &&appName.equals(s.getMetadata().getLabels().get(meshConfig.getAppKey()))){
+                projectCode = extractor.getResourceInfo(s,Const.RESOURCE_TARGET);
+                if (projectCode!=null){
+                    break;
+                }
             }
 
         }
