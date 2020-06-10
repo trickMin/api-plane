@@ -68,7 +68,15 @@ public class DefaultK8sHttpClient implements K8sHttpClient {
         return handleResponse(requestBuilder, (request, response) -> assertResponseCode(request, response), null);
     }
 
+    protected String handleResponse(Request.Builder requestBuilder, boolean silent) {
+        return handleResponse(requestBuilder, (request, response) -> assertResponseCode(request, response), null, silent);
+    }
+
     protected String handleResponse(Request.Builder requestBuilder, BiConsumer<Request, Response> responseConsumer, Function<Response, String> responseMapper) {
+        return handleResponse(requestBuilder, responseConsumer, responseMapper, true);
+    }
+
+    protected String handleResponse(Request.Builder requestBuilder, BiConsumer<Request, Response> responseConsumer, Function<Response, String> responseMapper, boolean silent) {
         Request request = requestBuilder.build();
         if (Objects.nonNull(request)) {
             logger.info(request.toString());
@@ -84,11 +92,15 @@ public class DefaultK8sHttpClient implements K8sHttpClient {
         }
         try (Response response = httpClient.newCall(request).execute()) {
             if (Objects.nonNull(responseConsumer)) responseConsumer.accept(request, response);
-            logger.info(response.toString());
+            if (!silent) {
+                logger.info(response.toString());
+            }
             if (Objects.nonNull(responseMapper)) return responseMapper.apply(response);
             if (Objects.nonNull(response.body())) {
                 String responseBody = response.body().string();
-                logger.info("Response body: \n{}", ResourceGenerator.prettyJson(responseBody));
+                if (responseBody.length() <= response_body_limit && !silent) {
+                    logger.info("Response body: \n{}", ResourceGenerator.prettyJson(responseBody));
+                }
                 return responseBody;
             }
             return null;
@@ -211,7 +223,13 @@ public class DefaultK8sHttpClient implements K8sHttpClient {
     @Override
     public String get(String url) {
         Request.Builder requestBuilder = new Request.Builder().get().url(url);
-        return handleResponse(requestBuilder);
+        return handleResponse(requestBuilder, false);
+    }
+
+    @Override
+    public String getInSilent(String url) {
+        Request.Builder requestBuilder = new Request.Builder().get().url(url);
+        return handleResponse(requestBuilder, true);
     }
 
     @Override

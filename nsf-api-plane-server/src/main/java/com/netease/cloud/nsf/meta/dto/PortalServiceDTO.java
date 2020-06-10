@@ -5,8 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.Pattern;
 import java.util.List;
 
@@ -48,7 +46,7 @@ public class PortalServiceDTO {
     private String gateway;
 
     @JsonProperty(value = "Protocol")
-    @Pattern(regexp = "(http|https)", message = "protocol")
+    @Pattern(regexp = "(http|https|grpc)", message = "protocol")
     private String protocol = "http";
 
     @JsonProperty(value = "TrafficPolicy")

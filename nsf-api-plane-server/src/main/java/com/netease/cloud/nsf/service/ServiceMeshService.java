@@ -34,4 +34,6 @@ public interface ServiceMeshService {
     String getProjectCodeByApp(String namespace, String appName, String clusterId);
 
     ErrorCode createAppOnServiceList(List<ServiceDto> serviceDtoList);
+
+    String getLogs(String clusterId, String namespace, String podName, String container, Integer tailLines, Long sinceSeconds);
 }

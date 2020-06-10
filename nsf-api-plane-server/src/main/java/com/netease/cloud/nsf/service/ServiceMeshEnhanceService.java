@@ -8,5 +8,7 @@ public interface ServiceMeshEnhanceService {
     void updateRateLimit(ServiceMeshRateLimitDTO rateLimitDTO);
 
     void updateServiceMeshCircuitBreaker(ServiceMeshCircuitBreakerDTO circuitBreakerDTO);
+
     void deleteRateLimit(ServiceMeshRateLimitDTO rateLimitDTO);
+
 }

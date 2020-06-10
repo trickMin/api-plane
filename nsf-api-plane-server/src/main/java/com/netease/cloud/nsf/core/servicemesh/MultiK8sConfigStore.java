@@ -8,6 +8,7 @@ import com.netease.cloud.nsf.core.k8s.MultiClusterK8sClient;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -54,7 +55,26 @@ public class MultiK8sConfigStore extends K8sConfigStore {
         resolve(getDefaultClusterId()).createOrUpdate(resource, ResourceType.OBJECT);
     }
 
-    private String getDefaultClusterId() {
+    public String getPodLog(String clusterId, String pod, String namespace, String container, Integer tailLines, Long sinceSeconds) {
+        clusterId = StringUtils.isEmpty(clusterId) ? getDefaultClusterId() : clusterId;
+        StringBuilder urlBuilder = new StringBuilder();
+        KubernetesClient client = resolve(clusterId);
+
+        urlBuilder.append(client.getMasterUrl());
+        urlBuilder.append(String.format("api/v1/namespaces/%s/pods/%s/log?1=1", namespace, pod));
+        if (!StringUtils.isEmpty(container)) {
+            urlBuilder.append(String.format("&container=%s", container));
+        }
+        if (tailLines != null) {
+            urlBuilder.append(String.format("&tailLines=%d", tailLines));
+        }
+        if (sinceSeconds != null) {
+            urlBuilder.append(String.format("&sinceSeconds=%d", sinceSeconds));
+        }
+        return client.getInSilent(urlBuilder.toString());
+    }
+
+    public String getDefaultClusterId() {
         return multiClient.DEFAULT_CLUSTER_NAME;
     }
 }

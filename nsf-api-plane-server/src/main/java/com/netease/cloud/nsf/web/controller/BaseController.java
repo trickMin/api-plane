@@ -37,6 +37,10 @@ public class BaseController {
     }
 
     public String apiReturn(ObjectMapper objectMapper, int statusCode, String code, String message, Map<String, Object> params) {
+        return apiReturn(objectMapper, statusCode, code, message, params, false);
+    }
+
+    public String apiReturn(ObjectMapper objectMapper, int statusCode, String code, String message, Map<String, Object> params, boolean silent) {
         Map<String, Object> body = new HashMap<String, Object>();
         body.put("RequestId", LogTraceUUIDHolder.getUUIDId());
 
@@ -49,7 +53,9 @@ public class BaseController {
         if (params != null && !params.isEmpty()) {
             body.putAll(params);
         }
-        logger.info("----- Request Id: {}, Response body: {} -----", LogTraceUUIDHolder.getUUIDId(), body);
+        if (!silent) {
+            logger.info("----- Request Id: {}, Response body: {} -----", LogTraceUUIDHolder.getUUIDId(), body);
+        }
         HttpServletResponse response = RequestContextHolder.getResponse();
         response.setCharacterEncoding(Charsets.UTF_8.name());
         response.setContentType(MappingJackson2JsonView.DEFAULT_CONTENT_TYPE);
@@ -69,5 +75,9 @@ public class BaseController {
 
     public String apiReturn(Map<String, Object> params) {
         return apiReturn(ApiPlaneErrorCode.Success.getStatusCode(), ApiPlaneErrorCode.Success.getCode(), null, params);
+    }
+
+    public String apiReturnInSilent(Map<String, Object> params) {
+        return apiReturn(this.objectMapper, ApiPlaneErrorCode.Success.getStatusCode(), ApiPlaneErrorCode.Success.getCode(), null, params, true);
     }
 }
