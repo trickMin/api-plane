@@ -55,8 +55,10 @@ public class McpCache implements McpResourceDistributor, McpResourceWatcher {
 
     private void distribute(SnapshotOuterClass.Snapshot snapshot) {
         for (String collection : snapshot.getResourcesMap().keySet()) {
-            for (Connection connection : watchMap.get(collection)) {
-                distribute(connection, collection, snapshot);
+            if (watchMap.containsKey(collection)) {
+                for (Connection connection : watchMap.get(collection)) {
+                    distribute(connection, collection, snapshot);
+                }
             }
         }
     }

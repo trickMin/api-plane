@@ -141,7 +141,7 @@
 }
 ```
 ```
-场景9：转换url
+场景9：转换url（注意：包含query部分）
 说明：转换url只需填写text,key不填写，action不填写（默认为Update）
 插件：
 {
@@ -154,7 +154,20 @@
 }
 ```
 ```
-场景10：配置插件condition，匹配成功才执行转换
+场景10：转换path（不包含query部分，原样保留）
+说明：转换path只需填写text,key不填写，action不填写（默认为Update）
+插件：
+{
+  "kind":"transformer",
+  "path":[
+  {
+    "text":"/anything/{{path[0]}}"
+  }
+  ]
+}
+```
+```
+场景11：配置插件condition，匹配成功才执行转换
 {
   "kind":"ianus-request-transformer",
   "conditions":{
@@ -192,10 +205,11 @@
 
 - conditions支持headers与querystrings两种匹配字段，匹配op支持regex、prefix、exact
 - conditions下的条件均为与的关系
-- 插件支持3种变量提取方法：分别是
+- 插件支持4种变量提取方法：分别是
     1. headers[$header] 提取headers的value
     2. querystrings[$query] 提取querystring的value
     3. url[0]、url[1] 仅当配置api的路径为例如: /api/(.*)/(.*) 即带正则匹配group可以使用
+    4. path[0]、path[1] 提取路径参数，与url[0]、url[1]的区别是不会提取query部分
 - Action_Default处理方式为如果匹配目标存在则覆盖，不存在则增加
 - Action_Add处理方式为如果目标存在则不处理，不存在则增加
 - Action_Update处理方式为如果目标存在则更新，不存在则不处理

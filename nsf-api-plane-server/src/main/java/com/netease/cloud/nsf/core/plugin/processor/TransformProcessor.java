@@ -30,7 +30,7 @@ public class TransformProcessor extends AbstractSchemaProcessor implements Schem
     @Override
     public FragmentHolder process(String plugin, ServiceInfo serviceInfo) {
         PluginGenerator source = PluginGenerator.newInstance(plugin);
-        PluginGenerator builder = PluginGenerator.newInstance("{\"request_transformations\":[{\"transformation_template\":{\"extractors\":{},\"headers\":{},\"query_param_operators\":{},\"parse_body_behavior\":\"DontParse\"}}]}");
+        PluginGenerator builder = PluginGenerator.newInstance("{\"request_transformations\":[{\"transformation_template\":{\"extractors\":{},\"headers\":{},\"query_param_operators\":{},\"path\":{},\"parse_body_behavior\":\"DontParse\"}}]}");
         if (source.contain("$.conditions")) {
             buildConditions(source, builder);
         }
@@ -44,6 +44,9 @@ public class TransformProcessor extends AbstractSchemaProcessor implements Schem
         if (source.contain("$.url")) {
             texts.addAll(source.getValue("$.url[*].text"));
         }
+        if (source.contain("$.path")) {
+            texts.addAll(source.getValue("$.path[*].text"));
+        }
         List<String> placeholders = new ArrayList<>();
         texts.stream().filter(Objects::nonNull).forEach(text -> {
             Matcher matcher = Pattern.compile("\\{\\{(.*?)\\}\\}").matcher(text);
@@ -55,6 +58,7 @@ public class TransformProcessor extends AbstractSchemaProcessor implements Schem
         buildHeaders(source, builder);
         buildQueryParam(source, builder);
         buildUrl(source, builder);
+        buildPath(source, builder);
         FragmentHolder fragmentHolder = new FragmentHolder();
         FragmentWrapper wrapper = new FragmentWrapper.Builder()
                 .withXUserId(getAndDeleteXUserId(source))
@@ -95,6 +99,13 @@ public class TransformProcessor extends AbstractSchemaProcessor implements Schem
                 if (matcher.find()) {
                     Integer index = Integer.parseInt(matcher.group(1)) + 1;
                     String value = String.format("{\"header\":\":path\",\"regex\":\"%s\",\"subgroup\":%s}", serviceInfo.getUri(), index);
+                    builder.createOrUpdateJson("$.request_transformations[0].transformation_template.extractors", placeholder, value);
+                }
+            } else if (placeholder.startsWith("path")) {
+                Matcher matcher = Pattern.compile("path\\[(.*?)\\]").matcher(placeholder);
+                if (matcher.find()) {
+                    Integer index = Integer.parseInt(matcher.group(1)) + 1;
+                    String value = String.format("{\"path\":{},\"regex\":\"%s\",\"subgroup\":%s}", serviceInfo.getUri(), index);
                     builder.createOrUpdateJson("$.request_transformations[0].transformation_template.extractors", placeholder, value);
                 }
             } else if (placeholder.startsWith("querystrings")) {
@@ -161,6 +172,18 @@ public class TransformProcessor extends AbstractSchemaProcessor implements Schem
                 if (haveNull(text)) continue;
                 String value = String.format("{\"text\":\"%s\",\"action\":\"%s\"}", text, "Action_Update");
                 builder.createOrUpdateJson("$.request_transformations[0].transformation_template.headers", ":path", value);
+            }
+        }
+    }
+
+    private void buildPath(ResourceGenerator source, ResourceGenerator builder) {
+        if (source.contain("path")) {
+            Integer size = source.getValue("$.path.size()");
+            for (Integer i = 0; i < size; i++) {
+                String text = source.getValue(String.format("$.path[%s].text", i));
+                if (haveNull(text)) continue;
+                String value = String.format("{\"text\":\"%s\"}", text);
+                builder.createOrUpdateJson("$.request_transformations[0].transformation_template", "path", value);
             }
         }
     }

@@ -3,7 +3,7 @@
     "kind": "transformer",
     "headers": "&headers",
     "querystrings": "&querystrings",
-    "url": [
+    "path": [
       {
         "text": "&urlPath"
       }
@@ -133,7 +133,7 @@
       "key": "urlPath",
       "alias": "重写后path",
       "type": "input",
-      "help": "可以提取原请求中指定参数作为取值。如：(1)提取query string部分参数param，则填写为{{querystrings[param]}}. (2)提取header部分参数headerKey，则填写为{{headers[headerKey]}. (3)提取url path部分第一个参数，则填写为{{url[0]}}。注意：如果header、query string部分参数提取失败则不会进行对应的转换操作，url path部分参数提取失败会导致请求返回400错误",
+      "help": "可以提取原请求中指定参数作为取值。如：(1)提取query string部分参数param，则填写为{{querystrings[param]}}. (2)提取header部分参数headerKey，则填写为{{headers[headerKey]}. (3)提取url path部分第一个参数，则填写为{{path[0]}}，query请求会携带至原请求. (4)提取整个url的第一个参数，则填写为{{url[0]}}。注意：如果header、query string部分参数提取失败则不会进行对应的转换操作，url path部分参数提取失败会导致请求返回400错误, {{url[0]}}的提取方式会丢弃query",
       "visible": {
         "true": [
           "this",
