@@ -61,7 +61,7 @@ public class GatewayConfigManagerImplTest extends BaseTest {
                 "HTTP",
                 Arrays.asList(buildProxyService("www.163.com", "STATIC", 100, 80)),
                 null,
-                UriMatch.EXACT);
+                UriMatch.exact);
 
         mockConfigManager.updateConfig(api);
         Assert.assertEquals(1, mockK8sConfigStore.size());
@@ -74,7 +74,7 @@ public class GatewayConfigManagerImplTest extends BaseTest {
                 "HTTP",
                 null,
                 Arrays.asList("a.default", "b.default"),
-                UriMatch.EXACT);
+                UriMatch.exact);
 
         mockConfigManager.updateConfig(api1);
         Assert.assertEquals(4, mockK8sConfigStore.size());
@@ -91,7 +91,7 @@ public class GatewayConfigManagerImplTest extends BaseTest {
                 "HTTP",
                 Arrays.asList(buildProxyService("www.163.com", "STATIC", 100, 80)),
                 null,
-                UriMatch.EXACT);
+                UriMatch.exact);
 
         mockConfigManager.updateConfig(api2);
         Assert.assertEquals(4, mockK8sConfigStore.size());

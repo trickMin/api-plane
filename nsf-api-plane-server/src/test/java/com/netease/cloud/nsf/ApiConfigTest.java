@@ -52,7 +52,7 @@ public class ApiConfigTest {
                 .withProxyUris(proxyUris)
                 .withService("demo-service")
                 .withOption(apiOption)
-                .withUriMatch("EXACT")
+                .withUriMatch("exact")
                 .build();
 
         gatewayService.updateAPI(apiModel);

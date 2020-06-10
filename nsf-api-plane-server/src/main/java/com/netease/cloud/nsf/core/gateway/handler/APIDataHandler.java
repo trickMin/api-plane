@@ -41,6 +41,7 @@ public abstract class APIDataHandler implements DataHandler<API> {
                 .put(API_LOADBALANCER, api.getLoadBalancer())
                 .put(API_GATEWAYS, api.getGateways())
                 .put(API_REQUEST_URIS, uris)
+                .put(VIRTUAL_SERVICE_URL_MATCH, api.getUriMatch())
                 .put(API_MATCH_PLUGINS, api.getPlugins())
                 .put(API_METHODS, methods)
                 .put(API_RETRIES, api.getRetries())
@@ -91,11 +92,16 @@ public abstract class APIDataHandler implements DataHandler<API> {
     abstract List<TemplateParams> doHandle(TemplateParams tp, API api);
 
     String getUris(API api) {
-
+        //only one path，return
+        if (!CollectionUtils.isEmpty(api.getRequestUris()) && api.getRequestUris().size() == 1
+                && UriMatch.exact.equals(api.getUriMatch())) {
+            return api.getRequestUris().get(0);
+        }
         final StringBuffer suffix = new StringBuffer();
-        if (api.getUriMatch().equals(UriMatch.PREFIX)) {
+        if (api.getUriMatch().equals(UriMatch.prefix)) {
             suffix.append(".*");
         }
+        api.setUriMatch(UriMatch.regex);
         String url = String.join("|", api.getRequestUris().stream()
                 .map(u -> u + suffix.toString())
                 .collect(Collectors.toList()));

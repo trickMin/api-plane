@@ -7,9 +7,9 @@ import org.apache.commons.lang3.StringUtils;
  **/
 public enum UriMatch {
 
-    EXACT,
-    PREFIX,
-    REGEX,
+    exact,
+    prefix,
+    regex,
     ;
 
     public static UriMatch get(String type) {

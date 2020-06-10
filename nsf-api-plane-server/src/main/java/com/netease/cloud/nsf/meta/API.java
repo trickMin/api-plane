@@ -23,7 +23,7 @@ public class API extends CommonModel {
     private List<String> requestUris;
 
     /**
-     * 请求uri匹配方式, REGEX,PREFIX,EXACT
+     * 请求uri匹配方式, regex,prefix,exact
      */
     private UriMatch uriMatch;
 
@@ -154,6 +154,17 @@ public class API extends CommonModel {
      * request header操作
      */
     private RequestOperation requestOperation;
+
+
+    /**
+     * virtualCluster name
+     */
+    private String virtualClusterName;
+
+    /**
+     * virtualCluster headers
+     */
+    private List<PairMatch> virtualClusterHeaders;
 
     public List<String> getGateways() {
         return gateways;
@@ -426,5 +437,21 @@ public class API extends CommonModel {
 
     public void setRequestOperation(RequestOperation requestOperation) {
         this.requestOperation = requestOperation;
+    }
+
+    public String getVirtualClusterName() {
+        return virtualClusterName;
+    }
+
+    public void setVirtualClusterName(String virtualClusterName) {
+        this.virtualClusterName = virtualClusterName;
+    }
+
+    public List<PairMatch> getVirtualClusterHeaders() {
+        return virtualClusterHeaders;
+    }
+
+    public void setVirtualClusterHeaders(List<PairMatch> virtualClusterHeaders) {
+        this.virtualClusterHeaders = virtualClusterHeaders;
     }
 }

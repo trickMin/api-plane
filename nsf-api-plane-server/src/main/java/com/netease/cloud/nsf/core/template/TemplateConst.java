@@ -57,6 +57,7 @@ public interface TemplateConst {
     String VIRTUAL_SERVICE_HOST_HEADERS = "t_virtual_service_host_headers";
     String VIRTUAL_SERVICE_MATCH_PRIORITY = "t_virtual_service_match_priority";
     String VIRTUAL_SERVICE_PLUGIN_MATCH_PRIORITY = "t_virtual_service_plugin_match_priority";
+    String VIRTUAL_SERVICE_URL_MATCH = "t_virtual_service_url_match";
     String VIRTUAL_SERVICE_SERVICE_TAG = "t_virtual_service_service_tag";
     String VIRTUAL_SERVICE_API_ID = "t_virtual_service_api_id";
     String VIRTUAL_SERVICE_TENANT_ID = "t_virtual_service_tenant_id";
