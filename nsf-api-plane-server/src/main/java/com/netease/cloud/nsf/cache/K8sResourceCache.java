@@ -605,6 +605,37 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     }
 
     @Override
+    public List<WorkLoadDTO> getWorkLoadByLabels(String clusterId, List<String> labelsList, String namespace) {
+        Map<String,String> labels = new HashMap<>();
+        if (CollectionUtils.isEmpty(labelsList)){
+            return new ArrayList<>();
+        }
+        for (String label : labelsList) {
+            int index = label.indexOf("=");
+            if (index < 0){
+                continue;
+            }
+            String key = label.substring(0,index);
+            String value = label.substring(index+1);
+            labels.put(key,value);
+        }
+
+        KubernetesClient kubernetesClient = multiClusterK8sClient.k8sClient(clusterId);
+        List<T> workloadList = new ArrayList<>();
+        workloadList.addAll(kubernetesClient.getObjectList(Deployment.name(),namespace,labels));
+        workloadList.addAll(kubernetesClient.getObjectList(StatefulSet.name(),namespace,labels));
+        if (CollectionUtils.isEmpty(workloadList)){
+            return new ArrayList<>();
+        }
+        return workloadList.stream().map(w->{
+            String serviceName = w.getMetadata().getLabels().get(meshConfig.getSelectorAppKey())
+                    +"."
+                    + w.getMetadata().getNamespace();
+            return new WorkLoadDTO<>(w,serviceName,clusterId,null,null);
+        }).collect(Collectors.toList());
+    }
+
+    @Override
     public List<String> getSidecarVersionOnWorkLoad(String clusterId, String namespace, String kind, String name) {
         List<PodDTO> podByWorkLoadInfo = getPodDtoByWorkLoadInfo(clusterId, kind, namespace, name);
         PodVersion queryVersion = new PodVersion();

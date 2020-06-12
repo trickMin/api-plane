@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.netease.cloud.nsf.cache.ResourceCache;
 import com.netease.cloud.nsf.cache.ResourceStoreFactory;
 import com.netease.cloud.nsf.cache.meta.ServiceDto;
+import com.netease.cloud.nsf.cache.meta.WorkLoadDTO;
 import com.netease.cloud.nsf.core.servicemesh.ServiceMeshConfigManager;
 import com.netease.cloud.nsf.service.ServiceMeshService;
 import com.netease.cloud.nsf.util.errorcode.ApiPlaneErrorCode;
@@ -58,6 +59,21 @@ public class K8sResourceController extends BaseController {
         ErrorCode code = ApiPlaneErrorCode.Success;
         return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), result);
     }
+
+    @RequestMapping(params = {"Action=GetWorkLoadByLabel"}, method = RequestMethod.GET)
+    public String getWorkLoadByLabel(@RequestParam(name = "Namespace") String namespace,
+                                     @RequestParam(name = "ClusterId",defaultValue = "default") String clusterId,
+                                     @RequestParam(name = "ServiceLabel") List<String> labelList) {
+
+        List<WorkLoadDTO> workLoadByLabels = resourceCache.getWorkLoadByLabels(clusterId,labelList,namespace);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("Result", workLoadByLabels);
+        ErrorCode code = ApiPlaneErrorCode.Success;
+        return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), result);
+    }
+
+
 
     @RequestMapping(params = {"Action=GetPodByWorkLoad"}, method = RequestMethod.GET)
     public String getPodByWorkLoad(@RequestParam(name = "Name") String name,
