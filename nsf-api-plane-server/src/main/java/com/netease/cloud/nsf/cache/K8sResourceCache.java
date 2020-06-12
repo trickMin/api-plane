@@ -704,8 +704,17 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         }else {
             podDTO.setSidecarContainerStatus(Const.SIDECAR_CONTAINER_SUCCESS);
         }
-        podDTO.setSidecarStatus(status.getCurrentVersion());
+        if (status.getCurrentVersion().equals(Const.DEFAULT_SIDECAR)){
+            podDTO.setSidecarStatus(getSidecarVersionFromImage(podDTO.getSidecarImage()));
+        }else {
+            podDTO.setSidecarStatus(status.getCurrentVersion());
+        }
         return podDTO;
+    }
+
+    private String getSidecarVersionFromImage(String sidecarImage){
+        int index = sidecarImage.lastIndexOf(":");
+        return sidecarImage.substring(index+1);
     }
 
 

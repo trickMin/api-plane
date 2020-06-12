@@ -84,4 +84,5 @@ public interface Const {
     String SERVICE_MESH_DOWNGRADE_KIND = "dynamic-downgrade";
 
     String RESOURCE_TARGET = "project";
+    String DEFAULT_SIDECAR = "envoy";
 }
