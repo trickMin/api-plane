@@ -44,6 +44,8 @@ import org.springframework.util.StringUtils;
 import javax.annotation.PostConstruct;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.netease.cloud.nsf.core.k8s.K8sResourceEnum.*;
@@ -713,8 +715,13 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     }
 
     private String getSidecarVersionFromImage(String sidecarImage){
-        int index = sidecarImage.lastIndexOf(":");
-        return sidecarImage.substring(index+1);
+        Pattern pattern = Pattern.compile(Const.SIDECAR_VERSION_PATTERN);
+        Matcher matcher = pattern.matcher(sidecarImage);
+        if (matcher.find()){
+            return matcher.group(0);
+        }else {
+            return Const.DEFAULT_SIDECAR;
+        }
     }
 
 
