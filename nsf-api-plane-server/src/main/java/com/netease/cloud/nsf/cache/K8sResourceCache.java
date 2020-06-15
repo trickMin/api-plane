@@ -44,6 +44,8 @@ import org.springframework.util.StringUtils;
 import javax.annotation.PostConstruct;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.netease.cloud.nsf.core.k8s.K8sResourceEnum.*;
@@ -605,6 +607,37 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     }
 
     @Override
+    public List<WorkLoadDTO> getWorkLoadByLabels(String clusterId, List<String> labelsList, String namespace) {
+        Map<String,String> labels = new HashMap<>();
+        if (!CollectionUtils.isEmpty(labelsList)){
+            for (String label : labelsList) {
+                int index = label.indexOf("=");
+                if (index < 0){
+                    continue;
+                }
+                String key = label.substring(0,index);
+                String value = label.substring(index+1);
+                labels.put(key,value);
+            }
+        }
+        KubernetesClient kubernetesClient = multiClusterK8sClient.k8sClient(clusterId);
+        List<T> workloadList = new ArrayList<>();
+        workloadList.addAll(kubernetesClient.getObjectList(Deployment.name(),namespace,labels));
+        workloadList.addAll(kubernetesClient.getObjectList(StatefulSet.name(),namespace,labels));
+        if (CollectionUtils.isEmpty(workloadList)){
+            return new ArrayList<>();
+        }
+        return workloadList.stream()
+                .filter(w->w.getMetadata().getLabels() != null && w.getMetadata().getLabels().get(meshConfig.getSelectorAppKey()) != null)
+                .map(w->{
+                    String serviceName = w.getMetadata().getLabels().get(meshConfig.getSelectorAppKey())
+                            +"."
+                            + w.getMetadata().getNamespace();
+            return new WorkLoadDTO<>(w,serviceName,clusterId,null,null);
+        }).collect(Collectors.toList());
+    }
+
+    @Override
     public List<String> getSidecarVersionOnWorkLoad(String clusterId, String namespace, String kind, String name) {
         List<PodDTO> podByWorkLoadInfo = getPodDtoByWorkLoadInfo(clusterId, kind, namespace, name);
         PodVersion queryVersion = new PodVersion();
@@ -673,8 +706,22 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         }else {
             podDTO.setSidecarContainerStatus(Const.SIDECAR_CONTAINER_SUCCESS);
         }
-        podDTO.setSidecarStatus(status.getCurrentVersion());
+        if (status.getCurrentVersion().equals(Const.DEFAULT_SIDECAR)){
+            podDTO.setSidecarStatus(getSidecarVersionFromImage(podDTO.getSidecarImage()));
+        }else {
+            podDTO.setSidecarStatus(status.getCurrentVersion());
+        }
         return podDTO;
+    }
+
+    private String getSidecarVersionFromImage(String sidecarImage){
+        Pattern pattern = Pattern.compile(Const.SIDECAR_VERSION_PATTERN);
+        Matcher matcher = pattern.matcher(sidecarImage);
+        if (matcher.find()){
+            return matcher.group(0);
+        }else {
+            return Const.DEFAULT_SIDECAR;
+        }
     }
 
 
