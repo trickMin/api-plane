@@ -37,6 +37,9 @@ public class StatusMonitorImpl implements StatusMonitor {
         this.statusProductor = productor;
     }
 
+    // 如果handler的执行耗时总是大于status检测间隔，则有可能导致分发任务持续
+    // 堆积导致溢出
+    // 处理方式： 1. 调大状态检测间隔周期 2. 避免handler执行耗时过长
     @Override
     public void registerHandler(String key, BiConsumer<Event, Status.Property> handle) {
         if (!handlers.containsKey(key)) {
