@@ -30,6 +30,9 @@ public class McpUtils {
         if (StringUtils.isEmpty(namespace) && StringUtils.isEmpty(name)) {
             return "";
         }
+        if (StringUtils.isEmpty(name)) {
+            return namespace + "/";
+        }
         if (StringUtils.isEmpty(namespace)) {
             return name;
         }
