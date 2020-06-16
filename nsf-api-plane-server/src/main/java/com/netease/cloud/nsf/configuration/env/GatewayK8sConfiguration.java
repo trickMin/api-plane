@@ -1,5 +1,6 @@
 package com.netease.cloud.nsf.configuration.env;
 
+import com.netease.cloud.nsf.configuration.GatewayAutoConfiguration;
 import com.netease.cloud.nsf.core.GlobalConfig;
 import com.netease.cloud.nsf.core.gateway.GatewayIstioModelEngine;
 import com.netease.cloud.nsf.core.gateway.service.GatewayConfigManager;
@@ -18,9 +19,9 @@ import org.springframework.context.annotation.Primary;
  * @author wupenghuai@corp.netease.com
  * @date 2020/4/26
  **/
-@ConditionalOnMissingBean(name = "nonK8sSupportConfiguration")
 @Configuration
-public class GatewayK8sConfiguration {
+@ConditionalOnMissingBean(GatewayNonK8sConfiguration.class)
+public class GatewayK8sConfiguration extends GatewayAutoConfiguration {
 
     @Bean
     @Primary

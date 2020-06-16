@@ -5,7 +5,6 @@ import com.netease.cloud.nsf.cache.ResourceCache;
 import com.netease.cloud.nsf.core.servicemesh.ServiceMeshConfigManager;
 import com.netease.cloud.nsf.service.ServiceMeshService;
 import io.grpc.stub.StreamObserver;
-import net.devh.springboot.autoconfigure.grpc.server.GrpcService;
 import nsfmeta.HandleNsfmetaServiceGrpc;
 import nsfmeta.TemplateHandlerService;
 import org.slf4j.Logger;
@@ -23,7 +22,6 @@ import java.util.stream.Collectors;
 /**
  * Created by 张武(zhangwu@corp.netease.com) at 2020/2/4
  */
-@GrpcService(HandleNsfmetaServiceGrpc.class)
 public class MixerApa extends HandleNsfmetaServiceGrpc.HandleNsfmetaServiceImplBase {
 
 	@Autowired private ResourceCache resourceCache;
@@ -40,7 +38,7 @@ public class MixerApa extends HandleNsfmetaServiceGrpc.HandleNsfmetaServiceImplB
 		String host = instance.getHost();
 		String destinationHost = instance.getDestinationHost();
 		String xNsfApp = instance.getXNsfApp();
-		System.out.println(String.format("host: %s, destinationHost: %s, xNsfApp: %s", host, destinationHost, xNsfApp));
+//		System.out.println(String.format("host: %s, destinationHost: %s, xNsfApp: %s", host, destinationHost, xNsfApp));
 		String clusterId = "default";
 		PodInfo destPod = new PodInfo(clusterId, instance.getDestinationUid());
 		PodInfo sourcePod = new PodInfo(clusterId, instance.getSourceUid());
