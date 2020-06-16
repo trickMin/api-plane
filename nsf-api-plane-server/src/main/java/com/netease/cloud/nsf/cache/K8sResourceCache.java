@@ -665,7 +665,9 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                         &&extractor.getResourceInfo(s,Const.RESOURCE_TARGET,projectCode)!=null)
                 .map(s->{
                     ServiceDto<T> tServiceDto = new ServiceDto<>(s, clusterId);
-                    tServiceDto.setAppName(tServiceDto.getSelectLabels().get(meshConfig.getSelectorAppKey()));
+                    if (tServiceDto.getSelectLabels() != null){
+                        tServiceDto.setAppName(tServiceDto.getSelectLabels().get(meshConfig.getSelectorAppKey()));
+                    }
                     return tServiceDto;
                 })
                 .collect(Collectors.toList());
