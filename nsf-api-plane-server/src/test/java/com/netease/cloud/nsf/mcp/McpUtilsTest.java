@@ -6,6 +6,8 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+
 /**
  * @author wupenghuai@corp.netease.com
  * @date 2020/4/30
@@ -35,5 +37,13 @@ public class McpUtilsTest {
         String labelMatch3 = McpUtils.getLabelMatch(null);
         Assert.assertEquals("{}", label3);
         Assert.assertEquals("{%}", labelMatch3);
+    }
+
+    @Test
+    public void testGetResourceName() {
+        Assert.assertThat(McpUtils.getResourceName(null, null), equalTo(""));
+        Assert.assertThat(McpUtils.getResourceName("gateway-system", null), equalTo("gateway-system/"));
+        Assert.assertThat(McpUtils.getResourceName(null, "testFile"), equalTo("testFile"));
+        Assert.assertThat(McpUtils.getResourceName("gateway-system", "testFile"), equalTo("gateway-system/testFile"));
     }
 }
