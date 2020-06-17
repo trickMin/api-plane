@@ -73,6 +73,10 @@ public class Trans {
             api.setRetryOn(portalAPI.getHttpRetry().getRetryOn());
         }
         api.setRequestOperation(requestOperationDTO2requestOperation(portalAPI.getRequestOperation()));
+        if (portalAPI.getVirtualClusterDTO() != null){
+            api.setVirtualClusterName(portalAPI.getVirtualClusterDTO().getVirtualClusterName());
+            api.setVirtualClusterHeaders(pairsDTO2Pairs(portalAPI.getVirtualClusterDTO().getHeaders()));
+        }
         return api;
     }
 

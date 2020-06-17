@@ -12,12 +12,6 @@ import java.util.List;
  */
 public class VirtualClusterDTO {
     /**
-     * 是否需要配置VirtualCluster
-     */
-    @JsonProperty(value = "NeedVC")
-    private Boolean needVirtualCluster;
-
-    /**
      * Virtual_Cluster Name
      */
     @JsonProperty(value = "Name")
@@ -29,14 +23,6 @@ public class VirtualClusterDTO {
     @JsonProperty(value = "Headers")
     @Valid
     private List<PairMatchDTO> headers;
-
-    public Boolean getNeedVirtualCluster() {
-        return needVirtualCluster;
-    }
-
-    public void setNeedVirtualCluster(Boolean needVirtualCluster) {
-        this.needVirtualCluster = needVirtualCluster;
-    }
 
     public List<PairMatchDTO> getHeaders() {
         return headers;
