@@ -67,7 +67,7 @@ public class ServiceMeshIstioModelEngine extends IstioModelEngine {
     @Value(value = "${rateLimitConfigMapName:rate-limit-config}")
     String rateLimitConfigMapName;
 
-    @Value(value = "${meshRateLimitServerNamespace:gateway-system}")
+    @Value(value = "${meshRateLimitServerNamespace:istio-system}")
     String meshRateLimitServerNamespace;
 
 
@@ -124,7 +124,7 @@ public class ServiceMeshIstioModelEngine extends IstioModelEngine {
         resourcePacks.addAll(generateK8sPack(rawConfigMap,
                 new MeshRateLimitConfigMapMerger(),
                 new MeshRateLimitConfigMapSubtracter(rateLimit.getHost()),
-                new EmptyResourceGenerator(new EmptyConfigMap(rateLimitConfigMapName))));
+                new EmptyResourceGenerator(new EmptyConfigMap(rateLimitConfigMapName, meshRateLimitServerNamespace))));
 
         return resourcePacks;
     }
