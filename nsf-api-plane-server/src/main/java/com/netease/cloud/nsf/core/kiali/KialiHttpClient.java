@@ -22,7 +22,6 @@ public class KialiHttpClient {
 
     private static final Logger logger = LoggerFactory.getLogger(KialiHttpClient.class);
 
-
     @Autowired
     private RestTemplate restTemplate;
 

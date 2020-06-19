@@ -80,6 +80,7 @@ public abstract class AbstractConfigManagerSupport implements ConfigManager{
         if (modelEngine.isUseless(i) || i instanceof EmptyResource) {
             try {
                 configStore.delete(i);
+                deleteNotification(i);
             } catch (Exception e) {
                 //ignore error
                 logger.warn("", e);
@@ -88,5 +89,7 @@ public abstract class AbstractConfigManagerSupport implements ConfigManager{
             configStore.update(i);
         }
     }
+
+    protected abstract void deleteNotification(HasMetadata i);
 
 }
