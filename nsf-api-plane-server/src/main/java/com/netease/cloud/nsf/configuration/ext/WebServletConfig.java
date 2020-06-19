@@ -1,4 +1,4 @@
-package com.netease.cloud.nsf.configuration;
+package com.netease.cloud.nsf.configuration.ext;
 
 import com.netease.cloud.nsf.web.filter.CacheHttpRequestFilter;
 import com.netease.cloud.nsf.web.filter.LogUUIDFilter;

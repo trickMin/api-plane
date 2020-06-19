@@ -1,12 +1,10 @@
-package com.netease.cloud.nsf.configuration;
+package com.netease.cloud.nsf.configuration.ext;
 
 import com.netease.cloud.nsf.core.editor.EditorContext;
 import com.netease.cloud.nsf.core.k8s.KubernetesClient;
 import com.netease.cloud.nsf.core.k8s.MultiClusterK8sClient;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
-@Configuration
 public class IstioSupportConfiguration {
 
     @Bean

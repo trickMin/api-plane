@@ -10,6 +10,8 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import com.google.common.collect.ImmutableList;
 import com.netease.cloud.nsf.cache.K8sResourceCache;
 import com.netease.cloud.nsf.cache.ResourceCache;
+import com.netease.cloud.nsf.configuration.ext.ApiPlaneConfig;
+import com.netease.cloud.nsf.configuration.ext.MeshConfig;
 import com.netease.cloud.nsf.util.freemarker.AutoRemoveDirective;
 import com.netease.cloud.nsf.util.freemarker.IgnoreDirective;
 import com.netease.cloud.nsf.util.freemarker.IndentationDirective;

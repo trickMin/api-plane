@@ -1,6 +1,6 @@
 package com.netease.cloud.nsf.core.k8s;
 
-import com.netease.cloud.nsf.configuration.K8sMultiClusterProperties;
+import com.netease.cloud.nsf.configuration.ext.K8sMultiClusterProperties;
 import com.netease.cloud.nsf.core.editor.EditorContext;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.ConfigBuilder;

@@ -1,10 +1,14 @@
 package com.netease.cloud.nsf.configuration.env;
 
+import com.netease.cloud.nsf.configuration.ext.K8sMultiClusterProperties;
 import com.netease.cloud.nsf.core.GlobalConfig;
+import com.netease.cloud.nsf.core.editor.EditorContext;
 import com.netease.cloud.nsf.core.gateway.GatewayIstioModelEngine;
 import com.netease.cloud.nsf.core.gateway.service.GatewayConfigManager;
 import com.netease.cloud.nsf.core.gateway.service.ResourceManager;
 import com.netease.cloud.nsf.core.gateway.service.impl.GatewayConfigManagerImpl;
+import com.netease.cloud.nsf.core.k8s.KubernetesClient;
+import com.netease.cloud.nsf.core.k8s.MultiClusterK8sClient;
 import com.netease.cloud.nsf.mcp.*;
 import com.netease.cloud.nsf.mcp.aop.ConfigStoreAop;
 import com.netease.cloud.nsf.mcp.aop.GatewayServiceAop;
@@ -25,6 +29,7 @@ import istio.mcp.v1alpha1.Mcp;
 import istio.mcp.v1alpha1.ResourceOuterClass;
 import istio.networking.v1alpha3.*;
 import org.apache.commons.lang3.StringUtils;
+import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -50,7 +55,7 @@ import java.util.Objects;
  **/
 @Configuration
 @ConditionalOnProperty("nonK8sMode")
-public class GatewayNonK8sConfiguration {
+public class NonK8sConfiguration {
     @Value("${mcpPort:8899}")
     private Integer port;
 
@@ -241,5 +246,23 @@ public class GatewayNonK8sConfiguration {
     @Bean
     public ConfigStoreAop configStoreAop(TransactionTemplate transactionTemplate, StatusNotifier statusNotifier) {
         return new ConfigStoreAop(transactionTemplate, statusNotifier);
+    }
+
+    /**
+     * Mock Bean
+     */
+    @Bean
+    public KubernetesClient kubernetesClient() {
+        return Mockito.mock(KubernetesClient.class);
+    }
+
+    @Bean("originalKubernetesClient")
+    public io.fabric8.kubernetes.client.KubernetesClient originalKubernetesClient(MultiClusterK8sClient mc) {
+        return Mockito.mock(io.fabric8.kubernetes.client.KubernetesClient.class);
+    }
+
+    @Bean
+    public MultiClusterK8sClient multiClusterK8sClient(K8sMultiClusterProperties properties, EditorContext editorContext) {
+        return Mockito.mock(MultiClusterK8sClient.class);
     }
 }
