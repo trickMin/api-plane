@@ -1,25 +1,16 @@
 package com.netease.cloud.nsf.web.controller;
 
-import com.netease.cloud.nsf.cache.K8sResourceCache;
+import com.netease.cloud.nsf.cache.ResourceCache;
 import com.netease.cloud.nsf.cache.ResourceStoreFactory;
 import com.netease.cloud.nsf.cache.meta.PodDTO;
 import com.netease.cloud.nsf.configuration.MeshConfig;
-import com.netease.cloud.nsf.meta.IptablesConfig;
-import com.netease.cloud.nsf.meta.PodStatus;
-import com.netease.cloud.nsf.meta.PodVersion;
-import com.netease.cloud.nsf.meta.SVMSpec;
-import com.netease.cloud.nsf.meta.SidecarVersionManagement;
-import com.netease.cloud.nsf.service.VersionManagerService;
-import com.netease.cloud.nsf.service.GatewayService;
+import com.netease.cloud.nsf.meta.*;
 import com.netease.cloud.nsf.service.SVMIptablesHelper;
+import com.netease.cloud.nsf.service.VersionManagerService;
 import com.netease.cloud.nsf.util.errorcode.ApiPlaneErrorCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.Arrays;
@@ -40,7 +31,7 @@ public class YxVersionManagerController extends BaseController {
     private VersionManagerService versionManagerService;
 
     @Autowired
-    private K8sResourceCache k8sResourceCache;
+    private ResourceCache k8sResourceCache;
 
     @Autowired
     private MeshConfig meshConfig;
