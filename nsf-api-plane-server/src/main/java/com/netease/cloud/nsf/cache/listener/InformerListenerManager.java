@@ -3,8 +3,8 @@ package com.netease.cloud.nsf.cache.listener;
 
 import com.netease.cloud.nsf.cache.ResourceUpdateEvent;
 import com.netease.cloud.nsf.cache.ResourceUpdatedListener;
-import com.netease.cloud.nsf.configuration.ApiPlaneConfig;
-import com.netease.cloud.nsf.configuration.MeshConfig;
+import com.netease.cloud.nsf.configuration.ext.ApiPlaneConfig;
+import com.netease.cloud.nsf.configuration.ext.MeshConfig;
 import com.netease.cloud.nsf.util.Const;
 import com.netease.cloud.nsf.util.RestTemplateClient;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;

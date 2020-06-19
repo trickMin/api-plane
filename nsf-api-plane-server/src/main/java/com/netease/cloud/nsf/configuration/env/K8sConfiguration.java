@@ -1,7 +1,6 @@
 package com.netease.cloud.nsf.configuration.env;
 
-import com.netease.cloud.nsf.configuration.GatewayAutoConfiguration;
-import com.netease.cloud.nsf.configuration.IstioSupportConfiguration;
+import com.netease.cloud.nsf.configuration.ext.IstioSupportConfiguration;
 import com.netease.cloud.nsf.core.GlobalConfig;
 import com.netease.cloud.nsf.core.gateway.GatewayIstioModelEngine;
 import com.netease.cloud.nsf.core.gateway.service.GatewayConfigManager;
@@ -15,7 +14,6 @@ import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 
 /**
@@ -25,7 +23,7 @@ import org.springframework.context.annotation.Primary;
 @Configuration
 @ConditionalOnMissingBean(NonK8sConfiguration.class)
 @ImportAutoConfiguration(IstioSupportConfiguration.class)
-public class K8sConfiguration extends GatewayAutoConfiguration {
+public class K8sConfiguration {
 
     @Bean
     @Primary

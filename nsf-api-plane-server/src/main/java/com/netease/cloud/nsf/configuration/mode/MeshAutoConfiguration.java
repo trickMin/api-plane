@@ -1,7 +1,9 @@
-package com.netease.cloud.nsf.configuration;
+package com.netease.cloud.nsf.configuration.mode;
 
 import com.netease.cloud.nsf.cache.K8sResourceCache;
 import com.netease.cloud.nsf.cache.listener.InformerListenerManager;
+import com.netease.cloud.nsf.configuration.ApiPlaneAutoBaseConfiguration;
+import com.netease.cloud.nsf.configuration.ext.ApiPlaneConfig;
 import com.netease.cloud.nsf.mixer.MixerApa;
 import com.netease.cloud.nsf.util.Const;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -12,15 +14,14 @@ import org.springframework.core.env.Environment;
 import org.springframework.util.StringUtils;
 
 /**
- * 暂时只隔离网格场景下的Bean, 即网格模式下有所有Bean, 网关模式下不含网格的Bean
- * 暂不考虑网格的容器、非容器配置隔离
+ * 网格模式下的configuration
  *
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2020/6/15
  **/
 @Profile("sm")
 @Configuration
 @AutoConfigureBefore(ApiPlaneAutoBaseConfiguration.class)
-public class MeshAutoConfiguration extends ApiPlaneAutoBaseConfiguration {
+public class MeshAutoConfiguration {
 
     @Bean
     ApiPlaneConfig apiPlaneConfig(Environment environment){
