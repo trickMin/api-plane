@@ -109,7 +109,6 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     @PostConstruct
     public void initInformer() {
 
-        System.out.println("init informer");
         Map<String, MultiClusterK8sClient.ClientSet> allClients = multiClusterK8sClient.getAllClients();
 
         //ResourceUpdatedListener versionUpdateListener = new VersionUpdateListener();

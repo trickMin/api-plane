@@ -5,11 +5,11 @@ import com.netease.cloud.nsf.cache.listener.InformerListenerManager;
 import com.netease.cloud.nsf.mixer.MixerApa;
 import com.netease.cloud.nsf.util.Const;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.util.StringUtils;
-
-import javax.annotation.PostConstruct;
 
 /**
  * 暂时只隔离网格场景下的Bean, 即网格模式下有所有Bean, 网关模式下不含网格的Bean
@@ -21,11 +21,6 @@ import javax.annotation.PostConstruct;
 @Configuration
 @AutoConfigureBefore(ApiPlaneAutoBaseConfiguration.class)
 public class MeshAutoConfiguration extends ApiPlaneAutoBaseConfiguration {
-
-    @PostConstruct
-    public void init() {
-        System.out.println("mesh auto config");
-    }
 
     @Bean
     ApiPlaneConfig apiPlaneConfig(Environment environment){

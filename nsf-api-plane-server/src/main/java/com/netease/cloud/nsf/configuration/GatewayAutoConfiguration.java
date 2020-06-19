@@ -13,11 +13,6 @@ import javax.annotation.PostConstruct;
 @AutoConfigureBefore(ApiPlaneAutoBaseConfiguration.class)
 public class GatewayAutoConfiguration {
 
-    @PostConstruct
-    public void init() {
-        System.out.println("gateway auto config");
-    }
-
     // 不自动启用grpc server
     @Bean
     @Profile(value = "!sm")
