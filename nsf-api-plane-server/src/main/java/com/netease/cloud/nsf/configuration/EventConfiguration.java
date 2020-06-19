@@ -1,6 +1,6 @@
 package com.netease.cloud.nsf.configuration;
 
-import com.netease.cloud.nsf.configuration.env.GatewayNonK8sConfiguration;
+import com.netease.cloud.nsf.configuration.env.NonK8sConfiguration;
 import com.netease.cloud.nsf.core.k8s.GatewayK8sEventWatcher;
 import com.netease.cloud.nsf.core.k8s.MeshK8sEventWatcher;
 import com.netease.cloud.nsf.core.k8s.MultiClusterK8sClient;
@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Profile;
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2020/6/19
  **/
 @Configuration
-@ConditionalOnMissingBean(GatewayNonK8sConfiguration.class)
+@ConditionalOnMissingBean(NonK8sConfiguration.class)
 public class EventConfiguration {
 
     @Bean
