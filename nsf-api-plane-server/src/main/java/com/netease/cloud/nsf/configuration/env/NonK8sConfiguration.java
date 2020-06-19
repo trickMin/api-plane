@@ -34,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -220,8 +221,8 @@ public class NonK8sConfiguration {
     }
 
     @Bean
-    public GatewayConfigManager gatewayConfigManager(GatewayIstioModelEngine modelEngine, McpConfigStore k8sConfigStore, GlobalConfig globalConfig) {
-        return new GatewayConfigManagerImpl(modelEngine, k8sConfigStore, globalConfig);
+    public GatewayConfigManager gatewayConfigManager(GatewayIstioModelEngine modelEngine, McpConfigStore k8sConfigStore, GlobalConfig globalConfig, ApplicationEventPublisher eventPublisher) {
+        return new GatewayConfigManagerImpl(modelEngine, k8sConfigStore, globalConfig, eventPublisher);
     }
 
     /**

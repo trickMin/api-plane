@@ -10,6 +10,7 @@ import com.netease.cloud.nsf.core.gateway.GatewayIstioModelEngine;
 import com.netease.cloud.nsf.core.gateway.service.GatewayConfigManager;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.k8s.K8sResourcePack;
+import com.netease.cloud.nsf.core.k8s.event.K8sResourceDeleteNotificationEvent;
 import com.netease.cloud.nsf.core.k8s.subtracter.ServiceEntryEndpointsSubtracter;
 import com.netease.cloud.nsf.meta.*;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
@@ -19,6 +20,7 @@ import me.snowdrop.istio.api.IstioResource;
 import me.snowdrop.istio.api.networking.v1alpha3.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -35,11 +37,13 @@ public class GatewayConfigManagerImpl extends AbstractConfigManagerSupport imple
     private ConfigStore configStore;
     private GatewayIstioModelEngine modelEngine;
     private GlobalConfig globalConfig;
+    private ApplicationEventPublisher eventPublisher;
 
-    public GatewayConfigManagerImpl(GatewayIstioModelEngine modelEngine, ConfigStore k8sConfigStore, GlobalConfig globalConfig) {
+    public GatewayConfigManagerImpl(GatewayIstioModelEngine modelEngine, ConfigStore k8sConfigStore, GlobalConfig globalConfig, ApplicationEventPublisher eventPublisher) {
         this.modelEngine = modelEngine;
         this.configStore = k8sConfigStore;
         this.globalConfig = globalConfig;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -210,5 +214,11 @@ public class GatewayConfigManagerImpl extends AbstractConfigManagerSupport imple
             resource.setApiVersion(null);
             return resource;
         };
+    }
+
+
+    @Override
+    protected void deleteNotification(HasMetadata i) {
+        eventPublisher.publishEvent(new K8sResourceDeleteNotificationEvent(i));
     }
 }

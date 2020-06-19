@@ -12,6 +12,7 @@ import com.netease.cloud.nsf.service.GatewayService;
 import com.netease.cloud.nsf.service.impl.GatewayServiceImpl;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -32,8 +33,8 @@ public class K8sConfiguration {
     }
 
     @Bean
-    public GatewayConfigManager gatewayConfigManager(GatewayIstioModelEngine modelEngine, K8sConfigStore k8sConfigStore, GlobalConfig globalConfig) {
-        return new GatewayConfigManagerImpl(modelEngine, k8sConfigStore, globalConfig);
+    public GatewayConfigManager gatewayConfigManager(GatewayIstioModelEngine modelEngine, K8sConfigStore k8sConfigStore, GlobalConfig globalConfig, ApplicationEventPublisher eventPublisher) {
+        return new GatewayConfigManagerImpl(modelEngine, k8sConfigStore, globalConfig, eventPublisher);
     }
 
     @Bean
