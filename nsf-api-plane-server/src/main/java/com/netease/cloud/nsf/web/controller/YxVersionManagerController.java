@@ -3,7 +3,7 @@ package com.netease.cloud.nsf.web.controller;
 import com.netease.cloud.nsf.cache.ResourceCache;
 import com.netease.cloud.nsf.cache.ResourceStoreFactory;
 import com.netease.cloud.nsf.cache.meta.PodDTO;
-import com.netease.cloud.nsf.configuration.MeshConfig;
+import com.netease.cloud.nsf.configuration.ext.MeshConfig;
 import com.netease.cloud.nsf.meta.*;
 import com.netease.cloud.nsf.service.SVMIptablesHelper;
 import com.netease.cloud.nsf.service.VersionManagerService;

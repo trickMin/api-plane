@@ -1,6 +1,6 @@
 package com.netease.cloud.nsf.configuration.env;
 
-import com.netease.cloud.nsf.configuration.K8sMultiClusterProperties;
+import com.netease.cloud.nsf.configuration.ext.K8sMultiClusterProperties;
 import com.netease.cloud.nsf.core.GlobalConfig;
 import com.netease.cloud.nsf.core.editor.EditorContext;
 import com.netease.cloud.nsf.core.gateway.GatewayIstioModelEngine;

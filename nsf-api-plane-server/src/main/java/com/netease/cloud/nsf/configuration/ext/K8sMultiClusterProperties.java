@@ -1,4 +1,4 @@
-package com.netease.cloud.nsf.configuration;
+package com.netease.cloud.nsf.configuration.ext;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
