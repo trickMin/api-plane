@@ -12,15 +12,15 @@ spec:
   - "${host}"
 </#list>
 <#if t_virtual_service_virtual_cluster_name?has_content>
-virtualCluster:
-- headers:
+  virtualCluster:
+  - headers:
 <#if t_virtual_service_virtual_cluster_headers?has_content>
 <#list t_virtual_service_virtual_cluster_headers as h>
-    ${h.key}:
-      ${h.type}: ${h.value}
+      ${h.key}:
+        ${h.type}: ${h.value}
 </#list>
 </#if>
-  name: ${t_virtual_service_virtual_cluster_name}
+    name: ${t_virtual_service_virtual_cluster_name}
 </#if>
 <#if t_api_host_plugins?has_content>
 <#list t_api_host_plugins as p>

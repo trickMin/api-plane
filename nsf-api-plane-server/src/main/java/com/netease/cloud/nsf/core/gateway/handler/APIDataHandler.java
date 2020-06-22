@@ -95,10 +95,13 @@ public abstract class APIDataHandler implements DataHandler<API> {
 
     private List<PairMatch> getVirtualClusterHeaders(API api){
         List<PairMatch> virtualClusterHeaders = new ArrayList<>();
-        //前端配置VirtualCluster headers
-        virtualClusterHeaders.addAll(api.getVirtualClusterHeaders());
+        if (StringUtils.isEmpty(api.getVirtualClusterName())){
+            return virtualClusterHeaders;
+        }
         //headers
-        virtualClusterHeaders.addAll(api.getHeaders());
+        if (api.getHeaders() != null) {
+            virtualClusterHeaders.addAll(api.getHeaders());
+        }
         //构造method
         String methods = getMethods(api);
         if (!StringUtils.isEmpty(methods)) {
@@ -106,7 +109,10 @@ public abstract class APIDataHandler implements DataHandler<API> {
         }
         //构造path
         if (CollectionUtils.isEmpty(api.getVirtualClusterHeaders())) {
-            virtualClusterHeaders.add(new PairMatch(":path", getVirutalClusterUris(api), "regex"));
+            virtualClusterHeaders.add(new PairMatch(":path", getVirtualClusterUris(api), "regex"));
+        }else {
+            //支持前端传入:path，匹配query
+            virtualClusterHeaders.addAll(api.getVirtualClusterHeaders());
         }
         //authority
         String authority = produceHostHeaders(api);
@@ -118,7 +124,7 @@ public abstract class APIDataHandler implements DataHandler<API> {
 
     abstract List<TemplateParams> doHandle(TemplateParams tp, API api);
 
-    String getVirutalClusterUris(API api){
+    String getVirtualClusterUris(API api){
         final StringBuffer suffix = new StringBuffer();
         if (api.getUriMatch().equals(UriMatch.prefix) || api.getUriMatch().equals(UriMatch.exact)) {
             suffix.append(".*");
