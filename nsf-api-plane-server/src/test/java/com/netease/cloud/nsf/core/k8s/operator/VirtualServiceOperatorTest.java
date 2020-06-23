@@ -75,7 +75,7 @@ public class VirtualServiceOperatorTest {
         Map<String, StringMatch> headers = new HashMap<String, StringMatch>(){{
             put(":path", new StringMatch(new RegexMatchType("/abc.*")));
         }};
-        fresh.getSpec().setVirtualCluster(getVirtualCluster("test-vc", null));
+        fresh.getSpec().setVirtualCluster(getVirtualCluster("test-vc", headers));
         merge = operator.merge(old, fresh);
         assertTrue(merge.getSpec().getVirtualCluster().size() == 1);
     }
