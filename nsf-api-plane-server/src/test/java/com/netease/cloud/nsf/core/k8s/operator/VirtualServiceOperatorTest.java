@@ -1,15 +1,15 @@
 package com.netease.cloud.nsf.core.k8s.operator;
 
-import me.snowdrop.istio.api.networking.v1alpha3.HTTPMatchRequest;
-import me.snowdrop.istio.api.networking.v1alpha3.HTTPRoute;
-import me.snowdrop.istio.api.networking.v1alpha3.VirtualService;
-import me.snowdrop.istio.api.networking.v1alpha3.VirtualServiceSpec;
+import com.google.common.collect.ImmutableList;
+import me.snowdrop.istio.api.networking.v1alpha3.*;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertTrue;
 
@@ -71,6 +71,13 @@ public class VirtualServiceOperatorTest {
         assertTrue(aCount == 1);
         assertTrue(cCount == 2);
 
+        //VirtualCluster MR test
+        Map<String, StringMatch> headers = new HashMap<String, StringMatch>(){{
+            put(":path", new StringMatch(new RegexMatchType("/abc.*")));
+        }};
+        fresh.getSpec().setVirtualCluster(getVirtualCluster("test-vc", null));
+        merge = operator.merge(old, fresh);
+        assertTrue(merge.getSpec().getVirtualCluster().size() == 1);
     }
 
     @Test
@@ -112,6 +119,13 @@ public class VirtualServiceOperatorTest {
         VirtualService vs = new VirtualService();
         vs.setSpec(spec);
         return vs;
+    }
+
+    private static List<VirtualCluster> getVirtualCluster(String name, Map<String, StringMatch> headers){
+        VirtualCluster virtualCluster = new VirtualCluster();
+        virtualCluster.setName(name);
+        virtualCluster.setHeaders(headers);
+        return ImmutableList.of(virtualCluster);
     }
 
 }
