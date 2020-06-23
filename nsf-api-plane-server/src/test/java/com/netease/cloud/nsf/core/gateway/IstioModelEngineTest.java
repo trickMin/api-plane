@@ -14,10 +14,12 @@ import com.netease.cloud.nsf.meta.Endpoint;
 import com.netease.cloud.nsf.meta.*;
 import com.netease.cloud.nsf.meta.dto.PluginOrderDTO;
 import com.netease.cloud.nsf.meta.dto.PluginOrderItemDTO;
+import com.netease.cloud.nsf.meta.dto.VirtualClusterDTO;
 import com.netease.cloud.nsf.util.Const;
 import com.netease.cloud.nsf.util.Trans;
 import me.snowdrop.istio.api.IstioResource;
 import me.snowdrop.istio.api.networking.v1alpha3.*;
+import org.assertj.core.util.Lists;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,6 +80,12 @@ public class IstioModelEngineTest extends BaseTest {
         api.setUriMatch(uriMatch);
         api.setHeaders(headers);
         api.setQueryParams(queryParams);
+        return api;
+    }
+
+    private API setAPIVirtualCluster(API api,  String virtualClusterName, List<PairMatch> virtualClusterHeaders){
+        api.setVirtualClusterName(virtualClusterName);
+        api.setVirtualClusterHeaders(virtualClusterHeaders);
         return api;
     }
 
@@ -162,6 +170,25 @@ public class IstioModelEngineTest extends BaseTest {
                     }
                 });
 
+
+        //virtualCluster test
+        //base api test
+        API api2 = setAPIVirtualCluster(api, "test-vc", Lists.newArrayList());
+
+        List<K8sResourcePack> resources2 = gatewayIstioModelEngine.translate(api2);
+
+        Assert.assertTrue(resources2.size() == 9);
+
+        resources2.stream()
+                .map(r -> r.getResource())
+                .forEach(r -> {
+                    if (r.getKind().equals(VirtualService.class.getSimpleName())) {
+                        VirtualService vs = (VirtualService) r;
+                        VirtualCluster virtualCluster = vs.getSpec().getVirtualCluster().get(0);
+
+                        Assert.assertTrue(virtualCluster.getName().equals("test-vc"));
+                    }
+                });
     }
 
     @Test
