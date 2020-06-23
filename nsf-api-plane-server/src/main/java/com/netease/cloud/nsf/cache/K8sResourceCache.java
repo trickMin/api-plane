@@ -662,11 +662,13 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         return  ((List<T>)store.listByKind(Service.name()))
                 .stream()
                 .filter(s->s.getMetadata().getLabels()!=null&&!s.getMetadata().getLabels().isEmpty()
-                        &&extractor.getResourceInfo(s,Const.RESOURCE_TARGET,projectCode)!=null)
+                        &&extractor.getResourceInfo(s,Const.RESOURCE_TARGET,projectCode)!=null
+                        &&extractor.getResourceInfo(s,Const.RESOURCE_TARGET,projectCode).equals(projectCode))
                 .map(s->{
                     ServiceDto<T> tServiceDto = new ServiceDto<>(s, clusterId);
                     if (tServiceDto.getSelectLabels() != null){
                         tServiceDto.setAppName(tServiceDto.getSelectLabels().get(meshConfig.getSelectorAppKey()));
+
                     }
                     return tServiceDto;
                 })
