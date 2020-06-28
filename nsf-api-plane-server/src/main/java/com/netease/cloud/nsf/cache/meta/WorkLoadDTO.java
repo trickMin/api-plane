@@ -6,7 +6,7 @@ import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.apps.DeploymentStatus;
 import io.fabric8.kubernetes.api.model.apps.StatefulSet;
 import io.fabric8.kubernetes.api.model.apps.StatefulSetStatus;
-import org.springframework.util.StringUtils;
+
 
 import java.util.List;
 import java.util.Map;
@@ -160,6 +160,8 @@ public class WorkLoadDTO<T extends HasMetadata> extends K8sResourceDTO {
     public void setEnvName(String envName) {
         this.envName = envName;
     }
+
+
 
 //    private boolean IsInjected(T obj) {
 //        String injectAnnotationValue = null;

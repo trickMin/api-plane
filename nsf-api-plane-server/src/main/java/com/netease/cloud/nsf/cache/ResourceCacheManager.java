@@ -167,7 +167,7 @@ public class ResourceCacheManager implements ResourceEventDispatcher {
 
     }
 
-    private String getServiceNameByWorkload(HasMetadata resourceObject) {
+    public String getServiceNameByWorkload(HasMetadata resourceObject) {
         String namespace = resourceObject.getMetadata().getNamespace();
         String appName = null;
         if (resourceObject.getMetadata().getLabels() != null) {

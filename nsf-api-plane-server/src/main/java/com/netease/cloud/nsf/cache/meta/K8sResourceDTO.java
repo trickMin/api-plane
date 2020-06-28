@@ -2,6 +2,8 @@ package com.netease.cloud.nsf.cache.meta;
 
 import io.fabric8.kubernetes.api.model.HasMetadata;
 
+import java.util.Objects;
+
 public class K8sResourceDTO<T extends HasMetadata> {
 
     protected String name;
@@ -63,5 +65,21 @@ public class K8sResourceDTO<T extends HasMetadata> {
             return "";
         }
         return value;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        K8sResourceDTO<?> that = (K8sResourceDTO<?>) o;
+        return Objects.equals(name, that.name) &&
+                Objects.equals(kind, that.kind) &&
+                Objects.equals(namespace, that.namespace) &&
+                Objects.equals(clusterId, that.clusterId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, kind, namespace, clusterId);
     }
 }

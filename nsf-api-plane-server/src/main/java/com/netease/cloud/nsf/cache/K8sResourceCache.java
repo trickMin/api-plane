@@ -542,14 +542,15 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         if (CollectionUtils.isEmpty(workloadList)){
             return new ArrayList<>();
         }
-        return workloadList.stream()
-                .filter(w->w.getMetadata().getLabels() != null && w.getMetadata().getLabels().get(meshConfig.getSelectorAppKey()) != null)
-                .map(w->{
-                    String serviceName = w.getMetadata().getLabels().get(meshConfig.getSelectorAppKey())
-                            +"."
-                            + w.getMetadata().getNamespace();
-            return new WorkLoadDTO<>(w,serviceName,clusterId);
-        }).collect(Collectors.toList());
+        Set<WorkLoadDTO> result = new HashSet();
+        for (T workload : workloadList) {
+            String serviceNameByWorkload = resourceCacheManager.getServiceNameByWorkload(workload);
+            if (!StringUtils.isEmpty(serviceNameByWorkload)){
+                result.addAll(resourceCacheManager.getWorkloadListByServiceName(serviceNameByWorkload));
+            }
+        }
+        return new ArrayList<>(result);
+
     }
 
     @Override
