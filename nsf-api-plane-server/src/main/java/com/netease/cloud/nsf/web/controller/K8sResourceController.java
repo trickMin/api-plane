@@ -5,6 +5,7 @@ import com.netease.cloud.nsf.cache.ResourceCache;
 import com.netease.cloud.nsf.cache.ResourceStoreFactory;
 import com.netease.cloud.nsf.cache.meta.ServiceDto;
 import com.netease.cloud.nsf.cache.meta.WorkLoadDTO;
+import com.netease.cloud.nsf.core.ConfigManager;
 import com.netease.cloud.nsf.core.servicemesh.ServiceMeshConfigManager;
 import com.netease.cloud.nsf.service.ServiceMeshService;
 import com.netease.cloud.nsf.util.errorcode.ApiPlaneErrorCode;
@@ -99,6 +100,8 @@ public class K8sResourceController extends BaseController {
     public String getAllWorkLoad(@RequestParam(name = "ClusterId", required = false) String clusterId,
                                  @RequestParam(name = "ProjectId",required = false) String projectId) {
         List workLoadList;
+        Map<String, Object> result = new HashMap<>();
+        ErrorCode code = ApiPlaneErrorCode.Success;
         if (StringUtils.isEmpty(clusterId)) {
             workLoadList = resourceCache.getAllWorkLoad(projectId);
         } else {
@@ -107,11 +110,8 @@ public class K8sResourceController extends BaseController {
             }
             workLoadList = resourceCache.getAllWorkLoadByClusterId(clusterId, projectId);
         }
-       // workLoadList = resourceCache.getWorkLoadListWithSidecarVersion(workLoadList);
         checkResult(workLoadList);
-        Map<String, Object> result = new HashMap<>();
         result.put("Result", workLoadList);
-        ErrorCode code = ApiPlaneErrorCode.Success;
         return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), result);
     }
 

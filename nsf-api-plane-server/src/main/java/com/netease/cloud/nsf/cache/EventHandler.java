@@ -18,6 +18,8 @@ public class EventHandler<T extends HasMetadata> {
 
     private List<ResourceUpdatedListener> resourceDeleteListeners = new ArrayList<>();
 
+    private ResourceEventDispatcher dispatcher;
+
     private int THREAD_POOL_CORE_SIZE = 5;
     private int THREAD_POOL_MAX_SIZE = 10;
     private int THREAD_POOL_KEEP_ALIVE_TIME = 2000;
@@ -67,6 +69,15 @@ public class EventHandler<T extends HasMetadata> {
         });
     }
 
+    void dispatchEvent(ResourceUpdateEvent event){
+        if (dispatcher == null){
+            return;
+        }
+        callBackThreadPool.execute(() -> {
+            this.dispatcher.dispatch(event);
+        });
+    }
+
     public void subscribeAddedListener(ResourceUpdatedListener resourceAddedListener) {
         this.resourceAddedListeners.add(resourceAddedListener);
     }
@@ -78,6 +89,12 @@ public class EventHandler<T extends HasMetadata> {
     public void subscribeDeletedListener(ResourceUpdatedListener resourceDeleteListener) {
         this.resourceDeleteListeners.add(resourceDeleteListener);
     }
+
+    public void setDispatcher(ResourceEventDispatcher dispatcher){
+        this.dispatcher = dispatcher;
+    }
+
+
 
 
 }

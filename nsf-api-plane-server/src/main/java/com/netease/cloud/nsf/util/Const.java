@@ -87,4 +87,6 @@ public interface Const {
 
     String DEFAULT_SIDECAR = "envoy";
     String SIDECAR_VERSION_PATTERN = "sidecar_[\\d]+\\.[\\d]+\\.[\\d]+_[0-9a-zA-Z]{32}";
+
+    String SEPARATOR_DOT = ".";
 }

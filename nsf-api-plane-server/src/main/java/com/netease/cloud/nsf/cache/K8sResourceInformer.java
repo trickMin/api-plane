@@ -4,6 +4,7 @@ import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.k8s.KubernetesClient;
 import com.netease.cloud.nsf.core.k8s.MultiClusterK8sClient;
 import io.fabric8.kubernetes.api.model.HasMetadata;
+import io.fabric8.kubernetes.api.model.KubernetesResourceList;
 import io.fabric8.kubernetes.client.KubernetesClientException;
 import io.fabric8.kubernetes.client.Watcher;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
@@ -12,12 +13,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author zhangzihao
@@ -34,6 +33,7 @@ public class K8sResourceInformer<T extends HasMetadata> implements Informer {
     private static final String UPDATE_EVENT = "MODIFIED";
     private static final String CREATE_EVENT = "ADDED";
     private static final String DELETE_EVENT = "DELETED";
+    private static final String SYNC_EVENT = "SYNC";
     private Map<String, OwnerReferenceSupportStore<T>> clusterStore = new HashMap<>();
     private K8sResourceEnum resourceKind;
     private EventHandler<HasMetadata> handler;
@@ -41,6 +41,7 @@ public class K8sResourceInformer<T extends HasMetadata> implements Informer {
     private List<ResourceFilter> excludeFilter;
     private List<MixedOperation> mixedOperationList;
     private MultiClusterK8sClient multiClusterK8sClient;
+    private Map<String,AtomicLong> lastResourceVersion = new ConcurrentHashMap<>();
 
 
     private ArrayBlockingQueue<ResourceUpdateEvent> eventQueue = new ArrayBlockingQueue<>(MAX_QUEUE_SIZE,false);
@@ -56,6 +57,11 @@ public class K8sResourceInformer<T extends HasMetadata> implements Informer {
         private List<ResourceFilter> excludeFilter = new LinkedList<>();
         private List<MixedOperation> mixedOperation;
         private MultiClusterK8sClient multiClusterK8sClient;
+
+        public Builder addEventDispatcher(ResourceEventDispatcher dispatcher){
+            this.handler.setDispatcher(dispatcher);
+            return this;
+        }
 
         public Builder addUpdateListener(ResourceUpdatedListener listener) {
             this.handler.subscribeUpdatedListener(listener);
@@ -148,6 +154,7 @@ public class K8sResourceInformer<T extends HasMetadata> implements Informer {
                         default:
                             log.warn("unknown event ");
                     }
+                    handler.dispatchEvent(event);
                 }
                 log.info("Resource processor end with index {}", index);
             } catch (InterruptedException e) {
@@ -229,24 +236,63 @@ public class K8sResourceInformer<T extends HasMetadata> implements Informer {
     public void replaceResource() {
         // TODO: 2019-11-04 从k8s获取informer所监听资源列表并更新本地
         multiClusterK8sClient.getAllClients().forEach((cluster, clientSet) -> {
-                    KubernetesClient httpClient = clientSet.k8sClient;
-                    List<T> objectList = httpClient.getObjectList(resourceKind.name(), "");
-                    Map resourceMap = buildResourceMapByKind(objectList);
-                    getStoreByClusterId(cluster).replaceByKind(resourceMap, resourceKind.name());
-                    log.info("resourceList update clusterId[{}] kind[{}]", cluster, resourceKind.name());
+            KubernetesClient httpClient = clientSet.k8sClient;
+            KubernetesResourceList listObject = httpClient.getListObject(resourceKind.name(), "");
+            String resourceVersion = listObject.getMetadata().getResourceVersion();
+            List<T> currentResourceList = listObject.getItems();
+            if (StringUtils.isEmpty(resourceVersion)){
+                log.warn("resourceVersion on {} list is null",resourceKind.name());
+                updateAll(currentResourceList,resourceKind.name(),cluster,resourceVersion);
+                return;
+            }
+            List<T> cachedResourceList = getStoreByClusterId(cluster).listByKind(resourceKind.name());
+            if (cachedResourceList.size() != cachedResourceList.size()){
+                log.info("");
+                updateAll(currentResourceList,resourceKind.name(),cluster,resourceVersion);
+                return;
+            }
+            // api server 返回的资源列表本身就是按resourceVersion排序的
+            Collections.sort(cachedResourceList, new Comparator<T>() {
+                @Override
+                public int compare(T o1, T o2) {
+                    return o1.getMetadata().getResourceVersion().compareTo(o2.getMetadata().getResourceVersion());
                 }
+            });
+
+            int index = cachedResourceList.size()-1;
+            while (index >=0){
+                if (!cachedResourceList.get(index).getMetadata().getResourceVersion()
+                        .equals(currentResourceList.get(index).getMetadata().getResourceVersion())){
+                    break;
+                }
+                index -- ;
+            }
+            if (index >=0){
+                updateAll(currentResourceList,resourceKind.name(),cluster,resourceVersion);
+            }
+        }
         );
-//        for (ClusterResourceList kubernetesList : kubernetesLists) {
-//            String clusterId = kubernetesList.getCluster();
-//            Map resourceMap = buildResourceMapByKind(kubernetesList.getItems());
-//            getStoreByClusterId(clusterId).replaceByKind(resourceMap, resourceKind.name());
-//            log.info("resourceList update clusterId[{}] kind[{}]", clusterId, resourceKind.name());
-//        }
+    }
+
+
+    private void updateAll(List<T> resourceList, String kind, String cluster, String resourceVersion){
+        Map resourceMap = buildResourceMapByKind(resourceList);
+        getStoreByClusterId(cluster).replaceByKind(resourceMap, resourceKind.name());
+        log.info("sync all resource kind[{}] cluster[{}]",kind,cluster);
+        ResourceUpdateEvent resourceUpdateEvent = new ResourceUpdateEvent.Builder<T>()
+                .addCluster(cluster)
+                .addEventType(SYNC_EVENT)
+                .addKind(resourceKind.name())
+                .addResourceList(resourceList)
+                .addResourceVersion(Long.parseLong(resourceVersion))
+                .build();
+        eventQueue.add(resourceUpdateEvent);
     }
 
     public void addEvent(T obj, String type, String clusterId) {
+
         if (!isValidResource(obj)) {
-            log.warn("invalid resource");
+            log.warn("invalid resource :{}",obj.toString());
             return;
         }
         if (CollectionUtils.isEmpty(excludeFilter)) {
@@ -263,16 +309,30 @@ public class K8sResourceInformer<T extends HasMetadata> implements Informer {
                 }
             }
         }
+        try {
+            Long resourceVersion = Long.parseLong(obj.getMetadata().getResourceVersion());
+            updateLastResourceVersion(clusterId,resourceVersion);
+            ResourceUpdateEvent resourceUpdateEvent = new ResourceUpdateEvent.Builder<T>()
+                    .addCluster(clusterId)
+                    .addEventType(type)
+                    .addLabels(obj.getMetadata().getLabels())
+                    .addNamespace(obj.getMetadata().getNamespace())
+                    .addResourceObj(obj)
+                    .addResourceVersion(resourceVersion)
+                    .addName(obj.getMetadata().getName())
+                    .addKind(resourceKind.name())
+                    .build();
+            eventQueue.add(resourceUpdateEvent);
+        } catch (NumberFormatException e) {
+            log.warn("resource version {} error", obj.getMetadata().getResourceVersion());
+            return;
+        }
 
-        ResourceUpdateEvent resourceUpdateEvent = new ResourceUpdateEvent.Builder<T>()
-                .addCluster(clusterId)
-                .addEventType(type)
-                .addLabels(obj.getMetadata().getLabels())
-                .addNamespace(obj.getMetadata().getNamespace())
-                .addResourceObj(obj)
-                .addName(obj.getMetadata().getName())
-                .build();
-        eventQueue.add(resourceUpdateEvent);
+    }
+
+    private void updateLastResourceVersion(String clusterId,long resourceVersion){
+        AtomicLong currentVersion = lastResourceVersion.computeIfAbsent(clusterId,c-> new AtomicLong());
+        while (resourceVersion > currentVersion.get() && !currentVersion.compareAndSet(currentVersion.get(),resourceVersion)) {}
     }
 
 
@@ -293,6 +353,11 @@ public class K8sResourceInformer<T extends HasMetadata> implements Informer {
             log.warn("Resource name can't be null");
             return false;
         }
+        if (obj.getMetadata().getResourceVersion() == null ) {
+            log.warn("Resource version can't be null");
+            return false;
+        }
+
 //        if (obj.getMetadata().getLabels() == null || obj.getMetadata().getLabels().isEmpty()) {
 //            log.warn("Resource name can't be null");
 //            return false;
