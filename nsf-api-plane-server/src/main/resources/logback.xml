@@ -9,7 +9,7 @@
 	</appender>
 
 	<property name="LOG_FILE" value="api-plane" />
-	<property name="LOG_LOCATION" value="." />
+	<property name="LOG_LOCATION" value="/usr/local/tomcat/logs" />
 	<appender name="FILE"
 			  class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<!-- 过滤器，只记录INFO级别的日志 -->
