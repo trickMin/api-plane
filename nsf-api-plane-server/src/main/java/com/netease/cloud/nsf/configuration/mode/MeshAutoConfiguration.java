@@ -53,7 +53,7 @@ public class MeshAutoConfiguration {
         return new K8sResourceCache<>();
     }
 
-    @Bean
+//    @Bean
     MixerApa mixerApa() {
         return new MixerApa();
     }
