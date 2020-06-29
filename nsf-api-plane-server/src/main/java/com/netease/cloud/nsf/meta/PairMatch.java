@@ -34,4 +34,13 @@ public class PairMatch {
     public void setType(String type) {
         this.type = type;
     }
+
+    public PairMatch(String key, String value, String type) {
+        this.key = key;
+        this.value = value;
+        this.type = type;
+    }
+
+    public PairMatch() {
+    }
 }

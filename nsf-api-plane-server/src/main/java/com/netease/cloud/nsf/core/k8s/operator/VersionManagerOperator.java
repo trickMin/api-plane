@@ -1,6 +1,6 @@
 package com.netease.cloud.nsf.core.k8s.operator;
 
-import com.netease.cloud.nsf.configuration.MeshConfig;
+import com.netease.cloud.nsf.configuration.ext.MeshConfig;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.meta.IptablesConfig;
 import com.netease.cloud.nsf.meta.PodStatus;

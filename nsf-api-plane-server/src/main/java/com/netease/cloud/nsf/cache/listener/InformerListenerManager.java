@@ -3,8 +3,8 @@ package com.netease.cloud.nsf.cache.listener;
 
 import com.netease.cloud.nsf.cache.ResourceUpdateEvent;
 import com.netease.cloud.nsf.cache.ResourceUpdatedListener;
-import com.netease.cloud.nsf.configuration.ApiPlaneConfig;
-import com.netease.cloud.nsf.configuration.MeshConfig;
+import com.netease.cloud.nsf.configuration.ext.ApiPlaneConfig;
+import com.netease.cloud.nsf.configuration.ext.MeshConfig;
 import com.netease.cloud.nsf.util.Const;
 import com.netease.cloud.nsf.util.RestTemplateClient;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
@@ -13,7 +13,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.util.HashMap;
@@ -22,7 +21,6 @@ import java.util.Map;
 /**
  * @author zhangzihao
  */
-@Component
 public class InformerListenerManager {
 
     @Autowired

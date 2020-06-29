@@ -8,22 +8,25 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import com.google.common.collect.ImmutableList;
-import com.netease.cloud.nsf.util.Const;
-import com.netease.cloud.nsf.util.freemarker.*;
+import com.netease.cloud.nsf.cache.K8sResourceCache;
+import com.netease.cloud.nsf.cache.ResourceCache;
+import com.netease.cloud.nsf.configuration.ext.ApiPlaneConfig;
+import com.netease.cloud.nsf.configuration.ext.MeshConfig;
+import com.netease.cloud.nsf.util.freemarker.AutoRemoveDirective;
+import com.netease.cloud.nsf.util.freemarker.IgnoreDirective;
+import com.netease.cloud.nsf.util.freemarker.IndentationDirective;
+import com.netease.cloud.nsf.util.freemarker.SupplyDirective;
 import com.netease.cloud.nsf.util.interceptor.RestTemplateLogInterceptor;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.core.env.Environment;
+import org.springframework.context.annotation.*;
 import org.springframework.http.client.BufferingClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.InterceptingClientHttpRequestFactory;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
-import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
@@ -34,13 +37,10 @@ import java.util.List;
  **/
 @Configuration
 @PropertySource(value = {"classpath:mesh-config.properties"})
-public class ApiPlaneAutoConfiguration {
+public class ApiPlaneAutoBaseConfiguration {
 
     @Autowired
     private freemarker.template.Configuration freemarkerConfig;
-
-    @Autowired
-    private Environment environment;
 
     @Bean
     @Primary
@@ -96,32 +96,6 @@ public class ApiPlaneAutoConfiguration {
         freemarkerConfig.setSharedVariable("ignore", new IgnoreDirective());
         freemarkerConfig.setSharedVariable("supply", new SupplyDirective());
         freemarkerConfig.setSharedVariable("autoremove", new AutoRemoveDirective());
-
-    }
-
-    @Bean
-    ApiPlaneConfig apiPlaneConfig(){
-        ApiPlaneConfig apiPlaneConfig = new ApiPlaneConfig();
-        apiPlaneConfig.setNsfMetaUrl(environment.getProperty("nsfMetaUrl"));
-        if (!StringUtils.isEmpty(environment.getProperty("startInformer"))){
-            apiPlaneConfig.setStartInformer(environment.getProperty("startInformer"));
-        }
-        if (StringUtils.isEmpty(environment.getProperty("daemonSetName"))){
-            apiPlaneConfig.setDaemonSetName(Const.DOWNLOAD_DAEMONSET_NAME);
-        }else {
-            apiPlaneConfig.setDaemonSetName(environment.getProperty("daemonSetName"));
-        }
-        if (StringUtils.isEmpty(environment.getProperty("daemonSetNamespace"))){
-            apiPlaneConfig.setDaemonSetNamespace(Const.DOWNLOAD_DAEMONSET_NAMESPACE);
-        }else {
-            apiPlaneConfig.setDaemonSetNamespace(environment.getProperty("daemonSetNamespace"));
-        }
-        if (StringUtils.isEmpty(environment.getProperty("daemonSetPort"))){
-            apiPlaneConfig.setDaemonSetPort(Const.DOWNLOAD_DAEMONSET_PORT);
-        }else {
-            apiPlaneConfig.setDaemonSetPort(environment.getProperty("daemonSetPort"));
-        }
-        return apiPlaneConfig;
     }
 
     @Bean
@@ -129,4 +103,15 @@ public class ApiPlaneAutoConfiguration {
         return new MeshConfig();
     }
 
+    @Bean
+    @ConditionalOnMissingBean(K8sResourceCache.class)
+    ResourceCache k8sResourceCache() {
+        return Mockito.mock(ResourceCache.class);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(ApiPlaneConfig.class)
+    ApiPlaneConfig apiPlaneConfig() {
+        return Mockito.mock(ApiPlaneConfig.class);
+    }
 }

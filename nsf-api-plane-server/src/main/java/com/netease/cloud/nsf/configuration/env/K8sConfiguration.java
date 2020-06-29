@@ -1,5 +1,6 @@
 package com.netease.cloud.nsf.configuration.env;
 
+import com.netease.cloud.nsf.configuration.ext.IstioSupportConfiguration;
 import com.netease.cloud.nsf.core.GlobalConfig;
 import com.netease.cloud.nsf.core.gateway.GatewayIstioModelEngine;
 import com.netease.cloud.nsf.core.gateway.service.GatewayConfigManager;
@@ -9,7 +10,9 @@ import com.netease.cloud.nsf.core.gateway.service.impl.K8sConfigStore;
 import com.netease.cloud.nsf.core.k8s.KubernetesClient;
 import com.netease.cloud.nsf.service.GatewayService;
 import com.netease.cloud.nsf.service.impl.GatewayServiceImpl;
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -18,9 +21,10 @@ import org.springframework.context.annotation.Primary;
  * @author wupenghuai@corp.netease.com
  * @date 2020/4/26
  **/
-@ConditionalOnMissingBean(name = "nonK8sSupportConfiguration")
 @Configuration
-public class GatewayK8sConfiguration {
+@ConditionalOnMissingBean(NonK8sConfiguration.class)
+@ImportAutoConfiguration(IstioSupportConfiguration.class)
+public class K8sConfiguration {
 
     @Bean
     @Primary
@@ -29,8 +33,8 @@ public class GatewayK8sConfiguration {
     }
 
     @Bean
-    public GatewayConfigManager gatewayConfigManager(GatewayIstioModelEngine modelEngine, K8sConfigStore k8sConfigStore, GlobalConfig globalConfig) {
-        return new GatewayConfigManagerImpl(modelEngine, k8sConfigStore, globalConfig);
+    public GatewayConfigManager gatewayConfigManager(GatewayIstioModelEngine modelEngine, K8sConfigStore k8sConfigStore, GlobalConfig globalConfig, ApplicationEventPublisher eventPublisher) {
+        return new GatewayConfigManagerImpl(modelEngine, k8sConfigStore, globalConfig, eventPublisher);
     }
 
     @Bean

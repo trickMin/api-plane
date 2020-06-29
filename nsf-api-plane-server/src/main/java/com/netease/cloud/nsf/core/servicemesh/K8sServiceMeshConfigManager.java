@@ -197,6 +197,11 @@ public class K8sServiceMeshConfigManager extends AbstractConfigManagerSupport im
         return "*/" + target;
     }
 
+    @Override
+    protected void deleteNotification(HasMetadata i) {
+        // do nothing
+    }
+
     class ResourceMeta {
 
         String name;

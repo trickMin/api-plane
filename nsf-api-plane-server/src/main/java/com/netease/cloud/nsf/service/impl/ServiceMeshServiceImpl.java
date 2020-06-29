@@ -3,20 +3,20 @@ package com.netease.cloud.nsf.service.impl;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.netease.cloud.nsf.cache.K8sResourceCache;
+import com.netease.cloud.nsf.cache.ResourceCache;
 import com.netease.cloud.nsf.cache.ResourceStoreFactory;
 import com.netease.cloud.nsf.cache.extractor.ResourceExtractorManager;
 import com.netease.cloud.nsf.cache.meta.PodDTO;
 import com.netease.cloud.nsf.cache.meta.ServiceDto;
-import com.netease.cloud.nsf.configuration.ApiPlaneConfig;
-import com.netease.cloud.nsf.configuration.MeshConfig;
+import com.netease.cloud.nsf.configuration.ext.ApiPlaneConfig;
+import com.netease.cloud.nsf.configuration.ext.MeshConfig;
 import com.netease.cloud.nsf.core.editor.ResourceType;
-import com.netease.cloud.nsf.core.servicemesh.MultiK8sConfigStore;
 import com.netease.cloud.nsf.core.istio.PilotHttpClient;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.k8s.K8sResourceGenerator;
 import com.netease.cloud.nsf.core.k8s.KubernetesClient;
 import com.netease.cloud.nsf.core.k8s.MultiClusterK8sClient;
+import com.netease.cloud.nsf.core.servicemesh.MultiK8sConfigStore;
 import com.netease.cloud.nsf.meta.SVMSpec;
 import com.netease.cloud.nsf.meta.SidecarVersionManagement;
 import com.netease.cloud.nsf.meta.dto.ResourceWrapperDTO;
@@ -76,7 +76,7 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
     MultiK8sConfigStore configStore;
 
     @Autowired
-    K8sResourceCache k8sResource;
+    ResourceCache k8sResource;
 
     @Autowired
     KubernetesClient httpClient;

@@ -6,6 +6,7 @@ import com.netease.cloud.nsf.core.GlobalConfig;
 import com.netease.cloud.nsf.core.gateway.GatewayIstioModelEngine;
 import com.netease.cloud.nsf.core.gateway.service.ResourceManager;
 import com.netease.cloud.nsf.meta.*;
+import com.netease.cloud.nsf.mock.MockEventPublisher;
 import com.netease.cloud.nsf.mock.MockK8sConfigStore;
 import org.junit.Assert;
 import org.junit.Before;
@@ -48,7 +49,7 @@ public class GatewayConfigManagerImplTest extends BaseTest {
         when(resourceManager.getGatewayList()).thenReturn(fixedGateways);
 
         mockK8sConfigStore = new MockK8sConfigStore();
-        mockConfigManager = new GatewayConfigManagerImpl(modelEngine, mockK8sConfigStore, globalConfig);
+        mockConfigManager = new GatewayConfigManagerImpl(modelEngine, mockK8sConfigStore, globalConfig, new MockEventPublisher());
     }
 
     @Test

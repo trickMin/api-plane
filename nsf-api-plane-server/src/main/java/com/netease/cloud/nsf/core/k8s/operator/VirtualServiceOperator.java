@@ -32,6 +32,9 @@ public class VirtualServiceOperator implements k8sResourceOperator<VirtualServic
         latest.getSpec().setHttp(latestHttp);
 
         latest.getSpec().setHosts(fresh.getSpec().getHosts());
+
+        //VirtualCluster 合并
+        latest.getSpec().setVirtualCluster(fresh.getSpec().getVirtualCluster());
         return latest;
     }
 

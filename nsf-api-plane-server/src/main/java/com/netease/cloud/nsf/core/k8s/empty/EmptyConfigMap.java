@@ -17,6 +17,13 @@ public class EmptyConfigMap extends ConfigMap implements HasMetadata, EmptyResou
         this.om = tom;
     }
 
+    public EmptyConfigMap(String name, String namespace) {
+        ObjectMeta om = new ObjectMeta();
+        om.setName(name);
+        om.setNamespace(namespace);
+        this.om = om;
+    }
+
     @Override
     public ObjectMeta getMetadata() {
         return om;

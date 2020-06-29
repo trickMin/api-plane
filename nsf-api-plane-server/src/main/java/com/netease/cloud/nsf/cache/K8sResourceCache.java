@@ -8,8 +8,8 @@ import com.netease.cloud.nsf.cache.extractor.ResourceExtractorManager;
 import com.netease.cloud.nsf.cache.meta.PodDTO;
 import com.netease.cloud.nsf.cache.meta.ServiceDto;
 import com.netease.cloud.nsf.cache.meta.WorkLoadDTO;
-import com.netease.cloud.nsf.configuration.ApiPlaneConfig;
-import com.netease.cloud.nsf.configuration.MeshConfig;
+import com.netease.cloud.nsf.configuration.ext.ApiPlaneConfig;
+import com.netease.cloud.nsf.configuration.ext.MeshConfig;
 import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.istio.PilotHttpClient;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
@@ -35,7 +35,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -52,7 +51,6 @@ import static com.netease.cloud.nsf.core.k8s.K8sResourceEnum.*;
 /**
  * @author zhangzihao
  */
-@Service
 public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
 
     @Autowired
@@ -674,6 +672,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         return workLoadDTO;
     }
 
+    @Override
     public List<T> getServiceByClusterAndNamespace(String clusterId,String namespace){
         List<T> serviceList = new ArrayList<>();
         if (StringUtils.isEmpty(clusterId)){

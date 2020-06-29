@@ -87,4 +87,6 @@ public interface ResourceCache {
     List<WorkLoadDTO> getWorkLoadByLabels(String clusterId, List<String> labelsList, String namespace);
 
     List<String> getSidecarVersionOnWorkLoad(String clusterId, String namespace, String kind, String name);
+
+    <T> List<T> getServiceByClusterAndNamespace(String clusterId,String namespace);
 }

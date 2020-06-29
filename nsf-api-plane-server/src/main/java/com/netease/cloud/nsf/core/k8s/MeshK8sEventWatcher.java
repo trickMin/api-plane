@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -18,17 +17,16 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * @Author chenjiahan | chenjiahan@corp.netease.com | 2020/6/5
+ * @Author chenjiahan | chenjiahan@corp.netease.com | 2020/6/19
  **/
-@Component
-public class K8sEventWatcher {
+public class MeshK8sEventWatcher {
 
-    private static final Logger logger = LoggerFactory.getLogger(K8sEventWatcher.class);
+    private static final Logger logger = LoggerFactory.getLogger(MeshK8sEventWatcher.class);
 
     private MultiClusterK8sClient multiClient;
 
     @Autowired
-    public K8sEventWatcher(MultiClusterK8sClient multiClient) {
+    public MeshK8sEventWatcher(MultiClusterK8sClient multiClient) {
         this.multiClient = multiClient;
     }
 

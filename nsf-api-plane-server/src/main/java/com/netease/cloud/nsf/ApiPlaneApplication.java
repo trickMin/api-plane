@@ -1,6 +1,6 @@
 package com.netease.cloud.nsf;
 
-import com.netease.cloud.nsf.configuration.YamlPropertyLoaderFactory;
+import com.netease.cloud.nsf.configuration.ext.YamlPropertyLoaderFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;

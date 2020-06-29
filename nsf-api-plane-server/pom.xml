@@ -56,7 +56,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
             <version>1.5.8.RELEASE</version>
         </dependency>
 
@@ -100,7 +99,7 @@
         <dependency>
             <groupId>me.snowdrop</groupId>
             <artifactId>istio-model</artifactId>
-            <version>1.0.2-QZ-SNAPSHOT</version>
+            <version>1.0.3-QZ-SNAPSHOT</version>
         </dependency>
 
         <!-- k8s -->

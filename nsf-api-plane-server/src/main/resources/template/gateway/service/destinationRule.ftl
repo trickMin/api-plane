@@ -124,10 +124,10 @@ spec:
         </#if>
         <#if ss.trafficPolicy.healthCheck.expectedStatuses?has_content>
         expectedStatuses:
-            <#list ss.trafficPolicy.healthCheck.expectedStatuses as s>
-            - start: ${s}
-            end: ${s+1}
-            </#list>
+        <#list ss.trafficPolicy.healthCheck.expectedStatuses as s>
+        - start: ${s}
+          end: ${s+1}
+        </#list>
         </#if>
       </#if>
     </#if>

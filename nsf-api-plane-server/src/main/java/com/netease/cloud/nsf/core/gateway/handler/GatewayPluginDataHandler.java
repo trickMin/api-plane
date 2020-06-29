@@ -1,11 +1,10 @@
 package com.netease.cloud.nsf.core.gateway.handler;
 
-import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.plugin.FragmentWrapper;
 import com.netease.cloud.nsf.core.template.TemplateParams;
 import com.netease.cloud.nsf.meta.Gateway;
-import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.meta.GlobalPlugin;
+import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Arrays;
@@ -67,12 +66,18 @@ public class GatewayPluginDataHandler implements DataHandler<GlobalPlugin> {
 
     private String getNamespace(String gateway) {
         final String gwClusgterKey = "gw_cluster";
+        // 非k8s环境的网关可以根据label获取网关所在namespace
+        final String namespaceKey = "gw_namespace";
         for (Gateway item : gateways) {
             if (Objects.nonNull(item.getLabels()) && Objects.equals(gateway, item.getLabels().get(gwClusgterKey))) {
                 Pattern pattern = Pattern.compile("(.*?)\\.(.*?)\\.svc\\.cluster\\.(.*?)");
                 Matcher matcher = pattern.matcher(item.getHostname());
                 if (matcher.find()) {
                     return matcher.group(2);
+                }
+                // 使用gw_namespace指定的namespace
+                if (item.getLabels().containsKey(namespaceKey)) {
+                    return item.getLabels().get(namespaceKey);
                 }
                 throw new ApiPlaneException(String.format("The gateway [%s]`s hostname [%s] is not compliant", gateway, item.getHostname()));
             }
