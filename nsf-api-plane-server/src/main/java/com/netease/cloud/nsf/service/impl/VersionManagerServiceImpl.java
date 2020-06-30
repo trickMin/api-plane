@@ -22,9 +22,6 @@ public class VersionManagerServiceImpl implements VersionManagerService {
     private ServiceMeshConfigManager configManager;
 
     @Autowired
-    private K8sResourceCache cache;
-
-    @Autowired
     public VersionManagerServiceImpl(ServiceMeshConfigManager configManager) {
         this.configManager = configManager;
     }
