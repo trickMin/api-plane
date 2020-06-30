@@ -2,7 +2,7 @@ package com.netease.cloud.nsf.cache;
 
 
 import com.netease.cloud.nsf.cache.meta.WorkLoadDTO;
-import com.netease.cloud.nsf.configuration.MeshConfig;
+import com.netease.cloud.nsf.configuration.ext.MeshConfig;
 import com.netease.cloud.nsf.util.Const;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import me.snowdrop.istio.api.networking.v1alpha3.PodVersionStatus;
