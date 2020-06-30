@@ -5,12 +5,14 @@ import com.netease.cloud.nsf.cache.ResourceCache;
 import com.netease.cloud.nsf.core.servicemesh.ServiceMeshConfigManager;
 import com.netease.cloud.nsf.service.ServiceMeshService;
 import io.grpc.stub.StreamObserver;
+import net.devh.springboot.autoconfigure.grpc.server.GrpcService;
 import nsfmeta.HandleNsfmetaServiceGrpc;
 import nsfmeta.TemplateHandlerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.StringUtils;
 
@@ -22,6 +24,8 @@ import java.util.stream.Collectors;
 /**
  * Created by 张武(zhangwu@corp.netease.com) at 2020/2/4
  */
+@Profile("sm")
+@GrpcService(HandleNsfmetaServiceGrpc.class)
 public class MixerApa extends HandleNsfmetaServiceGrpc.HandleNsfmetaServiceImplBase {
 
 	@Autowired private ResourceCache resourceCache;
