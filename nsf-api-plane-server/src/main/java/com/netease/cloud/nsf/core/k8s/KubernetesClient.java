@@ -3,6 +3,7 @@ package com.netease.cloud.nsf.core.k8s;
 import com.netease.cloud.nsf.core.editor.EditorContext;
 import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.k8s.http.DefaultK8sHttpClient;
+import io.fabric8.kubernetes.api.model.KubernetesResourceList;
 import io.fabric8.kubernetes.client.Config;
 import okhttp3.OkHttpClient;
 import org.springframework.util.StringUtils;
@@ -116,6 +117,16 @@ public class KubernetesClient extends DefaultK8sHttpClient {
         K8sResourceGenerator gen = K8sResourceGenerator.newInstance(obj, ResourceType.JSON);
         K8sResourceEnum resourceEnum = K8sResourceEnum.getItem(gen.getKind());
         return gen.object(resourceEnum.mappingListType()).getItems();
+    }
+
+    public KubernetesResourceList getListObject(String kind, String namespace) {
+        String url = getUrl(kind, namespace);
+        String obj = getWithNull(url);
+        if (StringUtils.isEmpty(obj)) return null;
+
+        K8sResourceGenerator gen = K8sResourceGenerator.newInstance(obj, ResourceType.JSON);
+        K8sResourceEnum resourceEnum = K8sResourceEnum.getItem(gen.getKind());
+        return  gen.object(resourceEnum.mappingListType());
     }
 
     /**

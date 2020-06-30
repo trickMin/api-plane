@@ -14,7 +14,16 @@ public class ResourceUpdateEvent<T extends HasMetadata> {
     private String namespace;
     private String name;
     private Map<String, String> labels;
+    private Long resourceVersion;
+    private String kind;
 
+    public String getKind() {
+        return kind;
+    }
+
+    public void setKind(String kind) {
+        this.kind = kind;
+    }
 
     public T getResourceObject() {
         return resourceObject;
@@ -64,6 +73,14 @@ public class ResourceUpdateEvent<T extends HasMetadata> {
         this.name = name;
     }
 
+    public Long getResourceVersion() {
+        return resourceVersion;
+    }
+
+    public void setResourceVersion(Long resourceVersion) {
+        this.resourceVersion = resourceVersion;
+    }
+
     public static class Builder<T extends HasMetadata> {
 
         private T resourceObject;
@@ -73,6 +90,18 @@ public class ResourceUpdateEvent<T extends HasMetadata> {
         private String namespace;
         private Map<String, String> labels;
         private String name;
+        private Long resourceVersion;
+        private String kind;
+
+        public Builder addKind(String kind){
+            this.kind = kind;
+            return this;
+        }
+
+        public Builder addResourceVersion(Long version){
+            this.resourceVersion = version;
+            return this;
+        }
 
         public Builder addEventType(String eventType) {
             this.eventType = eventType;
@@ -117,6 +146,8 @@ public class ResourceUpdateEvent<T extends HasMetadata> {
             resourceUpdateEvent.setResourceObject(this.resourceObject);
             resourceUpdateEvent.setResourceList(this.resourceList);
             resourceUpdateEvent.setName(this.name);
+            resourceUpdateEvent.setResourceVersion(this.resourceVersion);
+            resourceUpdateEvent.setKind(this.kind);
             return resourceUpdateEvent;
         }
 

@@ -27,10 +27,8 @@ import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.apiextensions.CustomResourceDefinition;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
-import me.snowdrop.istio.api.networking.v1alpha3.DoneableMixerUrlPattern;
-import me.snowdrop.istio.api.networking.v1alpha3.MixerUrlPattern;
-import me.snowdrop.istio.api.networking.v1alpha3.MixerUrlPatternBuilder;
-import me.snowdrop.istio.api.networking.v1alpha3.MixerUrlPatternList;
+import istio.networking.v1alpha3.VersionManagerOuterClass;
+import me.snowdrop.istio.api.networking.v1alpha3.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +57,9 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     private RestTemplateClient restTemplateClient;
 
     @Autowired
+    private ResourceCacheManager resourceCacheManager;
+
+    @Autowired
     ApiPlaneConfig config;
 
     @Autowired
@@ -81,7 +82,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
 
     private Map<K8sResourceEnum, K8sResourceInformer> resourceInformerMap = new HashMap<com.netease.cloud.nsf.core.k8s.K8sResourceEnum, K8sResourceInformer>();
     private static final Logger log = LoggerFactory.getLogger(K8sResourceCache.class);
-    private static final String UPDATE_RESOURCE_DURATION = "0 0/5 * * * *";
+    private static final String UPDATE_RESOURCE_DURATION = "0 0/1 * * * *";
     private static int WORK_LOAD_CACHE_MAX_SIZE = 100;
     private static int WORK_LOAD_CACHE_REFRESH_DURATION = 20;
     private LoadingCache<WorkLoadIndex, List<T>> workLoadByServiceCache = CacheBuilder.newBuilder()
@@ -118,6 +119,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                 .addResourceKind(Deployment)
                 .addMixedOperation(getDeployMixedOperationList(allClients))
                 .addHttpK8sClient(multiClusterK8sClient)
+                .addEventDispatcher(resourceCacheManager)
                 .build();
         resourceInformerMap.putIfAbsent(Deployment, deployInformer);
 
@@ -178,8 +180,10 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         resourceInformerMap.put(DaemonSet, daemonSetInformer);
 
         CustomResourceDefinition mupCrd = null;
+        CustomResourceDefinition vmCrd = null;
         try {
             mupCrd = allClients.get("default").originalK8sClient.customResourceDefinitions().withName("mixerurlpatterns.networking.istio.io").get();
+            vmCrd = allClients.get("default").originalK8sClient.customResourceDefinitions().withName("versionmanagers.networking.istio.io").get();
         } catch (Exception ignored) {
             log.error("get crd definition error", ignored);
         }
@@ -197,101 +201,20 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
             log.warn("CRD mixer url pattern not found.");
         }
 
+        if (vmCrd != null){
+            K8sResourceInformer<HasMetadata> mupInformer = new K8sResourceInformer
+                    .Builder()
+                    .addResourceKind(VersionManager)
+                    .addMixedOperation(getMixerVersionManagerOperationList(allClients, vmCrd))
+                    .addEventDispatcher(resourceCacheManager)
+                    .addHttpK8sClient(multiClusterK8sClient)
+                    .build();
+
+            resourceInformerMap.put(VersionManager, mupInformer);
+        }
+
     }
 
-//    private List<ClusterResourceList> getDaemonSetList(Map<String, MultiClusterK8sClient.ClientSet> allClients) {
-//        List<ClusterResourceList> result = new ArrayList<>();
-//        allClients.forEach((name, client) -> {
-//            if (!StringUtils.isEmpty(name)) {
-//                result.add(new ClusterResourceList(client.originalK8sClient
-//                        .apps()
-//                        .daemonSets()
-//                        .inAnyNamespace()
-//                        .list(), name));
-//            }
-//        });
-//        return result;
-//    }
-//
-//    private List<ClusterResourceList> getEndPointList(Map<String, MultiClusterK8sClient.ClientSet> allClients) {
-//        List<ClusterResourceList> result = new ArrayList<>();
-//        allClients.forEach((name, client) -> {
-//            if (!StringUtils.isEmpty(name)) {
-//                result.add(new ClusterResourceList(client.originalK8sClient
-//                        .endpoints()
-//                        .inAnyNamespace()
-//                        .list(), name));
-//            }
-//        });
-//        return result;
-//    }
-//
-//    private List<ClusterResourceList> getServiceList(Map<String, MultiClusterK8sClient.ClientSet> allClients) {
-//        List<ClusterResourceList> result = new ArrayList<>();
-//        allClients.forEach((name, client) -> {
-//            if (!StringUtils.isEmpty(name)) {
-//                result.add(new ClusterResourceList(client.originalK8sClient
-//                        .services()
-//                        .inAnyNamespace()
-//                        .list(), name));
-//            }
-//        });
-//        return result;
-//    }
-//
-//    private List<ClusterResourceList> getReplicaSet(Map<String, MultiClusterK8sClient.ClientSet> allClients) {
-//        List<ClusterResourceList> result = new ArrayList<>();
-//        allClients.forEach((name, client) -> {
-//            if (!StringUtils.isEmpty(name)) {
-//                result.add(new ClusterResourceList(client.originalK8sClient
-//                        .apps()
-//                        .replicaSets()
-//                        .inAnyNamespace()
-//                        .list(), name));
-//            }
-//        });
-//        return result;
-//    }
-//
-//    private List<ClusterResourceList> getPodList(Map<String, MultiClusterK8sClient.ClientSet> allClients) {
-//        List<ClusterResourceList> result = new ArrayList<>();
-//        allClients.forEach((name, client) -> {
-//            if (!StringUtils.isEmpty(name)) {
-//                result.add(new ClusterResourceList(client.originalK8sClient
-//                        .pods()
-//                        .inAnyNamespace()
-//                        .list(), name));
-//            }
-//        });
-//        return result;
-//    }
-//
-//    private List<ClusterResourceList> getDeployList(Map<String, MultiClusterK8sClient.ClientSet> allClients) {
-//        List<ClusterResourceList> result = new ArrayList<>();
-//        allClients.forEach((name, client) -> {
-//            if (!StringUtils.isEmpty(name)) {
-//                result.add(new ClusterResourceList(client.originalK8sClient
-//                        .apps()
-//                        .deployments()
-//                        .inAnyNamespace()
-//                        .list(), name));
-//            }
-//        });
-//        return result;
-//    }
-//
-//    private List<ClusterResourceList> getStsList(Map<String, MultiClusterK8sClient.ClientSet> allClients) {
-//        List<ClusterResourceList> result = new ArrayList<>();
-//        allClients.forEach((name, client) -> {
-//            if (!StringUtils.isEmpty(name)) {
-//                result.add(new ClusterResourceList(client.originalK//                        .list(), name));8sClient
-//                        .apps()
-//                        .statefulSets()
-//                        .inAnyNamespace()
-//            }
-//        });
-//        return result;
-//    }
 
 
     @EventListener(ApplicationReadyEvent.class)
@@ -322,11 +245,10 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                     service.getMetadata().getLabels().get(meshConfig.getAppKey()) != null &&
                     service.getMetadata().getLabels().get(meshConfig.getAppKey()).equals(serviceName)
             ) {
-
-                return getWorkLoadByServiceSelector((io.fabric8.kubernetes.api.model.Service)service,clusterId).stream()
-                        .map(obj -> new WorkLoadDTO<>(obj, getServiceName(service), clusterId,
-                                getProjectCodeFromService(service), getEnvNameFromService(service)))
-                        .collect(Collectors.toList());
+                io.fabric8.kubernetes.api.model.Service k8sService = (io.fabric8.kubernetes.api.model.Service)service;
+                String appName = k8sService.getSpec().getSelector().get(meshConfig.getSelectorAppKey());
+                String key = appName + Const.SEPARATOR_DOT + k8sService.getMetadata().getNamespace();
+                return resourceCacheManager.getWorkloadListByServiceName(key);
             }
         }
         return new ArrayList<>();
@@ -386,19 +308,13 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
 
         }
         for (T service : serviceList) {
-            List<T> workLoadBySelector = getWorkLoadByServiceSelector((io.fabric8.kubernetes.api.model.Service)service,clusterId);
-            List<WorkLoadDTO> workLoadDtoBySelector = workLoadBySelector.stream()
-                    .map(obj -> {
-                        WorkLoadDTO workLoadDTO = new  WorkLoadDTO<>(obj, getServiceName(service), clusterId,
-                                getProjectCodeFromService(service), getEnvNameFromService(service));
-                        if (StringUtils.isEmpty(getLabelValueFromWorkLoad(workLoadDTO,meshConfig.getAppKey()))){
-                            workLoadDTO.setInMesh(false);
-                        }
-                        return workLoadDTO;
-                    })
-                    .collect(Collectors.toList());
-
-            workLoadList.addAll(workLoadDtoBySelector);
+            io.fabric8.kubernetes.api.model.Service k8sService = (io.fabric8.kubernetes.api.model.Service)service;
+            if (k8sService.getSpec().getSelector() == null || k8sService.getSpec().getSelector().isEmpty()){
+                continue;
+            }
+            String appName = k8sService.getSpec().getSelector().get(meshConfig.getSelectorAppKey());
+            String key = appName + Const.SEPARATOR_DOT + k8sService.getMetadata().getNamespace();
+            workLoadList.addAll(resourceCacheManager.getWorkloadListByServiceName(key));
         }
         return workLoadList;
     }
@@ -588,8 +504,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     public List<WorkLoadDTO> getWorkLoadByApp(String namespace, String appName, String clusterId) {
         String serviceName = appName + "." + namespace;
         return getWorkLoadByIndex(clusterId, namespace, appName)
-                .stream().map(obj -> new WorkLoadDTO<>(obj, serviceName, clusterId,
-                        null, null))
+                .stream().map(obj -> new WorkLoadDTO<>(obj, serviceName, clusterId))
                 .collect(Collectors.toList());
     }
 
@@ -625,14 +540,15 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         if (CollectionUtils.isEmpty(workloadList)){
             return new ArrayList<>();
         }
-        return workloadList.stream()
-                .filter(w->w.getMetadata().getLabels() != null && w.getMetadata().getLabels().get(meshConfig.getSelectorAppKey()) != null)
-                .map(w->{
-                    String serviceName = w.getMetadata().getLabels().get(meshConfig.getSelectorAppKey())
-                            +"."
-                            + w.getMetadata().getNamespace();
-            return new WorkLoadDTO<>(w,serviceName,clusterId,null,null);
-        }).collect(Collectors.toList());
+        Set<WorkLoadDTO> result = new HashSet();
+        for (T workload : workloadList) {
+            String serviceNameByWorkload = resourceCacheManager.getServiceNameByWorkload(workload);
+            if (!StringUtils.isEmpty(serviceNameByWorkload)){
+                result.addAll(resourceCacheManager.getWorkloadListByServiceName(serviceNameByWorkload));
+            }
+        }
+        return new ArrayList<>(result);
+
     }
 
     @Override
@@ -887,6 +803,18 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
             	result.add(new ClusterMixedOperation(name, (MixedOperation)client.originalK8sClient
                     .customResources(mupCrd, MixerUrlPattern.class, MixerUrlPatternList.class, DoneableMixerUrlPattern.class)
                     .inAnyNamespace()));
+            }
+        });
+        return result;
+    }
+
+    private List<MixedOperation> getMixerVersionManagerOperationList(Map<String, MultiClusterK8sClient.ClientSet> cm, CustomResourceDefinition vmcrd) {
+        List<MixedOperation> result = new ArrayList<>();
+        cm.forEach((name, client) -> {
+            if (!StringUtils.isEmpty(name)) {
+                result.add(new ClusterMixedOperation(name, (MixedOperation)client.originalK8sClient
+                        .customResources(vmcrd, VersionManager.class, VersionManagerList.class, DoneableVersionManager.class)
+                        .inAnyNamespace()));
             }
         });
         return result;
