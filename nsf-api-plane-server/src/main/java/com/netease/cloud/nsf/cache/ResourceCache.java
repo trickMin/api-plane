@@ -2,6 +2,7 @@ package com.netease.cloud.nsf.cache;
 
 import com.netease.cloud.nsf.cache.meta.ServiceDto;
 import com.netease.cloud.nsf.cache.meta.WorkLoadDTO;
+import com.netease.cloud.nsf.meta.Endpoint;
 
 import java.util.List;
 
@@ -32,6 +33,10 @@ public interface ResourceCache {
      */
     List getPodDtoByWorkLoadInfo(String clusterId, String kind, String namespace, String name);
 
+
+    List<WorkLoadDTO> getServiceEntryWorkLoad(String projectCode);
+
+    List<WorkLoadDTO> getServiceEntryWorkloadByServiceInfo(String projectCode, String serviceName);
 
     List getPodInfoByWorkLoadInfo(String clusterId, String kind, String namespace, String name);
 
