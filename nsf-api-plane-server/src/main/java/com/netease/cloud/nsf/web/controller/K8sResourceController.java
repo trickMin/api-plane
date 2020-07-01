@@ -7,7 +7,9 @@ import com.netease.cloud.nsf.cache.meta.ServiceDto;
 import com.netease.cloud.nsf.cache.meta.WorkLoadDTO;
 import com.netease.cloud.nsf.core.ConfigManager;
 import com.netease.cloud.nsf.core.servicemesh.ServiceMeshConfigManager;
+import com.netease.cloud.nsf.meta.Endpoint;
 import com.netease.cloud.nsf.service.ServiceMeshService;
+import com.netease.cloud.nsf.util.Const;
 import com.netease.cloud.nsf.util.errorcode.ApiPlaneErrorCode;
 import com.netease.cloud.nsf.util.errorcode.ErrorCode;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
@@ -53,7 +55,7 @@ public class K8sResourceController extends BaseController {
         } else {
             workLoadByServiceInfo = resourceCache.getWorkLoadByServiceInfoAllClusterId(projectId, namespace, serviceName);
         }
-        workLoadByServiceInfo = resourceCache.getWorkLoadListWithSidecarVersion(workLoadByServiceInfo);
+        workLoadByServiceInfo.addAll(resourceCache.getServiceEntryWorkloadByServiceInfo(projectId,serviceName+ Const.SEPARATOR_DOT + namespace));
         checkResult(workLoadByServiceInfo);
         Map<String, Object> result = new HashMap<>();
         result.put("Result", workLoadByServiceInfo);
@@ -110,6 +112,7 @@ public class K8sResourceController extends BaseController {
             }
             workLoadList = resourceCache.getAllWorkLoadByClusterId(clusterId, projectId);
         }
+        workLoadList.addAll(resourceCache.getServiceEntryWorkLoad(projectId));
         checkResult(workLoadList);
         result.put("Result", workLoadList);
         return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), result);
@@ -211,6 +214,14 @@ public class K8sResourceController extends BaseController {
         result.put("Result", workLoadByServiceInfo);
         ErrorCode code = ApiPlaneErrorCode.Success;
         return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), result);
+    }
+
+    @RequestMapping(params = {"Action=GetServiceEntryWorkLoad"}, method = RequestMethod.GET)
+    public String GetServiceEntryWorkLoad(@RequestParam(name = "ProjectId") String projectCode) {
+
+        List<WorkLoadDTO> vmEndPoints = resourceCache.getServiceEntryWorkLoad(projectCode);
+        return apiReturn(ImmutableMap.of(RESULT_LIST,vmEndPoints));
+
     }
 
 }

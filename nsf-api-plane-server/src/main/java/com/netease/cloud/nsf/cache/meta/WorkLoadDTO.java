@@ -1,5 +1,6 @@
 package com.netease.cloud.nsf.cache.meta;
 
+import com.netease.cloud.nsf.meta.Endpoint;
 import com.netease.cloud.nsf.util.Const;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
@@ -34,6 +35,29 @@ public class WorkLoadDTO<T extends HasMetadata> extends K8sResourceDTO {
 
     private String lastOperationType;
 
+    private boolean isExternalService;
+
+    private List<Endpoint> externalServiceInstance;
+
+    public WorkLoadDTO() {
+
+    }
+
+    public boolean isExternalService() {
+        return isExternalService;
+    }
+
+    public void setExternalService(boolean externalService) {
+        isExternalService = externalService;
+    }
+
+    public List<Endpoint> getExternalServiceInstance() {
+        return externalServiceInstance;
+    }
+
+    public void setExternalServiceInstance(List<Endpoint> externalServiceInstance) {
+        this.externalServiceInstance = externalServiceInstance;
+    }
 
     public WorkLoadDTO(T obj, String serviceName, String clusterId) {
         super(obj, clusterId);

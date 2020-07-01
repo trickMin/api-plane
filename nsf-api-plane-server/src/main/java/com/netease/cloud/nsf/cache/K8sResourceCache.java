@@ -15,6 +15,7 @@ import com.netease.cloud.nsf.core.istio.PilotHttpClient;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.k8s.KubernetesClient;
 import com.netease.cloud.nsf.core.k8s.MultiClusterK8sClient;
+import com.netease.cloud.nsf.meta.Endpoint;
 import com.netease.cloud.nsf.meta.PodStatus;
 import com.netease.cloud.nsf.meta.PodVersion;
 import com.netease.cloud.nsf.service.ServiceMeshService;
@@ -41,6 +42,7 @@ import org.springframework.util.StringUtils;
 import javax.annotation.PostConstruct;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -237,6 +239,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     public List<WorkLoadDTO> getWorkLoadByServiceInfo(String projectId, String namespace, String serviceName, String clusterId) {
         OwnerReferenceSupportStore store = ResourceStoreFactory.getResourceStore(clusterId);
         List<T> serviceList = store.listByKindAndNamespace(Service.name(), namespace);
+        List<WorkLoadDTO> result = new ArrayList<>();
         for (T service : serviceList) {
             if (service.getMetadata().getLabels() == null || service.getMetadata().getLabels().isEmpty()) {
                 continue;
@@ -248,10 +251,10 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                 io.fabric8.kubernetes.api.model.Service k8sService = (io.fabric8.kubernetes.api.model.Service)service;
                 String appName = k8sService.getSpec().getSelector().get(meshConfig.getSelectorAppKey());
                 String key = appName + Const.SEPARATOR_DOT + k8sService.getMetadata().getNamespace();
-                return resourceCacheManager.getWorkloadListByServiceName(key);
+                result.addAll(resourceCacheManager.getWorkloadListByServiceName(key));
             }
         }
-        return new ArrayList<>();
+        return result;
     }
 
     @Override
@@ -272,6 +275,76 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         Map<String, String> syncInfo = pilotHttpClient.getSidecarSyncStatus(po.getMetadata().getName(), po.getMetadata().getNamespace());
         pod.setSyncInfo(syncInfo);
         return pod;
+    }
+
+    private List<WorkLoadDTO> getWorkLoadFromServiceEntryEndpoint(List<Endpoint> endpointList){
+        List<WorkLoadDTO> result = new ArrayList<>();
+        if (CollectionUtils.isEmpty(endpointList)) {
+            return result;
+        }
+        Map<String, List<Endpoint>> workloadMap = endpointList
+                .stream()
+                .collect(Collectors.groupingBy(ep -> ep.getHostname()));
+        workloadMap.forEach((host, epList) -> {
+            int nameIndex = host.indexOf(Const.SEPARATOR_DOT);
+            String appName;
+            String namespace;
+            if (nameIndex < 0) {
+                appName = host;
+                namespace = null;
+            } else {
+                appName = host.substring(0, nameIndex);
+                int namespaceIndex = host.indexOf(Const.SEPARATOR_DOT,nameIndex+1);
+                if (namespaceIndex < 0){
+                    namespace = host.substring(nameIndex+1);
+                }else {
+                    namespace = host.substring(nameIndex+1,namespaceIndex);
+                }
+            }
+            String serviceName = appName + Const.SEPARATOR_DOT + namespace;
+
+            WorkLoadDTO dto = new WorkLoadDTO();
+            dto.setNamespace(namespace);
+            dto.setName(appName);
+            dto.setInMesh(true);
+            dto.setKind("ServiceEntry");
+            dto.setServiceName(serviceName);
+            dto.setExternalService(true);
+            dto.setServiceDomain(host);
+            dto.setStatusInfo(epList.size()+"/"+epList.size());
+            dto.setClusterId("virtualMachine");
+            Map<String, String> labels = new HashMap<>();
+            if (!CollectionUtils.isEmpty(epList)) {
+                epList.forEach(ep -> {
+                            if (ep.getLabels() != null) {
+                                labels.putAll(ep.getLabels());
+                            }
+                        }
+                );
+            }
+            dto.setLabels(labels);
+            dto.setExternalServiceInstance(epList);
+            result.add(dto);
+        });
+        return result;
+
+    }
+
+    @Override
+    public List<WorkLoadDTO> getServiceEntryWorkLoad(String projectCode) {
+        Predicate<Endpoint> vmEndPointsForProject = ep-> ep.getLabels()!= null
+                && projectCode.equals(ep.getLabels().get("projectCode"));
+        List<Endpoint> vmEndPoints = pilotHttpClient.getEndpointList(vmEndPointsForProject);
+        return getWorkLoadFromServiceEntryEndpoint(vmEndPoints);
+    }
+
+    @Override
+    public List<WorkLoadDTO> getServiceEntryWorkloadByServiceInfo(String projectCode , String serviceName){
+        Predicate<Endpoint> vmEndPointsForProject = ep-> ep.getLabels()!= null
+                && projectCode.equals(ep.getLabels().get("projectCode"))
+                && ep.getHostname().startsWith(serviceName);
+        List<Endpoint> vmEndPoints = pilotHttpClient.getEndpointList(vmEndPointsForProject);
+        return getWorkLoadFromServiceEntryEndpoint(vmEndPoints);
     }
 
     @Override
