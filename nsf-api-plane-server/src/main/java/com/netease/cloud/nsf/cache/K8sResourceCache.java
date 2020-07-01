@@ -254,7 +254,6 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                 result.addAll(resourceCacheManager.getWorkloadListByServiceName(key));
             }
         }
-        result.addAll(getServiceEntryWorkloadByServiceInfo(projectId,serviceName + Const.SEPARATOR_DOT + namespace));
         return result;
     }
 
@@ -390,7 +389,6 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
             String key = appName + Const.SEPARATOR_DOT + k8sService.getMetadata().getNamespace();
             workLoadList.addAll(resourceCacheManager.getWorkloadListByServiceName(key));
         }
-        workLoadList.addAll(getServiceEntryWorkLoad(projectId));
         return workLoadList;
     }
 
