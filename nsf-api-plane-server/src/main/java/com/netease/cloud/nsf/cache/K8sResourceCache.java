@@ -332,16 +332,18 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
 
     @Override
     public List<WorkLoadDTO> getServiceEntryWorkLoad(String projectCode) {
+        String projectKey = meshConfig.getProjectKey();
         Predicate<Endpoint> vmEndPointsForProject = ep-> ep.getLabels()!= null
-                && projectCode.equals(ep.getLabels().get("projectCode"));
+                && projectCode.equals(ep.getLabels().get(projectKey));
         List<Endpoint> vmEndPoints = pilotHttpClient.getEndpointList(vmEndPointsForProject);
         return getWorkLoadFromServiceEntryEndpoint(vmEndPoints);
     }
 
     @Override
     public List<WorkLoadDTO> getServiceEntryWorkloadByServiceInfo(String projectCode , String serviceName){
+        String projectKey = meshConfig.getProjectKey();
         Predicate<Endpoint> vmEndPointsForProject = ep-> ep.getLabels()!= null
-                && projectCode.equals(ep.getLabels().get("projectCode"))
+                && projectCode.equals(ep.getLabels().get(projectKey))
                 && ep.getHostname().startsWith(serviceName);
         List<Endpoint> vmEndPoints = pilotHttpClient.getEndpointList(vmEndPointsForProject);
         return getWorkLoadFromServiceEntryEndpoint(vmEndPoints);
