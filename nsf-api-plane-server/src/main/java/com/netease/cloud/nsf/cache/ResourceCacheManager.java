@@ -52,7 +52,7 @@ public class ResourceCacheManager implements ResourceEventDispatcher {
     @EventListener(ApplicationReadyEvent.class)
     private void startProcessor() {
         eventProcessor.execute(() -> {
-
+            log.info("start to process workload update event");
             for (; ; ) {
                 ResourceUpdateEvent updateEvent = null;
                 try {
@@ -87,6 +87,7 @@ public class ResourceCacheManager implements ResourceEventDispatcher {
             }
         });
         eventProcessor.execute(() -> {
+            log.info("start to process version manager update event");
             for (; ; ) {
                 ResourceUpdateEvent updateEvent = null;
                 try {
