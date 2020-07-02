@@ -238,6 +238,10 @@ public class K8sResourceInformer<T extends HasMetadata> implements Informer {
         multiClusterK8sClient.getAllClients().forEach((cluster, clientSet) -> {
             KubernetesClient httpClient = clientSet.k8sClient;
             KubernetesResourceList listObject = httpClient.getListObject(resourceKind.name(), "");
+            if (listObject == null || listObject.getMetadata() == null){
+                log.warn("invalid resource list for kind {}",resourceKind);
+                return;
+            }
             String resourceVersion = listObject.getMetadata().getResourceVersion();
             List<T> currentResourceList = listObject.getItems();
             if (StringUtils.isEmpty(resourceVersion)){
