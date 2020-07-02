@@ -250,7 +250,11 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
             ) {
                 io.fabric8.kubernetes.api.model.Service k8sService = (io.fabric8.kubernetes.api.model.Service)service;
                 String appName = k8sService.getSpec().getSelector().get(meshConfig.getSelectorAppKey());
-                String key = appName + Const.SEPARATOR_DOT + k8sService.getMetadata().getNamespace();
+                String key = clusterId
+                        + Const.SEPARATOR_DOT
+                        + appName
+                        + Const.SEPARATOR_DOT
+                        + k8sService.getMetadata().getNamespace();
                 result.addAll(resourceCacheManager.getWorkloadListByServiceName(key));
             }
         }
@@ -388,7 +392,11 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                 continue;
             }
             String appName = k8sService.getSpec().getSelector().get(meshConfig.getSelectorAppKey());
-            String key = appName + Const.SEPARATOR_DOT + k8sService.getMetadata().getNamespace();
+            String key = clusterId
+                    + Const.SEPARATOR_DOT
+                    + appName
+                    + Const.SEPARATOR_DOT
+                    + k8sService.getMetadata().getNamespace();
             workLoadList.addAll(resourceCacheManager.getWorkloadListByServiceName(key));
         }
         return workLoadList;
