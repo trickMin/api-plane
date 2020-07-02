@@ -129,6 +129,7 @@ public class ResourceCacheManager implements ResourceEventDispatcher {
     private void updateVersionInfoForKey(String key, me.snowdrop.istio.api.networking.v1alpha3.VersionManager versionManager) {
         if (versionManager ==null || versionManager.getSpec() == null || versionManager.getSpec().getStatus() == null){
             versionManagerMap.remove(key);
+            return;
         }
         List<PodVersionStatus> podVersionStatus = versionManager.getSpec().getStatus().getPodVersionStatus();
         if (CollectionUtils.isEmpty(podVersionStatus)) {
