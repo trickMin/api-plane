@@ -249,12 +249,10 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
             ) {
                 io.fabric8.kubernetes.api.model.Service k8sService = (io.fabric8.kubernetes.api.model.Service)service;
                 String appName = k8sService.getSpec().getSelector().get(meshConfig.getSelectorAppKey());
-                String key = clusterId
-                        + Const.SEPARATOR_DOT
-                        + appName
+                String key = appName
                         + Const.SEPARATOR_DOT
                         + k8sService.getMetadata().getNamespace();
-                result.addAll(resourceCacheManager.getWorkloadListByServiceName(key));
+                result.addAll(resourceCacheManager.getWorkloadListByServiceName(clusterId,key));
             }
         }
         result.forEach(workload->{
@@ -397,12 +395,10 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                 continue;
             }
             String appName = k8sService.getSpec().getSelector().get(meshConfig.getSelectorAppKey());
-            String key = clusterId
-                    + Const.SEPARATOR_DOT
-                    + appName
+            String key = appName
                     + Const.SEPARATOR_DOT
                     + k8sService.getMetadata().getNamespace();
-            workLoadList.addAll(resourceCacheManager.getWorkloadListByServiceName(key));
+            workLoadList.addAll(resourceCacheManager.getWorkloadListByServiceName(clusterId,key));
         }
         workLoadList.forEach(workload->{
             workload.setInMesh(resourceCacheManager.isInjectedWorkload(clusterId,
@@ -638,7 +634,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         for (T workload : workloadList) {
             String serviceNameByWorkload = resourceCacheManager.getServiceNameByWorkload(workload);
             if (!StringUtils.isEmpty(serviceNameByWorkload)){
-                result.addAll(resourceCacheManager.getWorkloadListByServiceName(serviceNameByWorkload));
+                result.addAll(resourceCacheManager.getWorkloadListByServiceName(clusterId,serviceNameByWorkload));
             }
         }
         return new ArrayList<>(result);

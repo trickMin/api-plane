@@ -42,7 +42,7 @@ public class ResourceCacheManager implements ResourceEventDispatcher {
     private static final String DELETE_EVENT = "DELETED";
     private static final String SYNC_EVENT = "SYNC";
     private Map<String, AtomicLong> lastResourceVersion = new ConcurrentHashMap<>();
-    private Map<String, List<WorkLoadDTO>> appWorkLoadMap = new ConcurrentHashMap<>();
+    private Map<String,Map<String, List<WorkLoadDTO>>> appWorkLoadMap = new ConcurrentHashMap<>();
     private Map<String, Map<String, String>> versionManagerMap = new ConcurrentHashMap<>();
     private LinkedBlockingQueue<ResourceUpdateEvent> workloadEvent = new LinkedBlockingQueue<>();
     private LinkedBlockingQueue<ResourceUpdateEvent> versionManagerEvent = new LinkedBlockingQueue<>();
@@ -216,24 +216,22 @@ public class ResourceCacheManager implements ResourceEventDispatcher {
         if (CollectionUtils.isEmpty(resourceList)) {
             return;
         }
-        Map<String, List<WorkLoadDTO>> newAppWorkLoadMap = new ConcurrentHashMap<>();
+        Map<String, List<WorkLoadDTO>> newAppWorkLoadMap = new HashMap<>();
         for (Object obj : resourceList) {
             HasMetadata workload = (HasMetadata) obj;
             String serviceName = getServiceNameByWorkload(workload);
             if (StringUtils.isEmpty(serviceName)) {
                 continue;
             }
-            String workloadKey = clusterId + Const.SEPARATOR_DOT + serviceName;
             WorkLoadDTO newWorkLoadDTO = new WorkLoadDTO(workload, serviceName, clusterId);
-            //newWorkLoadDTO.setInMesh(isInjectedWorkload(clusterId, workload.getKind(), workload.getMetadata().getNamespace(), workload.getMetadata().getName()));
-            List<WorkLoadDTO> workloadByServiceName = newAppWorkLoadMap.computeIfAbsent(workloadKey, k -> new ArrayList<>());
+            List<WorkLoadDTO> workloadByServiceName = newAppWorkLoadMap.computeIfAbsent(serviceName, k -> new ArrayList<>());
             workloadByServiceName.add(newWorkLoadDTO);
         }
-        appWorkLoadMap = newAppWorkLoadMap;
+        appWorkLoadMap.put(clusterId,newAppWorkLoadMap);
     }
 
-    public List<WorkLoadDTO> getWorkloadListByServiceName(String key) {
-        return this.appWorkLoadMap.getOrDefault(key, new ArrayList<>());
+    public List<WorkLoadDTO> getWorkloadListByServiceName(String clusterId,String key) {
+        return this.appWorkLoadMap.getOrDefault(clusterId, new HashMap<>()).getOrDefault(key,new ArrayList<>());
     }
 
     private void removeWorkloadList(HasMetadata obj, String clusterId) {
@@ -241,8 +239,8 @@ public class ResourceCacheManager implements ResourceEventDispatcher {
         if (StringUtils.isEmpty(serviceName)) {
             return;
         }
-        String workloadKey = clusterId + Const.SEPARATOR_DOT + serviceName;
-        List<WorkLoadDTO> oldWorkloadList = this.appWorkLoadMap.computeIfAbsent(workloadKey, k -> new ArrayList<>());
+        Map<String, List<WorkLoadDTO>> workloadByAppName = this.appWorkLoadMap.computeIfAbsent(clusterId, k -> new HashMap<>());
+        List<WorkLoadDTO> oldWorkloadList = workloadByAppName.computeIfAbsent(serviceName, k -> new ArrayList<>());
         WorkLoadDTO removedWorkLoad = new WorkLoadDTO(obj, serviceName, clusterId);
         List<WorkLoadDTO> newWorkloadList = new ArrayList<>();
         for (WorkLoadDTO loadDTO : oldWorkloadList) {
@@ -254,9 +252,9 @@ public class ResourceCacheManager implements ResourceEventDispatcher {
             }
         }
         if (CollectionUtils.isEmpty(newWorkloadList)) {
-            appWorkLoadMap.remove(workloadKey);
+            workloadByAppName.remove(serviceName);
         } else {
-            appWorkLoadMap.put(workloadKey, newWorkloadList);
+            workloadByAppName.put(serviceName, newWorkloadList);
         }
     }
 
@@ -265,10 +263,9 @@ public class ResourceCacheManager implements ResourceEventDispatcher {
         if (StringUtils.isEmpty(serviceName)) {
             return;
         }
-        String workloadKey = clusterId + Const.SEPARATOR_DOT + serviceName;
-        List<WorkLoadDTO> oldWorkloadList = this.appWorkLoadMap.computeIfAbsent(workloadKey, k -> new ArrayList<>());
+        Map<String, List<WorkLoadDTO>> workloadByAppName = this.appWorkLoadMap.computeIfAbsent(clusterId, k -> new HashMap<>());
+        List<WorkLoadDTO> oldWorkloadList = workloadByAppName.computeIfAbsent(serviceName, k -> new ArrayList<>());
         WorkLoadDTO newWorkLoadDTO = new WorkLoadDTO(obj, serviceName, clusterId);
-        //newWorkLoadDTO.setInMesh(isInjectedWorkload(clusterId, obj.getKind(), obj.getMetadata().getNamespace(), obj.getMetadata().getName()));
         List<WorkLoadDTO> newWorkloadList = new ArrayList<>();
         for (WorkLoadDTO loadDTO : oldWorkloadList) {
             if (!loadDTO.getKind().equals(newWorkLoadDTO.getKind()) ||
@@ -280,9 +277,9 @@ public class ResourceCacheManager implements ResourceEventDispatcher {
         }
         newWorkloadList.add(newWorkLoadDTO);
         if (CollectionUtils.isEmpty(newWorkloadList)) {
-            appWorkLoadMap.remove(workloadKey);
+            workloadByAppName.remove(serviceName);
         } else {
-            appWorkLoadMap.put(workloadKey, newWorkloadList);
+            workloadByAppName.put(serviceName, newWorkloadList);
         }
     }
 
@@ -291,12 +288,11 @@ public class ResourceCacheManager implements ResourceEventDispatcher {
         if (StringUtils.isEmpty(serviceName)) {
             return;
         }
-        String workloadKey = clusterId + Const.SEPARATOR_DOT + serviceName;
-        List<WorkLoadDTO> oldWorkloadList = this.appWorkLoadMap.computeIfAbsent(workloadKey, k -> new ArrayList<>());
+        Map<String, List<WorkLoadDTO>> workloadByAppName = this.appWorkLoadMap.computeIfAbsent(clusterId, k -> new HashMap<>());
+        List<WorkLoadDTO> oldWorkloadList = workloadByAppName.computeIfAbsent(serviceName, k -> new ArrayList<>());
         WorkLoadDTO newWorkLoadDTO = new WorkLoadDTO(obj, serviceName, clusterId);
-        //newWorkLoadDTO.setInMesh(isInjectedWorkload(clusterId, obj.getKind(), obj.getMetadata().getNamespace(), obj.getMetadata().getName()));
         oldWorkloadList.add(newWorkLoadDTO);
-        appWorkLoadMap.put(workloadKey, oldWorkloadList);
+        workloadByAppName.put(serviceName, oldWorkloadList);
     }
 
     @Override
