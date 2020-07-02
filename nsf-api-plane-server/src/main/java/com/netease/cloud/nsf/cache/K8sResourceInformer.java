@@ -27,7 +27,6 @@ public class K8sResourceInformer<T extends HasMetadata> implements Informer {
     private static final Logger log = LoggerFactory.getLogger(K8sResourceInformer.class);
 
     private static final int EVENT_QUEUE_SIZE_FACTOR = 500;
-    private static final int MAX_QUEUE_SIZE = 5000;
     private static final int MAX_PROCESSOR_THREAD = 10;
     private AtomicInteger processorIndex = new AtomicInteger(0);
     private static final String UPDATE_EVENT = "MODIFIED";
@@ -44,7 +43,7 @@ public class K8sResourceInformer<T extends HasMetadata> implements Informer {
     private Map<String,AtomicLong> lastResourceVersion = new ConcurrentHashMap<>();
 
 
-    private ArrayBlockingQueue<ResourceUpdateEvent> eventQueue = new ArrayBlockingQueue<>(MAX_QUEUE_SIZE,false);
+    private LinkedBlockingQueue<ResourceUpdateEvent> eventQueue = new LinkedBlockingQueue<>();
 
     private ExecutorService eventProcessor = Executors.newCachedThreadPool();
     private ScheduledExecutorService processorIndexUpdatePool = Executors.newScheduledThreadPool(1);
@@ -290,7 +289,7 @@ public class K8sResourceInformer<T extends HasMetadata> implements Informer {
                 .addResourceList(resourceList)
                 .addResourceVersion(Long.parseLong(resourceVersion))
                 .build();
-        eventQueue.add(resourceUpdateEvent);
+        eventQueue.offer(resourceUpdateEvent);
     }
 
     public void addEvent(T obj, String type, String clusterId) {
@@ -326,7 +325,7 @@ public class K8sResourceInformer<T extends HasMetadata> implements Informer {
                     .addName(obj.getMetadata().getName())
                     .addKind(resourceKind.name())
                     .build();
-            eventQueue.add(resourceUpdateEvent);
+            eventQueue.offer(resourceUpdateEvent);
         } catch (NumberFormatException e) {
             log.warn("resource version {} error", obj.getMetadata().getResourceVersion());
             return;
