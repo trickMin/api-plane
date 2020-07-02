@@ -153,7 +153,7 @@ public class ResourceCacheManager implements ResourceEventDispatcher {
         return sidecarVersionForPod.get(name);
     }
 
-    private boolean isInjectedWorkload(String clusterId, String kind, String namespace, String name) {
+    public boolean isInjectedWorkload(String clusterId, String kind, String namespace, String name) {
         List podInfoByWorkLoadInfo = resourceCache.getPodInfoByWorkLoadInfo(clusterId, kind, namespace, name);
         if (CollectionUtils.isEmpty(podInfoByWorkLoadInfo)) {
             return false;
@@ -215,7 +215,7 @@ public class ResourceCacheManager implements ResourceEventDispatcher {
             }
             String workloadKey = clusterId + Const.SEPARATOR_DOT + serviceName;
             WorkLoadDTO newWorkLoadDTO = new WorkLoadDTO(workload, serviceName, clusterId);
-            newWorkLoadDTO.setInMesh(isInjectedWorkload(clusterId, workload.getKind(), workload.getMetadata().getNamespace(), workload.getMetadata().getName()));
+            //newWorkLoadDTO.setInMesh(isInjectedWorkload(clusterId, workload.getKind(), workload.getMetadata().getNamespace(), workload.getMetadata().getName()));
             List<WorkLoadDTO> workloadByServiceName = newAppWorkLoadMap.computeIfAbsent(workloadKey, k -> new ArrayList<>());
             workloadByServiceName.add(newWorkLoadDTO);
         }
@@ -258,7 +258,7 @@ public class ResourceCacheManager implements ResourceEventDispatcher {
         String workloadKey = clusterId + Const.SEPARATOR_DOT + serviceName;
         List<WorkLoadDTO> oldWorkloadList = this.appWorkLoadMap.computeIfAbsent(workloadKey, k -> new ArrayList<>());
         WorkLoadDTO newWorkLoadDTO = new WorkLoadDTO(obj, serviceName, clusterId);
-        newWorkLoadDTO.setInMesh(isInjectedWorkload(clusterId, obj.getKind(), obj.getMetadata().getNamespace(), obj.getMetadata().getName()));
+        //newWorkLoadDTO.setInMesh(isInjectedWorkload(clusterId, obj.getKind(), obj.getMetadata().getNamespace(), obj.getMetadata().getName()));
         List<WorkLoadDTO> newWorkloadList = new ArrayList<>();
         for (WorkLoadDTO loadDTO : oldWorkloadList) {
             if (!loadDTO.getKind().equals(newWorkLoadDTO.getKind()) ||
@@ -284,7 +284,7 @@ public class ResourceCacheManager implements ResourceEventDispatcher {
         String workloadKey = clusterId + Const.SEPARATOR_DOT + serviceName;
         List<WorkLoadDTO> oldWorkloadList = this.appWorkLoadMap.computeIfAbsent(workloadKey, k -> new ArrayList<>());
         WorkLoadDTO newWorkLoadDTO = new WorkLoadDTO(obj, serviceName, clusterId);
-        newWorkLoadDTO.setInMesh(isInjectedWorkload(clusterId, obj.getKind(), obj.getMetadata().getNamespace(), obj.getMetadata().getName()));
+        //newWorkLoadDTO.setInMesh(isInjectedWorkload(clusterId, obj.getKind(), obj.getMetadata().getNamespace(), obj.getMetadata().getName()));
         oldWorkloadList.add(newWorkLoadDTO);
         appWorkLoadMap.put(workloadKey, oldWorkloadList);
     }

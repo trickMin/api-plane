@@ -28,7 +28,6 @@ import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.apiextensions.CustomResourceDefinition;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
-import istio.networking.v1alpha3.VersionManagerOuterClass;
 import me.snowdrop.istio.api.networking.v1alpha3.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -258,6 +257,12 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                 result.addAll(resourceCacheManager.getWorkloadListByServiceName(key));
             }
         }
+        result.forEach(workload->{
+            workload.setInMesh(resourceCacheManager.isInjectedWorkload(clusterId,
+                    workload.getKind(),
+                    workload.getNamespace(),
+                    workload.getName()));
+        });
         return result;
     }
 
@@ -399,6 +404,12 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                     + k8sService.getMetadata().getNamespace();
             workLoadList.addAll(resourceCacheManager.getWorkloadListByServiceName(key));
         }
+        workLoadList.forEach(workload->{
+            workload.setInMesh(resourceCacheManager.isInjectedWorkload(clusterId,
+                    workload.getKind(),
+                    workload.getNamespace(),
+                    workload.getName()));
+        });
         return workLoadList;
     }
 
