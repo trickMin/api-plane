@@ -54,60 +54,70 @@ public class ResourceCacheManager implements ResourceEventDispatcher {
         eventProcessor.execute(() -> {
             log.info("start to process workload update event");
             for (; ; ) {
-                ResourceUpdateEvent updateEvent = null;
                 try {
-                    updateEvent = workloadEvent.take();
-                } catch (InterruptedException e) {
-                    log.warn("get update event from blocking queue error");
-                }
+                    ResourceUpdateEvent updateEvent = null;
+                    try {
+                        updateEvent = workloadEvent.take();
+                    } catch (InterruptedException e) {
+                        log.warn("get update event from blocking queue error");
+                    }
 
-                String eventType = updateEvent.getEventType();
-                String clusterId = updateEvent.getClusterId();
-                Long resourceVersion = updateEvent.getResourceVersion();
-                if (resourceVersion < getCurrentResourceVersion(clusterId)) {
-                    log.info("ignore event with stale resourceVersion [{}]", resourceVersion);
-                    continue;
-                }
-                switch (eventType) {
-                    case UPDATE_EVENT:
-                        updateWorkloadList(updateEvent.getResourceObject(), clusterId);
-                        break;
-                    case CREATE_EVENT:
-                        addWorkloadList(updateEvent.getResourceObject(), clusterId);
-                        break;
-                    case DELETE_EVENT:
-                        removeWorkloadList(updateEvent.getResourceObject(), clusterId);
-                        break;
-                    case SYNC_EVENT:
-                        syncAll(updateEvent.getResourceList(), clusterId);
+                    String eventType = updateEvent.getEventType();
+                    String clusterId = updateEvent.getClusterId();
+                    Long resourceVersion = updateEvent.getResourceVersion();
+                    if (resourceVersion < getCurrentResourceVersion(clusterId)) {
+                        log.info("ignore event with stale resourceVersion [{}]", resourceVersion);
                         continue;
-                    default:
+                    }
+                    switch (eventType) {
+                        case UPDATE_EVENT:
+                            updateWorkloadList(updateEvent.getResourceObject(), clusterId);
+                            break;
+                        case CREATE_EVENT:
+                            addWorkloadList(updateEvent.getResourceObject(), clusterId);
+                            break;
+                        case DELETE_EVENT:
+                            removeWorkloadList(updateEvent.getResourceObject(), clusterId);
+                            break;
+                        case SYNC_EVENT:
+                            syncAll(updateEvent.getResourceList(), clusterId);
+                            continue;
+                        default:
 
+                    }
+                } catch (Exception e) {
+                    log.error("process workload update event error",e);
+                    continue;
                 }
             }
         });
         eventProcessor.execute(() -> {
             log.info("start to process version manager update event");
             for (; ; ) {
-                ResourceUpdateEvent updateEvent = null;
                 try {
-                    updateEvent = versionManagerEvent.take();
-                } catch (InterruptedException e) {
-                    log.warn("get update event from blocking queue error");
-                }
-                String clusterId = updateEvent.getClusterId();
-                String namespace = updateEvent.getNamespace();
-                String key = clusterId + Const.SEPARATOR_DOT + namespace;
-                String eventType = updateEvent.getEventType();
-                switch (eventType) {
-                    case DELETE_EVENT:
-                        versionManagerMap.remove(key);
-                        break;
-                    case SYNC_EVENT:
-                        updateAllVersionInfo(updateEvent.getResourceList(), clusterId);
-                        break;
-                    default:
-                        updateVersionInfoForKey(key, (me.snowdrop.istio.api.networking.v1alpha3.VersionManager) updateEvent.getResourceObject());
+                    ResourceUpdateEvent updateEvent = null;
+                    try {
+                        updateEvent = versionManagerEvent.take();
+                    } catch (InterruptedException e) {
+                        log.warn("get update event from blocking queue error");
+                    }
+                    String clusterId = updateEvent.getClusterId();
+                    String namespace = updateEvent.getNamespace();
+                    String key = clusterId + Const.SEPARATOR_DOT + namespace;
+                    String eventType = updateEvent.getEventType();
+                    switch (eventType) {
+                        case DELETE_EVENT:
+                            versionManagerMap.remove(key);
+                            break;
+                        case SYNC_EVENT:
+                            updateAllVersionInfo(updateEvent.getResourceList(), clusterId);
+                            break;
+                        default:
+                            updateVersionInfoForKey(key, (me.snowdrop.istio.api.networking.v1alpha3.VersionManager) updateEvent.getResourceObject());
+                    }
+                } catch (Exception e) {
+                    log.error("process version manager update event error",e);
+                    continue;
                 }
             }
         });
@@ -293,9 +303,9 @@ public class ResourceCacheManager implements ResourceEventDispatcher {
     public void dispatch(ResourceUpdateEvent event) {
 
         if (isWorkloadEvent(event)) {
-            workloadEvent.add(event);
+            workloadEvent.offer(event);
         } else if (isVersionManagerEvent(event)) {
-            versionManagerEvent.add(event);
+            versionManagerEvent.offer(event);
         }
 
     }
