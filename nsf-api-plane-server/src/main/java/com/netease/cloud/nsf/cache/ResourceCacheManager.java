@@ -1,10 +1,13 @@
 package com.netease.cloud.nsf.cache;
 
 
+import com.netease.cloud.nsf.cache.meta.PodDTO;
 import com.netease.cloud.nsf.cache.meta.WorkLoadDTO;
 import com.netease.cloud.nsf.configuration.ext.MeshConfig;
 import com.netease.cloud.nsf.util.Const;
+import io.fabric8.kubernetes.api.model.ContainerStatus;
 import io.fabric8.kubernetes.api.model.HasMetadata;
+import io.fabric8.kubernetes.api.model.Pod;
 import me.snowdrop.istio.api.networking.v1alpha3.PodVersionStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,36 +94,36 @@ public class ResourceCacheManager implements ResourceEventDispatcher {
                 }
             }
         });
-        eventProcessor.execute(() -> {
-            log.info("start to process version manager update event");
-            for (; ; ) {
-                try {
-                    ResourceUpdateEvent updateEvent = null;
-                    try {
-                        updateEvent = versionManagerEvent.take();
-                    } catch (InterruptedException e) {
-                        log.warn("get update event from blocking queue error");
-                    }
-                    String clusterId = updateEvent.getClusterId();
-                    String namespace = updateEvent.getNamespace();
-                    String key = clusterId + Const.SEPARATOR_DOT + namespace;
-                    String eventType = updateEvent.getEventType();
-                    switch (eventType) {
-                        case DELETE_EVENT:
-                            versionManagerMap.remove(key);
-                            break;
-                        case SYNC_EVENT:
-                            updateAllVersionInfo(updateEvent.getResourceList(), clusterId);
-                            break;
-                        default:
-                            updateVersionInfoForKey(key, (me.snowdrop.istio.api.networking.v1alpha3.VersionManager) updateEvent.getResourceObject());
-                    }
-                } catch (Exception e) {
-                    log.error("process version manager update event error",e);
-                    continue;
-                }
-            }
-        });
+//       eventProcessor.execute(() -> {
+//            log.info("start to process version manager update event");
+//            for (; ; ) {
+//                try {
+//                    ResourceUpdateEvent updateEvent = null;
+//                    try {
+//                        updateEvent = versionManagerEvent.take();
+//                    } catch (InterruptedException e) {
+//                        log.warn("get update event from blocking queue error");
+//                    }
+//                    String clusterId = updateEvent.getClusterId();
+//                    String namespace = updateEvent.getNamespace();
+//                    String key = clusterId + Const.SEPARATOR_DOT + namespace;
+//                    String eventType = updateEvent.getEventType();
+//                    switch (eventType) {
+//                        case DELETE_EVENT:
+//                            versionManagerMap.remove(key);
+//                            break;
+//                        case SYNC_EVENT:
+//                            updateAllVersionInfo(updateEvent.getResourceList(), clusterId);
+//                            break;
+//                        default:
+//                            updateVersionInfoForKey(key, (me.snowdrop.istio.api.networking.v1alpha3.VersionManager) updateEvent.getResourceObject());
+//                    }
+//                } catch (Exception e) {
+//                    log.error("process version manager update event error",e);
+//                    continue;
+//                }
+//            }
+//        });
     }
 
     private void updateAllVersionInfo(List resourceList, String clusterId) {
@@ -168,17 +171,13 @@ public class ResourceCacheManager implements ResourceEventDispatcher {
         if (CollectionUtils.isEmpty(podInfoByWorkLoadInfo)) {
             return false;
         }
-        boolean injected = true;
         for (Object obj : podInfoByWorkLoadInfo) {
-            HasMetadata pod = (HasMetadata) obj;
-            String sidecarVersion = getSidecarVersionOnPod(clusterId, namespace, pod.getMetadata().getName());
-            if (StringUtils.isEmpty(sidecarVersion)) {
-                injected = false;
-                break;
+            io.fabric8.kubernetes.api.model.Pod pod = (io.fabric8.kubernetes.api.model.Pod) obj;
+            if (!PodDTO.isInjected(pod)) {
+                return false;
             }
         }
-        return injected;
-
+        return true;
     }
 
     public String getServiceNameByWorkload(HasMetadata resourceObject) {
@@ -300,8 +299,6 @@ public class ResourceCacheManager implements ResourceEventDispatcher {
 
         if (isWorkloadEvent(event)) {
             workloadEvent.offer(event);
-        } else if (isVersionManagerEvent(event)) {
-            versionManagerEvent.offer(event);
         }
 
     }
