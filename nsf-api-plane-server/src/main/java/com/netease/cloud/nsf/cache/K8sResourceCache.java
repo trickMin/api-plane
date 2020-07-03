@@ -28,7 +28,6 @@ import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.apiextensions.CustomResourceDefinition;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
-import istio.networking.v1alpha3.VersionManagerOuterClass;
 import me.snowdrop.istio.api.networking.v1alpha3.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -250,10 +249,18 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
             ) {
                 io.fabric8.kubernetes.api.model.Service k8sService = (io.fabric8.kubernetes.api.model.Service)service;
                 String appName = k8sService.getSpec().getSelector().get(meshConfig.getSelectorAppKey());
-                String key = appName + Const.SEPARATOR_DOT + k8sService.getMetadata().getNamespace();
-                result.addAll(resourceCacheManager.getWorkloadListByServiceName(key));
+                String key = appName
+                        + Const.SEPARATOR_DOT
+                        + k8sService.getMetadata().getNamespace();
+                result.addAll(resourceCacheManager.getWorkloadListByServiceName(clusterId,key));
             }
         }
+        result.forEach(workload->{
+            workload.setInMesh(resourceCacheManager.isInjectedWorkload(clusterId,
+                    workload.getKind(),
+                    workload.getNamespace(),
+                    workload.getName()));
+        });
         return result;
     }
 
@@ -388,9 +395,17 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                 continue;
             }
             String appName = k8sService.getSpec().getSelector().get(meshConfig.getSelectorAppKey());
-            String key = appName + Const.SEPARATOR_DOT + k8sService.getMetadata().getNamespace();
-            workLoadList.addAll(resourceCacheManager.getWorkloadListByServiceName(key));
+            String key = appName
+                    + Const.SEPARATOR_DOT
+                    + k8sService.getMetadata().getNamespace();
+            workLoadList.addAll(resourceCacheManager.getWorkloadListByServiceName(clusterId,key));
         }
+        workLoadList.forEach(workload->{
+            workload.setInMesh(resourceCacheManager.isInjectedWorkload(clusterId,
+                    workload.getKind(),
+                    workload.getNamespace(),
+                    workload.getName()));
+        });
         return workLoadList;
     }
 
@@ -619,7 +634,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         for (T workload : workloadList) {
             String serviceNameByWorkload = resourceCacheManager.getServiceNameByWorkload(workload);
             if (!StringUtils.isEmpty(serviceNameByWorkload)){
-                result.addAll(resourceCacheManager.getWorkloadListByServiceName(serviceNameByWorkload));
+                result.addAll(resourceCacheManager.getWorkloadListByServiceName(clusterId,serviceNameByWorkload));
             }
         }
         return new ArrayList<>(result);

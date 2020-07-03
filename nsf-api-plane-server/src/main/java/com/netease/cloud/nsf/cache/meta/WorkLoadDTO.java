@@ -7,6 +7,7 @@ import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.apps.DeploymentStatus;
 import io.fabric8.kubernetes.api.model.apps.StatefulSet;
 import io.fabric8.kubernetes.api.model.apps.StatefulSetStatus;
+import org.springframework.util.StringUtils;
 
 
 import java.util.List;
@@ -69,12 +70,18 @@ public class WorkLoadDTO<T extends HasMetadata> extends K8sResourceDTO {
             DeploymentStatus status = deployment.getStatus();
             String total = getValueOrDefault(deployment.getSpec().getReplicas()).toString();
             String ready = getValueOrDefault(status.getReplicas()).toString();
+            if (StringUtils.isEmpty(ready)){
+                ready = "0";
+            }
             statusInfo =  ready + "/" + total;
         } else if (obj instanceof StatefulSet) {
             StatefulSet statefulSet = (StatefulSet) obj;
             StatefulSetStatus status = statefulSet.getStatus();
             String total = getValueOrDefault(statefulSet.getSpec().getReplicas()).toString();
             String ready = getValueOrDefault(status.getReplicas()).toString();
+            if (StringUtils.isEmpty(ready)){
+                ready = "0";
+            }
             statusInfo =  ready + "/" + total;
         }
         if (obj.getMetadata() != null) {
