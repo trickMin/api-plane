@@ -6,6 +6,7 @@ import com.netease.cloud.nsf.meta.IptablesConfig;
 import com.netease.cloud.nsf.meta.PodStatus;
 import com.netease.cloud.nsf.meta.PodVersion;
 import com.netease.cloud.nsf.util.function.Equals;
+import io.fabric8.kubernetes.api.model.ObjectMeta;
 import me.snowdrop.istio.api.networking.v1alpha3.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -14,6 +15,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 
@@ -28,9 +30,13 @@ public class VersionManagerOperator implements k8sResourceOperator<VersionManage
         VersionManager versionManager = new VersionManagerBuilder(old).build();
         List<SidecarVersionSpec> oldSpecList  = old.getSpec().getSidecarVersionSpec();
         List<SidecarVersionSpec> latestSpecList  = fresh.getSpec().getSidecarVersionSpec();
+        Map<String,String> oldLabel = old.getMetadata().getLabels();
+        Map<String,String> freshLabel = fresh.getMetadata().getLabels();
+        Map mergedLabel = mergeMap(oldLabel, freshLabel, (o, n) -> o.equals(n));
         versionManager.getSpec().setSidecarVersionSpec(mergeList(oldSpecList, latestSpecList, new SidecarVersionSpecEquals()));
         versionManager.getSpec().setStatus(old.getSpec().getStatus());
         versionManager.getMetadata().setResourceVersion(old.getMetadata().getResourceVersion());
+        versionManager.getMetadata().setLabels(mergedLabel);
         return versionManager;
     }
 
