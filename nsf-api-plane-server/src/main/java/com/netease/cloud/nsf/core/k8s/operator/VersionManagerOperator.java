@@ -35,7 +35,7 @@ public class VersionManagerOperator implements k8sResourceOperator<VersionManage
         Map mergedLabel = mergeMap(oldLabel, freshLabel, (o, n) -> o.equals(n));
         versionManager.getSpec().setSidecarVersionSpec(mergeList(oldSpecList, latestSpecList, new SidecarVersionSpecEquals()));
         versionManager.getSpec().setStatus(old.getSpec().getStatus());
-        versionManager.getMetadata().setResourceVersion(old.getMetadata().getResourceVersion());
+        //versionManager.getMetadata().setResourceVersion(old.getMetadata().getResourceVersion());
         versionManager.getMetadata().setLabels(mergedLabel);
         return versionManager;
     }
