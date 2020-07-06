@@ -89,4 +89,6 @@ public interface Const {
     String SIDECAR_VERSION_PATTERN = "sidecar_[\\d]+\\.[\\d]+\\.[\\d]+_[0-9a-zA-Z]{32}";
 
     String SEPARATOR_DOT = ".";
+
+    String NSF_LABEL_KEY_CLUSTER = "com.netease.nsf.cluster";
 }

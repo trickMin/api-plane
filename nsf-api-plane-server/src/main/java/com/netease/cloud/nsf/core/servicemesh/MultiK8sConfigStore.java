@@ -5,12 +5,14 @@ import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.gateway.service.impl.K8sConfigStore;
 import com.netease.cloud.nsf.core.k8s.KubernetesClient;
 import com.netease.cloud.nsf.core.k8s.MultiClusterK8sClient;
+import com.netease.cloud.nsf.util.Const;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/12/5
@@ -52,7 +54,19 @@ public class MultiK8sConfigStore extends K8sConfigStore {
 
     @Override
     public void update(HasMetadata resource) {
-        resolve(getDefaultClusterId()).createOrUpdate(resource, ResourceType.OBJECT);
+        String clusterId= getClusterFromResource(resource);
+        resolve(clusterId).createOrUpdate(resource, ResourceType.OBJECT);
+    }
+
+    private String getClusterFromResource(HasMetadata resource){
+        if (resource == null || resource.getMetadata() == null){
+            return getDefaultClusterId();
+        }
+        Map<String, String> labels = resource.getMetadata().getLabels();
+        if (labels == null || labels.isEmpty()){
+            return getDefaultClusterId();
+        }
+        return labels.getOrDefault(Const.NSF_LABEL_KEY_CLUSTER,getDefaultClusterId());
     }
 
     public String getPodLog(String clusterId, String pod, String namespace, String container, Integer tailLines, Long sinceSeconds) {
