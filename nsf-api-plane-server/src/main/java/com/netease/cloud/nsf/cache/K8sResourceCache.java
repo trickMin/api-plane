@@ -207,7 +207,6 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                     .Builder()
                     .addResourceKind(VersionManager)
                     .addMixedOperation(getMixerVersionManagerOperationList(allClients, vmCrd))
-                    .addEventDispatcher(resourceCacheManager)
                     .addHttpK8sClient(multiClusterK8sClient)
                     .build();
 
