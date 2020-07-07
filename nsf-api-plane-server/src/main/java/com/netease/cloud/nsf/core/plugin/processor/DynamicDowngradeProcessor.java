@@ -5,6 +5,7 @@ import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.plugin.FragmentHolder;
 import com.netease.cloud.nsf.core.plugin.FragmentTypeEnum;
 import com.netease.cloud.nsf.core.plugin.FragmentWrapper;
+import com.netease.cloud.nsf.core.plugin.PluginGenerator;
 import com.netease.cloud.nsf.meta.ServiceInfo;
 import org.springframework.stereotype.Component;
 
@@ -25,13 +26,18 @@ public class DynamicDowngradeProcessor extends AbstractSchemaProcessor implement
 
     @Override
     public FragmentHolder process(String plugin, ServiceInfo serviceInfo) {
-        ResourceGenerator source = ResourceGenerator.newInstance(plugin);
-        ResourceGenerator builder = ResourceGenerator.newInstance("{\"downgrade_rpx\":{\"headers\":[]},\"cache_rpx_rpx\":{\"headers\":[]},\"cache_ttls\":{\"RedisHttpCache\":{}},\"key_maker\":{\"query_params\":[],\"headers_keys\":[]}}");
+        PluginGenerator source = PluginGenerator.newInstance(plugin);
+        PluginGenerator builder = PluginGenerator.newInstance("{\"downgrade_rpx\":{\"headers\":[]},\"cache_rpx_rpx\":{\"headers\":[]},\"cache_ttls\":{\"RedisHttpCache\":{}},\"key_maker\":{\"query_params\":[],\"headers_keys\":[]}}");
         createCondition(source, builder);
-        createCacheRpx(source, builder);
-        createCacheTtls(source, builder);
-        createKeyMaker(source, builder);
-//        createLowLevelFill(source, builder);
+        if (source.contain("$.cache")) {
+            createCacheRpx(source, builder);
+            createCacheTtls(source, builder);
+            createKeyMaker(source, builder);
+        }
+        if (source.contain("$.httpx")) {
+            createHttpx(source, builder);
+        }
+
 
         FragmentHolder fragmentHolder = new FragmentHolder();
         FragmentWrapper wrapper = new FragmentWrapper.Builder()
@@ -44,7 +50,7 @@ public class DynamicDowngradeProcessor extends AbstractSchemaProcessor implement
         return fragmentHolder;
     }
 
-    private void createCondition(ResourceGenerator source, ResourceGenerator builder) {
+    private void createCondition(PluginGenerator source, PluginGenerator builder) {
         if (source.contain("$.condition.request")) {
             builder.createOrUpdateJson("$", "downgrade_rqx", "{\"headers\":[]}");
         }
@@ -54,6 +60,7 @@ public class DynamicDowngradeProcessor extends AbstractSchemaProcessor implement
                 String matchType = item.get("match_type");
                 String headerKey = item.get("headerKey");
                 String headerValue = item.get("value");
+                if (haveNull(matchType, headerKey, headerValue)) return;
                 if ("safe_regex_match".equals(matchType)) {
                     builder.addJsonElement("$.downgrade_rqx.headers", String.format("{\"name\":\"%s\",\"regex_match\":\"%s\"}", headerKey, headerValue));
                 } else {
@@ -64,10 +71,12 @@ public class DynamicDowngradeProcessor extends AbstractSchemaProcessor implement
         if (source.contain("$.condition.request.host")) {
             String matchType = source.getValue("$.condition.request.host.match_type", String.class);
             String host = source.getValue("$.condition.request.host.value", String.class);
-            if ("safe_regex_match".equals(matchType)) {
-                builder.addJsonElement("$.downgrade_rqx.headers", String.format("{\"name\":\":authority\",\"regex_match\":\"%s\"}", host));
-            } else {
-                builder.addJsonElement("$.downgrade_rqx.headers", String.format("{\"name\":\":authority\",\"exact_match\":\"%s\"}", host));
+            if (nonNull(matchType, host)) {
+                if ("safe_regex_match".equals(matchType)) {
+                    builder.addJsonElement("$.downgrade_rqx.headers", String.format("{\"name\":\":authority\",\"regex_match\":\"%s\"}", host));
+                } else {
+                    builder.addJsonElement("$.downgrade_rqx.headers", String.format("{\"name\":\":authority\",\"exact_match\":\"%s\"}", host));
+                }
             }
         }
         if (source.contain("$.condition.request.method")) {
@@ -81,10 +90,12 @@ public class DynamicDowngradeProcessor extends AbstractSchemaProcessor implement
         if (source.contain("$.condition.request.path")) {
             String matchType = source.getValue("$.condition.request.path.match_type", String.class);
             String path = source.getValue("$.condition.request.path.value", String.class);
-            if ("safe_regex_match".equals(matchType)) {
-                builder.addJsonElement("$.downgrade_rqx.headers", String.format("{\"name\":\":path\",\"regex_match\":\"%s\"}", path));
-            } else {
-                builder.addJsonElement("$.downgrade_rqx.headers", String.format("{\"name\":\":path\",\"exact_match\":\"%s\"}", path));
+            if (nonNull(matchType, path)) {
+                if ("safe_regex_match".equals(matchType)) {
+                    builder.addJsonElement("$.downgrade_rqx.headers", String.format("{\"name\":\":path\",\"regex_match\":\"%s\"}", path));
+                } else {
+                    builder.addJsonElement("$.downgrade_rqx.headers", String.format("{\"name\":\":path\",\"exact_match\":\"%s\"}", path));
+                }
             }
         }
         if (source.contain("$.condition.response.headers")) {
@@ -93,6 +104,7 @@ public class DynamicDowngradeProcessor extends AbstractSchemaProcessor implement
                 String matchType = item.get("match_type");
                 String headerKey = item.get("headerKey");
                 String headerValue = item.get("value");
+                if (haveNull(matchType, headerKey, headerValue)) return;
                 if ("safe_regex_match".equals(matchType)) {
                     builder.addJsonElement("$.downgrade_rpx.headers", String.format("{\"name\":\"%s\",\"regex_match\":\"%s\"}", headerKey, headerValue));
                 } else {
@@ -103,15 +115,20 @@ public class DynamicDowngradeProcessor extends AbstractSchemaProcessor implement
         if (source.contain("$.condition.response.code")) {
             String matchType = source.getValue("$.condition.response.code.match_type", String.class);
             String code = source.getValue("$.condition.response.code.value", String.class);
-            builder.addJsonElement("$.downgrade_rpx.headers", String.format("{\"name\":\":status\",\"regex_match\":\"%s|\"}", code));
+            if (nonNull(code)) {
+                builder.addJsonElement("$.downgrade_rpx.headers", String.format("{\"name\":\":status\",\"regex_match\":\"%s|\"}", code));
+            }
         }
     }
 
-    private void createCacheRpx(ResourceGenerator source, ResourceGenerator builder) {
+    private void createCacheRpx(PluginGenerator source, PluginGenerator builder) {
+        builder.createOrUpdateJson("$", "cache_rpx_rpx", "{\"headers\":[]}");
         if (source.contain("$.cache.condition.response.code")) {
             String mathchType = source.getValue("$.cache.condition.response.code.match_type");
             String code = source.getValue("$.cache.condition.response.code.value");
-            builder.addJsonElement("$.cache_rpx_rpx.headers", String.format("{\"name\":\":status\",\"regex_match\":\"%s|\"}", code));
+            if (nonNull(code)) {
+                builder.addJsonElement("$.cache_rpx_rpx.headers", String.format("{\"name\":\":status\",\"regex_match\":\"%s|\"}", code));
+            }
         }
         if (source.contain("$.cache.condition.response.headers")) {
             List<Map<String, String>> headers = source.getValue("$.cache.condition.response.headers", List.class);
@@ -119,6 +136,7 @@ public class DynamicDowngradeProcessor extends AbstractSchemaProcessor implement
                 String matchType = item.get("match_type");
                 String headerKey = item.get("headerKey");
                 String headerValue = item.get("value");
+                if (haveNull(matchType, headerKey, headerValue)) return;
                 if ("safe_regex_match".equals(matchType)) {
                     builder.addJsonElement("$.cache_rpx_rpx.headers", String.format("{\"name\":\"%s\",\"regex_match\":\"%s\"}", headerKey, headerValue));
                 } else {
@@ -128,7 +146,7 @@ public class DynamicDowngradeProcessor extends AbstractSchemaProcessor implement
         }
     }
 
-    private void createCacheTtls(ResourceGenerator source, ResourceGenerator builder) {
+    private void createCacheTtls(PluginGenerator source, PluginGenerator builder) {
         Integer redisDefaultTtl = source.getValue("$.cache.ttl.default", Integer.class);
         //redis ttl
         if (source.contain("$.cache.ttl.default")) {
@@ -145,7 +163,7 @@ public class DynamicDowngradeProcessor extends AbstractSchemaProcessor implement
         }
     }
 
-    private void createKeyMaker(ResourceGenerator source, ResourceGenerator builder) {
+    private void createKeyMaker(PluginGenerator source, PluginGenerator builder) {
         Boolean ignoreCase = source.getValue("$.cache.cache_key.ignoreCase", Boolean.class);
         if (nonNull(ignoreCase)) {
             builder.updateValue("$.key_maker.ignore_case", ignoreCase);
@@ -164,10 +182,11 @@ public class DynamicDowngradeProcessor extends AbstractSchemaProcessor implement
         }
     }
 
-    private void createLowLevelFill(ResourceGenerator source, ResourceGenerator builder) {
-        Boolean lowLevelFill = source.getValue("$.lowLevelFill", Boolean.class);
-        if (nonNull(lowLevelFill)) {
-            builder.updateValue("$.low_level_fill", lowLevelFill);
+    private void createHttpx(PluginGenerator source, PluginGenerator builder) {
+        if (source.contain("$.httpx.uri")) {
+            String uri = source.getValue("$.httpx.uri");
+            builder.createOrUpdateValue("$", "downgrade_src", "HTTPX");
+            builder.createOrUpdateValue("$", "downgrade_uri", uri);
         }
     }
 }
