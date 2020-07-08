@@ -27,7 +27,7 @@ public class DynamicDowngradeProcessor extends AbstractSchemaProcessor implement
     @Override
     public FragmentHolder process(String plugin, ServiceInfo serviceInfo) {
         PluginGenerator source = PluginGenerator.newInstance(plugin);
-        PluginGenerator builder = PluginGenerator.newInstance("{\"downgrade_rpx\":{\"headers\":[]},\"cache_rpx_rpx\":{\"headers\":[]},\"cache_ttls\":{\"RedisHttpCache\":{}},\"key_maker\":{\"query_params\":[],\"headers_keys\":[]}}");
+        PluginGenerator builder = PluginGenerator.newInstance("{\"downgrade_rpx\":{\"headers\":[]},\"cache_rpx_rpx\":{\"headers\":[]},\"cache_ttls\":{\"RedisHttpCache\":{},\"LocalHttpCache\":{}},\"key_maker\":{\"query_params\":[],\"headers_keys\":[]}}");
         createCondition(source, builder);
         if (source.contain("$.cache")) {
             createCacheRpx(source, builder);
@@ -151,6 +151,7 @@ public class DynamicDowngradeProcessor extends AbstractSchemaProcessor implement
         //redis ttl
         if (source.contain("$.cache.ttl.default")) {
             builder.createOrUpdateValue("$.cache_ttls.RedisHttpCache", "default", redisDefaultTtl);
+            builder.createOrUpdateValue("$.cache_ttls.LocalHttpCache", "default", redisDefaultTtl);
         }
         if (source.contain("$.cache.ttl.custom")) {
             List<Map<String, Object>> customs = source.getValue("$.cache.ttl.custom", List.class);
