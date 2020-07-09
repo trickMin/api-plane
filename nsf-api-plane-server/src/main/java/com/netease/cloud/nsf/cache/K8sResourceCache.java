@@ -636,6 +636,12 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                 result.addAll(resourceCacheManager.getWorkloadListByServiceName(clusterId,serviceNameByWorkload));
             }
         }
+        result.forEach(workload->{
+            workload.setInMesh(resourceCacheManager.isInjectedWorkload(clusterId,
+                    workload.getKind(),
+                    workload.getNamespace(),
+                    workload.getName()));
+        });
         return new ArrayList<>(result);
 
     }
