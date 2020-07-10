@@ -242,7 +242,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
             if (service.getMetadata().getLabels() == null || service.getMetadata().getLabels().isEmpty()) {
                 continue;
             }
-            if (extractor.getResourceInfo(service,Const.RESOURCE_TARGET,projectId)!=null &&
+            if (projectId.equals(extractor.getResourceInfo(service,Const.RESOURCE_TARGET,projectId)) &&
                     service.getMetadata().getLabels().get(meshConfig.getAppKey()) != null &&
                     service.getMetadata().getLabels().get(meshConfig.getAppKey()).equals(serviceName)
             ) {
@@ -383,8 +383,8 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         // 如果存在projectId 则过滤掉不含项目id的service
         if (!StringUtils.isEmpty(projectId)) {
             serviceList = serviceList.stream()
-                    .filter(s -> s.getMetadata().getLabels() != null
-                            && extractor.getResourceInfo(s,Const.RESOURCE_TARGET,projectId) !=null)
+                    .filter(s ->StringUtils.isEmpty(projectId) || (s.getMetadata().getLabels() != null
+                            && projectId.equals(extractor.getResourceInfo(s,Const.RESOURCE_TARGET,projectId))))
                     .collect(Collectors.toList());
 
         }
