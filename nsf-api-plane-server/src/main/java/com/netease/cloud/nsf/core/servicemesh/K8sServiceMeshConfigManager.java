@@ -12,6 +12,7 @@ import com.netease.cloud.nsf.core.k8s.event.RlsInfo;
 import com.netease.cloud.nsf.core.k8s.operator.VersionManagerOperator;
 import com.netease.cloud.nsf.meta.*;
 import com.netease.cloud.nsf.service.PluginService;
+import com.netease.cloud.nsf.util.Const;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import me.snowdrop.istio.api.networking.v1alpha3.Sidecar;
 import me.snowdrop.istio.api.networking.v1alpha3.VersionManager;
@@ -64,7 +65,26 @@ public class K8sServiceMeshConfigManager extends AbstractConfigManagerSupport im
     @Override
     public void updateConfig(SidecarVersionManagement svm) {
         List<K8sResourcePack> resources = modelEngine.translate(svm);
+        setResourceClusterInfo(resources,svm.getClusterId());
         update(multiK8sConfigStore, resources, modelEngine);
+    }
+
+    private void setResourceClusterInfo(List<K8sResourcePack> resources, String clusterId){
+        if (CollectionUtils.isEmpty(resources) || StringUtils.isEmpty(clusterId)){
+            return;
+        }
+        for (K8sResourcePack resource : resources) {
+            HasMetadata obj = resource.getResource();
+            if (obj == null){
+                continue;
+            }
+            Map<String, String> labels = obj.getMetadata().getLabels();
+            if (labels == null){
+                labels = new HashMap<>();
+            }
+            labels.put(Const.NSF_LABEL_KEY_CLUSTER,clusterId);
+            obj.getMetadata().setLabels(labels);
+        }
     }
 
     @Override
