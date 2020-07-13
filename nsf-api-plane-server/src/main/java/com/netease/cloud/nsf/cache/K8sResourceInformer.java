@@ -335,7 +335,16 @@ public class K8sResourceInformer<T extends HasMetadata> implements Informer {
 
     private void updateLastResourceVersion(String clusterId,long resourceVersion){
         AtomicLong currentVersion = lastResourceVersion.computeIfAbsent(clusterId,c-> new AtomicLong());
-        while (resourceVersion > currentVersion.get() && !currentVersion.compareAndSet(currentVersion.get(),resourceVersion)) {}
+        for(;;){
+            long currentResourceVersion = currentVersion.get();
+            if (resourceVersion < currentResourceVersion){
+                break;
+            }
+            if (resourceVersion > currentResourceVersion && currentVersion.compareAndSet(currentResourceVersion , resourceVersion)){
+                break;
+            }
+        }
+
     }
 
 

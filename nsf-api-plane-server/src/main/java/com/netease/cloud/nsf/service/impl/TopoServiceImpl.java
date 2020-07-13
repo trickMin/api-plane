@@ -36,14 +36,12 @@ public class TopoServiceImpl implements TopoService {
 
         Set<String> existNss = new HashSet<>();
 
-        //从多个集群中找到所有namespace
-        multiClusterK8sClient.getAllClients().forEach((k, client) -> {
-            NamespaceList list = client.originalK8sClient.namespaces().list();
-            List<Namespace> items = list.getItems();
-            if (!CollectionUtils.isEmpty(items)) {
-                items.stream().forEach(ns -> existNss.add(ns.getMetadata().getName()));
-            }
-        });
+        //原有的逻辑是查询所有集群的ns, 但实际上kiali只感知当前集群的信息
+        NamespaceList list = multiClusterK8sClient.originalK8sClient("default").namespaces().list();
+        List<Namespace> items = list.getItems();
+        if (!CollectionUtils.isEmpty(items)) {
+            items.stream().forEach(ns -> existNss.add(ns.getMetadata().getName()));
+        }
 
         //跟传入的namespace相比，去掉不存在的namespace
         List<String> safeNss = new ArrayList<>();
