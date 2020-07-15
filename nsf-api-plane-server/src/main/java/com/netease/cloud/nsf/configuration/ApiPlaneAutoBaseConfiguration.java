@@ -60,7 +60,7 @@ public class ApiPlaneAutoBaseConfiguration {
         List<ClientHttpRequestInterceptor> interceptors = ImmutableList.of(new RestTemplateLogInterceptor());
 
         return restTemplateBuilder
-                .setConnectTimeout(2)
+                .setConnectTimeout(1000)
                 .interceptors(interceptors)
                 .requestFactory(new InterceptingClientHttpRequestFactory(
                         new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory()), interceptors))
