@@ -187,6 +187,9 @@ public class K8sResourceInformer<T extends HasMetadata> implements Informer {
                 TimeUnit.MINUTES);
         for (MixedOperation mixedOperation : mixedOperationList) {
             eventProcessor.execute(() -> {
+                if (!((ClusterMixedOperation) mixedOperation).isWatchResource()){
+                    return;
+                }
                 mixedOperation.watch(new Watcher<T>() {
                     @Override
                     public void eventReceived(Action action, T t) {
@@ -235,6 +238,9 @@ public class K8sResourceInformer<T extends HasMetadata> implements Informer {
     public void replaceResource() {
         // TODO: 2019-11-04 从k8s获取informer所监听资源列表并更新本地
         multiClusterK8sClient.getAllClients().forEach((cluster, clientSet) -> {
+            if (!clientSet.watchResource){
+                return;
+            }
             KubernetesClient httpClient = clientSet.k8sClient;
             KubernetesResourceList listObject = httpClient.getListObject(resourceKind.name(), "");
             if (listObject == null || listObject.getMetadata() == null){

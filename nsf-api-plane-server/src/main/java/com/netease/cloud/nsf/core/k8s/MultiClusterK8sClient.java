@@ -32,7 +32,7 @@ public class MultiClusterK8sClient {
 			OkHttpClient httpClient = HttpClientUtils.createHttpClient(config);
 			KubernetesClient k8sClient = new KubernetesClient(config, httpClient, editorContext);
 			io.fabric8.kubernetes.client.KubernetesClient originalK8sClient = new DefaultKubernetesClient(httpClient, config);
-			clients.put(entry.getKey(), new ClientSet(k8sClient, originalK8sClient));
+			clients.put(entry.getKey(), new ClientSet(k8sClient, originalK8sClient, entry.getValue().isWatchResource()));
 		}
 	}
 
@@ -70,11 +70,13 @@ public class MultiClusterK8sClient {
 	public static class ClientSet {
 		public final KubernetesClient k8sClient;
 		public final io.fabric8.kubernetes.client.KubernetesClient originalK8sClient;
+		public final boolean watchResource;
 
-		private static final ClientSet fakeClient = new ClientSet(null, null);
-		private ClientSet(KubernetesClient k8sClient, io.fabric8.kubernetes.client.KubernetesClient originalK8sClient) {
+		private static final ClientSet fakeClient = new ClientSet(null, null, false);
+		private ClientSet(KubernetesClient k8sClient, io.fabric8.kubernetes.client.KubernetesClient originalK8sClient,boolean watchResource) {
 			this.k8sClient = k8sClient;
 			this.originalK8sClient = originalK8sClient;
+			this.watchResource = watchResource;
 		}
 	}
 }
