@@ -15,6 +15,7 @@ import java.util.Map;
 public class ClusterMixedOperation implements MixedOperation {
 
     private String clusterId;
+    private boolean watchResource;
     private MixedOperation delegate;
 
     public String getClusterId() {
@@ -25,9 +26,18 @@ public class ClusterMixedOperation implements MixedOperation {
         this.clusterId = clusterId;
     }
 
-    public ClusterMixedOperation(String clusterId, MixedOperation delegate) {
+    public ClusterMixedOperation(String clusterId, MixedOperation delegate,boolean watchResource) {
         this.clusterId = clusterId;
         this.delegate = delegate;
+        this.watchResource = watchResource;
+    }
+
+    public boolean isWatchResource() {
+        return watchResource;
+    }
+
+    public void setWatchResource(boolean watchResource) {
+        this.watchResource = watchResource;
     }
 
     @Override

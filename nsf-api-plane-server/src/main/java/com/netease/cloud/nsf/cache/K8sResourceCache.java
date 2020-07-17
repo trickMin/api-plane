@@ -860,7 +860,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                 result.add(new ClusterMixedOperation(name, (MixedOperation) client.originalK8sClient
                         .apps()
                         .deployments()
-                        .inAnyNamespace()));
+                        .inAnyNamespace(),client.watchResource));
             }
         });
         return result;
@@ -873,7 +873,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                 result.add(new ClusterMixedOperation(name, (MixedOperation) client.originalK8sClient
                         .apps()
                         .statefulSets()
-                        .inAnyNamespace()));
+                        .inAnyNamespace(),client.watchResource));
             }
         });
         return result;
@@ -885,7 +885,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
             if (!StringUtils.isEmpty(name)) {
                 result.add(new ClusterMixedOperation(name, (MixedOperation) client.originalK8sClient
                         .pods()
-                        .inAnyNamespace()));
+                        .inAnyNamespace(),client.watchResource));
             }
         });
         return result;
@@ -897,7 +897,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
             if (!StringUtils.isEmpty(name)) {
             	result.add(new ClusterMixedOperation(name, (MixedOperation)client.originalK8sClient
                     .customResources(mupCrd, MixerUrlPattern.class, MixerUrlPatternList.class, DoneableMixerUrlPattern.class)
-                    .inAnyNamespace()));
+                    .inAnyNamespace(),client.watchResource));
             }
         });
         return result;
@@ -909,7 +909,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
             if (!StringUtils.isEmpty(name)) {
                 result.add(new ClusterMixedOperation(name, (MixedOperation)client.originalK8sClient
                         .customResources(vmcrd, VersionManager.class, VersionManagerList.class, DoneableVersionManager.class)
-                        .inAnyNamespace()));
+                        .inAnyNamespace(),client.watchResource));
             }
         });
         return result;
@@ -921,7 +921,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
             if (!StringUtils.isEmpty(name)) {
                 result.add(new ClusterMixedOperation(name, (MixedOperation) client.originalK8sClient
                         .services()
-                        .inAnyNamespace()));
+                        .inAnyNamespace(),client.watchResource));
             }
         });
         return result;
@@ -933,7 +933,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
             if (!StringUtils.isEmpty(name)) {
                 result.add(new ClusterMixedOperation(name, (MixedOperation) client.originalK8sClient
                         .endpoints()
-                        .inAnyNamespace()));
+                        .inAnyNamespace(),client.watchResource));
             }
         });
         return result;
@@ -946,7 +946,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                 result.add(new ClusterMixedOperation(name, (MixedOperation) client.originalK8sClient
                         .apps()
                         .daemonSets()
-                        .inAnyNamespace()));
+                        .inAnyNamespace(),client.watchResource));
             }
         });
         return result;
@@ -959,7 +959,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                 result.add(new ClusterMixedOperation(name, (MixedOperation) client.originalK8sClient
                         .apps()
                         .replicaSets()
-                        .inAnyNamespace()));
+                        .inAnyNamespace(),client.watchResource));
             }
         });
         return result;
