@@ -43,7 +43,7 @@ public interface GatewayService {
 
     List<Gateway> getGatewayList();
 
-    List<ServiceHealth> getServiceHealthList(String host, List<String> subsets);
+    List<ServiceHealth> getServiceHealthList(String host, List<String> subsets, String gateway);
 
     void updateIstioGateway(PortalIstioGatewayDTO portalGateway);
 

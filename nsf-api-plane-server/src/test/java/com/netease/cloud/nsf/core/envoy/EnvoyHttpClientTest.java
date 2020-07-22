@@ -37,7 +37,7 @@ public class EnvoyHttpClientTest extends BaseTest {
         when(restTemplate.getForObject(anyString(), any())).thenReturn(resp);
         when(k8sClient.getObjectList(any(), any(), any())).thenReturn(Arrays.asList(getPod(null, getPodStatus("1.1.1.1", "Running"))));
 
-        List<ServiceHealth> serviceHealth = envoyHttpClient.getServiceHealth(null, null);
+        List<ServiceHealth> serviceHealth = envoyHttpClient.getServiceHealth(null, null, "gw1");
 
         Assert.assertEquals(4, serviceHealth.size());
     }

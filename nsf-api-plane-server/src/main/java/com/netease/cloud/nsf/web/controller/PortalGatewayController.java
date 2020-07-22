@@ -59,12 +59,13 @@ public class PortalGatewayController extends BaseController {
     @RequestMapping(value = "/portal", params = "Action=GetServiceHealthList", method = RequestMethod.GET)
     public String getServiceHealthList(@RequestParam(name = "Host", required = false) String host,
                                        @RequestParam(name = "Code") String serviceCode,
-                                       @RequestParam(name = "Subsets") List<String> subsets) {
+                                       @RequestParam(name = "Subsets") List<String> subsets,
+                                       @RequestParam(name = "Gateway") String gateway) {
 
         String name = StringUtils.isEmpty(host) ? String.format("com.netease.%s", serviceCode.toLowerCase()) : host;
 
         Map<String, Object> result = new HashMap<>();
-        List<ServiceHealth> gatewayList = gatewayService.getServiceHealthList(name, subsets);
+        List<ServiceHealth> gatewayList = gatewayService.getServiceHealthList(name, subsets, gateway);
 
         result.put(RESULT_LIST, gatewayList);
         ErrorCode code = ApiPlaneErrorCode.Success;
