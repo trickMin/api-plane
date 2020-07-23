@@ -128,7 +128,7 @@
       "author": "system",
       "createTime": "1572537600000",
       "updateTime": "1572537600000",
-      "pluginScope": "routeRule,global",
+      "pluginScope": "routeRule",
       "pluginPriority": "2100",
       "instructionForUse": "动态降级插件，当后端响应503/404等错误响应码时，envoy将缓存的最近一次请求作为响应返回给用户"
     },

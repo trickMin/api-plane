@@ -9,6 +9,7 @@ import com.netease.cloud.nsf.core.plugin.FragmentWrapper;
 import com.netease.cloud.nsf.core.plugin.PluginGenerator;
 import com.netease.cloud.nsf.meta.ServiceInfo;
 import com.netease.cloud.nsf.util.CommonUtil;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -128,8 +129,10 @@ public class AggregateExtensionProcessor extends AbstractSchemaProcessor impleme
     public List<FragmentHolder> process(List<String> plugins, ServiceInfo serviceInfo) {
         List<FragmentHolder> holders = Lists.newArrayList();
         List<String> luaPlugins = plugins.stream().filter(CommonUtil::isLuaPlugin).collect(Collectors.toList());
-        List<FragmentHolder> luaHolder = getProcessor("RestyProcessor").process(luaPlugins, serviceInfo);
-        holders.addAll(luaHolder);
+        if (CollectionUtils.isNotEmpty(luaPlugins)) {
+            List<FragmentHolder> luaHolder = getProcessor("RestyProcessor").process(luaPlugins, serviceInfo);
+            holders.addAll(luaHolder);
+        }
 
         List<String> notLuaPlugins = plugins.stream().filter(item -> !CommonUtil.isLuaPlugin(item)).collect(Collectors.toList());
 

@@ -28,6 +28,9 @@ public class RestyProcessor extends AbstractSchemaProcessor implements SchemaPro
         String kind = source.getValue("$.kind", String.class);
         Object config = source.getValue("$.config");
         builder.createOrUpdateValue("$", "config", config);
+        if ("trace".equals(kind)) {
+            kind = "neTraceFileLog";
+        }
         builder.createOrUpdateValue("$", "name", kind);
 
         FragmentHolder holder = new FragmentHolder();
