@@ -7,6 +7,8 @@ import com.netease.cloud.nsf.meta.PodStatus;
 import com.netease.cloud.nsf.meta.PodVersion;
 import com.netease.cloud.nsf.meta.SidecarVersionManagement;
 import com.netease.cloud.nsf.service.VersionManagerService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,8 @@ import java.util.List;
 public class VersionManagerServiceImpl implements VersionManagerService {
 
     private ServiceMeshConfigManager configManager;
+
+    private static final Logger log = LoggerFactory.getLogger(VersionManagerServiceImpl.class);
 
     @Value("${crdUpdateRetryCount:3}")
     private int RETRY_COUNT;
@@ -55,6 +59,7 @@ public class VersionManagerServiceImpl implements VersionManagerService {
                 configManager.updateConfig(svm);
                 completed = true;
             } catch (Exception e) {
+                log.warn("update SVM crd error,retry request",e);
                 if (call >= RETRY_COUNT) {
                     throw e;
                 } else {
