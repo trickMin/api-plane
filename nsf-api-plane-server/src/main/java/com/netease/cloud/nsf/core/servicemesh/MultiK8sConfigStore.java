@@ -7,6 +7,7 @@ import com.netease.cloud.nsf.core.k8s.KubernetesClient;
 import com.netease.cloud.nsf.core.k8s.MultiClusterK8sClient;
 import com.netease.cloud.nsf.util.Const;
 import io.fabric8.kubernetes.api.model.HasMetadata;
+import io.fabric8.kubernetes.api.model.ObjectMeta;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -53,8 +54,15 @@ public class MultiK8sConfigStore extends K8sConfigStore {
     }
 
     @Override
+    public HasMetadata get(HasMetadata resource) {
+        String clusterId = getClusterFromResource(resource);
+        ObjectMeta meta = resource.getMetadata();
+        return resolve(clusterId).getObject(resource.getKind(), meta.getNamespace(), meta.getName());
+    }
+
+    @Override
     public void update(HasMetadata resource) {
-        String clusterId= getClusterFromResource(resource);
+        String clusterId = getClusterFromResource(resource);
         resolve(clusterId).createOrUpdate(resource, ResourceType.OBJECT);
     }
 
