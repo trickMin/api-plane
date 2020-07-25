@@ -428,7 +428,9 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     }
 
     private List<T> getWorkLoadByServiceSelector(io.fabric8.kubernetes.api.model.Service service, String clusterId) {
-
+        if (service.getSpec() == null || service.getMetadata() == null){
+            return new ArrayList<>();
+        }
         Map<String,String> selectorLabel = service.getSpec().getSelector();
         if (selectorLabel == null || selectorLabel.isEmpty()) {
             return new ArrayList<>();
