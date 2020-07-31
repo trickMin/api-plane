@@ -5,7 +5,6 @@ import com.netease.cloud.nsf.core.GlobalConfig;
 import com.netease.cloud.nsf.core.gateway.service.impl.K8sConfigStore;
 import com.netease.cloud.nsf.core.k8s.KubernetesClient;
 import com.netease.cloud.nsf.core.k8s.MultiClusterK8sClient;
-import com.netease.cloud.nsf.util.Const;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,8 +28,8 @@ public class MultiK8sConfigStore extends K8sConfigStore {
     public MultiK8sConfigStore(MultiClusterK8sClient multiClient, KubernetesClient client, GlobalConfig globalConfig) {
         super(client, globalConfig);
         this.multiClient = multiClient;
-        Map<String, MultiClusterK8sClient.ClientSet> clients = multiClient.getAllClients();
-        if (clients != null && !clients.isEmpty()) {
+        if (multiClient != null && multiClient.getAllClients() != null && !multiClient.getAllClients().isEmpty()) {
+            Map<String, MultiClusterK8sClient.ClientSet> clients = multiClient.getAllClients();
             clients.forEach((k, c) -> {
                 k8sConfigStores.put(k, new K8sConfigStore(c.k8sClient, globalConfig));
             });
