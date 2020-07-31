@@ -168,13 +168,6 @@ public class ServiceMeshController extends BaseController {
         return apiReturn(ImmutableMap.of(RESULT, validateResultDTO));
     }
 
-    @RequestMapping(params = {"Action=CreateAppLabelOnService"}, method = RequestMethod.POST)
-    public String createAppOnService(@RequestBody List<ServiceDto> serviceDtoList) {
-
-        ErrorCode code = serviceMeshService.createAppOnServiceList(serviceDtoList);
-        return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), null);
-    }
-
     @RequestMapping(params = "Action=GetPodLogs", method = RequestMethod.GET)
     public String getPodLogs(@RequestParam(value = "ClusterId", required = false) String clusterId,
                              @RequestParam(value = "Namespace") String namespace,

@@ -42,7 +42,7 @@ public class VersionManagerServiceImpl implements VersionManagerService {
 
     @Override
     public List<PodStatus> queryByPodNameList(PodVersion podVersion) {
-        return configManager.querySVMConfig(podVersion);
+        return configManager.querySVMConfig(podVersion,podVersion.getClusterId());
     }
 
     @Override
@@ -56,7 +56,7 @@ public class VersionManagerServiceImpl implements VersionManagerService {
         boolean completed = false;
         while (!completed) {
             try {
-                configManager.updateConfig(svm);
+                configManager.updateConfig(svm,svm.getClusterId());
                 completed = true;
             } catch (Exception e) {
                 log.warn("update SVM crd error,retry request",e);
