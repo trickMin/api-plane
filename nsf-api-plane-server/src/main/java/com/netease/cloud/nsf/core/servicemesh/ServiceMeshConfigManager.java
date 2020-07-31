@@ -15,13 +15,13 @@ public interface ServiceMeshConfigManager extends ConfigManager {
      * 更新sidecar版本
      * @param svm
      */
-    void updateConfig(SidecarVersionManagement svm);
+    void updateConfig(SidecarVersionManagement svm, String clusterId);
 
     /**
      * 查询pod的sidecar版本
      * @param podVersion
      */
-    List<PodStatus> querySVMConfig(PodVersion podVersion);
+    List<PodStatus> querySVMConfig(PodVersion podVersion, String clusterId);
 
     /**
      * 查询负载的期望版本
@@ -30,7 +30,7 @@ public interface ServiceMeshConfigManager extends ConfigManager {
      */
     String querySVMExpectedVersion(String clusterId, String namespace, String workLoadType, String workLoadName);
 
-    IptablesConfig queryIptablesConfigByApp(String cluterId, String namespace, String appName);
+    IptablesConfig queryIptablesConfigByApp(String clusterId, String namespace, String appName);
 
     void updateRateLimit(ServiceMeshRateLimit rateLimit);
 

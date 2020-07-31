@@ -478,8 +478,6 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
 
 
     private String getDefaultClusterId() {
-        Map<String, MultiClusterK8sClient.ClientSet> allClients = multiClusterK8sClient.getAllClients();
-//        allClients.
         //TODO 待multiClusterClient暴露默认集群字段，目前使用hack方式
         return "default";
     }

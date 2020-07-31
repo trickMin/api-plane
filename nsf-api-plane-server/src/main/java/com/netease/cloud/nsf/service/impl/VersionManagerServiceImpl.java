@@ -1,13 +1,11 @@
 package com.netease.cloud.nsf.service.impl;
 
-import com.netease.cloud.nsf.cache.K8sResourceCache;
 import com.netease.cloud.nsf.core.servicemesh.ServiceMeshConfigManager;
 import com.netease.cloud.nsf.meta.IptablesConfig;
 import com.netease.cloud.nsf.meta.PodStatus;
 import com.netease.cloud.nsf.meta.PodVersion;
 import com.netease.cloud.nsf.meta.SidecarVersionManagement;
 import com.netease.cloud.nsf.service.VersionManagerService;
-import me.snowdrop.istio.api.networking.v1alpha3.VersionManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,12 +26,12 @@ public class VersionManagerServiceImpl implements VersionManagerService {
 
     @Override
     public void updateSVM(SidecarVersionManagement svm) {
-        configManager.updateConfig(svm);
+        configManager.updateConfig(svm, svm.getClusterId());
     }
 
     @Override
     public List<PodStatus> queryByPodNameList(PodVersion podVersion) {
-        return configManager.querySVMConfig(podVersion);
+        return configManager.querySVMConfig(podVersion, podVersion.getClusterId());
     }
 
     @Override

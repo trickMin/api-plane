@@ -1,17 +1,17 @@
 package com.netease.cloud.nsf.core.servicemesh;
 
+import com.netease.cloud.nsf.core.ConfigStore;
 import com.netease.cloud.nsf.core.GlobalConfig;
-import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.gateway.service.impl.K8sConfigStore;
 import com.netease.cloud.nsf.core.k8s.KubernetesClient;
 import com.netease.cloud.nsf.core.k8s.MultiClusterK8sClient;
-import com.netease.cloud.nsf.util.Const;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -22,65 +22,63 @@ import java.util.Map;
 public class MultiK8sConfigStore extends K8sConfigStore {
 
     private MultiClusterK8sClient multiClient;
+    private Map<String, K8sConfigStore> k8sConfigStores = new HashMap<>();
 
     @Autowired
     public MultiK8sConfigStore(MultiClusterK8sClient multiClient, KubernetesClient client, GlobalConfig globalConfig) {
         super(client, globalConfig);
         this.multiClient = multiClient;
+        if (multiClient != null && multiClient.getAllClients() != null && !multiClient.getAllClients().isEmpty()) {
+            Map<String, MultiClusterK8sClient.ClientSet> clients = multiClient.getAllClients();
+            clients.forEach((k, c) -> {
+                k8sConfigStores.put(k, new K8sConfigStore(c.k8sClient, globalConfig));
+            });
+        }
     }
 
     public void update(HasMetadata t, String clusterId) {
-        resolve(clusterId).createOrUpdate(t, ResourceType.OBJECT);
+        resolve(clusterId).update(t);
     }
 
     public void delete(HasMetadata t, String clusterId) {
-        resolve(clusterId).delete(t.getKind(), t.getMetadata().getNamespace(), t.getMetadata().getName());
+        resolve(clusterId).delete(t);
     }
 
     public HasMetadata get(String kind, String namespace, String name, String clusterId) {
-        KubernetesClient k8sClient = resolve(clusterId);
-        if (k8sClient == null) {
+        ConfigStore configStore = resolve(clusterId);
+        if (configStore == null) {
             return null;
         }
-        return k8sClient.getObject(kind, namespace, name);
+        return configStore.get(kind, namespace, name);
     }
 
     public List<HasMetadata> getList(String kind, String namespace, String clusterId) {
-        return resolve(clusterId).getObjectList(kind, namespace);
+        return resolve(clusterId).get(kind, namespace);
     }
 
-    private KubernetesClient resolve(String clusterId) {
-        return multiClient.k8sClient(clusterId);
+    public ConfigStore resolve(String clusterId) {
+        return k8sConfigStores.get(clusterId);
     }
 
     @Override
     public HasMetadata get(HasMetadata resource) {
-        String clusterId = getClusterFromResource(resource);
+        return get(resource, getDefaultClusterId());
+    }
+
+    public HasMetadata get(HasMetadata resource, String clusterId) {
         ObjectMeta meta = resource.getMetadata();
-        return resolve(clusterId).getObject(resource.getKind(), meta.getNamespace(), meta.getName());
+        return resolve(clusterId).get(resource.getKind(), meta.getNamespace(), meta.getName());
     }
 
     @Override
     public void update(HasMetadata resource) {
-        String clusterId = getClusterFromResource(resource);
-        resolve(clusterId).createOrUpdate(resource, ResourceType.OBJECT);
-    }
-
-    private String getClusterFromResource(HasMetadata resource){
-        if (resource == null || resource.getMetadata() == null){
-            return getDefaultClusterId();
-        }
-        Map<String, String> labels = resource.getMetadata().getLabels();
-        if (labels == null || labels.isEmpty()){
-            return getDefaultClusterId();
-        }
-        return labels.getOrDefault(Const.NSF_LABEL_KEY_CLUSTER,getDefaultClusterId());
+       update(resource, getDefaultClusterId());
     }
 
     public String getPodLog(String clusterId, String pod, String namespace, String container, Integer tailLines, Long sinceSeconds) {
         clusterId = StringUtils.isEmpty(clusterId) ? getDefaultClusterId() : clusterId;
         StringBuilder urlBuilder = new StringBuilder();
-        KubernetesClient client = resolve(clusterId);
+        KubernetesClient client = multiClient.getAllClients().get(clusterId).k8sClient;
 
         urlBuilder.append(client.getMasterUrl());
         urlBuilder.append(String.format("api/v1/namespaces/%s/pods/%s/log?1=1", namespace, pod));
