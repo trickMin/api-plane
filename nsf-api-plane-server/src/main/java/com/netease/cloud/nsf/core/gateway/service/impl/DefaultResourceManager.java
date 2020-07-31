@@ -116,7 +116,7 @@ public class DefaultResourceManager implements ResourceManager {
     }
 
     @Override
-    public List<ServiceHealth> getServiceHealthList(String host, List<String> subsets) {
+    public List<ServiceHealth> getServiceHealthList(String host, List<String> subsets, String gateway) {
         final List<String> ss = subsets;
         List<ServiceHealth> serviceHealth = envoyHttpClient.getServiceHealth(
                 name -> {
@@ -133,7 +133,7 @@ public class DefaultResourceManager implements ResourceManager {
                                 && Objects.equals(serviceSubset.getSubset(), subset)) return true;
                     }
                     return false;
-                });
+                }, gateway);
 
         return serviceHealth;
     }

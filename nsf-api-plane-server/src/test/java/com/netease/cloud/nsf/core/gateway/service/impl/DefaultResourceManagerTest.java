@@ -42,17 +42,18 @@ public class DefaultResourceManagerTest extends BaseTest {
         when(restTemplate.getForObject(anyString(), any())).thenReturn(resp);
         when(k8sClient.getObjectList(any(), any(), any())).thenReturn(Arrays.asList(getPod(null, getPodStatus("1.1.1.1", "Running"))));
 
+        String gateway = "gw1";
         String host1 = "istio-galley.istio-system.svc.cluster.local";
         List<String> subset1 = Arrays.asList("subset1", "subset2");
         String host2 = "gateway-prometheus.gateway-system.svc.cluster.local";
         List<String> subset2_1 = Arrays.asList("sb1", "sb3");
         List<String> subset2_2 = Arrays.asList("sb1", "sb2", "sb3");
 
-        List<ServiceHealth> shs1 = resourceManager.getServiceHealthList(host1, subset1);
+        List<ServiceHealth> shs1 = resourceManager.getServiceHealthList(host1, subset1, gateway);
         Assert.assertEquals(1, shs1.size());
         Assert.assertEquals("HEALTHY", shs1.get(0).getEps().get(0).getStatus());
 
-        List<ServiceHealth> shs2 = resourceManager.getServiceHealthList(host2, subset2_1);
+        List<ServiceHealth> shs2 = resourceManager.getServiceHealthList(host2, subset2_1, gateway);
         Assert.assertEquals(1, shs1.size());
         shs2.get(0).getEps()
                 .forEach(ep -> {
@@ -63,7 +64,7 @@ public class DefaultResourceManagerTest extends BaseTest {
                     }
                 });
 
-        List<ServiceHealth> shs3 = resourceManager.getServiceHealthList(host2, subset2_2);
+        List<ServiceHealth> shs3 = resourceManager.getServiceHealthList(host2, subset2_2, gateway);
         Assert.assertEquals(1, shs1.size());
         shs3.get(0).getEps()
                 .forEach(ep -> {

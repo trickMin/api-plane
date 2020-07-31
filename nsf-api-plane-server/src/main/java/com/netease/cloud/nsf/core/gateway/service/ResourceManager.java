@@ -22,5 +22,5 @@ public interface ResourceManager {
 
     Integer getServicePort(List<Endpoint> endpoints, String targetHost);
 
-    List<ServiceHealth> getServiceHealthList(String host, List<String> subsets);
+    List<ServiceHealth> getServiceHealthList(String host, List<String> subsets, String gateway);
 }

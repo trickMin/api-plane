@@ -57,9 +57,17 @@ public class EnvoyHttpClient {
     private static final String UNHEALTHY = "UNHEALTHY";
 
     private String getEnvoyUrl() {
+        return getEnvoyUrlByLabels(ImmutableMap.of("app", gatewayName));
+    }
+
+    private String getEnvoyUrl(String gateway) {
+        return getEnvoyUrlByLabels(ImmutableMap.of("gw_cluster", gateway));
+    }
+
+    private String getEnvoyUrlByLabels(Map<String, String> labels) {
         if (!StringUtils.isEmpty(envoyUrl)) return envoyUrl;
         //envoy service暂时未暴露管理端口，直接拿pod ip
-        List<Pod> envoyPods = client.getObjectList(K8sResourceEnum.Pod.name(), gatewayNamespace, ImmutableMap.of("app", gatewayName));
+        List<Pod> envoyPods = client.getObjectList(K8sResourceEnum.Pod.name(), gatewayNamespace, labels);
         if (CollectionUtils.isEmpty(envoyPods)) throw new ApiPlaneException(ExceptionConst.ENVOY_POD_NON_EXIST);
         Optional<String> healthPod = envoyPods.stream()
                 .filter(e -> e.getStatus().getPhase().equals("Running"))
@@ -71,10 +79,10 @@ public class EnvoyHttpClient {
         return healthPod.get() + ":" + port;
     }
 
-    public List<ServiceHealth> getServiceHealth(Function<String, HealthServiceSubset> nameHandler, Predicate<HealthServiceSubset> filter) {
+    public List<ServiceHealth> getServiceHealth(Function<String, HealthServiceSubset> nameHandler, Predicate<HealthServiceSubset> filter, String gateway) {
 
         Map<String, List<EndpointHealth>> healthMap = new HashMap<>();
-        String resp = restTemplate.getForObject(getEnvoyUrl() + GET_CLUSTER_HEALTH_JSON, String.class);
+        String resp = restTemplate.getForObject(getEnvoyUrl(gateway) + GET_CLUSTER_HEALTH_JSON, String.class);
         ResourceGenerator rg = ResourceGenerator.newInstance(resp, ResourceType.JSON);
 
         List endpoints = rg.getValue("$.cluster_statuses[?(@.host_statuses)]");
