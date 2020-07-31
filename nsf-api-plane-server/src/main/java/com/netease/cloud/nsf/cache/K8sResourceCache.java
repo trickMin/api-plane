@@ -607,6 +607,19 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     }
 
     @Override
+    public List<WorkLoadDTO> getWorkLoadByLabelsInAnyClusterId(List<String> labelsList, String namespace){
+        List<String> clusterIdList = ResourceStoreFactory.listClusterId();
+        List<WorkLoadDTO> workLoadDTOSInAnyCluster = new ArrayList<>();
+        if (CollectionUtils.isEmpty(clusterIdList)){
+            return workLoadDTOSInAnyCluster;
+        }
+        for (String clusterId : clusterIdList) {
+            workLoadDTOSInAnyCluster.addAll(getWorkLoadByLabels(clusterId,labelsList,namespace));
+        }
+        return workLoadDTOSInAnyCluster;
+    }
+
+    @Override
     public List<WorkLoadDTO> getWorkLoadByLabels(String clusterId, List<String> labelsList, String namespace) {
         Map<String,String> labels = new HashMap<>();
         if (!CollectionUtils.isEmpty(labelsList)){

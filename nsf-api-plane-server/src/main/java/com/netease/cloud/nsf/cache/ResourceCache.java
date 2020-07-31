@@ -89,6 +89,8 @@ public interface ResourceCache {
 
     List<WorkLoadDTO> getWorkLoadByAppAllClusterId(String namespace, String appName);
 
+    List<WorkLoadDTO> getWorkLoadByLabelsInAnyClusterId(List<String> labelsList, String namespace);
+
     List<WorkLoadDTO> getWorkLoadByLabels(String clusterId, List<String> labelsList, String namespace);
 
     List<String> getSidecarVersionOnWorkLoad(String clusterId, String namespace, String kind, String name);
