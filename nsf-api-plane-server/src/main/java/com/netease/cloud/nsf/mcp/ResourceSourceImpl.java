@@ -31,7 +31,6 @@ public class ResourceSourceImpl extends ResourceSourceGrpc.ResourceSourceImplBas
             @Override
             public void onError(Throwable throwable) {
                 conn.close(throwable);
-                watcher.release(conn);
             }
 
             @Override
