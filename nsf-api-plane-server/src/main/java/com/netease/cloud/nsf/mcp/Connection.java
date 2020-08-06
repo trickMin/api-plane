@@ -32,7 +32,7 @@ public class Connection {
         if (McpUtils.isTriggerResponse(req)) return;
         String collection = req.getCollection();
         if (StringUtils.isEmpty(req.getResponseNonce())) {
-            logger.info("MCP: connection={} inc={} watch for {}", this, req.getIncremental(), collection);
+            logger.info("MCP: connection={} inc={} watch for {}", this.hashCode(), req.getIncremental(), collection);
             if (!McpUtils.isSupportedCollection(mcpOptions.getSnapshotCollections(), collection)) {
                 pushEmpty(collection);
             } else {
@@ -42,11 +42,11 @@ public class Connection {
             if (req.hasErrorDetail()) {
                 // NACK Response
                 logger.warn("MCP: connection={} NACK collection={} with nonce={} error={} inc={}", // nolint: lll
-                        this, collection, req.getResponseNonce(), req.getErrorDetail().getMessage(), req.getIncremental());
+                        this.hashCode(), collection, req.getResponseNonce(), req.getErrorDetail().getMessage(), req.getIncremental());
             } else {
                 // ASK Response
                 logger.info("MCP: connection={} ACK collection={} with nonce={} inc={}",
-                        this, collection, req.getResponseNonce(), req.getIncremental());
+                        this.hashCode(), collection, req.getResponseNonce(), req.getIncremental());
             }
         }
     }
@@ -66,7 +66,6 @@ public class Connection {
             logger.warn("MCP: connection {} an error occurs when SEND collection={} version={} nonce={} inc={}, err={}",
                     this, msg.getCollection(), msg.getSystemVersionInfo(), msg.getNonce(), msg.getIncremental(), e.getMessage());
             this.close(e);
-            this.watcher.release(this);
         }
     }
 
@@ -79,11 +78,11 @@ public class Connection {
 
     public void close(Throwable throwable) {
         throwable.printStackTrace();
-        logger.info("MCP: close connection {}", this);
+        logger.info("MCP: close connection {}", this.hashCode());
         try {
             getStream().onError(throwable);
         } catch (Exception e) {
-            logger.warn("MCP: connection {} an error occurs when CLOSE connection", this);
+            logger.warn("MCP: connection {} an error occurs when CLOSE connection", this.hashCode());
         } finally {
             watcher.release(this);
         }
