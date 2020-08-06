@@ -78,11 +78,14 @@ public class Connection {
 
 
     public void close(Throwable throwable) {
+        throwable.printStackTrace();
         logger.info("MCP: close connection {}", this);
         try {
             getStream().onError(throwable);
         } catch (Exception e) {
             logger.warn("MCP: connection {} an error occurs when CLOSE connection", this);
+        } finally {
+            watcher.release(this);
         }
     }
 }
