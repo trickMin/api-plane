@@ -22,7 +22,7 @@ import java.util.Map;
 public class MultiK8sConfigStore extends K8sConfigStore {
 
     private MultiClusterK8sClient multiClient;
-    private Map<String, K8sConfigStore> k8sConfigStores = new HashMap<>();
+    private Map<String, MeshK8sConfigStore> k8sConfigStores = new HashMap<>();
 
     @Autowired
     public MultiK8sConfigStore(MultiClusterK8sClient multiClient, KubernetesClient client, GlobalConfig globalConfig) {
@@ -31,7 +31,7 @@ public class MultiK8sConfigStore extends K8sConfigStore {
         if (multiClient != null && multiClient.getAllClients() != null && !multiClient.getAllClients().isEmpty()) {
             Map<String, MultiClusterK8sClient.ClientSet> clients = multiClient.getAllClients();
             clients.forEach((k, c) -> {
-                k8sConfigStores.put(k, new K8sConfigStore(c.k8sClient, globalConfig));
+                k8sConfigStores.put(k, new MeshK8sConfigStore(c.k8sClient, globalConfig));
             });
         }
     }
