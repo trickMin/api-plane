@@ -239,19 +239,17 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         List<T> serviceList = store.listByKindAndNamespace(Service.name(), namespace);
         List<WorkLoadDTO> result = new ArrayList<>();
         for (T service : serviceList) {
-            if (service.getMetadata().getLabels() == null || service.getMetadata().getLabels().isEmpty()) {
+            io.fabric8.kubernetes.api.model.Service k8sService = (io.fabric8.kubernetes.api.model.Service) service;
+            if (service.getMetadata().getLabels() == null || service.getMetadata().getLabels().isEmpty()
+                    || k8sService.getSpec().getSelector() == null) {
                 continue;
             }
-            if (projectId.equals(extractor.getResourceInfo(service,Const.RESOURCE_TARGET,projectId)) &&
-                    service.getMetadata().getLabels().get(meshConfig.getAppKey()) != null &&
-                    service.getMetadata().getLabels().get(meshConfig.getAppKey()).equals(serviceName)
-            ) {
-                io.fabric8.kubernetes.api.model.Service k8sService = (io.fabric8.kubernetes.api.model.Service)service;
-                String appName = k8sService.getSpec().getSelector().get(meshConfig.getSelectorAppKey());
+            String appName = k8sService.getSpec().getSelector().get(meshConfig.getSelectorAppKey());
+            if (projectId.equals(extractor.getResourceInfo(service, Const.RESOURCE_TARGET, projectId)) && serviceName.equals(appName)) {
                 String key = appName
                         + Const.SEPARATOR_DOT
                         + k8sService.getMetadata().getNamespace();
-                result.addAll(resourceCacheManager.getWorkloadListByServiceName(clusterId,key));
+                result.addAll(resourceCacheManager.getWorkloadListByServiceName(clusterId, key));
             }
         }
         result.forEach(workload->{
@@ -606,6 +604,19 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         }
 
         return workLoadDTOList;
+    }
+
+    @Override
+    public List<WorkLoadDTO> getWorkLoadByLabelsInAnyClusterId(List<String> labelsList, String namespace){
+        List<String> clusterIdList = ResourceStoreFactory.listClusterId();
+        List<WorkLoadDTO> workLoadDTOSInAnyCluster = new ArrayList<>();
+        if (CollectionUtils.isEmpty(clusterIdList)){
+            return workLoadDTOSInAnyCluster;
+        }
+        for (String clusterId : clusterIdList) {
+            workLoadDTOSInAnyCluster.addAll(getWorkLoadByLabels(clusterId,labelsList,namespace));
+        }
+        return workLoadDTOSInAnyCluster;
     }
 
     @Override

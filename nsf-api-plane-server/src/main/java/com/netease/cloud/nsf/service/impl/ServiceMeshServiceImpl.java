@@ -78,8 +78,6 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
     @Autowired
     ResourceCache k8sResource;
 
-    @Autowired
-    KubernetesClient httpClient;
 
     @Autowired
     VersionManagerService versionManagerService;
@@ -158,7 +156,7 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
         if (resourceToInject == null) {
             return ApiPlaneErrorCode.workLoadNotFound;
         }
-        if (!checkEnable(namespace)) {
+        if (!checkEnable(namespace, clusterId)) {
             return ApiPlaneErrorCode.sidecarInjectPolicyError;
         }
         Map<String, String> labels = new HashMap<>(1);
@@ -171,7 +169,7 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
         workloadAnnotation.put(Const.WORKLOAD_UPDATE_TIME_ANNOTATION,String.valueOf(System.currentTimeMillis()));
         T injectedWorkLoad = appendLabel(appendAnnotationToPod(resourceToInject, injectAnnotation), labels);
         injectedWorkLoad = appendAnnotationOnWorkload(injectedWorkLoad,workloadAnnotation);
-        updateResource(injectedWorkLoad);
+        updateResource(injectedWorkLoad, clusterId);
         createSidecarVersionCRD(clusterId, namespace, kind, name, expectedVersion);
         return ApiPlaneErrorCode.Success;
     }
@@ -295,9 +293,10 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
         return errorMsg.contains("does not match the expected API");
     }
 
-    private boolean checkEnable(String namespace) {
-        String url = httpClient.getUrl("Namespace", namespace);
-        Namespace ns = httpClient.getObject(url);
+    private boolean checkEnable(String namespace, String clusterId) {
+        KubernetesClient kubernetesClient = multiClusterK8sClient.k8sClient(clusterId);
+        String url = kubernetesClient.getUrl("Namespace", namespace);
+        Namespace ns = kubernetesClient.getObject(url);
         Map<String, String> labels = ns.getMetadata().getLabels();
         if (labels == null || labels.isEmpty()) {
             return true;
@@ -365,7 +364,7 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
         workloadAnnotation.put(Const.WORKLOAD_UPDATE_TIME_ANNOTATION,String.valueOf(System.currentTimeMillis()));
         T injectedWorkLoad = appendAnnotationToPod(resourceToInject, injectAnnotation);
         injectedWorkLoad = appendAnnotationOnWorkload(injectedWorkLoad,workloadAnnotation);
-        updateResource(injectedWorkLoad);
+        updateResource(injectedWorkLoad, clusterId);
         return ApiPlaneErrorCode.Success;
     }
 
@@ -397,26 +396,6 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
 
     }
 
-    @Override
-    public ErrorCode createAppOnServiceList(List<ServiceDto> serviceDtoList) {
-        if (!CollectionUtils.isEmpty(serviceDtoList)){
-            for (ServiceDto serviceDto : serviceDtoList) {
-                io.fabric8.kubernetes.api.model.Service service = (io.fabric8.kubernetes.api.model.Service)ResourceStoreFactory.getResourceStore(serviceDto.getClusterId())
-                        .get(K8sResourceEnum.Service.name(), serviceDto.getNamespace(), serviceDto.getName());
-                Map<String, String> selector = service.getSpec().getSelector();
-                if (selector!=null&!selector.isEmpty()){
-                    String appName = selector.get(meshConfig.getSelectorAppKey());
-                    if (!StringUtils.isEmpty(appName)){
-                        Map<String, String> labels = service.getMetadata().getLabels();
-                        labels.put(meshConfig.getAppKey(),appName);
-                        service.getMetadata().setLabels(labels);
-                        updateResource((T) service);
-                    }
-                }
-            }
-        }
-        return ApiPlaneErrorCode.Success;
-    }
 
     @Override
     public String getLogs(String clusterId, String namespace, String podName, String container, Integer tailLines, Long sinceSeconds) {
@@ -457,18 +436,19 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
             return;
         }
         service.getMetadata().getLabels().put(meshConfig.getAppKey(),appName);
-        updateResource(service);
+        updateResource(service, clusterId);
     }
 
-    private void updateResource(T injectedWorkLoad){
+    private void updateResource(T injectedWorkLoad, String clusterId){
+        KubernetesClient kubernetesClient = multiClusterK8sClient.k8sClient(clusterId);
         try {
-            httpClient.createOrUpdate(injectedWorkLoad, OBJECT);
+            kubernetesClient.createOrUpdate(injectedWorkLoad, OBJECT);
         } catch (ApiPlaneException e) {
             // 对新老版本k8s apiVersion 不一致的情况进行适配
             if (isInvalidApiVersion(e.getMessage())) {
                 logger.warn(e.getMessage());
                 injectedWorkLoad.setApiVersion("extensions/v1beta1");
-                httpClient.createOrUpdate(injectedWorkLoad, OBJECT);
+                kubernetesClient.createOrUpdate(injectedWorkLoad, OBJECT);
             } else {
                 logger.error("sidecar inject error", e);
             }
@@ -478,8 +458,6 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
 
 
     private String getDefaultClusterId() {
-        Map<String, MultiClusterK8sClient.ClientSet> allClients = multiClusterK8sClient.getAllClients();
-//        allClients.
         //TODO 待multiClusterClient暴露默认集群字段，目前使用hack方式
         return "default";
     }

@@ -65,11 +65,15 @@ public class K8sResourceController extends BaseController {
 
     @RequestMapping(params = {"Action=GetWorkLoadByLabel"}, method = RequestMethod.GET)
     public String getWorkLoadByLabel(@RequestParam(name = "Namespace") String namespace,
-                                     @RequestParam(name = "ClusterId",defaultValue = "default") String clusterId,
+                                     @RequestParam(name = "ClusterId") String clusterId,
                                      @RequestParam(name = "ServiceLabel") List<String> labelList) {
 
-        List<WorkLoadDTO> workLoadByLabels = resourceCache.getWorkLoadByLabels(clusterId,labelList,namespace);
-
+        List<WorkLoadDTO> workLoadByLabels;
+        if (StringUtils.isEmpty(clusterId)){
+            workLoadByLabels = resourceCache.getWorkLoadByLabelsInAnyClusterId(labelList,namespace);
+        }else {
+            workLoadByLabels = resourceCache.getWorkLoadByLabels(clusterId,labelList,namespace);
+        }
         Map<String, Object> result = new HashMap<>();
         result.put("Result", workLoadByLabels);
         ErrorCode code = ApiPlaneErrorCode.Success;
