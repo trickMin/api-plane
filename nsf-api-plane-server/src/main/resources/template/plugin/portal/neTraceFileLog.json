@@ -20,10 +20,11 @@
       "key": "sampleRate",
       "alias": "采样比例",
       "help": "当网关为第一跳时，对 200 请求按比例采样，取值范围 (0, 1.0]，仅支持小数点后两位",
-      "type": "input",
+      "type": "number",
       "default": "0.1",
       "rules": [
         "Required",
+        "FloatNumber",
         "^0\\.([0-9]{1,2})|1.0"
       ]
     },
