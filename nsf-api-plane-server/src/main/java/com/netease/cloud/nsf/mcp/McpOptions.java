@@ -19,6 +19,12 @@ public class McpOptions {
     private Set<String> rlsCluster = new HashSet<>();
     // status检查间隔
     private long statusCheckIntervalMs = 5000L;
+    // 默认30s发送一次心跳
+    private long keepaliveTime = 30000L;
+    // 默认10s心跳请求超时
+    private long keepaliveTimeout = 10000L;
+    // 默认最大message为128M
+    private int maxMessageSize = 128 * 1024 * 1024;
 
     public Set<String> getSnapshotCollections() {
         return snapshotCollections;
@@ -48,7 +54,31 @@ public class McpOptions {
         return statusCheckIntervalMs;
     }
 
+    public long getKeepaliveTimeout() {
+        return keepaliveTimeout;
+    }
+
+    public void setKeepaliveTimeout(long keepaliveTimeout) {
+        this.keepaliveTimeout = keepaliveTimeout;
+    }
+
     public void setStatusCheckIntervalMs(long statusCheckIntervalMs) {
         this.statusCheckIntervalMs = statusCheckIntervalMs;
+    }
+
+    public long getKeepaliveTime() {
+        return keepaliveTime;
+    }
+
+    public void setKeepaliveTime(long keepaliveTime) {
+        this.keepaliveTime = keepaliveTime;
+    }
+
+    public int getMaxMessageSize() {
+        return maxMessageSize;
+    }
+
+    public void setMaxMessageSize(int maxMessageSize) {
+        this.maxMessageSize = maxMessageSize;
     }
 }

@@ -23,7 +23,7 @@ import com.netease.cloud.nsf.mcp.status.*;
 import com.netease.cloud.nsf.service.GatewayService;
 import com.netease.cloud.nsf.service.impl.GatewayServiceImpl;
 import io.grpc.Server;
-import io.grpc.ServerBuilder;
+import io.grpc.netty.NettyServerBuilder;
 import istio.mcp.nsf.SnapshotOuterClass;
 import istio.mcp.v1alpha1.Mcp;
 import istio.mcp.v1alpha1.ResourceOuterClass;
@@ -48,6 +48,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author wupenghuai@corp.netease.com
@@ -59,13 +60,28 @@ public class NonK8sConfiguration {
     @Value("${mcpPort:8899}")
     private Integer port;
 
+    @Value("${mcpStatusCheckInterval:1000}")
+    private Long mcpStatusCheckInterval;
+
+    @Value("${mcpKeepaliveTime:30000}")
+    private Long mcpKeepaliveTime;
+
+    @Value("${mcpKeepaliveTimeout:10000}")
+    private Long mcpKeepaliveTimeout;
+
+    @Value("${mcpMaxMessageSize:134217728}")
+    private Integer mcpMaxMessageSize;
+
     @Value("${rlsAddresses:#{null}}")
     private String rlsAddresses;
 
     @Bean
     public McpOptions options() {
         McpOptions options = new McpOptions();
-        options.setStatusCheckIntervalMs(1000L);
+        options.setStatusCheckIntervalMs(mcpStatusCheckInterval);
+        options.setKeepaliveTime(mcpKeepaliveTime);
+        options.setKeepaliveTimeout(mcpKeepaliveTimeout);
+        options.setMaxMessageSize(mcpMaxMessageSize);
 
         options.registerSnapshotCollection(McpResourceEnum.VirtualService.getCollection());
         options.registerSnapshotCollection(McpResourceEnum.Gateway.getCollection());
@@ -136,7 +152,13 @@ public class NonK8sConfiguration {
      */
     @Bean
     public Server server(McpResourceWatcher watcher, McpOptions options) throws IOException {
-        return ServerBuilder.forPort(port)
+        return NettyServerBuilder.forPort(port)
+                // 心跳
+                .keepAliveTime(options.getKeepaliveTime(), TimeUnit.MILLISECONDS)
+                // 心跳超时
+                .keepAliveTimeout(options.getKeepaliveTimeout(), TimeUnit.MILLISECONDS)
+                // 最大message
+                .maxMessageSize(options.getMaxMessageSize())
                 .addService(new ResourceSourceImpl(watcher, options))
                 .build()
                 .start();
