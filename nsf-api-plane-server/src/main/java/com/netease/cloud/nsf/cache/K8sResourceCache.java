@@ -339,7 +339,13 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         String projectKey = meshConfig.getProjectKey();
         Predicate<Endpoint> vmEndPointsForProject = ep-> ep.getLabels()!= null
                 && projectCode.equals(ep.getLabels().get(projectKey));
-        List<Endpoint> vmEndPoints = pilotHttpClient.getEndpointList(vmEndPointsForProject);
+        List<Endpoint> vmEndPoints = null;
+        try {
+            vmEndPoints = pilotHttpClient.getEndpointList(vmEndPointsForProject);
+        } catch (Exception e) {
+            log.warn("Get EndpointList from pilot error :{}",e.getMessage());
+            return new ArrayList<>();
+        }
         return getWorkLoadFromServiceEntryEndpoint(vmEndPoints);
     }
 
@@ -349,7 +355,13 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         Predicate<Endpoint> vmEndPointsForProject = ep-> ep.getLabels()!= null
                 && projectCode.equals(ep.getLabels().get(projectKey))
                 && ep.getHostname().startsWith(serviceName);
-        List<Endpoint> vmEndPoints = pilotHttpClient.getEndpointList(vmEndPointsForProject);
+        List<Endpoint> vmEndPoints = null;
+        try {
+            vmEndPoints = pilotHttpClient.getEndpointList(vmEndPointsForProject);
+        } catch (Exception e) {
+            log.warn("Get EndpointList from pilot error :{}",e.getMessage());
+            return new ArrayList<>();
+        }
         return getWorkLoadFromServiceEntryEndpoint(vmEndPoints);
     }
 
