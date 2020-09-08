@@ -6,6 +6,7 @@ import com.netease.cloud.nsf.meta.Gateway;
 import com.netease.cloud.nsf.meta.GlobalPlugin;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -35,7 +36,7 @@ public class GatewayPluginDataHandler implements DataHandler<GlobalPlugin> {
 
         List<String> plugins = extractFragments(fragments);
         TemplateParams pmParams = TemplateParams.instance()
-                .put(GATEWAY_PLUGIN_NAME, gp.getCode())
+                .put(GATEWAY_PLUGIN_NAME, gp.getCode().toLowerCase())
                 .put(GATEWAY_PLUGIN_GATEWAYS, getGateways(gp))
                 .put(GATEWAY_PLUGIN_HOSTS, gp.getHosts())
                 .put(GATEWAY_PLUGIN_PLUGINS, plugins);
