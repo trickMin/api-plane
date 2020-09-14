@@ -12,7 +12,6 @@ variables:
 
 stages:
   - test
-  - buildImage
   
 
 before_script:
