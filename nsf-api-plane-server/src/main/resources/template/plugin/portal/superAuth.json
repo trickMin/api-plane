@@ -19,6 +19,10 @@
         {
           "text": "jwt认证",
           "value": "jwt_authn_type"
+        },
+        {
+          "text": "OAuth2认证",
+          "value": "oauth2_authn_type"
         }
       ]
     },

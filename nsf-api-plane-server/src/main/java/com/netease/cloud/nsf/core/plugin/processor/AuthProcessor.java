@@ -22,8 +22,10 @@ public class AuthProcessor extends AbstractSchemaProcessor implements SchemaProc
          String authType = source.getValue("$.authnType", String.class);
         if ("aksk_authn_type".equals(authType)) {
             builder.createOrUpdateJson("$", "aksk_authn_type", "{}");
-        } else {
+        } else if ("jwt_authn_type".equals(authType)){
             builder.createOrUpdateJson("$", "jwt_authn_type", "{}");
+        }else {
+            builder.createOrUpdateJson("$", "oauth2_authn_type", "{}");
         }
 
         builder.updateValue("$.need_authorization", source.getValue("$.useAuthz", Boolean.class));
