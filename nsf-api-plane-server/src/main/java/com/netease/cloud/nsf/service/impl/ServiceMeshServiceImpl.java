@@ -1,5 +1,6 @@
 package com.netease.cloud.nsf.service.impl;
 
+import com.google.common.base.Strings;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -7,7 +8,6 @@ import com.netease.cloud.nsf.cache.ResourceCache;
 import com.netease.cloud.nsf.cache.ResourceStoreFactory;
 import com.netease.cloud.nsf.cache.extractor.ResourceExtractorManager;
 import com.netease.cloud.nsf.cache.meta.PodDTO;
-import com.netease.cloud.nsf.cache.meta.ServiceDto;
 import com.netease.cloud.nsf.configuration.ext.ApiPlaneConfig;
 import com.netease.cloud.nsf.configuration.ext.MeshConfig;
 import com.netease.cloud.nsf.core.editor.ResourceType;
@@ -45,6 +45,7 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static com.netease.cloud.nsf.core.editor.ResourceType.OBJECT;
 import static com.netease.cloud.nsf.core.k8s.K8sResourceEnum.DaemonSet;
@@ -60,6 +61,8 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
     private static final String DEFAULT_SERVICE_SELECTOR_KEY = "app";
     private static final long PROJECT_CACHE_MAX_SIZE = 200;
     private static final long PROJECT_CACHE_REFRESH_DURATION = 3;
+    public static final String ISTIO_ENV = "istio-env";
+    public static final String ISTIO_REV = "istio.io/rev";
     private ExecutorService taskPool = Executors.newCachedThreadPool();
     private LoadingCache<App2ProjectIndex, String> app2ProjectCache = CacheBuilder.newBuilder()
             .maximumSize(PROJECT_CACHE_MAX_SIZE)
@@ -400,6 +403,53 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
     @Override
     public String getLogs(String clusterId, String namespace, String podName, String container, Integer tailLines, Long sinceSeconds) {
         return configStore.getPodLog(clusterId, podName, namespace, container, tailLines, sinceSeconds);
+    }
+
+    @Override
+    public void changeIstioVersion(String clusterId, String namespace, String type, String version) {
+        if (!ISTIO_ENV.equals(type) && !ISTIO_REV.equals(type)) {
+            throw new IllegalArgumentException("istio vertion type must be " + ISTIO_ENV + " or " + ISTIO_REV);
+        }
+        version = Strings.emptyToNull(version);
+        Map<String, String> labels = new HashMap<>();
+        labels.put(ISTIO_REV, null);
+        labels.put(ISTIO_ENV, null);
+        labels.put("istio-ns-scope", null);
+        labels.put("istio-injection", null);
+        labels.put(type, version);
+        k8sResource.updateNamespaceLabel(clusterId, namespace, labels);
+    }
+
+    @Override
+    public List<Map<String, String>> getIstioVersionBindings(String clusterId) {
+        if (StringUtils.isEmpty(clusterId)) {
+            return k8sResource.getNamespaces().entrySet().stream()
+                .flatMap(entry ->
+                    entry.getValue().stream().map(ns -> getNamespaceIstioVersionBinding(ns, entry.getKey()))
+                )
+                .collect(Collectors.toList());
+        } else {
+            return k8sResource.getNamespaces(clusterId).stream()
+                .map(ns -> getNamespaceIstioVersionBinding(ns, clusterId))
+                .collect(Collectors.toList());
+        }
+    }
+
+    private Map<String, String> getNamespaceIstioVersionBinding(Namespace ns, String clusterId) {
+        Map<String, String> namespace = new HashMap<>();
+        Map<String, String> labels = Optional.ofNullable(ns.getMetadata().getLabels()).orElseGet(HashMap::new);
+        String env = labels.get(ISTIO_ENV);
+        String rev = labels.get(ISTIO_REV);
+        if (env != null) {
+            namespace.put("type", ISTIO_ENV);
+            namespace.put("version", env);
+        } else if (rev != null) {
+            namespace.put("type", ISTIO_REV);
+            namespace.put("version", rev);
+        }
+        namespace.put("cluster", clusterId);
+        namespace.put("namespace", ns.getMetadata().getName());
+        return namespace;
     }
 
     private String doGetProjectCodeByApp(String namespace, String appName ,String clusterId){

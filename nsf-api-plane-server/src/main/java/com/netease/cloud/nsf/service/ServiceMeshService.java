@@ -1,11 +1,11 @@
 package com.netease.cloud.nsf.service;
 
-import com.netease.cloud.nsf.cache.meta.ServiceDto;
 import com.netease.cloud.nsf.meta.dto.ResourceWrapperDTO;
 import com.netease.cloud.nsf.util.errorcode.ErrorCode;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ServiceMeshService {
 
@@ -34,4 +34,8 @@ public interface ServiceMeshService {
     String getProjectCodeByApp(String namespace, String appName, String clusterId);
 
     String getLogs(String clusterId, String namespace, String podName, String container, Integer tailLines, Long sinceSeconds);
+
+    void changeIstioVersion(String clusterId, String namespace, String type, String value);
+
+    List<Map<String, String>> getIstioVersionBindings(String clusterId);
 }
