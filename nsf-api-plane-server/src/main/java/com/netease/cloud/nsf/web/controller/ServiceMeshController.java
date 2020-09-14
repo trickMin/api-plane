@@ -1,7 +1,6 @@
 package com.netease.cloud.nsf.web.controller;
 
 import com.google.common.collect.ImmutableMap;
-import com.netease.cloud.nsf.cache.meta.ServiceDto;
 import com.netease.cloud.nsf.meta.Graph;
 import com.netease.cloud.nsf.meta.ValidateResult;
 import com.netease.cloud.nsf.meta.dto.ValidateResultDTO;
@@ -178,6 +177,21 @@ public class ServiceMeshController extends BaseController {
 
         String logs = serviceMeshService.getLogs(clusterId, namespace, pod, container, tailLines, sinceSeconds);
         return apiReturnInSilent(ImmutableMap.of(RESULT, StringUtils.isEmpty(logs) ? "" : logs));
+    }
+
+    @RequestMapping(params = "Action=UpdateNamespaceBinding", method = RequestMethod.GET)
+    public String updateNamespaceBinding(@RequestParam(value = "ClusterId", required = false) String clusterId,
+                                         @RequestParam(value = "Namespace") String namespace,
+                                         @RequestParam(value = "IstioVersion") String version,
+                                         @RequestParam(value = "Type", required = false, defaultValue = "istio-env") String type) {
+
+        serviceMeshService.changeIstioVersion(clusterId, namespace, type, version);
+        return apiReturn(ApiPlaneErrorCode.Success);
+    }
+
+    @RequestMapping(params = "Action=GetNamespaceBindings", method = RequestMethod.GET)
+    public String getNamespaceBindings(@RequestParam(value = "ClusterId", required = false) String clusterId) {
+        return apiReturn(ImmutableMap.of(RESULT, serviceMeshService.getIstioVersionBindings(clusterId)));
     }
 
     private String optimize(String json) {
