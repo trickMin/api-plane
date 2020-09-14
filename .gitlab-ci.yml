@@ -13,7 +13,6 @@ variables:
 stages:
   - test
   - buildImage
-  
 
 before_script:
   - export MAVEN_HOME=/usr/local/bin/apache-maven-3.6.3

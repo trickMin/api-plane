@@ -28,6 +28,8 @@ import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.apiextensions.CustomResourceDefinition;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
+import me.snowdrop.istio.api.networking.v1alpha3.MixerUrlPattern;
+import me.snowdrop.istio.api.networking.v1alpha3.VersionManager;
 import me.snowdrop.istio.api.networking.v1alpha3.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1117,5 +1119,48 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         }
     }
 
+    @Override
+    public void updateNamespaceLabel(String clusterId, String namespace, Map<String, String> labels) {
+        if (StringUtils.isEmpty(clusterId) || StringUtils.isEmpty(namespace)) {
+            throw new IllegalArgumentException(String.format("Can't change namespace label: clusterId: %s, namespace: %s", clusterId, namespace));
+        }
+        NamespaceFluent.MetadataNested<DoneableNamespace> edit = multiClusterK8sClient.originalK8sClient(clusterId)
+            .namespaces()
+            .withName(namespace)
+            .edit()
+            .editMetadata();
+        for (Map.Entry<String, String> entry : labels.entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            if (value == null) {
+                edit = edit.removeFromLabels(key);
+            } else {
+                edit  = edit.addToLabels(key, value);
+            }
+        }
+        edit.endMetadata().done();
+    }
+
+    @Override
+    public List<Namespace> getNamespaces(String clusterId) {
+        return multiClusterK8sClient.originalK8sClient(clusterId)
+            .namespaces()
+            .list()
+            .getItems();
+    }
+
+    @Override
+    public Map<String, List<Namespace>> getNamespaces() {
+        HashMap<String, List<Namespace>> result = new HashMap<>();
+        for (Map.Entry<String, MultiClusterK8sClient.ClientSet> entry : multiClusterK8sClient.getAllClients().entrySet()) {
+			String clusterId = entry.getKey();
+			List<Namespace> namespaces = entry.getValue().originalK8sClient
+                .namespaces()
+                .list()
+                .getItems();
+            result.put(clusterId, namespaces);
+        }
+        return result;
+    }
 
 }

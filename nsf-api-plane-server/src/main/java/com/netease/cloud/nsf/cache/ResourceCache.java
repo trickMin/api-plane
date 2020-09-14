@@ -2,9 +2,10 @@ package com.netease.cloud.nsf.cache;
 
 import com.netease.cloud.nsf.cache.meta.ServiceDto;
 import com.netease.cloud.nsf.cache.meta.WorkLoadDTO;
-import com.netease.cloud.nsf.meta.Endpoint;
+import io.fabric8.kubernetes.api.model.Namespace;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author zhangzihao
@@ -96,4 +97,10 @@ public interface ResourceCache {
     List<String> getSidecarVersionOnWorkLoad(String clusterId, String namespace, String kind, String name);
 
     <T> List<T> getServiceByClusterAndNamespace(String clusterId,String namespace);
+
+    void updateNamespaceLabel(String clusterId, String namespace, Map<String, String> labels);
+
+    List<Namespace> getNamespaces(String clusterId);
+
+    Map<String, List<Namespace>> getNamespaces();
 }

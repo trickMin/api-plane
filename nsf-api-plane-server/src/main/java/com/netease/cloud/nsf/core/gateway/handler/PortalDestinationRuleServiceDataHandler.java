@@ -26,7 +26,7 @@ public class PortalDestinationRuleServiceDataHandler extends ServiceDataHandler 
     @Override
     List<TemplateParams> doHandle(TemplateParams tp, Service service) {
         TemplateParams params = TemplateParams.instance()
-                .put(DESTINATION_RULE_NAME, service.getCode())
+                .put(DESTINATION_RULE_NAME, service.getCode() + "-" + service.getGateway())
                 .put(DESTINATION_RULE_HOST, service.getBackendService())
                 .put(NAMESPACE, service.getNamespace())
                 .put(API_SERVICE, service.getCode())
