@@ -247,6 +247,10 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                 continue;
             }
             String appName = k8sService.getSpec().getSelector().get(meshConfig.getSelectorAppKey());
+            if (k8sService.getMetadata().getLabels()!=null
+                    && !StringUtils.isEmpty(k8sService.getMetadata().getLabels().get(meshConfig.getAppKey()))){
+                appName = k8sService.getMetadata().getLabels().get(meshConfig.getAppKey());
+            }
             if (projectId.equals(extractor.getResourceInfo(service, Const.RESOURCE_TARGET, projectId)) && serviceName.equals(appName)) {
                 String key = appName
                         + Const.SEPARATOR_DOT
@@ -341,7 +345,13 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         String projectKey = meshConfig.getProjectKey();
         Predicate<Endpoint> vmEndPointsForProject = ep-> ep.getLabels()!= null
                 && projectCode.equals(ep.getLabels().get(projectKey));
-        List<Endpoint> vmEndPoints = pilotHttpClient.getEndpointList(vmEndPointsForProject);
+        List<Endpoint> vmEndPoints = null;
+        try {
+            vmEndPoints = pilotHttpClient.getEndpointList(vmEndPointsForProject);
+        } catch (Exception e) {
+            log.warn("Get EndpointList from pilot error :{}",e.getMessage());
+            return new ArrayList<>();
+        }
         return getWorkLoadFromServiceEntryEndpoint(vmEndPoints);
     }
 
@@ -351,7 +361,13 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         Predicate<Endpoint> vmEndPointsForProject = ep-> ep.getLabels()!= null
                 && projectCode.equals(ep.getLabels().get(projectKey))
                 && ep.getHostname().startsWith(serviceName);
-        List<Endpoint> vmEndPoints = pilotHttpClient.getEndpointList(vmEndPointsForProject);
+        List<Endpoint> vmEndPoints = null;
+        try {
+            vmEndPoints = pilotHttpClient.getEndpointList(vmEndPointsForProject);
+        } catch (Exception e) {
+            log.warn("Get EndpointList from pilot error :{}",e.getMessage());
+            return new ArrayList<>();
+        }
         return getWorkLoadFromServiceEntryEndpoint(vmEndPoints);
     }
 
@@ -394,6 +410,10 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                 continue;
             }
             String appName = k8sService.getSpec().getSelector().get(meshConfig.getSelectorAppKey());
+            if (k8sService.getMetadata().getLabels()!=null
+                    && !StringUtils.isEmpty(k8sService.getMetadata().getLabels().get(meshConfig.getAppKey()))){
+                appName = k8sService.getMetadata().getLabels().get(meshConfig.getAppKey());
+            }
             String key = appName
                     + Const.SEPARATOR_DOT
                     + k8sService.getMetadata().getNamespace();
@@ -689,7 +709,12 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                 .map(s->{
                     ServiceDto<T> tServiceDto = new ServiceDto<>(s, clusterId);
                     if (tServiceDto.getSelectLabels() != null){
-                        tServiceDto.setAppName(tServiceDto.getSelectLabels().get(meshConfig.getSelectorAppKey()));
+                        String appName = tServiceDto.getSelectLabels().get(meshConfig.getSelectorAppKey());
+                        if (tServiceDto.getLabels()!=null
+                                && !StringUtils.isEmpty(tServiceDto.getLabels().get(meshConfig.getAppKey()))){
+                            appName = tServiceDto.getLabels().get(meshConfig.getAppKey());
+                        }
+                        tServiceDto.setAppName(appName);
 
                     }
                     return tServiceDto;
