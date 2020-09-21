@@ -181,6 +181,21 @@ public class ServiceMeshController extends BaseController {
         return apiReturnInSilent(ImmutableMap.of(RESULT, StringUtils.isEmpty(logs) ? "" : logs));
     }
 
+    @RequestMapping(params = "Action=UpdateNamespaceBinding", method = RequestMethod.GET)
+    public String updateNamespaceBinding(@RequestParam(value = "ClusterId", required = false) String clusterId,
+                                         @RequestParam(value = "Namespace") String namespace,
+                                         @RequestParam(value = "IstioVersion") String version,
+                                         @RequestParam(value = "Type", required = false, defaultValue = "istio-env") String type) {
+
+        serviceMeshService.changeIstioVersion(clusterId, namespace, type, version);
+        return apiReturn(ApiPlaneErrorCode.Success);
+    }
+
+    @RequestMapping(params = "Action=GetNamespaceBindings", method = RequestMethod.GET)
+    public String getNamespaceBindings(@RequestParam(value = "ClusterId", required = false) String clusterId) {
+        return apiReturn(ImmutableMap.of(RESULT, serviceMeshService.getIstioVersionBindings(clusterId)));
+    }
+
     private String optimize(String json) {
         if (json.startsWith("\"") && json.startsWith("\"")) {
             json = json.substring(1, json.length() - 1);

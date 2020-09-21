@@ -106,6 +106,10 @@ public class AggregateExtensionProcessor extends AbstractSchemaProcessor impleme
                 holder = getProcessor("CircuitBreakerProcessor").process(plugin, serviceInfo);
                 coverToExtensionPlugin(holder, "com.netease.circuitbreaker");
                 break;
+            case "function":
+                holder = getProcessor("FunctionProcessor").process(plugin, serviceInfo);
+                coverToExtensionPlugin(holder, "envoy.lua");
+                break;
             case "trace":
             default:
                 holder = getProcessor("RestyProcessor").process(plugin, serviceInfo);
