@@ -47,7 +47,17 @@ public class PodDTO extends K8sResourceDTO<Pod> {
 
     private final IptablesConfig iptablesConfig;
 
+    private String sidecarVersion;
+
     private Map<String, String> syncInfo;
+
+    public String getSidecarVersion() {
+        return sidecarVersion;
+    }
+
+    public void setSidecarVersion(String sidecarVersion) {
+        this.sidecarVersion = sidecarVersion;
+    }
 
     public String getSidecarContainerStatus() {
         return sidecarContainerStatus;
@@ -140,6 +150,10 @@ public class PodDTO extends K8sResourceDTO<Pod> {
             this.totalLimitMemory = String.format(LIMIT_MEMORY_FORMAT, this.totalLimitMemoryValue);
         }
         containerInfoList.addAll(containerInfoMap.values());
+
+        if (pod.getMetadata()!=null && pod.getMetadata().getAnnotations()!=null){
+            this.sidecarVersion = pod.getMetadata().getAnnotations().get("envoy.io/binaryName");
+        }
 
         sidecarImage = CommonUtil.safelyGet(() ->
             pod.getSpec().getContainers().stream()

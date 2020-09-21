@@ -257,10 +257,9 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
             }
         }
         result.forEach(workload->{
-            workload.setInMesh(resourceCacheManager.isInjectedWorkload(clusterId,
-                    workload.getKind(),
-                    workload.getNamespace(),
-                    workload.getName()));
+            List podInfoByWorkLoadInfo = getPodInfoByWorkLoadInfo(clusterId, workload.getKind(), workload.getNamespace(),
+                    workload.getName());
+            resourceCacheManager.setSidecarInfo(podInfoByWorkLoadInfo,workload);
         });
         return result;
     }
@@ -418,10 +417,10 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
             workLoadList.addAll(resourceCacheManager.getWorkloadListByServiceName(clusterId,key));
         }
         workLoadList.forEach(workload->{
-            workload.setInMesh(resourceCacheManager.isInjectedWorkload(clusterId,
-                    workload.getKind(),
-                    workload.getNamespace(),
-                    workload.getName()));
+            List podInfoByWorkLoadInfo = getPodInfoByWorkLoadInfo(clusterId, workload.getKind(), workload.getNamespace(),
+                    workload.getName());
+            resourceCacheManager.setSidecarInfo(podInfoByWorkLoadInfo,workload);
+
         });
         return workLoadList;
     }
@@ -579,6 +578,38 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     }
 
     @Override
+    public List<PodDTO> getPodListByClusterIdAndNamespace(String clusterId, String namespace){
+        OwnerReferenceSupportStore store = ResourceStoreFactory.getResourceStore(clusterId);
+        List<T> podList = new ArrayList<>();
+        if (!StringUtils.isEmpty(namespace)){
+            podList.addAll(store.listByKindAndNamespace(Pod.name(),namespace));
+        }else {
+            podList.addAll(store.listByKind(Pod.name()));
+        }
+        return  podList
+                .stream()
+                .map(po -> createPodDto((Pod) po, clusterId))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<PodDTO> getPodList(String clusterId, String namespace){
+
+        List<PodDTO> result = new ArrayList<>();
+        if (StringUtils.isEmpty(clusterId)){
+            List<String> clusterIdList = ResourceStoreFactory.listClusterId();
+            for (String cluster: clusterIdList){
+                result.addAll(getPodListByClusterIdAndNamespace(cluster,namespace));
+            }
+        }else {
+            result.addAll(getPodListByClusterIdAndNamespace(clusterId,namespace));
+        }
+        return result;
+    }
+
+
+
+    @Override
     public List<Endpoints> getEndPointByService(String clusterId, String namespace, String name) {
         List<Endpoints> result = new ArrayList<>();
         if (StringUtils.isEmpty(clusterId)) {
@@ -668,10 +699,9 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
             }
         }
         result.forEach(workload->{
-            workload.setInMesh(resourceCacheManager.isInjectedWorkload(clusterId,
-                    workload.getKind(),
-                    workload.getNamespace(),
-                    workload.getName()));
+            List podInfoByWorkLoadInfo = getPodInfoByWorkLoadInfo(clusterId, workload.getKind(), workload.getNamespace(),
+                    workload.getName());
+            resourceCacheManager.setSidecarInfo(podInfoByWorkLoadInfo,workload);
         });
         return new ArrayList<>(result);
 

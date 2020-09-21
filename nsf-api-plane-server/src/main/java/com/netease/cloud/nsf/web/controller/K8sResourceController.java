@@ -3,6 +3,7 @@ package com.netease.cloud.nsf.web.controller;
 import com.google.common.collect.ImmutableMap;
 import com.netease.cloud.nsf.cache.ResourceCache;
 import com.netease.cloud.nsf.cache.ResourceStoreFactory;
+import com.netease.cloud.nsf.cache.meta.PodDTO;
 import com.netease.cloud.nsf.cache.meta.ServiceDto;
 import com.netease.cloud.nsf.cache.meta.WorkLoadDTO;
 import com.netease.cloud.nsf.core.ConfigManager;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 
 /**
@@ -96,6 +98,24 @@ public class K8sResourceController extends BaseController {
         String svmExpectedVersion = configManager.querySVMExpectedVersion(clusterId, namespace, kind, name);
         podList = resourceCache.getPodListWithSidecarVersion(podList, svmExpectedVersion);
         serviceMeshService.createMissingCrd(podList, kind, name, clusterId, namespace);
+        Map<String, Object> result = new HashMap<>();
+        result.put("Result", podList);
+        ErrorCode code = ApiPlaneErrorCode.Success;
+        return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), result);
+    }
+
+    @RequestMapping(params = {"Action=GetPodBySidecarVersion"}, method = RequestMethod.GET)
+    public String GetPodBySidecarVersion(@RequestParam(name = "SidecarVersion",required = false) String name,
+                                   @RequestParam(name = "Namespace",required = false) String namespace,
+                                   @RequestParam(name = "ClusterId",required = false) String clusterId) {
+
+
+        List<PodDTO> podList = resourceCache.getPodList(clusterId, namespace);
+        if (!StringUtils.isEmpty(name)){
+            podList = podList.stream()
+                    .filter(pod->pod.isInjected() && name.equals(pod.getSidecarVersion()))
+                    .collect(Collectors.toList());
+        }
         Map<String, Object> result = new HashMap<>();
         result.put("Result", podList);
         ErrorCode code = ApiPlaneErrorCode.Success;

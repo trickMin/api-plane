@@ -1,6 +1,7 @@
 package com.netease.cloud.nsf.service;
 
 import com.netease.cloud.nsf.cache.meta.ServiceDto;
+import com.netease.cloud.nsf.cache.meta.WorkLoadDTO;
 import com.netease.cloud.nsf.meta.dto.ResourceWrapperDTO;
 import com.netease.cloud.nsf.util.errorcode.ErrorCode;
 import io.fabric8.kubernetes.api.model.HasMetadata;

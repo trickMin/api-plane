@@ -7,7 +7,6 @@ import com.netease.cloud.nsf.cache.ResourceCache;
 import com.netease.cloud.nsf.cache.ResourceStoreFactory;
 import com.netease.cloud.nsf.cache.extractor.ResourceExtractorManager;
 import com.netease.cloud.nsf.cache.meta.PodDTO;
-import com.netease.cloud.nsf.cache.meta.ServiceDto;
 import com.netease.cloud.nsf.configuration.ext.ApiPlaneConfig;
 import com.netease.cloud.nsf.configuration.ext.MeshConfig;
 import com.netease.cloud.nsf.core.editor.ResourceType;

@@ -5,10 +5,7 @@ import com.netease.cloud.nsf.cache.meta.PodDTO;
 import com.netease.cloud.nsf.cache.meta.WorkLoadDTO;
 import com.netease.cloud.nsf.configuration.ext.MeshConfig;
 import com.netease.cloud.nsf.util.Const;
-import io.fabric8.kubernetes.api.model.ContainerStatus;
 import io.fabric8.kubernetes.api.model.HasMetadata;
-import io.fabric8.kubernetes.api.model.Pod;
-import me.snowdrop.istio.api.networking.v1alpha3.PodVersionStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,9 +43,7 @@ public class ResourceCacheManager implements ResourceEventDispatcher {
     private static final String SYNC_EVENT = "SYNC";
     private Map<String, AtomicLong> lastResourceVersion = new ConcurrentHashMap<>();
     private Map<String,Map<String, List<WorkLoadDTO>>> appWorkLoadMap = new ConcurrentHashMap<>();
-    private Map<String, Map<String, String>> versionManagerMap = new ConcurrentHashMap<>();
     private LinkedBlockingQueue<ResourceUpdateEvent> workloadEvent = new LinkedBlockingQueue<>();
-    private LinkedBlockingQueue<ResourceUpdateEvent> versionManagerEvent = new LinkedBlockingQueue<>();
     private ExecutorService eventProcessor = Executors.newCachedThreadPool();
 
 
@@ -94,90 +89,32 @@ public class ResourceCacheManager implements ResourceEventDispatcher {
                 }
             }
         });
-//       eventProcessor.execute(() -> {
-//            log.info("start to process version manager update event");
-//            for (; ; ) {
-//                try {
-//                    ResourceUpdateEvent updateEvent = null;
-//                    try {
-//                        updateEvent = versionManagerEvent.take();
-//                    } catch (InterruptedException e) {
-//                        log.warn("get update event from blocking queue error");
-//                    }
-//                    String clusterId = updateEvent.getClusterId();
-//                    String namespace = updateEvent.getNamespace();
-//                    String key = clusterId + Const.SEPARATOR_DOT + namespace;
-//                    String eventType = updateEvent.getEventType();
-//                    switch (eventType) {
-//                        case DELETE_EVENT:
-//                            versionManagerMap.remove(key);
-//                            break;
-//                        case SYNC_EVENT:
-//                            updateAllVersionInfo(updateEvent.getResourceList(), clusterId);
-//                            break;
-//                        default:
-//                            updateVersionInfoForKey(key, (me.snowdrop.istio.api.networking.v1alpha3.VersionManager) updateEvent.getResourceObject());
-//                    }
-//                } catch (Exception e) {
-//                    log.error("process version manager update event error",e);
-//                    continue;
-//                }
-//            }
-//        });
     }
 
-    private void updateAllVersionInfo(List resourceList, String clusterId) {
-        if (resourceList == null) {
-            return;
-        }
 
-        for (Object resource : resourceList) {
-            me.snowdrop.istio.api.networking.v1alpha3.VersionManager versionManager = (me.snowdrop.istio.api.networking.v1alpha3.VersionManager) resource;
-            String namespace = versionManager.getMetadata().getNamespace();
-            updateVersionInfoForKey(clusterId + Const.SEPARATOR_DOT + namespace, versionManager);
+    public WorkLoadDTO setSidecarInfo(List<HasMetadata> podList,WorkLoadDTO dto) {
+        if (CollectionUtils.isEmpty(podList)) {
+            dto.setInMesh(false);
         }
-
-    }
-
-    private void updateVersionInfoForKey(String key, me.snowdrop.istio.api.networking.v1alpha3.VersionManager versionManager) {
-        if (versionManager ==null || versionManager.getSpec() == null || versionManager.getSpec().getStatus() == null){
-            versionManagerMap.remove(key);
-            return;
-        }
-        List<PodVersionStatus> podVersionStatus = versionManager.getSpec().getStatus().getPodVersionStatus();
-        if (CollectionUtils.isEmpty(podVersionStatus)) {
-            versionManagerMap.remove(key);
-        } else {
-            Map<String, String> sidecarVersionForPod = new HashMap<>();
-            for (PodVersionStatus versionStatus : podVersionStatus) {
-                String podName = versionStatus.getPodName();
-                sidecarVersionForPod.put(podName, versionStatus.getCurrentVersion());
-            }
-            versionManagerMap.put(key, sidecarVersionForPod);
-        }
-
-    }
-
-    private String getSidecarVersionOnPod(String clusterId, String namespace, String name) {
-        Map<String, String> sidecarVersionForPod = versionManagerMap.get(clusterId + Const.SEPARATOR_DOT + namespace);
-        if (sidecarVersionForPod == null || sidecarVersionForPod.isEmpty()) {
-            return null;
-        }
-        return sidecarVersionForPod.get(name);
-    }
-
-    public boolean isInjectedWorkload(String clusterId, String kind, String namespace, String name) {
-        List podInfoByWorkLoadInfo = resourceCache.getPodInfoByWorkLoadInfo(clusterId, kind, namespace, name);
-        if (CollectionUtils.isEmpty(podInfoByWorkLoadInfo)) {
-            return false;
-        }
-        for (Object obj : podInfoByWorkLoadInfo) {
+        dto.setInMesh(true);
+        HashSet<String> versionSet = new HashSet<>();
+        for (Object obj : podList) {
             io.fabric8.kubernetes.api.model.Pod pod = (io.fabric8.kubernetes.api.model.Pod) obj;
             if (!PodDTO.isInjected(pod)) {
-                return false;
+                dto.setInMesh(false);
             }
+            versionSet.add(binaryName(pod));
         }
-        return true;
+        dto.setSidecarVersion(new ArrayList<>(versionSet));
+        return dto;
+
+    }
+
+    private String binaryName(io.fabric8.kubernetes.api.model.Pod pod){
+        if (pod.getMetadata() == null || pod.getMetadata().getAnnotations() == null){
+            return null;
+        }
+        return pod.getMetadata().getAnnotations().get("envoy.io/binaryName");
     }
 
     public String getServiceNameByWorkload(HasMetadata resourceObject) {
