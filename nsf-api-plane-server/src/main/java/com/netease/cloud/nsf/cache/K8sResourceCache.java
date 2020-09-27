@@ -509,6 +509,12 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     }
 
     @Override
+    public List<VersionManager> getVersionManagerByClusterId(String clusterId){
+        OwnerReferenceSupportStore<VersionManager> store = ResourceStoreFactory.getResourceStore(clusterId);
+        return store.listByKind(VersionManager.name());
+    }
+
+    @Override
     public List<String> getMixerPathPatterns(String clusterId, String namespace, String app) {
         OwnerReferenceSupportStore<MixerUrlPattern> store = ResourceStoreFactory.getResourceStore(clusterId);
         MixerUrlPattern mup = store.get(MixerUrlPattern.name(), namespace, app);
@@ -843,29 +849,6 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                         && appName.equals(w.getMetadata().getLabels().get(meshConfig.getAppKey())))
                 .collect(Collectors.toList());
 
-//        Endpoints endpointsByService = (Endpoints) store.get(Endpoints.name(), namespace, serviceName);
-//        if (endpointsByService == null) {
-//            return new ArrayList<>();
-//        }
-//        //从endpoints信息中解析出关联的pod列表
-//        List<ObjectReference> podReferences = endpointsByService.getSubsets()
-//                .stream()
-//                .flatMap(sub -> sub.getAddresses().stream())
-//                .map(EndpointAddress::getTargetRef)
-//                .filter(Objects::nonNull)
-//                .filter(ref -> Pod.name().equals(ref.getKind()))
-//                .collect(Collectors.toList());
-//
-//        Set<T> workLoadList = new HashSet<>();
-//        // 通过pod信息查询全部的负载资源
-//        if (!CollectionUtils.isEmpty(podReferences)) {
-//            podReferences.forEach(podRef -> {
-//                T pod = (T) store.get(Pod.name(), podRef.getNamespace(), podRef.getName());
-//                if (pod != null) {
-//                    workLoadList.addAll(store.listLoadByPod(pod));
-//                }
-//            });
-//        }
         return workLoadList;
     }
 

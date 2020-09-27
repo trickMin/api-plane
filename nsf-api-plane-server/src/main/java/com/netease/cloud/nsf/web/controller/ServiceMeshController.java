@@ -194,6 +194,13 @@ public class ServiceMeshController extends BaseController {
         return apiReturn(ImmutableMap.of(RESULT, serviceMeshService.getIstioVersionBindings(clusterId)));
     }
 
+    @RequestMapping(params = "Action=UpdateDefaultSidecarVersion", method = RequestMethod.GET)
+    public String updateNamespaceBinding(@RequestParam(value = "DefaultVersion") String defaultVersion) {
+
+        serviceMeshService.updateDefaultSidecarVersion(defaultVersion);
+        return apiReturn(ApiPlaneErrorCode.Success);
+    }
+
     private String optimize(String json) {
         if (json.startsWith("\"") && json.startsWith("\"")) {
             json = json.substring(1, json.length() - 1);
