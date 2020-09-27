@@ -3,6 +3,7 @@ package com.netease.cloud.nsf.cache;
 import com.netease.cloud.nsf.cache.meta.ServiceDto;
 import com.netease.cloud.nsf.cache.meta.WorkLoadDTO;
 import io.fabric8.kubernetes.api.model.Namespace;
+import me.snowdrop.istio.api.networking.v1alpha3.VersionManager;
 
 import java.util.List;
 import java.util.Map;
@@ -71,6 +72,8 @@ public interface ResourceCache {
     List getPodListWithSidecarVersion(List podDTOList, String expectedVersion);
 
     List getPodListByService(String clusterId, String namespace, String name);
+
+    List<VersionManager> getVersionManagerByClusterId(String clusterId);
 
     List<String> getMixerPathPatterns(String clusterId, String namespace, String name);
 
