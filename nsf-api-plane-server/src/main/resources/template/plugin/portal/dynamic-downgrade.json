@@ -4,7 +4,8 @@
     "condition": "&condition",
     "cache": "&cache",
     "ttl": "&ttl",
-    "cacheKey": "&cache_key"
+    "cacheKey": "&cache_key",
+    "httpx": "&httpx"
   },
   "layouts": [
     {
@@ -167,7 +168,7 @@
               "key": "responseSwitch",
               "alias": "是否使用响应进行匹配",
               "type": "switch",
-              "default": false
+              "default": true
             },
             {
               "key": "code",
@@ -196,7 +197,13 @@
                 {
                   "key": "value",
                   "alias": "取值",
-                  "type": "input"
+                  "type": "input",
+                  "rules": [
+                    "Required",
+                    "Number",
+                    "MinNumber(100)",
+                    "MaxNumber(999)"
+                  ]
                 }
               ]
             },
@@ -253,9 +260,29 @@
       ]
     },
     {
+      "key": "dowgrade_type",
+      "alias": "动态降级类型",
+      "type": "select",
+      "default": "httpx",
+      "options": [
+        {
+          "value": "cache",
+          "text": "缓存降级"
+        },
+        {
+          "value": "httpx",
+          "text": "接口降级"
+        }
+      ],
+      "style":"width: 600px; display: block;"
+    },
+    {
       "key": "cache",
       "alias": "降级缓存配置",
       "type": "layouts",
+      "visible": {
+        "dowgrade_type": "cache"
+      },
       "layouts": [
         {
           "key": "condition",
@@ -425,6 +452,24 @@
               "alias": "请求头",
               "type": "multi_input"
             }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "httpx",
+      "alias": "接口降级配置",
+      "type": "layouts",
+      "visible": {
+        "dowgrade_type": "httpx"
+      },
+      "layouts": [
+        {
+          "key": "uri",
+          "alias": "接口降级uri",
+          "type": "input",
+          "rules": [
+            "Required"
           ]
         }
       ]
