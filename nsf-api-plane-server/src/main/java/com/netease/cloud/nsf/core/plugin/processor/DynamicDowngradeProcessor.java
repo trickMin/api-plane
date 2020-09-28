@@ -1,6 +1,5 @@
 package com.netease.cloud.nsf.core.plugin.processor;
 
-import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.plugin.FragmentHolder;
 import com.netease.cloud.nsf.core.plugin.FragmentTypeEnum;
@@ -28,13 +27,15 @@ public class DynamicDowngradeProcessor extends AbstractSchemaProcessor implement
     public FragmentHolder process(String plugin, ServiceInfo serviceInfo) {
         PluginGenerator source = PluginGenerator.newInstance(plugin);
         PluginGenerator builder = PluginGenerator.newInstance("{\"downgrade_rpx\":{\"headers\":[]},\"cache_rpx_rpx\":{\"headers\":[]},\"cache_ttls\":{\"RedisHttpCache\":{},\"LocalHttpCache\":{}},\"key_maker\":{\"query_params\":[],\"headers_keys\":[]}}");
-        createCondition(source, builder);
         if (source.contain("$.cache")) {
+            createCondition(source, builder);
             createCacheRpx(source, builder);
             createCacheTtls(source, builder);
             createKeyMaker(source, builder);
         }
         if (source.contain("$.httpx")) {
+            builder = PluginGenerator.newInstance("{\"downgrade_rpx\":{\"headers\":[]}}");
+            createCondition(source, builder);
             createHttpx(source, builder);
         }
 

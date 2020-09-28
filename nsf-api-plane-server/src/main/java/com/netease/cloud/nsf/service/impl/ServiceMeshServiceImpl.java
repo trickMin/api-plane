@@ -34,6 +34,7 @@ import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.apps.StatefulSet;
 import me.snowdrop.istio.api.IstioResource;
+import me.snowdrop.istio.api.networking.v1alpha3.VersionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -399,6 +400,33 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
 
     }
 
+    @Override
+    public void updateDefaultSidecarVersion(String defaultSidecarVersion){
+        Set<String> clusterNames = multiClusterK8sClient.getAllClients().keySet();
+        if (!CollectionUtils.isEmpty(clusterNames)){
+            for (String clusterId : clusterNames) {
+                updateVersionManagerDefaultVersion(defaultSidecarVersion, clusterId);
+            }
+        }
+    }
+
+    private void updateVersionManagerDefaultVersion(String defaultSidecarVersion, String clusterId){
+
+        List<VersionManager> versionManagerByClusterId = k8sResource.getVersionManagerByClusterId(clusterId);
+        KubernetesClient kubernetesClient = multiClusterK8sClient.k8sClient(clusterId);
+        if (!CollectionUtils.isEmpty(versionManagerByClusterId)){
+            try {
+                for (VersionManager versionManager : versionManagerByClusterId) {
+                    versionManager.getSpec().setDefaultVersion(defaultSidecarVersion);
+                    kubernetesClient.createOrUpdate(versionManager,OBJECT);
+                }
+            } catch (Exception e) {
+                logger.error("update default sidecar version on versionManager for cluster {} fail",clusterId,e);
+            }
+        }
+
+
+    }
 
     @Override
     public String getLogs(String clusterId, String namespace, String podName, String container, Integer tailLines, Long sinceSeconds) {

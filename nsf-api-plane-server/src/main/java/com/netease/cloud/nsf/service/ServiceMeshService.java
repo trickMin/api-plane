@@ -35,6 +35,8 @@ public interface ServiceMeshService {
 
     String getProjectCodeByApp(String namespace, String appName, String clusterId);
 
+    void updateDefaultSidecarVersion(String defaultSidecarVersion);
+
     String getLogs(String clusterId, String namespace, String podName, String container, Integer tailLines, Long sinceSeconds);
 
     void changeIstioVersion(String clusterId, String namespace, String type, String value);
