@@ -49,7 +49,19 @@ public class PodDTO extends K8sResourceDTO<Pod> {
 
     private String sidecarVersion;
 
+    private String clusterId;
+
     private Map<String, String> syncInfo;
+
+    @Override
+    public String getClusterId() {
+        return clusterId;
+    }
+
+    @Override
+    public void setClusterId(String clusterId) {
+        this.clusterId = clusterId;
+    }
 
     public String getSidecarVersion() {
         return sidecarVersion;
@@ -123,6 +135,7 @@ public class PodDTO extends K8sResourceDTO<Pod> {
         this.podIp = pod.getStatus().getPodIP();
         this.status = pod.getStatus().getPhase();
         this.isInjected = isInjected(pod);
+        this.clusterId = clusterId;
 
         Map<String, ContainerInfo> containerInfoMap = new HashMap<>();
         // 更新容器资源信息
