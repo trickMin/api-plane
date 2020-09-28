@@ -49,6 +49,8 @@ public class PodDTO extends K8sResourceDTO<Pod> {
 
     private Map<String, String> syncInfo;
 
+    private String controlPlaneVersion;
+
     public String getSidecarContainerStatus() {
         return sidecarContainerStatus;
     }
@@ -105,6 +107,14 @@ public class PodDTO extends K8sResourceDTO<Pod> {
 
     public void setPodIp(String podIp) {
         this.podIp = podIp;
+    }
+
+    public String getControlPlaneVersion() {
+        return controlPlaneVersion;
+    }
+
+    public void setControlPlaneVersion(String controlPlaneVersion) {
+        this.controlPlaneVersion = controlPlaneVersion;
     }
 
     public PodDTO(Pod pod, String clusterId) {
