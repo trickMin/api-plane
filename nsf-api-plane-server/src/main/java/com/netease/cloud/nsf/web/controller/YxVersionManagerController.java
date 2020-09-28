@@ -119,19 +119,16 @@ public class YxVersionManagerController extends BaseController {
 
 
     private boolean isInMesh(List<PodDTO> podDTOList) {
-        PodVersion podVersion = new PodVersion();
-        List<String> nameList =
-                podDTOList.stream()
-                        .map(o -> o.getName())
-                        .collect(Collectors.toList());
-        podVersion.setPodNames(nameList);
-        podVersion.setClusterId(podDTOList.get(0).getClusterId());
-        podVersion.setNamespace(podDTOList.get(0).getNamespace());
 
-        List<PodStatus> list =  versionManagerService.queryByPodNameList(podVersion);
-        if (CollectionUtils.isEmpty(list)) {
+        if (CollectionUtils.isEmpty(podDTOList)) {
             return false;
         }
+        for (PodDTO podDTO : podDTOList) {
+            if (!podDTO.isInjected()){
+                return false;
+            }
+        }
+
         return true;
     }
 
