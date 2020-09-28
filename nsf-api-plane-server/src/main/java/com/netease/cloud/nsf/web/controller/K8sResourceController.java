@@ -68,7 +68,7 @@ public class K8sResourceController extends BaseController {
     @RequestMapping(params = {"Action=GetWorkLoadByLabel"}, method = RequestMethod.GET)
     public String getWorkLoadByLabel(@RequestParam(name = "Namespace") String namespace,
                                      @RequestParam(name = "ClusterId") String clusterId,
-                                     @RequestParam(name = "ServiceLabel") List<String> labelList) {
+                                     @RequestParam(name = "ServiceLabel", required = false) List<String> labelList) {
 
         List<WorkLoadDTO> workLoadByLabels;
         if (StringUtils.isEmpty(clusterId)){
