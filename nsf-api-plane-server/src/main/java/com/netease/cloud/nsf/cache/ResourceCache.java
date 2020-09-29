@@ -1,5 +1,6 @@
 package com.netease.cloud.nsf.cache;
 
+import com.netease.cloud.nsf.cache.meta.PodDTO;
 import com.netease.cloud.nsf.cache.meta.ServiceDto;
 import com.netease.cloud.nsf.cache.meta.WorkLoadDTO;
 import io.fabric8.kubernetes.api.model.Namespace;
@@ -84,6 +85,11 @@ public interface ResourceCache {
     String getAppNameByPod(String clusterId, String namespace, String name);
 
     String getPodLabel(String clusterId, String namespace, String name, String labelName);
+
+    List<PodDTO> getPodListByClusterIdAndNamespace(String clusterId, String namespace);
+
+
+    List<PodDTO> getPodList(String clusterId, String namespace);
 
     List getEndPointByService(String clusterId, String namespace, String name);
 

@@ -47,7 +47,29 @@ public class PodDTO extends K8sResourceDTO<Pod> {
 
     private final IptablesConfig iptablesConfig;
 
+    private String sidecarVersion;
+
+    private String clusterId;
+
     private Map<String, String> syncInfo;
+
+    @Override
+    public String getClusterId() {
+        return clusterId;
+    }
+
+    @Override
+    public void setClusterId(String clusterId) {
+        this.clusterId = clusterId;
+    }
+
+    public String getSidecarVersion() {
+        return sidecarVersion;
+    }
+
+    public void setSidecarVersion(String sidecarVersion) {
+        this.sidecarVersion = sidecarVersion;
+    }
 
     public String getSidecarContainerStatus() {
         return sidecarContainerStatus;
@@ -113,6 +135,7 @@ public class PodDTO extends K8sResourceDTO<Pod> {
         this.podIp = pod.getStatus().getPodIP();
         this.status = pod.getStatus().getPhase();
         this.isInjected = isInjected(pod);
+        this.clusterId = clusterId;
 
         Map<String, ContainerInfo> containerInfoMap = new HashMap<>();
         // 更新容器资源信息
@@ -140,6 +163,10 @@ public class PodDTO extends K8sResourceDTO<Pod> {
             this.totalLimitMemory = String.format(LIMIT_MEMORY_FORMAT, this.totalLimitMemoryValue);
         }
         containerInfoList.addAll(containerInfoMap.values());
+
+        if (pod.getMetadata()!=null && pod.getMetadata().getAnnotations()!=null){
+            this.sidecarVersion = pod.getMetadata().getAnnotations().get("envoy.io/binaryName");
+        }
 
         sidecarImage = CommonUtil.safelyGet(() ->
             pod.getSpec().getContainers().stream()

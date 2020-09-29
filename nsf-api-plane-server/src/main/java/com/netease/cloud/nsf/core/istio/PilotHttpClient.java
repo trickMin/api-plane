@@ -103,7 +103,7 @@ public class PilotHttpClient {
         statusCache = CacheBuilder.newBuilder()
             .maximumSize(1)
             .initialCapacity(1)
-            .expireAfterWrite(1, TimeUnit.SECONDS)
+            .expireAfterWrite(10, TimeUnit.SECONDS)
             .recordStats()
             .build(new CacheLoader<String, Map<String, Map<String, String>>>() {
                 @Override
