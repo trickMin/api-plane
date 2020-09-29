@@ -117,6 +117,46 @@ public class YxVersionManagerController extends BaseController {
         return apiReturn(SUCCESS, "Success", null, result);
     }
 
+    @RequestMapping(value = "/svm", params = "Action=UpdateSVMList", method = RequestMethod.POST)
+    public String updateOrCreateSVM(@RequestBody @Valid List<SidecarVersionManagement> svmList) {
+
+        if (CollectionUtils.isEmpty(svmList)){
+            return apiReturn(ApiPlaneErrorCode.Success);
+        }
+
+        for (SidecarVersionManagement svm: svmList) {
+            if (!ResourceStoreFactory.listClusterId().contains(svm.getClusterId())) {
+                return apiReturn(ApiPlaneErrorCode.CanNotFound("ClusterId"));
+            }
+
+            for (SVMSpec svmSpec : svm.getWorkLoads()) {
+                if (!(svmSpec.getWorkLoadType().equals("Deployment") || svmSpec.getWorkLoadType().equals("StatefulSet"))) {
+                    return apiReturn(ApiPlaneErrorCode.ParameterError("WorkLoadType"));
+                }
+
+                Object obj = k8sResourceCache.getResource(svm.getClusterId(), svmSpec.getWorkLoadType(), svm.getNamespace(), svmSpec.getWorkLoadName());
+                if (obj == null) {
+                    return apiReturn(ApiPlaneErrorCode.workLoadNotFound);
+                }
+
+                List<PodDTO> podDTOList =  k8sResourceCache.getPodDtoByWorkLoadInfo(svm.getClusterId(), svmSpec.getWorkLoadType(), svm.getNamespace(), svmSpec.getWorkLoadName());
+                if (CollectionUtils.isEmpty(podDTOList)) {
+                    return apiReturn(ApiPlaneErrorCode.workLoadNotInMesh);
+                }
+                if(!isInMesh(podDTOList)) {
+                    return apiReturn(ApiPlaneErrorCode.workLoadNotInMesh);
+                }
+
+                svmSpec.setIptablesDetail(null);
+                svmSpec.setIptablesParams(null);
+
+            }
+
+            versionManagerService.updateSVM(svm);
+        }
+        return apiReturn(ApiPlaneErrorCode.Success);
+    }
+
 
     private boolean isInMesh(List<PodDTO> podDTOList) {
 
