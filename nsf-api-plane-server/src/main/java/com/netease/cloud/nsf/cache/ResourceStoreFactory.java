@@ -1,5 +1,8 @@
 package com.netease.cloud.nsf.cache;
 
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+
 import java.util.*;
 
 public class ResourceStoreFactory {
@@ -31,7 +34,22 @@ public class ResourceStoreFactory {
     }
 
     public static List<String> listNamespaceByClusterId(String clusterId){
-        OwnerReferenceSupportStore store = resourceStoreMap.get(clusterId);
-        return store.listNamespaces();
+        if (StringUtils.isEmpty(clusterId)){
+            Set<String> clusterIdSet = resourceStoreMap.keySet();
+            if (CollectionUtils.isEmpty(clusterIdSet)){
+                return new ArrayList<>();
+            }else {
+                Set<String> namespaces = new HashSet<>();
+                for (String cluster : clusterIdSet) {
+                    OwnerReferenceSupportStore store = resourceStoreMap.get(cluster);
+                    namespaces.addAll(store.listNamespaces());
+                }
+                return new ArrayList<>(namespaces);
+            }
+        }else {
+            OwnerReferenceSupportStore store = resourceStoreMap.get(clusterId);
+            return store.listNamespaces();
+        }
+
     }
 }
