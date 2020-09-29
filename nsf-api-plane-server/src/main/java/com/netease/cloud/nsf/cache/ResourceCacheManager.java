@@ -103,7 +103,10 @@ public class ResourceCacheManager implements ResourceEventDispatcher {
             if (!PodDTO.isInjected(pod)) {
                 dto.setInMesh(false);
             }
-            versionSet.add(binaryName(pod));
+            String sidecarVersion = binaryName(pod);
+            if (!StringUtils.isEmpty(sidecarVersion)){
+                versionSet.add(binaryName(pod));
+            }
         }
         dto.setSidecarVersion(new ArrayList<>(versionSet));
         return dto;

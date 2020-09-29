@@ -700,10 +700,16 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
             return new ArrayList<>();
         }
         Set<WorkLoadDTO> result = new HashSet();
+        Set<String> serviceNameSet = new HashSet<>();
         for (T workload : workloadList) {
             String serviceNameByWorkload = resourceCacheManager.getServiceNameByWorkload(workload);
             if (!StringUtils.isEmpty(serviceNameByWorkload)){
-                result.addAll(resourceCacheManager.getWorkloadListByServiceName(clusterId,serviceNameByWorkload));
+                serviceNameSet.add(serviceNameByWorkload);
+            }
+        }
+        if (!serviceNameSet.isEmpty()){
+            for (String name : serviceNameSet) {
+                result.addAll(resourceCacheManager.getWorkloadListByServiceName(clusterId,name));
             }
         }
         result.forEach(workload->{
