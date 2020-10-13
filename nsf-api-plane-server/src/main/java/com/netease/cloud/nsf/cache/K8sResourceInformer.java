@@ -255,8 +255,8 @@ public class K8sResourceInformer<T extends HasMetadata> implements Informer {
                 return;
             }
             List<T> cachedResourceList = getStoreByClusterId(cluster).listByKind(resourceKind.name());
-            if (cachedResourceList.size() != cachedResourceList.size()){
-                log.info("");
+            if (cachedResourceList.size() != currentResourceList.size()){
+                log.info("current resource list change, full update resources ");
                 updateAll(currentResourceList,resourceKind.name(),cluster,resourceVersion);
                 return;
             }
