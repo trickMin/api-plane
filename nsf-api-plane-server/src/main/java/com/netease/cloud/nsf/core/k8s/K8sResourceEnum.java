@@ -10,6 +10,7 @@ import me.snowdrop.istio.api.authentication.v1alpha1.Policy;
 import me.snowdrop.istio.api.authentication.v1alpha1.PolicyList;
 import me.snowdrop.istio.api.networking.v1alpha3.*;
 import me.snowdrop.istio.api.rbac.v1alpha1.*;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -75,6 +76,10 @@ public enum K8sResourceEnum {
     }
 
     public String selfLink(String namespace) {
+        //FIXME 后续可以使用优雅些的方式
+        if (StringUtils.isEmpty(namespace)) {
+            return selfLink.replace("namespaces/%s/","");
+        }
         return selfLink.contains("%s") ? String.format(selfLink, namespace) : selfLink;
     }
 
