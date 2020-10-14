@@ -158,7 +158,7 @@ public class RouteProcessor extends AbstractSchemaProcessor implements SchemaPro
         ResourceGenerator ret = ResourceGenerator.newInstance("{}", ResourceType.JSON, editorContext);
         customMatchAndPriority(rg, ret, info, xUserId);
         ret.createOrUpdateJson("$", "ext", "[]");
-        ret.addJsonElement("$.ext", "{\"name\":\"com.netease.rewrite\",\"settings\":{\"request_transformations\":[{\"transformation_template\":{\"extractors\":{},\"headers\":{},\"passthrough\":{},\"parse_body_behavior\":\"DontParse\"}}]}}");
+        ret.addJsonElement("$.ext", "{\"name\":\"com.netease.rewrite\",\"settings\":{\"request_transformations\":[{\"transformation_template\":{\"extractors\":{},\"headers\":{},\"parse_body_behavior\":\"DontParse\"}}]}}");
         String extractor = rg.getValue("$.action.rewrite_regex");
         String transformPath = rg.getValue("$.action.target", String.class);
         // 兼容旧的格式，例如rewrite_regex: /anything/{code} action.target:/anything/gg/{{code}}
