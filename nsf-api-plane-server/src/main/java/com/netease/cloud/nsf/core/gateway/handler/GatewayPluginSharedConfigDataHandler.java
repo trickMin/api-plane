@@ -10,8 +10,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.netease.cloud.nsf.core.template.TemplateConst.SHARED_CONFIG_DESCRIPTOR;
-import static com.netease.cloud.nsf.core.template.TemplateConst.SHARED_CONFIG_NAME;
+import static com.netease.cloud.nsf.core.template.TemplateConst.*;
 
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2020/1/14
@@ -19,10 +18,12 @@ import static com.netease.cloud.nsf.core.template.TemplateConst.SHARED_CONFIG_NA
 public class GatewayPluginSharedConfigDataHandler extends GatewayPluginDataHandler {
 
     private String sharedConfigName;
+    private String configMapNamespace;
 
-    public GatewayPluginSharedConfigDataHandler(List<FragmentWrapper> fragments, List<Gateway> gateways, String sharedConfigName) {
+    public GatewayPluginSharedConfigDataHandler(List<FragmentWrapper> fragments, List<Gateway> gateways, String sharedConfigName, String configMapNamespace) {
         super(fragments, gateways);
         this.sharedConfigName = sharedConfigName;
+        this.configMapNamespace = configMapNamespace;
     }
 
     @Override
@@ -42,6 +43,7 @@ public class GatewayPluginSharedConfigDataHandler extends GatewayPluginDataHandl
         return Arrays.asList(TemplateParams.instance()
                 .setParent(baseParams)
                 .put(SHARED_CONFIG_NAME, sharedConfigName)
+                .put(NAMESPACE, configMapNamespace)
                 .put(SHARED_CONFIG_DESCRIPTOR, descriptors));
 
     }
