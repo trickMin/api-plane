@@ -77,6 +77,9 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
     @Value(value = "${rateLimitConfigMapName:rate-limit-config}")
     String rateLimitConfigMapName;
 
+    @Value(value = "${rateLimitNameSpace:gateway-system}")
+    String rateLimitNamespace;
+
 
     private static final String apiGateway = "gateway/api/gateway";
     private static final String apiVirtualService = "gateway/api/virtualService";
@@ -133,7 +136,7 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
         }
 
         List<String> rawVirtualServices = renderTwiceModelProcessor.process(apiVirtualService, api, vsHandler);
-        List<String> rawSharedConfigs = neverNullRenderTwiceProcessor.process(apiSharedConfigConfigMap, api, new BaseSharedConfigAPIDataHandler(rawResourceContainer.getSharedConfigs(), rateLimitConfigMapName));
+        List<String> rawSharedConfigs = neverNullRenderTwiceProcessor.process(apiSharedConfigConfigMap, api, new BaseSharedConfigAPIDataHandler(rawResourceContainer.getSharedConfigs(), rateLimitConfigMapName, rateLimitNamespace));
         // vs上的插件转移到gatewayplugin上
         List<String> rawGatewayPlugins = neverNullRenderTwiceProcessor.process(gatewayPlugin, api,
                 new ApiGatewayPluginDataHandler(rawResourceContainer.getVirtualServices(), globalConfig.getResourceNamespace()));
@@ -143,7 +146,7 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
         resourcePacks.addAll(generateK8sPack(rawSharedConfigs,
                 new GatewayRateLimitConfigMapMerger(),
                 new GatewayRateLimitConfigMapSubtracter(String.join("|", api.getGateways()), api.getName()),
-                new EmptyResourceGenerator(new EmptyConfigMap(rateLimitConfigMapName))));
+                new EmptyResourceGenerator(new EmptyConfigMap(rateLimitConfigMapName, rateLimitNamespace))));
 
         //当插件传入为空时，生成空的gatewayplugin，删除时使用
         DynamicGatewayPluginSupplier dynamicGatewayPluginSupplier = new DynamicGatewayPluginSupplier(api.getGateways(), api.getName(), "%s-%s");
@@ -198,12 +201,12 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
                 new GatewayPluginDataHandler(rawResourceContainer.getGatewayPlugins(), gateways));
         //todo: shareConfig逻辑需要适配
         List<String> rawSharedConfigs = renderTwiceModelProcessor.process(apiSharedConfigConfigMap, gp,
-                new GatewayPluginSharedConfigDataHandler(rawResourceContainer.getSharedConfigs(), gateways, rateLimitConfigMapName));
+                new GatewayPluginSharedConfigDataHandler(rawResourceContainer.getSharedConfigs(), gateways, rateLimitConfigMapName, rateLimitNamespace));
         resources.addAll(generateK8sPack(rawGatewayPlugins));
         resources.addAll(generateK8sPack(rawSharedConfigs,
                 new GatewayRateLimitConfigMapMerger(),
                 new GatewayRateLimitConfigMapSubtracter(gp.getGateway(), gp.getCode()),
-                new EmptyResourceGenerator(new EmptyConfigMap(rateLimitConfigMapName))));
+                new EmptyResourceGenerator(new EmptyConfigMap(rateLimitConfigMapName, rateLimitNamespace))));
 
         return resources;
     }
