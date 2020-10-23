@@ -187,9 +187,9 @@ public class DynamicDowngradeProcessor extends AbstractSchemaProcessor implement
     }
 
     private void createHttpx(PluginGenerator source, PluginGenerator builder) {
+        builder.createOrUpdateValue("$", "downgrade_src", "HTTPX");
         if (source.contain("$.httpx.uri")) {
             String uri = source.getValue("$.httpx.uri");
-            builder.createOrUpdateValue("$", "downgrade_src", "HTTPX");
             builder.createOrUpdateValue("$", "downgrade_uri", uri);
         }
     }

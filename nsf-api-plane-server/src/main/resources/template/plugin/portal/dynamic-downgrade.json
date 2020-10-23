@@ -468,9 +468,7 @@
           "key": "uri",
           "alias": "接口降级uri",
           "type": "input",
-          "rules": [
-            "Required"
-          ]
+          "help": "uri为空，默认采用原接口"
         }
       ]
     }
