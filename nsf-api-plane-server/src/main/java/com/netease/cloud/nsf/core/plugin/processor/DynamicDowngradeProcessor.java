@@ -33,7 +33,7 @@ public class DynamicDowngradeProcessor extends AbstractSchemaProcessor implement
             createCacheTtls(source, builder);
             createKeyMaker(source, builder);
         }
-        if (source.contain("$.httpx")) {
+        if (source.contain("$.httpx") || plugin.contains("httpx")) {
             builder = PluginGenerator.newInstance("{\"downgrade_rpx\":{\"headers\":[]}}");
             createCondition(source, builder);
             createHttpx(source, builder);
