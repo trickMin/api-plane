@@ -40,6 +40,7 @@ public enum K8sResourceEnum {
     StatefulSet(StatefulSet.class, StatefulSetList.class, "/apis/apps/v1/namespaces/%s/statefulsets/"),
     ReplicaSet(ReplicaSet.class, ReplicaSetList.class, "/apis/extensions/v1beta1/namespaces/%s/replicasets/"),
     VersionManager(VersionManager.class, VersionManagerList.class, "/apis/networking.istio.io/v1alpha3/namespaces/%s/versionmanagers"),
+    GlobalConfig(GlobalConfig.class, GlobalConfigList.class, "/apis/networking.istio.io/v1alpha3/globalconfigs"),
     NameSpace(Namespace.class, NamespaceList.class, "/api/v1/namespaces/%s"),
     GatewayPlugin(GatewayPlugin.class, GatewayPluginList.class, "/apis", "networking.istio.io/v1alpha3", "gatewayplugins", "clustered".equals(System.getProperty("gatewaypluginScope"))),
     MixerUrlPattern(MixerUrlPattern.class, MixerUrlPatternList.class, "/apis/networking.istio.io/v1alpha3/namespaces/%s/mixerurlpatterns"),

@@ -27,6 +27,7 @@ import org.springframework.util.StringUtils;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2020/4/8
@@ -35,7 +36,7 @@ import java.util.concurrent.TimeUnit;
 public class K8sServiceMeshConfigManager extends AbstractConfigManagerSupport implements ServiceMeshConfigManager {
 
     private static final Logger logger = LoggerFactory.getLogger(K8sServiceMeshConfigManager.class);
-    
+
     ServiceMeshIstioModelEngine modelEngine;
     MultiK8sConfigStore multiK8sConfigStore;
     PluginService pluginService;
@@ -59,6 +60,13 @@ public class K8sServiceMeshConfigManager extends AbstractConfigManagerSupport im
         this.pluginService = pluginService;
         this.eventPublisher = eventPublisher;
         initSidecarCache();
+    }
+
+    @Override
+    public void updateConfig(List<HasMetadata> resources, String clusterId) {
+        if (Objects.isNull(resources)) resources = Collections.emptyList();
+        List<K8sResourcePack> packs = resources.stream().map(K8sResourcePack::new).collect(Collectors.toList());
+        update(multiK8sConfigStore.resolve(clusterId), packs, modelEngine);
     }
 
     @Override

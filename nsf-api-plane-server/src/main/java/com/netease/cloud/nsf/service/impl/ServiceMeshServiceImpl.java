@@ -4,6 +4,8 @@ import com.google.common.base.Strings;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.netease.cloud.nsf.cache.ResourceCache;
 import com.netease.cloud.nsf.cache.ResourceStoreFactory;
 import com.netease.cloud.nsf.cache.extractor.ResourceExtractorManager;
@@ -17,6 +19,7 @@ import com.netease.cloud.nsf.core.k8s.K8sResourceGenerator;
 import com.netease.cloud.nsf.core.k8s.KubernetesClient;
 import com.netease.cloud.nsf.core.k8s.MultiClusterK8sClient;
 import com.netease.cloud.nsf.core.servicemesh.MultiK8sConfigStore;
+import com.netease.cloud.nsf.core.servicemesh.ServiceMeshConfigManager;
 import com.netease.cloud.nsf.meta.SVMSpec;
 import com.netease.cloud.nsf.meta.SidecarVersionManagement;
 import com.netease.cloud.nsf.meta.dto.ResourceWrapperDTO;
@@ -30,11 +33,13 @@ import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.Namespace;
+import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.apps.StatefulSet;
 import me.snowdrop.istio.api.IstioResource;
-import me.snowdrop.istio.api.networking.v1alpha3.VersionManager;
+import me.snowdrop.istio.api.networking.v1alpha3.GlobalConfig;
+import me.snowdrop.istio.api.networking.v1alpha3.GlobalConfigSpec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -103,6 +108,9 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
 
     @Autowired
     ResourceExtractorManager extractor;
+
+    @Autowired
+    ServiceMeshConfigManager configManager;
 
     @Override
     public void updateIstioResource(String json, String clusterId) {
@@ -410,22 +418,13 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
         }
     }
 
-    private void updateVersionManagerDefaultVersion(String defaultSidecarVersion, String clusterId){
+    private void updateVersionManagerDefaultVersion(String defaultSidecarVersion, String clusterId) {
+        GlobalConfig globalConfig = new GlobalConfig();
+        globalConfig.setMetadata(new ObjectMeta());
+        globalConfig.getMetadata().setName("versionmanager");
+        globalConfig.setSpec(new GlobalConfigSpec(ImmutableMap.of("ExpectedVersion", defaultSidecarVersion)));
 
-        List<VersionManager> versionManagerByClusterId = k8sResource.getVersionManagerByClusterId(clusterId);
-        KubernetesClient kubernetesClient = multiClusterK8sClient.k8sClient(clusterId);
-        if (!CollectionUtils.isEmpty(versionManagerByClusterId)){
-            try {
-                for (VersionManager versionManager : versionManagerByClusterId) {
-                    versionManager.getSpec().setDefaultVersion(defaultSidecarVersion);
-                    kubernetesClient.createOrUpdate(versionManager,OBJECT);
-                }
-            } catch (Exception e) {
-                logger.error("update default sidecar version on versionManager for cluster {} fail",clusterId,e);
-            }
-        }
-
-
+        configManager.updateConfig(ImmutableList.of(globalConfig), clusterId);
     }
 
     @Override
