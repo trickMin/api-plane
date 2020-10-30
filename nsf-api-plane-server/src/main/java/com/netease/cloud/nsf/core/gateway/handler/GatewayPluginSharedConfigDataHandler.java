@@ -20,8 +20,8 @@ public class GatewayPluginSharedConfigDataHandler extends GatewayPluginDataHandl
     private String sharedConfigName;
     private String configMapNamespace;
 
-    public GatewayPluginSharedConfigDataHandler(List<FragmentWrapper> fragments, List<Gateway> gateways, String sharedConfigName, String configMapNamespace) {
-        super(fragments, gateways);
+    public GatewayPluginSharedConfigDataHandler(List<FragmentWrapper> fragments, List<Gateway> gateways, String sharedConfigName, String configMapNamespace, String gatewayNamespace) {
+        super(fragments, gateways, gatewayNamespace);
         this.sharedConfigName = sharedConfigName;
         this.configMapNamespace = configMapNamespace;
     }

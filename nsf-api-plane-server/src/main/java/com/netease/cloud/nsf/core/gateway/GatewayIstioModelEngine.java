@@ -198,10 +198,10 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
         List<Gateway> gateways = resourceManager.getGatewayList();
 
         List<String> rawGatewayPlugins = defaultModelProcessor.process(globalGatewayPlugin, gp,
-                new GatewayPluginDataHandler(rawResourceContainer.getGatewayPlugins(), gateways));
+                new GatewayPluginDataHandler(rawResourceContainer.getGatewayPlugins(), gateways, globalConfig.getResourceNamespace()));
         //todo: shareConfig逻辑需要适配
         List<String> rawSharedConfigs = renderTwiceModelProcessor.process(apiSharedConfigConfigMap, gp,
-                new GatewayPluginSharedConfigDataHandler(rawResourceContainer.getSharedConfigs(), gateways, rateLimitConfigMapName, rateLimitNamespace));
+                new GatewayPluginSharedConfigDataHandler(rawResourceContainer.getSharedConfigs(), gateways, rateLimitConfigMapName, rateLimitNamespace, globalConfig.getResourceNamespace()));
         resources.addAll(generateK8sPack(rawGatewayPlugins));
         resources.addAll(generateK8sPack(rawSharedConfigs,
                 new GatewayRateLimitConfigMapMerger(),
