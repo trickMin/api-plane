@@ -108,6 +108,17 @@ public class RateLimitProcessorTest extends BasePluginTest {
                 "  ]\n" +
                 "}";
 
+        String plugin7 = "{\n" +
+                "  \"kind\": \"ianus-rate-limiting\",\n" +
+                "  \"limit_by_list\": [\n" +
+                "  {\n" +
+                "    \"identifier_extractor\": \"Header[plugin]\",\n" +
+                "    \"second\": 5,\n" +
+                "    \"hour\": \"\"\n" +
+                "  }\n" +
+                "  ]\n" +
+                "}";
+
         FragmentHolder fragment1 = processor.process(plugin1, serviceInfo);
         FragmentHolder fragment2 = processor.process(plugin2, serviceInfo);
         FragmentHolder fragment3 = processor.process(plugin3, serviceInfo);
@@ -115,7 +126,18 @@ public class RateLimitProcessorTest extends BasePluginTest {
         FragmentHolder fragment5 = processor.process(plugin4, nullInfo);
         FragmentHolder fragment6 = processor.process(plugin5, serviceInfo);
         FragmentHolder fragment7 = processor.process(plugin6, serviceInfo);
+        FragmentHolder fragment8 = processor.process(plugin7, serviceInfo);
         //TODO assert
+
+        Assert.assertEquals("domain: \"qingzhou\"\n" +
+                "descriptors:\n" +
+                "- key: \"generic_key\"\n" +
+                "  value: \"Service[svvc]-User[none]-Gateway[proxy]-Api[api]-Id[hash:-1360152201]\"\n" +
+                "  descriptors:\n" +
+                "  - key: \"WithoutValueHeader[plugin]\"\n" +
+                "    rate_limit:\n" +
+                "      unit: \"SECOND\"\n" +
+                "      requests_per_unit: 5", fragment8.getSharedConfigFragment().getContent().trim());
     }
 
     @Test
