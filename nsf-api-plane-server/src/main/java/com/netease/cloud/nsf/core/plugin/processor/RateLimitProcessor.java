@@ -195,8 +195,9 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
                 {"$.day", "DAY"}
         };
         for (String[] obj : map) {
-            if (rg.contain(obj[0])) {
-                ret.put(obj[1], rg.getValue(obj[0], Long.class));
+            Long duration = rg.getValue(obj[0], Long.class);
+            if (rg.contain(obj[0]) && Objects.nonNull(duration)) {
+                ret.put(obj[1], duration);
             }
         }
         return ret;
