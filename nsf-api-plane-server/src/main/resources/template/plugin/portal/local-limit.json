@@ -6,7 +6,7 @@
   "layouts": [
     {
       "key": "IsSafe",
-      "alias": "是否线程独立限流",
+      "alias": "是否线程独立",
       "type": "switch",
       "hel[": "默认使用锁机制保证安全；如果打开该字段，代表线程独立。限流规则上限为rate*proxy worker"
     },
