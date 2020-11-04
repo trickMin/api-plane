@@ -112,7 +112,7 @@ public class AggregateExtensionProcessor extends AbstractSchemaProcessor impleme
                 break;
             case "local-limiting":
                 holder = getProcessor("LocalLimitProcessor").process(plugin, serviceInfo);
-                coverToExtensionPlugin(holder, "com.netease.locallimit");
+                coverToExtensionPlugin(holder, "com.netease.filters.http.locallimit");
                 break;
             case "trace":
             default:
