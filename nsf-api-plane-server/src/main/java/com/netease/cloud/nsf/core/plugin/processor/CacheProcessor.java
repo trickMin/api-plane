@@ -7,6 +7,7 @@ import com.netease.cloud.nsf.core.plugin.FragmentWrapper;
 import com.netease.cloud.nsf.core.plugin.PluginGenerator;
 import com.netease.cloud.nsf.meta.ServiceInfo;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -21,7 +22,7 @@ public class CacheProcessor extends AbstractSchemaProcessor implements SchemaPro
     @Override
     public FragmentHolder process(String plugin, ServiceInfo serviceInfo) {
         PluginGenerator source = PluginGenerator.newInstance(plugin);
-        PluginGenerator builder = PluginGenerator.newInstance("{\"low_level_fill\":\"false\", \"key_maker\":{\"exclude_host\":\"false\", \"ignore_case\":\"true\"}, \"cache_ttls\":{\"RedisHttpCache\":{\"default\":\"0\"}, \"LocalHttpCache\":{\"default\":\"0\"}}}");
+        PluginGenerator builder = PluginGenerator.newInstance("{\"low_level_fill\":\"false\", \"key_maker\":{\"exclude_host\":\"false\", \"ignore_case\":\"true\"}}");
         // condition request
         if (source.contain("$.condition.request")) {
             builder.createOrUpdateJson("$", "enable_rqx", "{\"headers\":[]}");
@@ -107,12 +108,13 @@ public class CacheProcessor extends AbstractSchemaProcessor implements SchemaPro
 
         // redis http cache ttl
         Integer redisDefaultTtl = source.getValue("$.ttl.redis.default", Integer.class);
-        if (nonNull(redisDefaultTtl)) {
+        if (nonNull(redisDefaultTtl) && redisDefaultTtl != 0) {
+            builder.createOrUpdateJson("$", "cache_ttls", "{\"RedisHttpCache\":{}}");
             builder.createOrUpdateValue("$.cache_ttls.RedisHttpCache", "default", redisDefaultTtl);
         }
         if (source.contain("$.ttl.redis.custom")) {
-            builder.createOrUpdateJson("$.cache_ttls.RedisHttpCache", "customs", "{}");
             List<Map<String, String>> customTtl = source.getValue("$.ttl.redis.custom", List.class);
+            if (!CollectionUtils.isEmpty(customTtl)) builder.createOrUpdateJson("$.cache_ttls.RedisHttpCache", "customs", "{}");
             customTtl.forEach(item -> {
                 String code = item.get("code");
                 String value = item.get("value");
@@ -122,12 +124,13 @@ public class CacheProcessor extends AbstractSchemaProcessor implements SchemaPro
         }
         // local http cache ttl
         Integer localDefaultTtl = source.getValue("$.ttl.local.default", Integer.class);
-        if (nonNull(localDefaultTtl)) {
+        if (nonNull(localDefaultTtl) && localDefaultTtl != 0) {
+            builder.createOrUpdateJson("$", "cache_ttls", "{\"LocalHttpCache\":{}}");
             builder.createOrUpdateValue("$.cache_ttls.LocalHttpCache", "default", localDefaultTtl);
         }
         if (source.contain("$.ttl.local.custom")) {
-            builder.createOrUpdateJson("$.cache_ttls.LocalHttpCache", "customs", "{}");
             List<Map<String, String>> customTtl = source.getValue("$.ttl.local.custom", List.class);
+            if (!CollectionUtils.isEmpty(customTtl))  builder.createOrUpdateJson("$.cache_ttls.LocalHttpCache", "customs", "{}");
             customTtl.forEach(item -> {
                 String code = item.get("code");
                 String value = item.get("value");
