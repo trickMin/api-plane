@@ -24,7 +24,7 @@ public class CacheProcessor extends AbstractSchemaProcessor implements SchemaPro
         PluginGenerator source = PluginGenerator.newInstance(plugin);
         PluginGenerator builder = PluginGenerator.newInstance("{\"low_level_fill\":\"false\", \"key_maker\":{\"exclude_host\":\"false\", \"ignore_case\":\"true\"}}");
         // condition request
-        if (source.contain("$.condition.request")) {
+        if (source.contain("$.condition.request.requestSwitch") && source.getValue("$.condition.request.requestSwitch", Boolean.class)) {
             builder.createOrUpdateJson("$", "enable_rqx", "{\"headers\":[]}");
         }
         if (source.contain("$.condition.request.headers")) {

@@ -1,8 +1,8 @@
 {
   "formatter": {
     "kind": "dynamic-downgrade",
-    "condition": "&condition",
-    "cache": "&cache",
+    "condition?": "&condition",
+    "cache?": "&cache",
     "ttl": "&ttl",
     "cacheKey": "&cache_key",
     "httpx": "&httpx",
