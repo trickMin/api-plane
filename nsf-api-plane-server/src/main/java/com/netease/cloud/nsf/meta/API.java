@@ -137,8 +137,13 @@ public class API extends CommonModel {
 
     /**
      * 重试次数
+     * bugfix 默认重试为0
+     * if in.Attempts <= 0 {
+     *   //Configuration is explicitly disabling the retry policy.
+     * 	 return nil
+     * }
      */
-    private int attempts;
+    private int attempts = 0;
 
     /**
      * 重试超时时间
