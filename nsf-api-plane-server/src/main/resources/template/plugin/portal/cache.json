@@ -1,9 +1,9 @@
 {
   "formatter": {
     "kind": "cache",
-    "condition": "&condition",
-    "ttl": "&ttl",
-    "keyMaker": "&keyMaker",
+    "condition?": "&condition",
+    "ttl?": "&ttl",
+    "keyMaker?": "&keyMaker",
     "lowLevelFill": "&lowLevelFill"
   },
   "layouts": [
@@ -167,7 +167,7 @@
               "key": "responseSwitch",
               "alias": "是否使用响应进行匹配",
               "type": "switch",
-              "default": false
+              "default": true
             },
             {
               "key": "code",
@@ -196,7 +196,10 @@
                 {
                   "key": "value",
                   "alias": "取值",
-                  "type": "input"
+                  "type": "input",
+                  "rules": [
+                    "Required"
+                  ]
                 }
               ]
             },
