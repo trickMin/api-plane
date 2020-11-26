@@ -24,7 +24,7 @@
         },
         {
           "key": "pre_condition",
-          "help": "满足前置条件的请求才会进入频控流程. 左变量为identifier_extractor提取的值",
+          "help": "满足前置条件的请求才会进入频控流程",
           "alias": "频控前置条件",
           "type": "array",
           "layouts": [
@@ -34,7 +34,10 @@
               "type": "string",
               "invisible": {
                 "this.operator": "present"
-              }
+              },
+              "rules": [
+                "Required"
+              ]
             },
             {
               "key": "operator",
@@ -46,6 +49,9 @@
                 "=",
                 "!=",
                 "present"
+              ],
+              "rules": [
+                "Required"
               ]
             },
             {
