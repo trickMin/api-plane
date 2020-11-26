@@ -35,7 +35,7 @@ public class LocalLimitProcessor extends AbstractSchemaProcessor implements Sche
             });
         });
         //使用ThreadLocal，每一个线程单独计数，不进行加锁，提升效率
-        if (source.getValue("$.IsSafe", Boolean.class)) {
+        if (source.contain("$.IsSafe")  && source.getValue("$.IsSafe", Boolean.class)) {
             builder.createOrUpdateValue("$", "use_thread_local_token_bucket", source.getValue("$.IsSafe"));
         }
 
