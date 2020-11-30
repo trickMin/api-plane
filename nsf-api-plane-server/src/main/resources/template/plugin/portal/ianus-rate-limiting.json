@@ -1,4 +1,8 @@
 {
+  "formatter": {
+    "kind": "ianus-rate-limiting",
+    "limit_by_list?": "&limit_by_list"
+  },
   "inject": {
     "kind": "ianus-rate-limiting",
     "name": "ianus-rate-limiting"
@@ -11,16 +15,16 @@
       "layouts": [
         {
           "key": "identifier_extractor",
-          "help": "用于计算请求标识，以供计数使用;仅支持IP限流，Header参数限流，例如 Header[User-Agent]",
+          "help": "用于计算请求标识，以供计数使用;仅Header参数限流，例如 Header[User-Agent]",
           "alias": "标识提取策略",
           "type": "string",
           "rules":[
-            "IP|Header\\[.*\\]"
+            "Header\\[.*\\]"
           ]
         },
         {
           "key": "pre_condition",
-          "help": "满足前置条件的请求才会进入频控流程. 左变量为identifier_extractor提取的值",
+          "help": "满足前置条件的请求才会进入频控流程",
           "alias": "频控前置条件",
           "type": "array",
           "layouts": [
@@ -30,7 +34,10 @@
               "type": "string",
               "invisible": {
                 "this.operator": "present"
-              }
+              },
+              "rules": [
+                "Required"
+              ]
             },
             {
               "key": "operator",
@@ -42,6 +49,9 @@
                 "=",
                 "!=",
                 "present"
+              ],
+              "rules": [
+                "Required"
               ]
             },
             {

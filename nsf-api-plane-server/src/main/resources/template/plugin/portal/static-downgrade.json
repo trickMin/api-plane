@@ -1,7 +1,7 @@
 {
   "formatter": {
     "kind": "static-downgrade",
-    "condition": "&condition",
+    "condition?": "&condition",
     "response": {
       "code": "&response.code",
       "headers": "@response.headers",

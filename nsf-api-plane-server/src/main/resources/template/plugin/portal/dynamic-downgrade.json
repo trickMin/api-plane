@@ -1,11 +1,12 @@
 {
   "formatter": {
     "kind": "dynamic-downgrade",
-    "condition": "&condition",
-    "cache": "&cache",
+    "condition?": "&condition",
+    "cache?": "&cache",
     "ttl": "&ttl",
     "cacheKey": "&cache_key",
-    "httpx": "&httpx"
+    "httpx?": "&httpx",
+    "dowgrade_type": "&dowgrade_type"
   },
   "layouts": [
     {
@@ -135,14 +136,6 @@
                     {
                       "text": "正则表达式",
                       "value": "safe_regex_match"
-                    },
-                    {
-                      "text": "参数存在则匹配",
-                      "value": "present_match"
-                    },
-                    {
-                      "text": "参数不存在则匹配",
-                      "value": "present_match_invert"
                     }
                   ]
                 },
@@ -151,8 +144,14 @@
                   "type": "input",
                   "alias": "取值",
                   "invisible": {
-                    "present_match": ["this", "match_type"],
-                    "present_match_invert": ["this", "match_type"]
+                    "present_match": [
+                      "this",
+                      "match_type"
+                    ],
+                    "present_match_invert": [
+                      "this",
+                      "match_type"
+                    ]
                   }
                 }
               ]
@@ -197,13 +196,7 @@
                 {
                   "key": "value",
                   "alias": "取值",
-                  "type": "input",
-                  "rules": [
-                    "Required",
-                    "Number",
-                    "MinNumber(100)",
-                    "MaxNumber(999)"
-                  ]
+                  "type": "input"
                 }
               ]
             },
@@ -233,14 +226,6 @@
                     {
                       "text": "正则表达式",
                       "value": "safe_regex_match"
-                    },
-                    {
-                      "text": "参数存在则匹配",
-                      "value": "present_match"
-                    },
-                    {
-                      "text": "参数不存在则匹配",
-                      "value": "present_match_invert"
                     }
                   ]
                 },
@@ -249,8 +234,14 @@
                   "type": "input",
                   "alias": "取值",
                   "invisible": {
-                    "present_match": ["this", "match_type"],
-                    "present_match_invert": ["this", "match_type"]
+                    "present_match": [
+                      "this",
+                      "match_type"
+                    ],
+                    "present_match_invert": [
+                      "this",
+                      "match_type"
+                    ]
                   }
                 }
               ]
@@ -274,7 +265,7 @@
           "text": "接口降级"
         }
       ],
-      "style":"width: 600px; display: block;"
+      "style": "width: 600px; display: block;"
     },
     {
       "key": "cache",
@@ -357,14 +348,6 @@
                         {
                           "text": "正则表达式",
                           "value": "safe_regex_match"
-                        },
-                        {
-                          "text": "参数存在则匹配",
-                          "value": "present_match"
-                        },
-                        {
-                          "text": "参数不存在则匹配",
-                          "value": "present_match_invert"
                         }
                       ]
                     },
@@ -373,8 +356,14 @@
                       "type": "input",
                       "alias": "取值",
                       "invisible": {
-                        "present_match": ["this", "match_type"],
-                        "present_match_invert": ["this", "match_type"]
+                        "present_match": [
+                          "this",
+                          "match_type"
+                        ],
+                        "present_match_invert": [
+                          "this",
+                          "match_type"
+                        ]
                       }
                     }
                   ]
@@ -468,8 +457,47 @@
           "key": "uri",
           "alias": "接口降级uri",
           "type": "input",
-          "rules": [
-            "Required"
+          "help": "uri为空，默认采用原接口"
+        },
+        {
+          "key": "remote",
+          "alias": "降级服务配置",
+          "help": "如果不配置，默认采用全局降级服务。需要联系管理员配置全局降级服务",
+          "type": "layouts",
+          "layouts": [
+            {
+              "key": "requestSwitch",
+              "alias": "是否配置降级服务",
+              "type": "switch",
+              "default": false
+            },
+            {
+              "key": "cluster",
+              "alias": "降级服务cluster",
+              "type": "input",
+              "visible": {
+                "this.requestSwitch": true
+              },
+              "help": "需要填写网关对应的cluster",
+              "rules": [
+                "Required"
+              ]
+            },
+            {
+              "key": "timeout",
+              "alias": "接口降级超时时间",
+              "type": "input",
+              "help": "单位s",
+              "visible": {
+                "this.requestSwitch": true
+              },
+              "rules": [
+                "Required",
+                "Number",
+                "MinNumber(0)",
+                "MaxNumber(99999999)"
+              ]
+            }
           ]
         }
       ]

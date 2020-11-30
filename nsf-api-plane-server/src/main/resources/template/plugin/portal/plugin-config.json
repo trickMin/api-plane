@@ -167,6 +167,18 @@
       "pluginScope": "routeRule,global",
       "pluginPriority": "3400",
       "instructionForUse": "熔断降级插件"
+    },
+    {
+      "name": "local-limiting",
+      "schema": "plugin/portal/local-limit.json",
+      "description": "",
+      "processor": "AggregateGatewayPluginProcessor",
+      "author": "system",
+      "createTime": "1572537600000",
+      "updateTime": "1572537600000",
+      "pluginScope": "routeRule,global",
+      "pluginPriority": "3400",
+      "instructionForUse": "本地限流插件"
     }
   ]
 }

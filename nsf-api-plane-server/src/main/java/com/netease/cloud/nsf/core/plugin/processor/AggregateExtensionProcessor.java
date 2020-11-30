@@ -110,6 +110,10 @@ public class AggregateExtensionProcessor extends AbstractSchemaProcessor impleme
                 holder = getProcessor("FunctionProcessor").process(plugin, serviceInfo);
                 coverToExtensionPlugin(holder, "envoy.lua");
                 break;
+            case "local-limiting":
+                holder = getProcessor("LocalLimitProcessor").process(plugin, serviceInfo);
+                coverToExtensionPlugin(holder, "com.netease.filters.http.locallimit");
+                break;
             case "trace":
             default:
                 holder = getProcessor("RestyProcessor").process(plugin, serviceInfo);

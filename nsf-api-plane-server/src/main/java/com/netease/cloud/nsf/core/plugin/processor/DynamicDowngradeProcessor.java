@@ -33,7 +33,7 @@ public class DynamicDowngradeProcessor extends AbstractSchemaProcessor implement
             createCacheTtls(source, builder);
             createKeyMaker(source, builder);
         }
-        if (source.contain("$.httpx")) {
+        if (source.contain("$.httpx") || plugin.contains("httpx")) {
             builder = PluginGenerator.newInstance("{\"downgrade_rpx\":{\"headers\":[]}}");
             createCondition(source, builder);
             createHttpx(source, builder);
@@ -187,10 +187,15 @@ public class DynamicDowngradeProcessor extends AbstractSchemaProcessor implement
     }
 
     private void createHttpx(PluginGenerator source, PluginGenerator builder) {
+        builder.createOrUpdateValue("$", "downgrade_src", "HTTPX");
         if (source.contain("$.httpx.uri")) {
             String uri = source.getValue("$.httpx.uri");
-            builder.createOrUpdateValue("$", "downgrade_src", "HTTPX");
             builder.createOrUpdateValue("$", "downgrade_uri", uri);
+        }
+        if (source.contain("$.httpx.remote")){
+            builder.createOrUpdateJson("$", "override_remote", "{}");
+            builder.createOrUpdateValue("$.override_remote", "cluster", source.getValue("$.httpx.remote.cluster"));
+            builder.createOrUpdateValue("$.override_remote", "timeout", source.getValue("$.httpx.remote.timeout",Integer.class)+"s");
         }
     }
 }

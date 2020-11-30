@@ -160,6 +160,11 @@ public abstract class AbstractSchemaProcessor implements SchemaProcessor<Service
             if (Objects.isNull(item)) {
                 return false;
             }
+            if (item instanceof String){
+                if (StringUtils.isEmpty((String)item)){
+                    return false;
+                }
+            }
         }
         return true;
     }

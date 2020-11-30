@@ -2,6 +2,7 @@ package com.netease.cloud.nsf.core.servicemesh;
 
 import com.netease.cloud.nsf.core.ConfigManager;
 import com.netease.cloud.nsf.meta.*;
+import io.fabric8.kubernetes.api.model.HasMetadata;
 
 import java.util.List;
 
@@ -10,6 +11,13 @@ import java.util.List;
  **/
 
 public interface ServiceMeshConfigManager extends ConfigManager {
+
+    /**
+     * 更新cr
+     * @param resources
+     * @param clusterId
+     */
+    void updateConfig(List<HasMetadata> resources, String clusterId);
 
     /**
      * 更新sidecar版本

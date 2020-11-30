@@ -25,10 +25,12 @@ public class GatewayPluginDataHandler implements DataHandler<GlobalPlugin> {
 
     List<FragmentWrapper> fragments;
     List<Gateway> gateways;
+    String gatewayNamespace;
 
-    public GatewayPluginDataHandler(List<FragmentWrapper> fragments, List<Gateway> gateways) {
+    public GatewayPluginDataHandler(List<FragmentWrapper> fragments, List<Gateway> gateways, String gatewayNamespace) {
         this.fragments = fragments;
         this.gateways = gateways;
+        this.gatewayNamespace = gatewayNamespace;
     }
 
     @Override
@@ -62,7 +64,7 @@ public class GatewayPluginDataHandler implements DataHandler<GlobalPlugin> {
         if (gp.getGateway() == null) return Collections.emptyList();
         if (gp.getGateway().contains("/")) return Collections.singletonList(gp.getGateway());
 
-        return Collections.singletonList(String.format("%s/%s", getNamespace(gp.getGateway()), gp.getGateway()));
+        return Collections.singletonList(String.format("%s/%s", gatewayNamespace, gp.getGateway()));
     }
 
     private String getNamespace(String gateway) {

@@ -121,6 +121,18 @@
       "instructionForUse": "静态降级插件，当返回结果符合条时件对返回结果进行降级"
     },
     {
+      "name": "dynamic-downgrade",
+      "schema": "plugin/portal/dynamic-downgrade.json",
+      "description": "",
+      "processor": "AggregateGlobalProcessor",
+      "author": "system",
+      "createTime": "1572537600000",
+      "updateTime": "1572537600000",
+      "pluginScope": "routeRule",
+      "pluginPriority": "2300",
+      "instructionForUse": "动态降级插件，当返回结果符合条时件对返回结果进行降级"
+    },
+    {
       "name": "cache",
       "schema": "plugin/portal/cache.json",
       "description": "",
