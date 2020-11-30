@@ -6,11 +6,8 @@ import com.netease.cloud.nsf.cache.ResourceStoreFactory;
 import com.netease.cloud.nsf.cache.meta.PodDTO;
 import com.netease.cloud.nsf.cache.meta.ServiceDto;
 import com.netease.cloud.nsf.cache.meta.WorkLoadDTO;
-import com.netease.cloud.nsf.core.ConfigManager;
 import com.netease.cloud.nsf.core.servicemesh.ServiceMeshConfigManager;
-import com.netease.cloud.nsf.meta.Endpoint;
 import com.netease.cloud.nsf.service.ServiceMeshService;
-import com.netease.cloud.nsf.util.Const;
 import com.netease.cloud.nsf.util.errorcode.ApiPlaneErrorCode;
 import com.netease.cloud.nsf.util.errorcode.ErrorCode;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
@@ -57,7 +54,8 @@ public class K8sResourceController extends BaseController {
         } else {
             workLoadByServiceInfo = resourceCache.getWorkLoadByServiceInfoAllClusterId(projectId, namespace, serviceName);
         }
-        workLoadByServiceInfo.addAll(resourceCache.getServiceEntryWorkloadByServiceInfo(projectId,serviceName+ Const.SEPARATOR_DOT + namespace));
+        //不再查询service entry
+//        workLoadByServiceInfo.addAll(resourceCache.getServiceEntryWorkloadByServiceInfo(projectId,serviceName+ Const.SEPARATOR_DOT + namespace));
         checkResult(workLoadByServiceInfo);
         Map<String, Object> result = new HashMap<>();
         result.put("Result", workLoadByServiceInfo);
