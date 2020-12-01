@@ -1,8 +1,6 @@
 package com.netease.cloud.nsf.web.controller;
 
 import com.google.common.collect.ImmutableMap;
-import com.netease.cloud.nsf.cache.meta.ServiceDto;
-import com.netease.cloud.nsf.cache.meta.WorkLoadDTO;
 import com.netease.cloud.nsf.meta.Graph;
 import com.netease.cloud.nsf.meta.ValidateResult;
 import com.netease.cloud.nsf.meta.dto.ValidateResultDTO;
@@ -196,11 +194,31 @@ public class ServiceMeshController extends BaseController {
         return apiReturn(ImmutableMap.of(RESULT, serviceMeshService.getIstioVersionBindings(clusterId)));
     }
 
+    @RequestMapping(params = "Action=GetSyncz", method = RequestMethod.GET)
+    public String getSyncz(@RequestParam(value = "IstioVersion") String version,
+                           @RequestParam(value = "Type") String type) {
+        return apiReturn(ImmutableMap.of(RESULT, serviceMeshService.getSyncz(type, version)));
+    }
+
     @RequestMapping(params = "Action=UpdateDefaultSidecarVersion", method = RequestMethod.GET)
     public String updateNamespaceBinding(@RequestParam(value = "DefaultVersion") String defaultVersion) {
 
         serviceMeshService.updateDefaultSidecarVersion(defaultVersion);
         return apiReturn(ApiPlaneErrorCode.Success);
+    }
+
+    @RequestMapping(params = {"Action=InvokeIstiod"}, method = RequestMethod.GET)
+    public String invokeIstiod(@RequestParam(name = "Name") String name,
+                               @RequestParam(name = "Namespace") String namespace,
+                               @RequestParam(name = "ClusterId",required = false) String clusterId,
+                               @RequestParam(name = "Path") String path) {
+        return apiReturn(ImmutableMap.of(RESULT, serviceMeshService.invokeIstiodApi(clusterId, name, namespace, path)));
+    }
+
+    @RequestMapping(params = {"Action=GetIstiodInstances"}, method = RequestMethod.GET)
+    public String getIstiodInstances(@RequestParam(name = "IstioVersion") String version,
+                                     @RequestParam(name = "Type") String type) {
+        return apiReturn(ImmutableMap.of(RESULT_LIST, serviceMeshService.getIstiodInstances(type, version)));
     }
 
     private String optimize(String json) {

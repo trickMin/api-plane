@@ -112,4 +112,6 @@ public interface ResourceCache {
     List<Namespace> getNamespaces(String clusterId);
 
     Map<String, List<Namespace>> getNamespaces();
+
+    Map<String, Map<String, String>> getSyncz(String type, String version);
 }

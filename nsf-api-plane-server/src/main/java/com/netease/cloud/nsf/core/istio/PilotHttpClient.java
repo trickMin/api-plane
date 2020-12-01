@@ -36,7 +36,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 
 /**
@@ -82,6 +81,7 @@ public class PilotHttpClient {
 
     LoadingCache<String, Object> endpointsCache;
     LoadingCache<String, Map<String, Map<String, String>>> statusCache;
+    public static final String PILOT_GLOBAL_KEY = "global";
 
     @PostConstruct
     void cacheInit() {
@@ -101,28 +101,20 @@ public class PilotHttpClient {
     @PostConstruct
     void statusCacheInit() {
         statusCache = CacheBuilder.newBuilder()
-            .maximumSize(1)
             .initialCapacity(1)
             .expireAfterWrite(10, TimeUnit.SECONDS)
             .recordStats()
             .build(new CacheLoader<String, Map<String, Map<String, String>>>() {
                 @Override
                 public Map<String, Map<String, String>> load(String key) throws IOException {
-                    return getIstioPodUrls().stream()
-                        .flatMap(istioUrl -> {
-                            try {
-                                String body = getForEntity(istioUrl + "/debug/syncz", String.class).getBody();
-                                if (!StringUtils.isEmpty(body)) {
-                                    List<Map<String, String>> result = objectMapper.readValue(body, new TypeReference<List<Map<String, String>>>() {});
-                                    if (result != null) {
-                                        return result.stream();
-                                    }
-                                }
-                            } catch (Exception e) {
-                                logger.error("error while getting pod sync data", e);
-                            }
-                            return Stream.empty();
-                        })
+                    List<String> urls = new ArrayList<>();
+                    if (PILOT_GLOBAL_KEY.equals(key)) {
+                        urls = getIstioPodUrls();
+                    } else if (key.startsWith("istio-env/")) {
+                        urls = getUrls(key.replaceAll("^istio-env/", ""));
+                    }
+                    return urls.stream()
+						.flatMap(istioUrl -> syncz(istioUrl).stream())
                         .collect(Collectors.toMap(m -> m.get("proxy"), m -> m, (m1, m2) -> {
                             logger.error("syncz pod conflict: {}", m1.get("proxy"));
                             return m1;
@@ -131,11 +123,38 @@ public class PilotHttpClient {
             });
     }
 
+    private List<Map<String, String>> syncz(String istioUrl) {
+        try {
+            String body = getForEntity(istioUrl + "/debug/syncz", String.class).getBody();
+            if (!StringUtils.isEmpty(body)) {
+                List<Map<String, String>> result = objectMapper.readValue(body, new TypeReference<List<Map<String, String>>>() {});
+                if (result != null) {
+                    return result;
+                } else {
+                    return new ArrayList<>();
+                }
+            }
+        } catch (Exception e) {
+            logger.error("error while getting pod sync data", e);
+        }
+        return new ArrayList<>();
+    }
+
+    public String invokeIstiod(String podName, String podNamespace, String path, Map<String, String> params) {
+        Pod pod = client.getObject(K8sResourceEnum.Pod.name(), podNamespace, podName);
+        String istioUrl = String.format("http://%s:8080", pod.getStatus().getPodIP());
+        return getForEntity(istioUrl + path, String.class).getBody();
+    }
 
     private List<String> getIstioPodUrls() {
         return pilotNamespaces.stream()
-            .map(ns -> client.getUrlWithLabels(K8sResourceEnum.Pod.name(), ns, ImmutableMap.of("app", NAME)) + "&fieldSelector=status.phase%3DRunning")
-            .flatMap(url -> client.<Pod>getObjectList(url).stream())
+            .flatMap(ns -> getUrls(ns).stream())
+            .collect(Collectors.toList());
+    }
+
+    private List<String> getUrls(String ns) {
+        String podUrl = client.getUrlWithLabels(K8sResourceEnum.Pod.name(), ns, ImmutableMap.of("app", NAME)) + "&fieldSelector=status.phase%3DRunning";
+        return client.<Pod>getObjectList(podUrl).stream()
             .map(p -> String.format("http://%s:8080", p.getStatus().getPodIP()))
             .collect(Collectors.toList());
     }
@@ -161,7 +180,16 @@ public class PilotHttpClient {
 
     public Map<String, String> getSidecarSyncStatus(String name, String namespace) {
         try {
-            return statusCache.get("syncz").get(String.format("%s.%s", name, namespace));
+            return statusCache.get(PILOT_GLOBAL_KEY).get(String.format("%s.%s", name, namespace));
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public Map<String, Map<String, String>> getSidecarSyncStatusFromPilot(String type, String version) {
+        try {
+            return statusCache.get(String.format("%s/%s", type, version));
         } catch (ExecutionException e) {
             e.printStackTrace();
             return null;

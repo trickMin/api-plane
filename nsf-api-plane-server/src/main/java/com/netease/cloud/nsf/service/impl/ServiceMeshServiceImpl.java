@@ -6,6 +6,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.netease.cloud.nsf.cache.OwnerReferenceSupportStore;
 import com.netease.cloud.nsf.cache.ResourceCache;
 import com.netease.cloud.nsf.cache.ResourceStoreFactory;
 import com.netease.cloud.nsf.cache.extractor.ResourceExtractorManager;
@@ -157,6 +158,30 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
             throw new ApiPlaneException(ExceptionConst.RESOURCE_NON_EXIST, 404);
         }
         return resource;
+    }
+
+    @Override
+    public String invokeIstiodApi(String clusterId, String podName, String namespace, String path) {
+        clusterId = StringUtils.isEmpty(clusterId) ? getDefaultClusterId() : clusterId;
+        return pilotHttpClient.invokeIstiod(podName, namespace, path, null);
+    }
+
+    @Override
+    public List<String> getIstiodInstances(String type, String version) {
+        if (type.equals("istio-env")) {
+            String namespace = version;
+            String deployName = "istio-pilot";
+            OwnerReferenceSupportStore store = ResourceStoreFactory.getResourceStore("default");
+            T obj = (T) store.get("Deployment", namespace, deployName);
+            if (obj == null) {
+                return new ArrayList<>();
+            }
+            return ((List<Pod>) store.listResourceByOwnerReference(K8sResourceEnum.Pod.name(), obj))
+                .stream()
+                .map(po -> po.getMetadata().getName() + "." + po.getMetadata().getNamespace())
+                .collect(Collectors.toList());
+        }
+        return new ArrayList<>();
     }
 
     @Override
@@ -466,6 +491,11 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
                     .map(ns -> getNamespaceIstioVersionBinding(ns, clusterId))
                     .collect(Collectors.toList());
         }
+    }
+
+    @Override
+    public Map<String, Map<String, String>> getSyncz(String type, String version) {
+        return k8sResource.getSyncz(type, version);
     }
 
     private Map<String, String> getNamespaceIstioVersionBinding(Namespace ns, String clusterId) {

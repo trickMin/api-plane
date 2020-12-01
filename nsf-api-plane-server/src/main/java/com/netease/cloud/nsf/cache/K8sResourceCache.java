@@ -1182,4 +1182,9 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         return result;
     }
 
+    @Override
+    public Map<String, Map<String, String>> getSyncz(String type, String version) {
+        return pilotHttpClient.getSidecarSyncStatusFromPilot(type, version);
+    }
+
 }

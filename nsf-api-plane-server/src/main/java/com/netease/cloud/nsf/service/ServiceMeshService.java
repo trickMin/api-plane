@@ -1,7 +1,5 @@
 package com.netease.cloud.nsf.service;
 
-import com.netease.cloud.nsf.cache.meta.ServiceDto;
-import com.netease.cloud.nsf.cache.meta.WorkLoadDTO;
 import com.netease.cloud.nsf.meta.dto.ResourceWrapperDTO;
 import com.netease.cloud.nsf.util.errorcode.ErrorCode;
 import io.fabric8.kubernetes.api.model.HasMetadata;
@@ -18,6 +16,8 @@ public interface ServiceMeshService {
     HasMetadata getIstioResource(String clusterId, String name, String namespace, String kind);
 
     List<ResourceWrapperDTO> getIstioResourceList(String clusterId, String namespaces, String kind);
+
+	String invokeIstiodApi(String clusterId, String podName, String namespace, String path);
 
     ErrorCode sidecarInject(String clusterId, String kind, String namespace, String name, String version, String expectedVersion, String appName);
 
@@ -42,4 +42,8 @@ public interface ServiceMeshService {
     void changeIstioVersion(String clusterId, String namespace, String type, String value);
 
     List<Map<String, String>> getIstioVersionBindings(String clusterId);
+
+    Map<String, Map<String, String>> getSyncz(String type, String version);
+
+    List<String> getIstiodInstances(String type, String version);
 }
