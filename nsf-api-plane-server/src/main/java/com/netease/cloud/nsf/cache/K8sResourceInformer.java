@@ -151,7 +151,7 @@ public class K8sResourceInformer<T extends HasMetadata> implements Informer {
                             handler.handleDelete(event);
                             break;
                         default:
-                            log.warn("unknown event ");
+                            log.debug("unknown event ");
                     }
                     handler.dispatchEvent(event);
                 }
