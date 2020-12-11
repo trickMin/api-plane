@@ -38,6 +38,7 @@
     {
       "key": "errorPercent",
       "alias": "错误率触发熔断",
+      "help": "错误定义：服务响应5xx，网关代理请求到服务过程中超时等异常均会计入5xx统计",
       "type": "layouts",
       "visible": {
         "RTCircuitbreaker,ErrorPercentCircuitbreaker": ["this", "breakType"],
@@ -48,7 +49,7 @@
         {
           "key": "errorPercentThreshold",
           "alias": "错误百分比阈值",
-          "help": "与最小错误数搭配生效，仅在统计窗口内，最小错误数与错误百分比阈值同时满足时触发熔断",
+          "help": "与最小请求次数搭配生效，仅在统计窗口内，最小请求次数与错误百分比阈值同时满足时触发熔断",
           "type": "input",
           "placeholder": "范围 (0.0, 100.0] 之间",
           "rules": [
@@ -60,8 +61,8 @@
         },
         {
           "key": "minRequestAmount",
-          "alias": "最小错误数",
-          "help": "与错误百分比阈值搭配生效，仅在统计窗口内，最小错误数与错误百分比阈值同时满足时触发熔断",
+          "alias": "最小请求次数",
+          "help": "与错误百分比阈值搭配生效，仅在统计窗口内，最小请求次数与错误百分比阈值同时满足时触发熔断",
           "type": "input",
           "placeholder": "范围 [1, 4294967295] 之间",
           "rules": [
@@ -119,7 +120,7 @@
       "rules": [
         "Required",
         "FloatNumber(5)",
-        "MaxFloatNumber(199.99999)",
+        "MaxFloatNumber(119.999)",
         "MinFloatNumber(0.00001)"
       ]
     },
