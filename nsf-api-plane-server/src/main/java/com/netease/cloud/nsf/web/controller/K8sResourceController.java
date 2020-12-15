@@ -16,6 +16,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -187,7 +188,8 @@ public class K8sResourceController extends BaseController {
 
     private void checkResult(List result){
         if (CollectionUtils.isEmpty(result)){
-            throw new ApiPlaneException("No resources found", 404);
+//            throw new ApiPlaneException("No resources found", 404);
+            result = Collections.EMPTY_LIST;
         }
     }
 

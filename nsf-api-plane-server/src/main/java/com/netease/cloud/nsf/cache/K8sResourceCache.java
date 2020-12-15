@@ -262,6 +262,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
             List podInfoByWorkLoadInfo = getPodInfoByWorkLoadInfo(clusterId, workload.getKind(), workload.getNamespace(),
                     workload.getName());
             resourceCacheManager.setSidecarInfo(podInfoByWorkLoadInfo,workload);
+            workload.setPods(podInfoByWorkLoadInfo);
         });
         return result;
     }

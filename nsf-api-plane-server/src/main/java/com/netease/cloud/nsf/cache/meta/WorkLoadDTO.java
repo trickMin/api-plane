@@ -40,6 +40,8 @@ public class WorkLoadDTO<T extends HasMetadata> extends K8sResourceDTO {
 
     private List<Endpoint> externalServiceInstance;
 
+    private List<HasMetadata> pods;
+
     public WorkLoadDTO() {
 
     }
@@ -192,41 +194,11 @@ public class WorkLoadDTO<T extends HasMetadata> extends K8sResourceDTO {
         this.envName = envName;
     }
 
+    public List<HasMetadata> getPods() {
+        return pods;
+    }
 
-
-//    private boolean IsInjected(T obj) {
-//        String injectAnnotationValue = null;
-//        try {
-//            if (obj instanceof Deployment) {
-//                Deployment deployment = (Deployment) obj;
-//                Map<String,String> annotation = deployment
-//                        .getSpec()
-//                        .getTemplate()
-//                        .getMetadata()
-//                        .getAnnotations();
-//                if (annotation == null||annotation.isEmpty()){
-//                    return false;
-//                }
-//                injectAnnotationValue = annotation.get(Const.ISTIO_INJECT_ANNOTATION);
-//            } else if (obj instanceof StatefulSet) {
-//                StatefulSet statefulSet = (StatefulSet) obj;
-//                Map<String,String> annotation = statefulSet
-//                        .getSpec()
-//                        .getTemplate()
-//                        .getMetadata()
-//                        .getAnnotations();
-//                if (annotation == null||annotation.isEmpty()){
-//                    return false;
-//                }
-//            }
-//            if (!StringUtils.isEmpty(injectAnnotationValue) && injectAnnotationValue.equals(Const.OPTION_TRUE)) {
-//                return true;
-//            } else {
-//                return false;
-//            }
-//        } catch (Exception e) {
-//            return false;
-//        }
-//
-//    }
+    public void setPods(List<HasMetadata> pods) {
+        this.pods = pods;
+    }
 }

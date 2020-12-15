@@ -145,7 +145,7 @@ public class ResourceCacheManager implements ResourceEventDispatcher {
             }
         }
         if (StringUtils.isEmpty(appName)) {
-            log.warn("no app info for workload [{}] ", resourceObject.getMetadata().getName());
+            log.debug("no app info for workload [{}] ", resourceObject.getMetadata().getName());
             return null;
         }
         return appName + Const.SEPARATOR_DOT + namespace;
