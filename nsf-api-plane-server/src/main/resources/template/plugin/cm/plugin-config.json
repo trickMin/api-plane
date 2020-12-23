@@ -22,7 +22,7 @@
       "updateTime": "1572537600000",
       "pluginScope": "routeRule",
       "pluginPriority": "500",
-      "instructionForUse": "按百分比限流，例如允许50%通"
+      "instructionForUse": "按百分比限流，例如允许50%通过"
     },
     {
       "name": "ianus-rate-limiting",
@@ -46,7 +46,7 @@
       "updateTime": "1572537600000",
       "pluginScope": "routeRule",
       "pluginPriority": "3500",
-      "instructionForUse": "包含参数分流、重定向、直接返回、PassProxy功能"
+      "instructionForUse": "直接返回"
     },
     {
       "name": "ip-restriction",
@@ -70,7 +70,7 @@
       "updateTime": "1572537600000",
       "pluginScope": "routeRule,global",
       "pluginPriority": "2000",
-      "instructionForUse": ""
+      "instructionForUse": "跨域请求CORS"
     },
     {
       "name": "jsonp",
