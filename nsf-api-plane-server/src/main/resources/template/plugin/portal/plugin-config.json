@@ -1,7 +1,8 @@
 {
   "item": [
     {
-      "name": "百分比限流",
+      "name": "ianus-percent-limit",
+      "displayName": "百分比限流",
       "schema": "plugin/portal/ianus-percent-limit.json",
       "description": "百分比限流插件",
       "processor": "AggregateGatewayPluginProcessor",
@@ -11,11 +12,12 @@
       "pluginScope": "routeRule",
       "pluginPriority": "500",
       "instructionForUse": "按百分比限流，例如允许50%通过",
-      "typeKey": "trafficPolicy",
-      "typeName": "流量管理"
+      "categoryKey": "trafficPolicy",
+      "categoryName": "流量管理"
     },
     {
-      "name": "限流",
+      "name": "ianus-percent-limit",
+      "displayName": "限流",
       "schema": "plugin/portal/ianus-rate-limiting.json",
       "description": "频控插件",
       "processor": "AggregateGatewayPluginProcessor",
@@ -25,11 +27,12 @@
       "pluginScope": "routeRule",
       "pluginPriority": "1500",
       "instructionForUse": "请求频率限流,例如限制5个请求/s",
-      "typeKey": "trafficPolicy",
-      "typeName": "流量管理"
+      "categoryKey": "trafficPolicy",
+      "categoryName": "流量管理"
     },
     {
-      "name": "路由",
+      "name": "ianus-router",
+      "displayName": "路由",
       "schema": "plugin/portal/ianus-router.json",
       "description": "路由插件",
       "processor": "RouteProcessor",
@@ -39,11 +42,12 @@
       "pluginScope": "routeRule",
       "pluginPriority": "3500",
       "instructionForUse": "请求中断返回，支持定义响应码和响应Body",
-      "typeKey": "trafficPolicy",
-      "typeName": "流量管理"
+      "categoryKey": "trafficPolicy",
+      "categoryName": "流量管理"
     },
     {
-      "name": "IP黑白名单",
+      "name": "ip-restriction",
+      "displayName": "IP黑白名单",
       "schema": "plugin/portal/ip-restriction.json",
       "description": "黑白名单插件",
       "processor": "AggregateGatewayPluginProcessor",
@@ -53,11 +57,12 @@
       "pluginScope": "routeRule,global",
       "pluginPriority": "1000",
       "instructionForUse": "根据ip过滤请求",
-      "typeKey": "security",
-      "typeName": "安全"
+      "categoryKey": "security",
+      "categoryName": "安全"
     },
     {
-      "name": "CORS",
+      "name": "cors",
+      "displayName": "CORS",
       "schema": "plugin/portal/cors.json",
       "description": "",
       "processor": "AggregateGatewayPluginProcessor",
@@ -67,11 +72,12 @@
       "pluginScope": "routeRule,global",
       "pluginPriority": "2000",
       "instructionForUse": "跨域访问CORS",
-      "typeKey": "security",
-      "typeName": "安全"
+      "categoryKey": "security",
+      "categoryName": "安全"
     },
     {
-      "name": "JSONP",
+      "name": "jsonp",
+      "displayName": "JSONP",
       "schema": "plugin/portal/jsonp.json",
       "description": "jsonp插件",
       "processor": "AggregateGatewayPluginProcessor",
@@ -81,11 +87,12 @@
       "pluginScope": "routeRule",
       "pluginPriority": "2700",
       "instructionForUse": "跨域访问JSONP",
-      "typeKey": "security",
-      "typeName": "安全"
+      "categoryKey": "security",
+      "categoryName": "安全"
     },
     {
-      "name": "请求Path重写",
+      "name": "rewrite",
+      "displayName": "请求Path重写",
       "schema": "plugin/portal/rewrite.json",
       "description": "重写插件",
       "processor": "AggregateGatewayPluginProcessor",
@@ -95,11 +102,12 @@
       "pluginScope": "routeRule",
       "pluginPriority": "2500",
       "instructionForUse": "替换请求Path前缀",
-      "typeKey": "dataFormat",
-      "typeName": "数据转换"
+      "categoryKey": "dataFormat",
+      "categoryName": "数据转换"
     },
     {
-      "name": "缓存",
+      "name": "envoy",
+      "displayName": "缓存",
       "schema": "plugin/portal/cache.json",
       "description": "",
       "processor": "AggregateGatewayPluginProcessor",
@@ -109,11 +117,12 @@
       "pluginScope": "routeRule,global",
       "pluginPriority": "3000",
       "instructionForUse": "缓存后端应答，以缓存响应请求",
-      "typeKey": "trafficPolicy",
-      "typeName": "流量管理"
+      "categoryKey": "trafficPolicy",
+      "categoryName": "流量管理"
     },
     {
-      "name": "请求转换",
+      "name": "transformer",
+      "displayName": "请求转换",
       "schema": "plugin/portal/request-transformer-new.json",
       "description": "",
       "processor": "AggregateGatewayPluginProcessor",
@@ -123,11 +132,12 @@
       "pluginScope": "routeRule",
       "pluginPriority": "2300",
       "instructionForUse": "修改请求Header、QueryString以及Path",
-      "typeKey": "dataFormat",
-      "typeName": "数据转换"
+      "categoryKey": "dataFormat",
+      "categoryName": "数据转换"
     },
     {
-      "name": "静态降级",
+      "name": "static-downgrade",
+      "displayName": "静态降级",
       "schema": "plugin/portal/static-downgrade.json",
       "description": "",
       "processor": "AggregateGatewayPluginProcessor",
@@ -137,11 +147,12 @@
       "pluginScope": "routeRule,global",
       "pluginPriority": "2200",
       "instructionForUse": "当后端响应结果符合条件时，对返回结果进行静态响应降级",
-      "typeKey": "trafficPolicy",
-      "typeName": "流量管理"
+      "categoryKey": "trafficPolicy",
+      "categoryName": "流量管理"
     },
     {
-      "name": "动态降级",
+      "name": "static-downgrade",
+      "displayName": "动态降级",
       "schema": "plugin/portal/dynamic-downgrade.json",
       "description": "",
       "processor": "AggregateGatewayPluginProcessor",
@@ -151,11 +162,12 @@
       "pluginScope": "routeRule,global",
       "pluginPriority": "2100",
       "instructionForUse": "当后端响应结果符合条件时，对返回结果进行缓存降级或接口降级",
-      "typeKey": "trafficPolicy",
-      "typeName": "流量管理"
+      "categoryKey": "trafficPolicy",
+      "categoryName": "流量管理"
     },
     {
       "name": "trace",
+      "displayName": "trace",
       "schema": "plugin/portal/neTraceFileLog.json",
       "description": "",
       "processor": "AggregateGatewayPluginProcessor",
@@ -164,10 +176,13 @@
       "updateTime": "1572537600000",
       "pluginScope": "global",
       "pluginPriority": "4000",
-      "instructionForUse": "trace插件"
+      "instructionForUse": "trace插件",
+      "categoryKey": "tracing",
+      "categoryName": "链路追踪"
     },
     {
-      "name": "认证",
+      "name": "super-auth",
+      "displayName": "认证",
       "schema": "plugin/portal/superAuth.json",
       "description": "",
       "processor": "AggregateGatewayPluginProcessor",
@@ -177,11 +192,12 @@
       "pluginScope": "global,routeRule",
       "pluginPriority": "1700",
       "instructionForUse": "提供AK/SK、JWT和Oauth2认证",
-      "typeKey": "auth",
-      "typeValue": "认证"
+      "categoryKey": "auth",
+      "categoryName": "认证"
     },
     {
-      "name": "熔断",
+      "name": "circuit-breaker",
+      "displayName": "熔断",
       "schema": "plugin/portal/circuit-breaker.json",
       "description": "",
       "processor": "AggregateGatewayPluginProcessor",
@@ -191,11 +207,12 @@
       "pluginScope": "routeRule,global",
       "pluginPriority": "3400",
       "instructionForUse": "提供错误率和时延触发的熔断",
-      "typeKey": "trafficPolicy",
-      "typeName": "流量管理"
+      "categoryKey": "trafficPolicy",
+      "categoryName": "流量管理"
     },
     {
-      "name": "本地限流",
+      "name": "local-limit",
+      "displayName": "本地限流",
       "schema": "plugin/portal/local-limit.json",
       "description": "",
       "processor": "AggregateGatewayPluginProcessor",
@@ -205,8 +222,8 @@
       "pluginScope": "routeRule,global",
       "pluginPriority": "3400",
       "instructionForUse": "请求频率限流，按后端服务节点限流",
-      "typeKey": "trafficPolicy",
-      "typeName": "流量管理"
+      "categoryKey": "trafficPolicy",
+      "categoryName": "流量管理"
     }
   ]
 }

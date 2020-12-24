@@ -13,7 +13,7 @@
       "instructionForUse": "自定义脚本运行"
     },
     {
-      "name": "JSONP",
+      "name": "jsonp",
       "schema": "plugin/portal/jsonp.json",
       "description": "jsonp插件",
       "processor": "AggregateGatewayPluginProcessor",
@@ -22,10 +22,11 @@
       "updateTime": "1572537600000",
       "pluginScope": "routeRule",
       "pluginPriority": "2700",
-      "instructionForUse": "跨域访问请求 JSONP"
+      "instructionForUse": "跨域访问请求 JSONP",
+      "displayName": "JSONP"
     },
     {
-      "name": "请求Path重写",
+      "name": "rewrite",
       "schema": "plugin/portal/rewrite.json",
       "description": "重写插件",
       "processor": "AggregateGatewayPluginProcessor",
@@ -34,10 +35,11 @@
       "updateTime": "1572537600000",
       "pluginScope": "routeRule",
       "pluginPriority": "2500",
-      "instructionForUse": "替换请求Path前缀"
+      "instructionForUse": "替换请求Path前缀",
+      "displayName": "请求Path重写"
     },
     {
-      "name": "请求转换",
+      "name": "transformer",
       "schema": "plugin/portal/request-transformer-new.json",
       "description": "",
       "processor": "AggregateGatewayPluginProcessor",
@@ -46,10 +48,11 @@
       "updateTime": "1572537600000",
       "pluginScope": "routeRule",
       "pluginPriority": "2300",
-      "instructionForUse": "修改请求Header、QueryString以及Path"
+      "instructionForUse": "修改请求Header、QueryString以及Path",
+      "displayName": "请求转换"
     },
     {
-      "name": "IP黑白名单",
+      "name": "ip-restriction",
       "schema": "plugin/portal/ip-restriction.json",
       "description": "黑白名单插件",
       "processor": "AggregateGatewayPluginProcessor",
@@ -58,10 +61,11 @@
       "updateTime": "1572537600000",
       "pluginScope": "routeRule",
       "pluginPriority": "1000",
-      "instructionForUse": "根据IP过滤请求"
+      "instructionForUse": "根据IP过滤请求",
+      "displayName": "IP黑白名单"
     },
     {
-      "name": "百分比限流",
+      "name": "ianus-percent-limit",
       "schema": "plugin/portal/ianus-percent-limit.json",
       "description": "百分比限流插件",
       "processor": "AggregateGatewayPluginProcessor",
@@ -70,7 +74,8 @@
       "updateTime": "1572537600000",
       "pluginScope": "routeRule",
       "pluginPriority": "500",
-      "instructionForUse": "按百分比限流，例如允许50%通过"
+      "instructionForUse": "按百分比限流，例如允许50%通过",
+      "displayName": "百分比限流"
     },
     {
       "name": "trace",
@@ -82,10 +87,11 @@
       "updateTime": "",
       "pluginScope": "routeRule",
       "pluginPriority": "4000",
-      "instructionForUse": "trace插件"
+      "instructionForUse": "trace插件",
+      "displayName": "trace"
     },
     {
-      "name": "CORS",
+      "name": "cors",
       "schema": "plugin/portal/cors.json",
       "description": "",
       "processor": "AggregateGatewayPluginProcessor",
@@ -94,10 +100,11 @@
       "updateTime": "1572537600000",
       "pluginScope": "routeRule",
       "pluginPriority": "2000",
-      "instructionForUse": "跨域请求CORS"
+      "instructionForUse": "跨域请求CORS",
+      "displayName": "CORS"
     },
     {
-      "name": "静态降级",
+      "name": "static-downgrade",
       "schema": "plugin/portal/static-downgrade.json",
       "description": "",
       "processor": "AggregateGatewayPluginProcessor",
@@ -106,10 +113,11 @@
       "updateTime": "1572537600000",
       "pluginScope": "routeRule",
       "pluginPriority": "2200",
-      "instructionForUse": "当后端响应结果符合条件时，对返回结果进行静态响应降级"
+      "instructionForUse": "当后端响应结果符合条件时，对返回结果进行静态响应降级",
+      "displayName": "静态降级"
     },
     {
-      "name": "动态降级",
+      "name": "dynamic-downgrade",
       "schema": "plugin/portal/dynamic-downgrade.json",
       "description": "",
       "processor": "AggregateGlobalProcessor",
@@ -118,10 +126,11 @@
       "updateTime": "1572537600000",
       "pluginScope": "routeRule",
       "pluginPriority": "2300",
-      "instructionForUse": "当后端响应结果符合条件时，对返回结果进行缓存降级或接口降级"
+      "instructionForUse": "当后端响应结果符合条件时，对返回结果进行缓存降级或接口降级",
+      "displayName": "动态降级"
     },
     {
-      "name": "缓存",
+      "name": "cache",
       "schema": "plugin/portal/cache.json",
       "description": "",
       "processor": "AggregateGatewayPluginProcessor",
@@ -130,10 +139,11 @@
       "updateTime": "1572537600000",
       "pluginScope": "routeRule",
       "pluginPriority": "3000",
-      "instructionForUse": "缓存后端应答，以缓存响应请求"
+      "instructionForUse": "缓存后端应答，以缓存响应请求",
+      "displayName": "缓存"
     },
     {
-      "name": "认证",
+      "name": "super-auth",
       "schema": "plugin/portal/superAuth.json",
       "description": "",
       "processor": "AggregateGatewayPluginProcessor",
@@ -142,10 +152,11 @@
       "updateTime": "1572537600000",
       "pluginScope": "routeRule,global",
       "pluginPriority": "1700",
-      "instructionForUse": "提供AK/SK、JWT和Oauth2认证"
+      "instructionForUse": "提供AK/SK、JWT和Oauth2认证",
+      "displayName": "认证"
     },
     {
-      "name": "熔断",
+      "name": "circuit-breaker",
       "schema": "plugin/portal/circuit-breaker.json",
       "description": "",
       "processor": "AggregateGatewayPluginProcessor",
@@ -154,10 +165,12 @@
       "updateTime": "1572537600000",
       "pluginScope": "routeRule,global",
       "pluginPriority": "3400",
-      "instructionForUse": "提供频率限流，按后端服务节点限流"
+      "instructionForUse": "提供频率限流，按后端服务节点限流",
+      "displayName": "熔断"
     },
     {
       "name": "neBotDetection",
+      "displayName": "neBotDetection",
       "schema": "plugin/portal/bot-detection.json",
       "description": "",
       "processor": "AggregateGlobalProcessor",
@@ -170,6 +183,7 @@
     },
     {
       "name": "neSecurity",
+      "displayName": "neSecurity",
       "schema": "plugin/portal/security.json",
       "description": "",
       "processor": "AggregateGlobalProcessor",
@@ -182,6 +196,7 @@
     },
     {
       "name": "neUrsAuth",
+      "displayName": "neUrsAuth",
       "schema": "plugin/portal/urs-auth.json",
       "description": "",
       "processor": "AggregateGlobalProcessor",
@@ -194,6 +209,7 @@
     },
     {
       "name": "neRequestTermination",
+      "displayName": "neRequestTermination",
       "schema": "plugin/portal/request-termination.json",
       "description": "",
       "processor": "AggregateGlobalProcessor",
