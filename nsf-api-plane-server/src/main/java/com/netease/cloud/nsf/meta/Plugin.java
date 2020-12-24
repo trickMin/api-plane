@@ -37,6 +37,16 @@ public class Plugin {
     @JsonProperty("schema")
     private String schema;
 
+    @JsonProperty("displayName")
+    private String displayName;
+
+    @JsonProperty("categoryKey")
+    private String categoryKey;
+
+    @JsonProperty("categoryName")
+    private String categoryName;
+
+
     public String getName() {
         return name;
     }
@@ -115,6 +125,30 @@ public class Plugin {
 
     public void setSchema(String schema) {
         this.schema = schema;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
+
+    public String getCategoryKey() {
+        return categoryKey;
+    }
+
+    public void setCategoryKey(String categoryKey) {
+        this.categoryKey = categoryKey;
+    }
+
+    public String getCategoryName() {
+        return categoryName;
+    }
+
+    public void setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
     }
 
     @Override
