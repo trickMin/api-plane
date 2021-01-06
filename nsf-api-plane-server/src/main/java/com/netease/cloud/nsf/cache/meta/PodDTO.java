@@ -55,6 +55,8 @@ public class PodDTO extends K8sResourceDTO<Pod> {
 
     private String controlPlaneVersion;
 
+    private Map<String, String> labels;
+
     @Override
     public String getClusterId() {
         return clusterId;
@@ -139,6 +141,14 @@ public class PodDTO extends K8sResourceDTO<Pod> {
         this.controlPlaneVersion = controlPlaneVersion;
     }
 
+    public Map<String, String> getLabels() {
+        return labels;
+    }
+
+    public void setLabels(Map<String, String> labels) {
+        this.labels = labels;
+    }
+
     public PodDTO(Pod pod, String clusterId) {
         super(pod, clusterId);
         this.hostIp = pod.getStatus().getHostIP();
@@ -146,6 +156,7 @@ public class PodDTO extends K8sResourceDTO<Pod> {
         this.status = pod.getStatus().getPhase();
         this.isInjected = isInjected(pod);
         this.clusterId = clusterId;
+        this.labels = pod.getMetadata().getLabels();
 
         Map<String, ContainerInfo> containerInfoMap = new HashMap<>();
         // 更新容器资源信息

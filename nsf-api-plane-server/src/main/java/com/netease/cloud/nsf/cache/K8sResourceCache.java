@@ -15,6 +15,7 @@ import com.netease.cloud.nsf.core.istio.PilotHttpClient;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.k8s.KubernetesClient;
 import com.netease.cloud.nsf.core.k8s.MultiClusterK8sClient;
+import com.netease.cloud.nsf.core.servicemesh.ServiceMeshConfigManager;
 import com.netease.cloud.nsf.meta.Endpoint;
 import com.netease.cloud.nsf.meta.PodStatus;
 import com.netease.cloud.nsf.meta.PodVersion;
@@ -82,6 +83,9 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
 
     @Autowired
     private PilotHttpClient pilotHttpClient;
+
+    @Autowired
+    private ServiceMeshConfigManager configManager;
 
     private Map<K8sResourceEnum, K8sResourceInformer> resourceInformerMap = new HashMap<com.netease.cloud.nsf.core.k8s.K8sResourceEnum, K8sResourceInformer>();
     private static final Logger log = LoggerFactory.getLogger(K8sResourceCache.class);
@@ -261,8 +265,11 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         result.forEach(workload->{
             List podInfoByWorkLoadInfo = getPodInfoByWorkLoadInfo(clusterId, workload.getKind(), workload.getNamespace(),
                     workload.getName());
-            resourceCacheManager.setSidecarInfo(podInfoByWorkLoadInfo,workload);
-            workload.setPods(podInfoByWorkLoadInfo);
+            resourceCacheManager.setSidecarInfo(podInfoByWorkLoadInfo, workload);
+            List<PodDTO> podDtos = getPodDtoByWorkLoadInfo(clusterId, workload.getKind(), workload.getNamespace(), workload.getName());
+            String expectedVersion = configManager.querySVMExpectedVersion(clusterId, workload.getKind(), workload.getNamespace(), workload.getName());
+            getPodListWithSidecarVersion(podDtos, expectedVersion);
+            workload.setPods(podDtos);
         });
         return result;
     }
