@@ -3,19 +3,23 @@ package com.netease.cloud.nsf.web.controller;
 import com.google.common.collect.ImmutableMap;
 import com.netease.cloud.nsf.cache.ResourceCache;
 import com.netease.cloud.nsf.cache.ResourceStoreFactory;
+import com.netease.cloud.nsf.cache.meta.MeshWorkLoadDTO;
 import com.netease.cloud.nsf.cache.meta.PodDTO;
 import com.netease.cloud.nsf.cache.meta.ServiceDto;
 import com.netease.cloud.nsf.cache.meta.WorkLoadDTO;
+import com.netease.cloud.nsf.configuration.ext.MeshConfig;
 import com.netease.cloud.nsf.core.servicemesh.ServiceMeshConfigManager;
 import com.netease.cloud.nsf.service.ServiceMeshService;
 import com.netease.cloud.nsf.util.errorcode.ApiPlaneErrorCode;
 import com.netease.cloud.nsf.util.errorcode.ErrorCode;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -38,6 +42,9 @@ public class K8sResourceController extends BaseController {
 
     @Autowired
     private ServiceMeshConfigManager configManager;
+
+    @Autowired
+    private MeshConfig meshConfig;
 
 
     @RequestMapping(params = {"Action=GetWorkLoadByServiceInfo"}, method = RequestMethod.GET)
@@ -138,6 +145,36 @@ public class K8sResourceController extends BaseController {
         workLoadList.addAll(resourceCache.getServiceEntryWorkLoad(projectId));
         checkResult(workLoadList);
         result.put("Result", workLoadList);
+        return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), result);
+    }
+
+    @RequestMapping(params = {"Action=GetAllWorkLoadInMesh"}, method = RequestMethod.GET)
+    public String getAllWorkLoadInMesh(@RequestParam(name = "ClusterId", required = false) String clusterId,
+                                       @RequestParam(name = "ProjectId", required = false) String projectId) throws IOException {
+        List<WorkLoadDTO> workLoadList;
+        Map<String, Object> result = new HashMap<>();
+        ErrorCode code = ApiPlaneErrorCode.Success;
+        if (StringUtils.isEmpty(clusterId)) {
+            workLoadList = resourceCache.getAllWorkLoad(projectId);
+        } else {
+            if (!ResourceStoreFactory.listClusterId().contains(clusterId)) {
+                throw new ApiPlaneException("ClusterId not found", 404);
+            }
+            workLoadList = resourceCache.getAllWorkLoadByClusterId(clusterId, projectId);
+        }
+        workLoadList.addAll(resourceCache.getServiceEntryWorkLoad(projectId));
+        List<MeshWorkLoadDTO> meshWorkLoadDTOS = workLoadList.stream().filter(WorkLoadDTO::isInMesh).map(workLoadItem -> {
+            MeshWorkLoadDTO meshWorkLoadDTO = new MeshWorkLoadDTO();
+            BeanUtils.copyProperties(workLoadItem, meshWorkLoadDTO);
+            if (!StringUtils.isEmpty(workLoadItem.getLabels().get(meshConfig.getAppKey()))){
+                meshWorkLoadDTO.setApp(String.valueOf(workLoadItem.getLabels().get(meshConfig.getAppKey())));
+            }
+            if(!StringUtils.isEmpty(workLoadItem.getLabels().get(meshConfig.getVersionKey()))){
+                meshWorkLoadDTO.setVersion(String.valueOf(workLoadItem.getLabels().get(meshConfig.getVersionKey())));
+            }
+            return meshWorkLoadDTO;
+        }).collect(Collectors.toList());
+        result.put("Result", meshWorkLoadDTOS);
         return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), result);
     }
 
