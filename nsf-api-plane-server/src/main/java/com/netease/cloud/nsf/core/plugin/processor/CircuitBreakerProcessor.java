@@ -88,6 +88,7 @@ public class CircuitBreakerProcessor extends AbstractSchemaProcessor implements 
             Double lookback_duration = Double.valueOf(source.getValue("$.config.lookback_duration"));
             builder.createOrUpdateValue("$", "lookback_duration", lookback_duration + "s");
         }
+        builder.createOrUpdateValue("$", "wait_body",  "true");
     }
 
 }
