@@ -426,11 +426,14 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                     + k8sService.getMetadata().getNamespace();
             workLoadList.addAll(resourceCacheManager.getWorkloadListByServiceName(clusterId,key));
         }
-        workLoadList.forEach(workload->{
+        workLoadList.forEach(workload-> {
             List podInfoByWorkLoadInfo = getPodInfoByWorkLoadInfo(clusterId, workload.getKind(), workload.getNamespace(),
                     workload.getName());
             resourceCacheManager.setSidecarInfo(podInfoByWorkLoadInfo,workload);
-
+            List<PodDTO> podDtos = getPodDtoByWorkLoadInfo(clusterId, workload.getKind(), workload.getNamespace(), workload.getName());
+            String expectedVersion = configManager.querySVMExpectedVersion(clusterId, workload.getKind(), workload.getNamespace(), workload.getName());
+            getPodListWithSidecarVersion(podDtos, expectedVersion);
+            workload.setPods(podDtos);
         });
         return workLoadList;
     }
