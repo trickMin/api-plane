@@ -135,7 +135,7 @@ public class K8sResourceController extends BaseController {
             }
             workLoadList = resourceCache.getAllWorkLoadByClusterId(clusterId, projectId);
         }
-        workLoadList.addAll(resourceCache.getServiceEntryWorkLoad(projectId));
+//        workLoadList.addAll(resourceCache.getServiceEntryWorkLoad(projectId));
         checkResult(workLoadList);
         result.put("Result", workLoadList);
         return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), result);
