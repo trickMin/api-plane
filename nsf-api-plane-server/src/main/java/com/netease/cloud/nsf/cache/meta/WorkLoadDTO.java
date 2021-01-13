@@ -71,7 +71,7 @@ public class WorkLoadDTO<T extends HasMetadata> extends K8sResourceDTO {
             Deployment deployment = (Deployment) obj;
             DeploymentStatus status = deployment.getStatus();
             String total = getValueOrDefault(deployment.getSpec().getReplicas()).toString();
-            String ready = getValueOrDefault(status.getReplicas()).toString();
+            String ready = getValueOrDefault(status.getReadyReplicas()).toString();
             if (StringUtils.isEmpty(ready)){
                 ready = "0";
             }
@@ -80,7 +80,7 @@ public class WorkLoadDTO<T extends HasMetadata> extends K8sResourceDTO {
             StatefulSet statefulSet = (StatefulSet) obj;
             StatefulSetStatus status = statefulSet.getStatus();
             String total = getValueOrDefault(statefulSet.getSpec().getReplicas()).toString();
-            String ready = getValueOrDefault(status.getReplicas()).toString();
+            String ready = getValueOrDefault(status.getReadyReplicas()).toString();
             if (StringUtils.isEmpty(ready)){
                 ready = "0";
             }
