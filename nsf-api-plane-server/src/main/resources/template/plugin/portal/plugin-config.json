@@ -16,7 +16,7 @@
       "categoryName": "流量管理"
     },
     {
-      "name": "ianus-percent-limit",
+      "name": "ianus-rate-limiting",
       "displayName": "限流",
       "schema": "plugin/portal/ianus-rate-limiting.json",
       "description": "频控插件",
