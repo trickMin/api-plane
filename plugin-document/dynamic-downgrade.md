@@ -10,8 +10,11 @@
 | condition.response.code | 降级生效的条件-响应状态码 | 200~599 | 支持正则、精确匹配 |
 | condition.response.headers | 降级生效的条件-响应headers |  | 数组，单个头也支持正则、精确匹配 |
 | cache.condition       | 将缓存结果进行缓存的条件       |                  |              |    |
-| cache.ttls        | 环境结果的失效时长 |                  |  |    |
+| cache.ttl        | 环境结果的失效时长 |                  |  |    |
 | cache.cache_key           | 缓存key的生成策略   |                  |              |    |
+| httpx | 接口降级 | | | |
+| httpx.uri | 降级到uri | | | |
+| httpx.remote | 降级到另一个后端cluster | | ||
 缓存降级：
 ```
 {
