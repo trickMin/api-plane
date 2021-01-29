@@ -99,28 +99,28 @@ public class TransformProcessor extends AbstractSchemaProcessor implements Schem
                 if (matcher.find()) {
                     Integer index = Integer.parseInt(matcher.group(1)) + 1;
                     String value = String.format("{\"header\":\":path\",\"regex\":\"%s\",\"subgroup\":%s}", serviceInfo.getUri(), index);
-                    builder.createOrUpdateJson("$.request_transformations[0].transformation_template.extractors", placeholder, value);
+                    builder.createOrUpdateJson("$.request_transformations[0].transformation_template.extractors", replaceString(placeholder), value);
                 }
             } else if (placeholder.startsWith("path")) {
                 Matcher matcher = Pattern.compile("path\\[(.*?)\\]").matcher(placeholder);
                 if (matcher.find()) {
                     Integer index = Integer.parseInt(matcher.group(1)) + 1;
                     String value = String.format("{\"path\":{},\"regex\":\"%s\",\"subgroup\":%s}", serviceInfo.getUri(), index);
-                    builder.createOrUpdateJson("$.request_transformations[0].transformation_template.extractors", placeholder, value);
+                    builder.createOrUpdateJson("$.request_transformations[0].transformation_template.extractors", replaceString(placeholder), value);
                 }
             } else if (placeholder.startsWith("querystrings")) {
                 Matcher matcher = Pattern.compile("querystrings\\[(.*?)\\]").matcher(placeholder);
                 if (matcher.find()) {
                     String queryParam = matcher.group(1);
                     String value = String.format("{\"queryParam\":\"%s\",\"regex\":\"(.*)\",\"subgroup\":1}", queryParam);
-                    builder.createOrUpdateJson("$.request_transformations[0].transformation_template.extractors", placeholder, value);
+                    builder.createOrUpdateJson("$.request_transformations[0].transformation_template.extractors", replaceString(placeholder), value);
                 }
             } else if (placeholder.startsWith("headers")) {
                 Matcher matcher = Pattern.compile("headers\\[(.*?)\\]").matcher(placeholder);
                 if (matcher.find()) {
                     String header = matcher.group(1);
                     String value = String.format("{\"header\":\"%s\",\"regex\":\"(.*)\",\"subgroup\":1}", header);
-                    builder.createOrUpdateJson("$.request_transformations[0].transformation_template.extractors", placeholder, value);
+                    builder.createOrUpdateJson("$.request_transformations[0].transformation_template.extractors", replaceString(placeholder), value);
                 }
             }
         }
@@ -170,7 +170,7 @@ public class TransformProcessor extends AbstractSchemaProcessor implements Schem
             for (Integer i = 0; i < size; i++) {
                 String text = source.getValue(String.format("$.url[%s].text", i));
                 if (haveNull(text)) continue;
-                String value = String.format("{\"text\":\"%s\",\"action\":\"%s\"}", text, "Action_Update");
+                String value = String.format("{\"text\":\"%s\",\"action\":\"%s\"}", replaceString(text), "Action_Update");
                 builder.createOrUpdateJson("$.request_transformations[0].transformation_template.headers", ":path", value);
             }
         }
@@ -182,9 +182,13 @@ public class TransformProcessor extends AbstractSchemaProcessor implements Schem
             for (Integer i = 0; i < size; i++) {
                 String text = source.getValue(String.format("$.path[%s].text", i));
                 if (haveNull(text)) continue;
-                String value = String.format("{\"text\":\"%s\"}", text);
+                String value = String.format("{\"text\":\"%s\"}", replaceString(text));
                 builder.createOrUpdateJson("$.request_transformations[0].transformation_template", "path", value);
             }
         }
+    }
+
+    private  String replaceString(String str){
+        return str.replaceAll("\\[|\\]", "_");
     }
 }
