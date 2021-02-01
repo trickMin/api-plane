@@ -1,6 +1,5 @@
 package com.netease.cloud.nsf.core.plugin.processor;
 
-import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.plugin.FragmentHolder;
@@ -38,14 +37,15 @@ public class RewriteProcessor extends AbstractSchemaProcessor implements SchemaP
         }
 
         String original = source.getValue("$.action.rewrite_regex");
-        String target = source.getValue("$.action.target", String.class).replaceAll("(\\$\\d)", "{{$1}}");
+        String target = source.getValue("$.action.target", String.class).replaceAll("(\\$\\d)", "{{$1}}").
+                replaceAll("\\{\\{\\$(\\d)\\}\\}","{{_$1}}");
         builder.createOrUpdateJson("$", "request_transformations",
                 String.format("[{\"conditions\":[{\"headers\":[{\"name\":\":path\",\"regex_match\":\"%s\"}],\"query_parameters\":[]}],\"transformation_template\":{\"passthrough\":{},\"parse_body_behavior\":\"DontParse\",\"extractors\":{},\"headers\":{}}}]", original));
         buildConditions(source, builder);
 
         // $.action.target : 转换结果，格式如/$2/$1
         for (int i = 1; i <= regexCount; i++) {
-            String key = "$" + i;
+            String key = "_" + i;
             String value = String.format("{\"header\":\":path\",\"regex\":\"%s\",\"subgroup\":%s}", original, i);
             builder.createOrUpdateJson("$.request_transformations[0].transformation_template.extractors", key, value);
         }
