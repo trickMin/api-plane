@@ -106,7 +106,7 @@
       "categoryName": "数据转换"
     },
     {
-      "name": "envoy",
+      "name": "cache",
       "displayName": "缓存",
       "schema": "plugin/portal/cache.json",
       "description": "",
@@ -151,7 +151,7 @@
       "categoryName": "流量管理"
     },
     {
-      "name": "static-downgrade",
+      "name": "dynamic-downgrade",
       "displayName": "动态降级",
       "schema": "plugin/portal/dynamic-downgrade.json",
       "description": "",
@@ -164,21 +164,6 @@
       "instructionForUse": "当后端响应结果符合条件时，对返回结果进行缓存降级或接口降级",
       "categoryKey": "trafficPolicy",
       "categoryName": "流量管理"
-    },
-    {
-      "name": "trace",
-      "displayName": "trace",
-      "schema": "plugin/portal/neTraceFileLog.json",
-      "description": "",
-      "processor": "AggregateGatewayPluginProcessor",
-      "author": "system",
-      "createTime": "1572537600000",
-      "updateTime": "1572537600000",
-      "pluginScope": "global",
-      "pluginPriority": "4000",
-      "instructionForUse": "trace插件",
-      "categoryKey": "tracing",
-      "categoryName": "链路追踪"
     },
     {
       "name": "super-auth",
