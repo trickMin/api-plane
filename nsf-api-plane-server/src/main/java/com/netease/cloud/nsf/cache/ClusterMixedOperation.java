@@ -1,6 +1,7 @@
 package com.netease.cloud.nsf.cache;
 
 import io.fabric8.kubernetes.api.model.LabelSelector;
+import io.fabric8.kubernetes.api.model.ListOptions;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 
 import java.io.File;
@@ -66,6 +67,11 @@ public class ClusterMixedOperation implements MixedOperation {
     }
 
     @Override
+    public Object create(Object item) {
+        return delegate.create(item);
+    }
+
+    @Override
     public Object createNew() {
         return delegate.createNew();
     }
@@ -121,6 +127,16 @@ public class ClusterMixedOperation implements MixedOperation {
     }
 
     @Override
+    public Object withoutField(String key, String value) {
+        return delegate.withoutField(key, value);
+    }
+
+    @Override
+    public Object withoutFields(Map fields) {
+        return delegate.withoutFields(fields);
+    }
+
+    @Override
     public Object withLabelSelector(LabelSelector selector) {
         return delegate.withLabelSelector(selector);
     }
@@ -138,6 +154,11 @@ public class ClusterMixedOperation implements MixedOperation {
     @Override
     public Object list(Integer limitVal, String continueVal) {
         return delegate.list(limitVal, continueVal);
+    }
+
+    @Override
+    public Object list(ListOptions listOptions) {
+        return delegate.list(listOptions);
     }
 
     @Override
@@ -191,7 +212,17 @@ public class ClusterMixedOperation implements MixedOperation {
     }
 
     @Override
+    public Object watch(ListOptions options, Object watcher) {
+        return delegate.watch(options, watcher);
+    }
+
+    @Override
     public Object watch(String resourceVersion, Object watcher) {
         return delegate.watch(resourceVersion, watcher);
+    }
+
+    @Override
+    public Object updateStatus(Object item) {
+        return delegate.updateStatus(item);
     }
 }
