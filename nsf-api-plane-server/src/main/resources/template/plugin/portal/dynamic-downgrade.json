@@ -196,7 +196,10 @@
                 {
                   "key": "value",
                   "alias": "取值",
-                  "type": "input"
+                  "type": "input",
+                  "rules": [
+                    "Required"
+                    ]
                 }
               ]
             },
@@ -387,34 +390,6 @@
                 "Number",
                 "MinNumber(0)",
                 "MaxNumber(99999999)"
-              ]
-            },
-            {
-              "key": "custom",
-              "alias": "定制化ttl配置",
-              "help": "当响应状态码满足如下条件时则使用单独的缓存ttl设置，否则使用默认ttl设置",
-              "type": "array",
-              "layouts": [
-                {
-                  "key": "code",
-                  "alias": "响应状态码",
-                  "help": "支持输入具体的响应码及X..，如2..代表2XX响应码",
-                  "type": "input",
-                  "rules": [
-                    "Required"
-                  ]
-                },
-                {
-                  "key": "value",
-                  "alias": "ttl",
-                  "type": "input",
-                  "rules": [
-                    "Required",
-                    "Number",
-                    "MinNumber(0)",
-                    "MaxNumber(99999999)"
-                  ]
-                }
               ]
             }
           ]
