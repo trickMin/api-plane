@@ -211,7 +211,7 @@
       "categoryName": "流量管理"
     },
     {
-      "name": "local-limit",
+      "name": "local-limiting",
       "displayName": "本地限流",
       "schema": "plugin/portal/local-limit.json",
       "description": "",
