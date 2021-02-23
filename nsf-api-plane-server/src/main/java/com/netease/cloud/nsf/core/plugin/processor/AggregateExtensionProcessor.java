@@ -114,6 +114,10 @@ public class AggregateExtensionProcessor extends AbstractSchemaProcessor impleme
                 holder = getProcessor("LocalLimitProcessor").process(plugin, serviceInfo);
                 coverToExtensionPlugin(holder, "com.netease.filters.http.locallimit");
                 break;
+            case "soap-json-transcoder":
+                holder = getProcessor("SoapJsonTranscoderProcessor").process(plugin, serviceInfo);
+                coverToExtensionPlugin(holder, "com.netease.filters.http.soapjsontranscoder");
+                break;
             case "trace":
             default:
                 holder = getProcessor("RestyProcessor").process(plugin, serviceInfo);

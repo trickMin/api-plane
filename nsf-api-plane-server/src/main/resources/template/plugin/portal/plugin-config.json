@@ -209,6 +209,21 @@
       "instructionForUse": "请求频率限流，按后端服务节点限流",
       "categoryKey": "trafficPolicy",
       "categoryName": "流量管理"
+    },
+    {
+      "name": "soap-json-transcoder",
+      "displayName": "soap转换",
+      "schema": "plugin/portal/soap-json-transcoder.json",
+      "description": "",
+      "processor": "AggregateGatewayPluginProcessor",
+      "author": "system",
+      "createTime": "1572537600000",
+      "updateTime": "1572537600000",
+      "pluginScope": "routeRule,global",
+      "pluginPriority": "3400",
+      "instructionForUse": "soap转rest",
+      "categoryKey": "trafficPolicy",
+      "categoryName": "流量管理"
     }
   ]
 }
