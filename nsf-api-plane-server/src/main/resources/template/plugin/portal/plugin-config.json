@@ -219,7 +219,7 @@
       "author": "system",
       "createTime": "1572537600000",
       "updateTime": "1572537600000",
-      "pluginScope": "routeRule,global",
+      "pluginScope": "",
       "pluginPriority": "3400",
       "instructionForUse": "soap转rest",
       "categoryKey": "trafficPolicy",
