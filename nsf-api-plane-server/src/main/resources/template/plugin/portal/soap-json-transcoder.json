@@ -4,6 +4,8 @@
     "soap_service_address": "&soap_service_address",
     "array_elements": "&array_elements",
     "parse_query": "&parse_query",
+    "parse_namespace": "&parse_namespace",
+    "remove_response_prefix": "&remove_response_prefix",
     "operation": {
       "name": "&operation_name",
       "response_xml_selector": "&response_xml_selector",
@@ -32,6 +34,26 @@
       "description": "是否启用query作为模板参数",
       "type": "switch",
       "default": false,
+      "rules": [
+        "Required"
+      ]
+    },
+    {
+      "key": "parse_namespace",
+      "alias": "区分namespace",
+      "description": "如果开启，则可以根据namespace准确区分重名element",
+      "type": "switch",
+      "default": false,
+      "rules": [
+        "Required"
+      ]
+    },
+    {
+      "key": "remove_response_prefix",
+      "alias": "移除响应namespace",
+      "description": "如果开启，则自动移除namespace中的prefix",
+      "type": "switch",
+      "default": true,
       "rules": [
         "Required"
       ]
