@@ -1,6 +1,6 @@
 {
   "formatter": {
-    "kind": "bot-detection", 
+    "kind": "neBotDetection",
     "type": "lua",
     "need_to_response": "&need_to_response",
     "config": {
