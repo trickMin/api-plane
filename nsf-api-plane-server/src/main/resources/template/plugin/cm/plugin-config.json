@@ -284,6 +284,21 @@
       "instructionForUse": "请求阻断插件",
       "categoryKey": "trafficPolicy",
       "categoryName": "流量管理"
+    },
+    {
+      "name": "neTraceSample",
+      "displayName": "neTraceSample",
+      "schema": "plugin/portal/trace-sample.json",
+      "description": "",
+      "processor": "AggregateExtensionProcessor",
+      "author": "system",
+      "createTime": "1572537600000",
+      "updateTime": "1572537600000",
+      "pluginScope": "global,routeRule",
+      "pluginPriority": "1000",
+      "instructionForUse": "采样标识插件",
+      "categoryKey": "tracing",
+      "categoryName": "链路追踪"
     }
   ]
 }
