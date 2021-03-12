@@ -4,7 +4,9 @@
     "authnType": "&authnType",
     "useAuthz": "&useAuthz",
     "failureAuthAllow": "&failureAuthAllow",
-    "bufferSetting": "&bufferSetting"
+    "bufferSetting": "&bufferSetting",
+    "cacheSwitch": "&cacheSwitch",
+    "authz_result_cache": "&authz_result_cache"
   },
   "layouts": [
     {
@@ -70,6 +72,57 @@
           "type": "switch",
           "help": "该开关打开时，若请求体大于 最大请求字节数 时会截取 最大请求体字节数进行签名计算；否则会拒绝客户端请求",
           "default": true
+        }
+      ]
+    },
+    {
+      "key": "cacheSwitch",
+      "alias": "是否认证缓存",
+      "type": "switch"
+    },
+    {
+      "key": "authz_result_cache",
+      "alias": "认证缓存配置",
+      "type": "layouts",
+      "help": "配置认证缓存相关信息，包括缓存key以及缓存ttl",
+      "visible": {
+        "true": [
+          "this",
+          "cacheSwitch"
+        ]
+      },
+      "layouts": [
+        {
+          "key": "result_cache_key",
+          "alias": "缓存key配置",
+          "help": "配置缓存key，默认情况，JWT认证和Oauth2认证采用header:authority,签名认证采用header：x-nsf-accesskey作为缓存key",
+          "type": "layouts",
+          "layouts":[
+            {
+              "key": "ignore_case",
+              "alias": "key忽略大小写",
+              "type": "switch",
+              "default": true
+            },
+            {
+              "key": "headers_keys",
+              "alias": "自定义请求头",
+              "help": "可选配置，如果不配置则采用默认配置",
+              "type": "multi_input"
+            }
+          ]
+        },
+        {
+          "key": "result_cache_ttl",
+          "alias": "缓存ttl配置",
+          "help": "指定缓存时间，单位ms",
+          "type": "input",
+          "rules": [
+            "Required",
+            "Number",
+            "MinNumber(0)",
+            "MaxNumber(99999999)"
+          ]
         }
       ]
     }
