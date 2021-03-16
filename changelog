@@ -4,12 +4,27 @@ release 1.2
 - vs中的插件配置(除了路由)全部迁移至gateway plugin crd
 - 修改ratelimit插件的id生成方式（使用hash计算）
 - 路由插件中增加meta信息
+- 删除资源时通知slime
+
+轻舟网关:
+- 路由指标监控
+- 支持动态降级、本地限流、Auth增强、熔断
+- 支持Oauth2插件
+- 传媒自定义插件
+- 插件分类
+- SOAP转REST
 
 网格：
 - 增加单机+全局限流插件
 - 网格资源sidecar scope
 - 增加pod日志查询接口
+- ServiceEntry查询支持
+- 支持命名空间管理
+- 网格告警
 
+通用:
+- 网关网格configuration拆分
+- 支持k8s 1.17
 
 release 1.1
 
