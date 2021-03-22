@@ -15,9 +15,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static com.netease.cloud.nsf.core.k8s.K8sResourceEnum.*;
@@ -169,7 +171,7 @@ public class ResourceCacheManager implements ResourceEventDispatcher {
         appWorkLoadMap.put(clusterId,newAppWorkLoadMap);
     }
 
-    public List<WorkLoadDTO> getWorkloadListByServiceName(String clusterId,String key) {
+    public List<WorkLoadDTO> getWorkloadListByApp(String clusterId,String key) {
         return this.appWorkLoadMap.getOrDefault(clusterId, new HashMap<>()).getOrDefault(key,new ArrayList<>());
     }
 

@@ -92,16 +92,6 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     private static final String UPDATE_RESOURCE_DURATION = "0 0/1 * * * *";
     private static int WORK_LOAD_CACHE_MAX_SIZE = 100;
     private static int WORK_LOAD_CACHE_REFRESH_DURATION = 20;
-    private LoadingCache<WorkLoadIndex, List<T>> workLoadByServiceCache = CacheBuilder.newBuilder()
-            .maximumSize(WORK_LOAD_CACHE_MAX_SIZE)
-            .expireAfterWrite(WORK_LOAD_CACHE_REFRESH_DURATION, TimeUnit.SECONDS)
-            .build(new CacheLoader<WorkLoadIndex, List<T>>() {
-                @Override
-                public List<T> load(WorkLoadIndex index) {
-                    return doGetWorkLoadListByApp(index.getClusterId(), index.getNamespace(), index.getName());
-                }
-
-            });
     private LoadingCache<SelectorIndex, List<T>> workLoadBySelectorCache = CacheBuilder.newBuilder()
             .maximumSize(WORK_LOAD_CACHE_MAX_SIZE)
             .expireAfterWrite(WORK_LOAD_CACHE_REFRESH_DURATION, TimeUnit.SECONDS)
@@ -237,41 +227,6 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
             return;
         }
         resourceInformerMap.values().forEach(K8sResourceInformer::replaceResource);
-    }
-
-    @Override
-    public List<WorkLoadDTO> getWorkLoadByServiceInfo(String projectId, String namespace, String serviceName, String clusterId) {
-        OwnerReferenceSupportStore store = ResourceStoreFactory.getResourceStore(clusterId);
-        List<T> serviceList = store.listByKindAndNamespace(Service.name(), namespace);
-        List<WorkLoadDTO> result = new ArrayList<>();
-        for (T service : serviceList) {
-            io.fabric8.kubernetes.api.model.Service k8sService = (io.fabric8.kubernetes.api.model.Service) service;
-            if (service.getMetadata().getLabels() == null || service.getMetadata().getLabels().isEmpty()
-                    || k8sService.getSpec().getSelector() == null) {
-                continue;
-            }
-            String appName = k8sService.getSpec().getSelector().get(meshConfig.getSelectorAppKey());
-            if (k8sService.getMetadata().getLabels()!=null
-                    && !StringUtils.isEmpty(k8sService.getMetadata().getLabels().get(meshConfig.getAppKey()))){
-                appName = k8sService.getMetadata().getLabels().get(meshConfig.getAppKey());
-            }
-            if (projectId.equals(extractor.getResourceInfo(service, Const.RESOURCE_TARGET, projectId)) && serviceName.equals(appName)) {
-                String key = appName
-                        + Const.SEPARATOR_DOT
-                        + k8sService.getMetadata().getNamespace();
-                result.addAll(resourceCacheManager.getWorkloadListByServiceName(clusterId, key));
-            }
-        }
-        result.forEach(workload->{
-            List podInfoByWorkLoadInfo = getPodInfoByWorkLoadInfo(clusterId, workload.getKind(), workload.getNamespace(),
-                    workload.getName());
-            resourceCacheManager.setSidecarInfo(podInfoByWorkLoadInfo, workload);
-            List<PodDTO> podDtos = getPodDtoByWorkLoadInfo(clusterId, workload.getKind(), workload.getNamespace(), workload.getName());
-            String expectedVersion = configManager.querySVMExpectedVersion(clusterId, workload.getKind(), workload.getNamespace(), workload.getName());
-            getPodListWithSidecarVersion(podDtos, expectedVersion);
-            workload.setPods(podDtos);
-        });
-        return result;
     }
 
     @Override
@@ -421,21 +376,9 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                     && !StringUtils.isEmpty(k8sService.getMetadata().getLabels().get(meshConfig.getAppKey()))){
                 appName = k8sService.getMetadata().getLabels().get(meshConfig.getAppKey());
             }
-            String key = appName
-                    + Const.SEPARATOR_DOT
-                    + k8sService.getMetadata().getNamespace();
-            workLoadList.addAll(resourceCacheManager.getWorkloadListByServiceName(clusterId,key));
+            workLoadList.addAll(resourceCacheManager.getWorkloadListByApp(clusterId, appName + "." + k8sService.getMetadata().getNamespace()));
         }
-        workLoadList.forEach(workload-> {
-            List podInfoByWorkLoadInfo = getPodInfoByWorkLoadInfo(clusterId, workload.getKind(), workload.getNamespace(),
-                    workload.getName());
-            resourceCacheManager.setSidecarInfo(podInfoByWorkLoadInfo,workload);
-            List<PodDTO> podDtos = getPodDtoByWorkLoadInfo(clusterId, workload.getKind(), workload.getNamespace(), workload.getName());
-            String expectedVersion = configManager.querySVMExpectedVersion(clusterId, workload.getKind(), workload.getNamespace(), workload.getName());
-            getPodListWithSidecarVersion(podDtos, expectedVersion);
-            workload.setPods(podDtos);
-        });
-        return workLoadList;
+        return processWorkloadList(clusterId, workLoadList);
     }
 
     private List<T> getWorkLoadByServiceSelector(io.fabric8.kubernetes.api.model.Service service, String clusterId) {
@@ -467,30 +410,11 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     }
 
     @Override
-    public List getWorkLoadByServiceInfoAllClusterId(String projectId, String namespace, String serviceName) {
-        List<WorkLoadDTO> workLoadDtoList = new ArrayList<>();
-        List<String> clusterIdList = ResourceStoreFactory.listClusterId();
-        for (String clusterId : clusterIdList) {
-            workLoadDtoList.addAll(getWorkLoadByServiceInfo(projectId, namespace, serviceName, clusterId));
-        }
-        return workLoadDtoList;
-    }
-
-    @Override
     public T getResource(String clusterId, String kind, String namespace, String name) {
         if (!ResourceStoreFactory.listClusterId().contains(clusterId)) {
             throw new ApiPlaneException("ClusterId not found");
         }
         return (T) ResourceStoreFactory.getResourceStore(clusterId).get(kind, namespace, name);
-    }
-
-    @Override
-    public List<WorkLoadDTO<T>> getWorkLoadListWithSidecarVersion(List workLoadDTOList) {
-        if (CollectionUtils.isEmpty(workLoadDTOList)) {
-            return new ArrayList<>();
-        }
-        workLoadDTOList.forEach(workLoadDTO -> addSidecarVersionOnWorkLoad((WorkLoadDTO<T>) workLoadDTO));
-        return workLoadDTOList;
     }
 
     @Override
@@ -661,10 +585,8 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
 
     @Override
     public List<WorkLoadDTO> getWorkLoadByApp(String namespace, String appName, String clusterId) {
-        String serviceName = appName + "." + namespace;
-        return getWorkLoadByIndex(clusterId, namespace, appName)
-                .stream().map(obj -> new WorkLoadDTO<>(obj, serviceName, clusterId))
-                .collect(Collectors.toList());
+        List<WorkLoadDTO> result = resourceCacheManager.getWorkloadListByApp(clusterId, appName + "." + namespace);
+        return processWorkloadList(clusterId, result);
     }
 
     @Override
@@ -722,7 +644,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         }
         if (!serviceNameSet.isEmpty()){
             for (String name : serviceNameSet) {
-                result.addAll(resourceCacheManager.getWorkloadListByServiceName(clusterId,name));
+                result.addAll(resourceCacheManager.getWorkloadListByApp(clusterId,name));
             }
         }
         result.forEach(workload->{
@@ -730,7 +652,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                     workload.getName());
             resourceCacheManager.setSidecarInfo(podInfoByWorkLoadInfo,workload);
         });
-        return new ArrayList<>(result);
+        return processWorkloadList(clusterId, new ArrayList<>(result));
 
     }
 
@@ -831,35 +753,6 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     }
 
 
-    private WorkLoadDTO<T> addSidecarVersionOnWorkLoad(WorkLoadDTO<T> workLoadDTO) {
-        List<PodDTO> podByWorkLoadInfo = getPodDtoByWorkLoadInfo(workLoadDTO.getClusterId(), workLoadDTO.getKind(), workLoadDTO.getNamespace(),
-                workLoadDTO.getName());
-        PodVersion queryVersion = new PodVersion();
-        queryVersion.setClusterId(workLoadDTO.getClusterId());
-        queryVersion.setNamespace(workLoadDTO.getNamespace());
-        queryVersion.setPodNames(podByWorkLoadInfo
-                .stream()
-                .map(pod -> pod.getName())
-                .collect(Collectors.toList()));
-        List<PodStatus> podStatuses = versionManagerService.queryByPodNameList(queryVersion);
-        if (CollectionUtils.isEmpty(podStatuses)) {
-            return workLoadDTO;
-        }
-        Set<String> versionSet = podStatuses.stream().
-                map(podStatus -> podStatus.getCurrentVersion())
-                .collect(Collectors.toSet());
-        workLoadDTO.setSidecarVersion(new ArrayList<>(versionSet));
-        if (StringUtils.isEmpty(getLabelValueFromWorkLoad(workLoadDTO,meshConfig.getAppKey()))
-            ||StringUtils.isEmpty(getLabelValueFromWorkLoad(workLoadDTO,meshConfig.getVersionKey()))
-            ||CollectionUtils.isEmpty(workLoadDTO.getSidecarVersion())){
-            workLoadDTO.setInMesh(false);
-        }else {
-            workLoadDTO.setInMesh(true);
-        }
-
-        return workLoadDTO;
-    }
-
     @Override
     public List<T> getServiceByClusterAndNamespace(String clusterId,String namespace){
         List<T> serviceList = new ArrayList<>();
@@ -879,26 +772,6 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
             return null;
         }
         return  (obj.getLabels().get(key) == null)?null:String.valueOf(obj.getLabels().get(key));
-    }
-
-    private List<T> getWorkLoadByIndex(String clusterId, String namespace, String name) {
-        return workLoadByServiceCache.getUnchecked(new WorkLoadIndex(clusterId, namespace, name));
-    }
-
-    private List<T> doGetWorkLoadListByApp(String clusterId, String namespace, String appName) {
-        OwnerReferenceSupportStore store = ResourceStoreFactory.getResourceStore(clusterId);
-        List<T> workLoadList = new ArrayList<>();
-        workLoadList.addAll(store.listByKindAndNamespace(Deployment.name(), namespace));
-        workLoadList.addAll(store.listByKindAndNamespace(StatefulSet.name(), namespace));
-        if (CollectionUtils.isEmpty(workLoadList) || StringUtils.isEmpty(appName)) {
-            return workLoadList;
-        }
-        workLoadList = workLoadList.stream()
-                .filter(w -> w.getMetadata().getLabels() != null
-                        && appName.equals(w.getMetadata().getLabels().get(meshConfig.getAppKey())))
-                .collect(Collectors.toList());
-
-        return workLoadList;
     }
 
     private List<T> doGetWorkLoadListBySelector(String clusterId, String namespace,Map<String,String> labels) {
@@ -1199,5 +1072,19 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     public Map<String, Map<String, String>> getSyncz(String type, String version) {
         return pilotHttpClient.getSidecarSyncStatusFromPilot(type, version);
     }
+
+    private List<WorkLoadDTO> processWorkloadList(String clusterId, List<WorkLoadDTO> workLoadList) {
+        workLoadList.forEach(workload-> {
+            List podInfoByWorkLoadInfo = getPodInfoByWorkLoadInfo(clusterId, workload.getKind(), workload.getNamespace(),
+                workload.getName());
+            resourceCacheManager.setSidecarInfo(podInfoByWorkLoadInfo,workload);
+            List<PodDTO> podDtos = getPodDtoByWorkLoadInfo(clusterId, workload.getKind(), workload.getNamespace(), workload.getName());
+            String expectedVersion = configManager.querySVMExpectedVersion(clusterId, workload.getKind(), workload.getNamespace(), workload.getName());
+            getPodListWithSidecarVersion(podDtos, expectedVersion);
+            workload.setPods(podDtos);
+        });
+        return workLoadList;
+    }
+
 
 }

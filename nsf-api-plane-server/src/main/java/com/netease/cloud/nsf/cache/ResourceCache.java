@@ -14,18 +14,6 @@ import java.util.Map;
  */
 public interface ResourceCache {
 
-
-    /**
-     * 获取与指定Service 关联的工作负载资源（Deploy Sts）列表
-     *
-     * @param projectId 项目标识
-     * @param namespace 命名空间
-     * @param serviceName Service名称
-     * @param clusterId 集群Id
-     * @return 负载列表
-     */
-    List getWorkLoadByServiceInfo(String projectId, String namespace, String serviceName, String clusterId);
-
     /**
      * 或取与指定负载信息关联的Pod列表
      * @param clusterId 集群标识
@@ -35,7 +23,6 @@ public interface ResourceCache {
      * @return Pod 列表
      */
     List getPodDtoByWorkLoadInfo(String clusterId, String kind, String namespace, String name);
-
 
     List<WorkLoadDTO> getServiceEntryWorkLoad(String projectCode);
 
@@ -55,8 +42,6 @@ public interface ResourceCache {
     List getAllWorkLoadByClusterId(String clusterId, String projectId);
 
 
-    List getWorkLoadByServiceInfoAllClusterId(String projectId, String namespace, String serviceName);
-
     /**
      *
      * @param clusterId
@@ -66,9 +51,6 @@ public interface ResourceCache {
      * @return 资源列表
      */
     Object getResource(String clusterId, String kind, String namespace, String name);
-
-
-    List getWorkLoadListWithSidecarVersion(List workLoadDTOList);
 
     List getPodListWithSidecarVersion(List podDTOList, String expectedVersion);
 
@@ -87,7 +69,6 @@ public interface ResourceCache {
     String getPodLabel(String clusterId, String namespace, String name, String labelName);
 
     List<PodDTO> getPodListByClusterIdAndNamespace(String clusterId, String namespace);
-
 
     List<PodDTO> getPodList(String clusterId, String namespace);
 

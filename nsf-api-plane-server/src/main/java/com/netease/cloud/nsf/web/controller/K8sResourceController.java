@@ -50,25 +50,8 @@ public class K8sResourceController extends BaseController {
     @RequestMapping(params = {"Action=GetWorkLoadByServiceInfo"}, method = RequestMethod.GET)
     public String getWorkLoadByServiceInfo(@RequestParam(name = "ServiceName") String serviceName,
                                            @RequestParam(name = "Namespace") String namespace,
-                                           @RequestParam(name = "ProjectId") String projectId,
                                            @RequestParam(name = "ClusterId", required = false) String clusterId) {
-
-        List workLoadByServiceInfo;
-        if (!StringUtils.isEmpty(clusterId)) {
-            if (!ResourceStoreFactory.listClusterId().contains(clusterId)) {
-                throw new ApiPlaneException("ClusterId not found", 404);
-            }
-            workLoadByServiceInfo = resourceCache.getWorkLoadByServiceInfo(projectId, namespace, serviceName, clusterId);
-        } else {
-            workLoadByServiceInfo = resourceCache.getWorkLoadByServiceInfoAllClusterId(projectId, namespace, serviceName);
-        }
-        //不再查询service entry
-//        workLoadByServiceInfo.addAll(resourceCache.getServiceEntryWorkloadByServiceInfo(projectId,serviceName+ Const.SEPARATOR_DOT + namespace));
-        checkResult(workLoadByServiceInfo);
-        Map<String, Object> result = new HashMap<>();
-        result.put("Result", workLoadByServiceInfo);
-        ErrorCode code = ApiPlaneErrorCode.Success;
-        return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), result);
+        return getWorkLoadByApp(serviceName, namespace, clusterId);
     }
 
     @RequestMapping(params = {"Action=GetWorkLoadByLabel"}, method = RequestMethod.GET)
@@ -269,7 +252,6 @@ public class K8sResourceController extends BaseController {
         } else {
             workLoadByServiceInfo = resourceCache.getWorkLoadByAppAllClusterId(namespace, appName);
         }
-        workLoadByServiceInfo = resourceCache.getWorkLoadListWithSidecarVersion(workLoadByServiceInfo);
         checkResult(workLoadByServiceInfo);
         Map<String, Object> result = new HashMap<>();
         result.put("Result", workLoadByServiceInfo);
