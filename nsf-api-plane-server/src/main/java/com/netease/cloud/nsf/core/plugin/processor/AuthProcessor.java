@@ -8,12 +8,28 @@ import com.netease.cloud.nsf.core.plugin.FragmentWrapper;
 import com.netease.cloud.nsf.meta.ServiceInfo;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 @Component
 public class AuthProcessor extends AbstractSchemaProcessor implements SchemaProcessor<ServiceInfo> {
     @Override
     public String getName() {
         return "SuperAuth";
     }
+
+    private String result_cache = "authz_result_cache";
+    private String result_cache_key = "result_cache_key";
+    private String result_cache_ttl = "result_cache_ttl";
+    private String cacheKey = "$." + result_cache + "." + result_cache_key;
+    private String cacheTtl = "$." + result_cache + "." + result_cache_ttl;
+
+    Map<String,String> authnType_to_cacheKey = new HashMap<String, String>(){{
+        put("aksk_authn_type", "x-nsf-accesskey");
+        put("jwt_authn_type", "authority");
+        put("oauth2_authn_type", "authority");
+    }};
 
     @Override
     public FragmentHolder process(String plugin, ServiceInfo serviceInfo) {
@@ -39,6 +55,10 @@ public class AuthProcessor extends AbstractSchemaProcessor implements SchemaProc
         }
         Boolean allowPartialMessage = source.getValue("$.bufferSetting.allowPartialMessage", Boolean.class);
         builder.updateValue("$.with_request_body.allow_partial_message", allowPartialMessage);
+
+        if (source.contain("$." + result_cache)){
+            buildCache(source, builder);
+        }
         FragmentHolder fragmentHolder = new FragmentHolder();
         FragmentWrapper wrapper = new FragmentWrapper.Builder()
                 .withXUserId(getAndDeleteXUserId(source))
@@ -48,5 +68,47 @@ public class AuthProcessor extends AbstractSchemaProcessor implements SchemaProc
                 .build();
         fragmentHolder.setVirtualServiceFragment(wrapper);
         return fragmentHolder;
+    }
+
+    /**
+     * Generate auth cache model. In order to improve auth performance.
+     * Design: https://kms.netease.com/team/km_qingzhou/article/29870
+     * @param source plugin source
+     * @param builder plugin builder
+     */
+    private void buildCache(ResourceGenerator source, ResourceGenerator builder){
+        builder.createOrUpdateJson("$", result_cache, "{}");
+        if (source.contain(cacheTtl)) {
+            builder.createOrUpdateValue("$." + result_cache, result_cache_ttl, source.getValue(cacheTtl, Integer.class));
+        }
+        if (source.contain(cacheKey)){
+            createCacheKey(source,builder);
+        }
+    }
+
+    /**
+     * Generate result_cache_key
+     * @param source plugin source
+     * @param builder plugin builder
+     */
+    private void createCacheKey(ResourceGenerator source, ResourceGenerator builder) {
+        String ignore_case = "ignore_case";
+        String header_keys = "headers_keys";
+        builder.createOrUpdateJson("$."+ result_cache, result_cache_key, "{}");
+        Boolean ignoreCase = source.getValue(cacheKey + "." + ignore_case, Boolean.class);
+        if (nonNull(ignoreCase)) {
+            builder.createOrUpdateValue(cacheKey, ignore_case, ignoreCase);
+        }
+        builder.createOrUpdateJson(cacheKey, header_keys, "[]");
+        if (source.contain(cacheKey + "." + header_keys)) {
+
+            List<String> headers = source.getValue(cacheKey + "." + header_keys , List.class);
+            headers.forEach(item -> {
+                builder.addJsonElement(cacheKey + "." + header_keys, item);
+            });
+        }else {
+            String authType = source.getValue("$.authnType", String.class);
+            builder.addJsonElement(cacheKey + "." + header_keys, authnType_to_cacheKey.get(authType));
+        }
     }
 }
