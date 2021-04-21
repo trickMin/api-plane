@@ -163,7 +163,7 @@
             {
               "key": "key",
               "type": "input",
-              "alias": "请求头",
+              "alias": "响应头名称",
               "rules": [
                 "Required"
               ]
@@ -171,7 +171,7 @@
             {
               "key": "value",
               "type": "input",
-              "alias": "请求头值",
+              "alias": "响应头值",
               "rules": [
                 "Required"
               ]
@@ -181,7 +181,7 @@
         {
           "key": "body",
           "type": "input",
-          "alias": "请求响应内容",
+          "alias": "响应内容",
           "help": "若不填写，则默认返回：circuit breaker filter abort"
         }
       ]

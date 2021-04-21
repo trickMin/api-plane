@@ -16,7 +16,7 @@
         {
           "key": "identifier_extractor",
           "help": "用于计算请求标识，以供计数使用;仅Header参数限流，例如 Header[User-Agent]",
-          "alias": "标识提取策略",
+          "alias": "请求Header名",
           "type": "string",
           "rules":[
             "Header\\[.*\\]"
@@ -25,12 +25,12 @@
         {
           "key": "pre_condition",
           "help": "满足前置条件的请求才会进入频控流程",
-          "alias": "频控前置条件",
+          "alias": "请求Header匹配",
           "type": "array",
           "layouts": [
             {
               "key": "right_value",
-              "alias": "right_value",
+              "alias": "取值",
               "type": "string",
               "invisible": {
                 "this.operator": "present"
@@ -41,14 +41,14 @@
             },
             {
               "key": "operator",
-              "alias": "operator",
+              "alias": "匹配方式",
               "type": "select",
               "options": [
-                "≈",
-                "!≈",
-                "=",
-                "!=",
-                "present"
+                { "value": "=", "text": "等于" },
+                { "value": "!=", "text": "不等于" },
+                { "value": "≈", "text": "正则匹配" },
+                { "value": "!≈", "text": "正则不匹配" },
+                { "value": "present", "text": "存在" }
               ],
               "rules": [
                 "Required"
