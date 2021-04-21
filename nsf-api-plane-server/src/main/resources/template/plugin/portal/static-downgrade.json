@@ -217,7 +217,7 @@
               "layouts": [
                 {
                   "key": "headerKey",
-                  "alias": "请求头",
+                  "alias": "响应头名称",
                   "type": "input"
                 },
                 {
@@ -273,7 +273,7 @@
             {
               "key": "key",
               "type": "input",
-              "alias": "请求头",
+              "alias": "响应头名称",
               "rules": [
                 "Required"
               ]
@@ -281,7 +281,7 @@
             {
               "key": "value",
               "type": "input",
-              "alias": "请求头值",
+              "alias": "响应头值",
               "rules": [
                 "Required"
               ]
