@@ -41,6 +41,7 @@ import io.fabric8.kubernetes.api.model.apps.StatefulSet;
 import me.snowdrop.istio.api.IstioResource;
 import me.snowdrop.istio.api.networking.v1alpha3.GlobalConfig;
 import me.snowdrop.istio.api.networking.v1alpha3.GlobalConfigSpec;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +54,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.netease.cloud.nsf.core.editor.ResourceType.OBJECT;
 import static com.netease.cloud.nsf.core.k8s.K8sResourceEnum.DaemonSet;
@@ -403,6 +405,25 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
         injectedWorkLoad = appendAnnotationOnWorkload(injectedWorkLoad, workloadAnnotation);
         updateResource(injectedWorkLoad, clusterId);
         return ApiPlaneErrorCode.Success;
+    }
+
+    @Override
+    public Map<String, List<String>> getTrafficMarks(List<String> services) {
+        return services.stream()
+            .filter(n -> n != null && n.contains("."))
+            .distinct()
+            .flatMap(n -> {
+                int dotInd = n.lastIndexOf('.');
+                HasMetadata svc = k8sResource.getResource("default", K8sResourceEnum.Service.name(), n.substring(dotInd + 1), n.substring(0, dotInd));
+                return Stream.of(svc)
+                    .filter(Objects::nonNull)
+                    .map(s -> s.getMetadata().getAnnotations())
+                    .filter(Objects::nonNull)
+                    .map(a -> a.get(Const.TRAFFIC_MARK_ANNOTATION))
+                    .filter(Objects::nonNull)
+                    .map(mark -> Pair.of(n, mark.isEmpty() ? Collections.<String>emptyList() : Arrays.asList(mark.split(","))));
+            })
+			.collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
     }
 
     @Override

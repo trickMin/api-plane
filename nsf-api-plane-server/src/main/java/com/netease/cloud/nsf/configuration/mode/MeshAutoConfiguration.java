@@ -50,7 +50,7 @@ public class MeshAutoConfiguration {
 
     @Bean
     K8sResourceCache k8sResourceCache() {
-        return new K8sResourceCache<>();
+        return new K8sResourceCache();
     }
 
 //    @Bean

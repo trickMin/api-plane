@@ -91,4 +91,7 @@ public interface Const {
     String SEPARATOR_DOT = ".";
 
     String NSF_LABEL_KEY_CLUSTER = "com.netease.nsf.cluster";
+
+    String TRAFFIC_MARK_ANNOTATION = "nsf.skiff.netease.com/mark";
+
 }

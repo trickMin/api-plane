@@ -98,6 +98,12 @@ public class ServiceMeshController extends BaseController {
         return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), null);
     }
 
+    @RequestMapping(params = {"Action=GetTrafficMarks"}, method = RequestMethod.GET)
+    public Map<String, List<String>> GetTrafficMarks(@RequestParam(name = "Services") List<String> services) {
+        Map<String, List<String>> result = serviceMeshService.getTrafficMarks(services);
+        return result;
+    }
+
     @RequestMapping(params = "Action=GetTopo", method = RequestMethod.GET)
     public String getTopo(@RequestParam(name = "Namespaces") String namespaces,
                           @RequestParam(name = "GraphType") String graphType,

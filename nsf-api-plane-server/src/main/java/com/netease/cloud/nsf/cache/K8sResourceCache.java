@@ -55,7 +55,7 @@ import static com.netease.cloud.nsf.core.k8s.K8sResourceEnum.*;
 /**
  * @author zhangzihao
  */
-public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
+public class K8sResourceCache implements ResourceCache {
 
     @Autowired
     private RestTemplateClient restTemplateClient;
@@ -92,12 +92,12 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     private static final String UPDATE_RESOURCE_DURATION = "0 0/1 * * * *";
     private static int WORK_LOAD_CACHE_MAX_SIZE = 100;
     private static int WORK_LOAD_CACHE_REFRESH_DURATION = 20;
-    private LoadingCache<SelectorIndex, List<T>> workLoadBySelectorCache = CacheBuilder.newBuilder()
+    private LoadingCache<SelectorIndex, List<HasMetadata>> workLoadBySelectorCache = CacheBuilder.newBuilder()
             .maximumSize(WORK_LOAD_CACHE_MAX_SIZE)
             .expireAfterWrite(WORK_LOAD_CACHE_REFRESH_DURATION, TimeUnit.SECONDS)
-            .build(new CacheLoader<SelectorIndex, List<T>>() {
+            .build(new CacheLoader<SelectorIndex, List<HasMetadata>>() {
                 @Override
-                public List<T> load(SelectorIndex index) {
+                public List<HasMetadata> load(SelectorIndex index) {
                     return doGetWorkLoadListBySelector(index.getClusterId(), index.getNamespace(), index.getSelectorLabels());
                 }
 
@@ -232,7 +232,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     @Override
     public List<PodDTO> getPodDtoByWorkLoadInfo(String clusterId, String kind, String namespace, String name) {
         OwnerReferenceSupportStore store = ResourceStoreFactory.getResourceStore(clusterId);
-        T obj = (T) store.get(kind, namespace, name);
+        HasMetadata obj = store.get(kind, namespace, name);
         if (obj == null) {
             return new ArrayList<>();
         }
@@ -334,18 +334,18 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     }
 
     @Override
-    public List<T> getPodInfoByWorkLoadInfo(String clusterId, String kind, String namespace, String name) {
+    public List<HasMetadata> getPodInfoByWorkLoadInfo(String clusterId, String kind, String namespace, String name) {
         OwnerReferenceSupportStore store = ResourceStoreFactory.getResourceStore(clusterId);
-        T obj = (T) store.get(kind, namespace, name);
+        HasMetadata obj = store.get(kind, namespace, name);
         if (obj == null) {
             return new ArrayList<>();
         }
-        return (List<T>) store.listResourceByOwnerReference(Pod.name(), obj);
+        return (List<HasMetadata>) store.listResourceByOwnerReference(Pod.name(), obj);
     }
 
     @Override
-    public List<WorkLoadDTO<T>> getAllWorkLoad(String projectId) {
-        List<WorkLoadDTO<T>> workLoadList = new ArrayList<>();
+    public List<WorkLoadDTO<HasMetadata>> getAllWorkLoad(String projectId) {
+        List<WorkLoadDTO<HasMetadata>> workLoadList = new ArrayList<>();
         List<String> clusterIdList = ResourceStoreFactory.listClusterId();
         for (String clusterId : clusterIdList) {
             workLoadList.addAll(getAllWorkLoadByClusterId(clusterId, projectId));
@@ -357,7 +357,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     public List getAllWorkLoadByClusterId(String clusterId, String projectId) {
         List<WorkLoadDTO> workLoadList = new ArrayList<>();
         OwnerReferenceSupportStore store = ResourceStoreFactory.getResourceStore(clusterId);
-        List<T> serviceList = store.listByKind(Service.name());
+        List<HasMetadata> serviceList = store.listByKind(Service.name());
         // 如果存在projectId 则过滤掉不含项目id的service
         if (!StringUtils.isEmpty(projectId)) {
             serviceList = serviceList.stream()
@@ -366,7 +366,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                     .collect(Collectors.toList());
 
         }
-        for (T service : serviceList) {
+        for (HasMetadata service : serviceList) {
             io.fabric8.kubernetes.api.model.Service k8sService = (io.fabric8.kubernetes.api.model.Service)service;
             if (k8sService.getSpec().getSelector() == null || k8sService.getSpec().getSelector().isEmpty()){
                 continue;
@@ -381,7 +381,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         return processWorkloadList(clusterId, workLoadList);
     }
 
-    private List<T> getWorkLoadByServiceSelector(io.fabric8.kubernetes.api.model.Service service, String clusterId) {
+    private List<HasMetadata> getWorkLoadByServiceSelector(io.fabric8.kubernetes.api.model.Service service, String clusterId) {
         if (service.getSpec() == null || service.getMetadata() == null){
             return new ArrayList<>();
         }
@@ -395,14 +395,14 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
                 , service.getMetadata().getName(), selectorLabel));
     }
 
-    private String getProjectCodeFromService(T service) {
+    private String getProjectCodeFromService(HasMetadata service) {
         if (service.getMetadata().getLabels() == null) {
             return null;
         }
         return extractor.getResourceInfo(service,Const.RESOURCE_TARGET);
     }
 
-    private String getEnvNameFromService(T service) {
+    private String getEnvNameFromService(HasMetadata service) {
         if (service.getMetadata().getLabels() == null) {
             return null;
         }
@@ -410,11 +410,11 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     }
 
     @Override
-    public T getResource(String clusterId, String kind, String namespace, String name) {
+    public HasMetadata getResource(String clusterId, String kind, String namespace, String name) {
         if (!ResourceStoreFactory.listClusterId().contains(clusterId)) {
             throw new ApiPlaneException("ClusterId not found");
         }
-        return (T) ResourceStoreFactory.getResourceStore(clusterId).get(kind, namespace, name);
+        return ResourceStoreFactory.getResourceStore(clusterId).get(kind, namespace, name);
     }
 
     @Override
@@ -428,9 +428,9 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
 
 
     @Override
-    public List<T> getPodListByService(String clusterId, String namespace, String name) {
+    public List<HasMetadata> getPodListByService(String clusterId, String namespace, String name) {
 
-        List<T> result = new ArrayList<>();
+        List<HasMetadata> result = new ArrayList<>();
         if (StringUtils.isEmpty(clusterId)) {
             List<String> clusterIdList = ResourceStoreFactory.listClusterId();
             if (!CollectionUtils.isEmpty(clusterIdList)) {
@@ -498,7 +498,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         }
     }
 
-    private List<T> getPodListByServiceAndClusterId(String clusterId, String namespace, String name) {
+    private List<HasMetadata> getPodListByServiceAndClusterId(String clusterId, String namespace, String name) {
 
         OwnerReferenceSupportStore store = ResourceStoreFactory.getResourceStore(clusterId);
         Endpoints endpointsByService = (Endpoints) store.get(Endpoints.name(), namespace, name);
@@ -517,7 +517,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         if (CollectionUtils.isEmpty(podReferences)) {
             return new ArrayList<>();
         }
-        return (List<T>) podReferences.stream()
+        return podReferences.stream()
                 .map(ref -> store.get(ref.getKind(), ref.getNamespace(), ref.getName()))
                 .collect(Collectors.toList());
     }
@@ -525,7 +525,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     @Override
     public List<PodDTO> getPodListByClusterIdAndNamespace(String clusterId, String namespace){
         OwnerReferenceSupportStore store = ResourceStoreFactory.getResourceStore(clusterId);
-        List<T> podList = new ArrayList<>();
+        List<HasMetadata> podList = new ArrayList<>();
         if (!StringUtils.isEmpty(namespace)){
             podList.addAll(store.listByKindAndNamespace(Pod.name(),namespace));
         }else {
@@ -628,7 +628,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
             }
         }
         KubernetesClient kubernetesClient = multiClusterK8sClient.k8sClient(clusterId);
-        List<T> workloadList = new ArrayList<>();
+        List<HasMetadata> workloadList = new ArrayList<>();
         workloadList.addAll(kubernetesClient.getObjectList(Deployment.name(),namespace,labels));
         workloadList.addAll(kubernetesClient.getObjectList(StatefulSet.name(),namespace,labels));
         if (CollectionUtils.isEmpty(workloadList)){
@@ -636,7 +636,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         }
         Set<WorkLoadDTO> result = new HashSet();
         Set<String> serviceNameSet = new HashSet<>();
-        for (T workload : workloadList) {
+        for (HasMetadata workload : workloadList) {
             String serviceNameByWorkload = resourceCacheManager.getServiceNameByWorkload(workload);
             if (!StringUtils.isEmpty(serviceNameByWorkload)){
                 serviceNameSet.add(serviceNameByWorkload);
@@ -678,13 +678,13 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
 
     private List<ServiceDto> getServiceByProjectCodeAndClusterId(String projectCode, String clusterId) {
         OwnerReferenceSupportStore store = ResourceStoreFactory.getResourceStore(clusterId);
-        return  ((List<T>)store.listByKind(Service.name()))
+        return  ((List<HasMetadata>)store.listByKind(Service.name()))
                 .stream()
                 .filter(s->s.getMetadata().getLabels()!=null&&!s.getMetadata().getLabels().isEmpty()
                         &&extractor.getResourceInfo(s,Const.RESOURCE_TARGET,projectCode)!=null
                         &&extractor.getResourceInfo(s,Const.RESOURCE_TARGET,projectCode).equals(projectCode))
                 .map(s->{
-                    ServiceDto<T> tServiceDto = new ServiceDto<>(s, clusterId);
+                    ServiceDto<HasMetadata> tServiceDto = new ServiceDto<>(s, clusterId);
                     if (tServiceDto.getSelectLabels() != null){
                         String appName = tServiceDto.getSelectLabels().get(meshConfig.getSelectorAppKey());
                         if (tServiceDto.getLabels()!=null
@@ -754,8 +754,8 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
 
 
     @Override
-    public List<T> getServiceByClusterAndNamespace(String clusterId,String namespace){
-        List<T> serviceList = new ArrayList<>();
+    public List<HasMetadata> getServiceByClusterAndNamespace(String clusterId, String namespace){
+        List<HasMetadata> serviceList = new ArrayList<>();
         if (StringUtils.isEmpty(clusterId)){
             for (String c : ResourceStoreFactory.listClusterId()) {
                 OwnerReferenceSupportStore resourceStore = ResourceStoreFactory.getResourceStore(c);
@@ -774,9 +774,9 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
         return  (obj.getLabels().get(key) == null)?null:String.valueOf(obj.getLabels().get(key));
     }
 
-    private List<T> doGetWorkLoadListBySelector(String clusterId, String namespace,Map<String,String> labels) {
+    private List<HasMetadata> doGetWorkLoadListBySelector(String clusterId, String namespace, Map<String,String> labels) {
         KubernetesClient kubernetesClient = multiClusterK8sClient.k8sClient(clusterId);
-        List<T> workLoadList = new ArrayList<>();
+        List<HasMetadata> workLoadList = new ArrayList<>();
         if (labels == null || labels.isEmpty()){
             return workLoadList;
         }
@@ -787,7 +787,7 @@ public class K8sResourceCache<T extends HasMetadata> implements ResourceCache {
     }
 
 
-    private String getServiceName(T obj) {
+    private String getServiceName(HasMetadata obj) {
         if (obj instanceof io.fabric8.kubernetes.api.model.Service) {
             return obj.getMetadata().getName() + "." + obj.getMetadata().getNamespace();
         } else {

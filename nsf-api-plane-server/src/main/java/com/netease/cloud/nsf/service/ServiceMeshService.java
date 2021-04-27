@@ -31,6 +31,8 @@ public interface ServiceMeshService {
 
     ErrorCode removeInject(String clusterId, String kind, String namespace, String name);
 
+    Map<String, List<String>> getTrafficMarks(List<String> services);
+
     ErrorCode createAppOnService(String clusterId, String namespace, String name, String appName);
 
     String getProjectCodeByApp(String namespace, String appName, String clusterId);

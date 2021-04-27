@@ -3,6 +3,7 @@ package com.netease.cloud.nsf.cache;
 import com.netease.cloud.nsf.cache.meta.PodDTO;
 import com.netease.cloud.nsf.cache.meta.ServiceDto;
 import com.netease.cloud.nsf.cache.meta.WorkLoadDTO;
+import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.Namespace;
 import me.snowdrop.istio.api.networking.v1alpha3.VersionManager;
 
@@ -50,7 +51,7 @@ public interface ResourceCache {
      * @param name 资源名称
      * @return 资源列表
      */
-    Object getResource(String clusterId, String kind, String namespace, String name);
+    HasMetadata getResource(String clusterId, String kind, String namespace, String name);
 
     List getPodListWithSidecarVersion(List podDTOList, String expectedVersion);
 
