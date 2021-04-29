@@ -10,6 +10,6 @@ import java.util.List;
  **/
 public interface TopoService {
 
-    Graph getAppGraph(String namespaces, String duration, String graphType, boolean injectServices, List<String> focalizationApps, int focalizationSize);
+    Graph getAppGraph(String namespaces, String duration, String graphType, boolean injectServices, List<String> focalizationApps, int focalizationSize, String extraLabels);
 
 }

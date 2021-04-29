@@ -110,7 +110,8 @@ public class ServiceMeshController extends BaseController {
                           @RequestParam(name = "Duration") String duration,
                           @RequestParam(name = "InjectServices", defaultValue = "false") Boolean injectServices,
                           @RequestParam(name = "FocalizeApps", required = false) List<String> focalizeApps,
-                          @RequestParam(name = "FocalizeSize", required = false, defaultValue = "0") int focalizeSize) {
+                          @RequestParam(name = "FocalizeSize", required = false, defaultValue = "0") int focalizeSize,
+                          @RequestParam(name = "extraLabels", required = false, defaultValue = "") String extraLabels) {
 
         if (StringUtils.isEmpty(namespaces)) {
             return apiReturn(ApiPlaneErrorCode.InvalidFormat("namespaces"));
@@ -124,7 +125,7 @@ public class ServiceMeshController extends BaseController {
             return apiReturn(ApiPlaneErrorCode.InvalidFormat("duration"));
         }
 
-        Graph graph = topoService.getAppGraph(namespaces, duration, graphType, injectServices, focalizeApps, focalizeSize);
+        Graph graph = topoService.getAppGraph(namespaces, duration, graphType, injectServices, focalizeApps, focalizeSize, extraLabels);
         return apiReturn(ImmutableMap.of(RESULT, graph.getElements()));
     }
 

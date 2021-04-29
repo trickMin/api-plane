@@ -35,7 +35,7 @@ public class KialiHttpClient {
     private String kialiUrl;
 
     private static final String GRAPH_QUERY_URI = "/kiali/api/namespaces/graph?duration=%s&graphType=%s&injectServiceNodes=%b" +
-            "&groupBy=app&appenders=deadNode,sidecarsCheck,serviceEntry,istio&namespaces=%s";
+            "&groupBy=app&appenders=deadNode,sidecarsCheck,serviceEntry,istio&namespaces=%s&extraLabels={extraLabels}";
 
     private String getKialiUrl() {
         if (!StringUtils.isEmpty(kialiUrl)) return kialiUrl;
@@ -45,10 +45,10 @@ public class KialiHttpClient {
         return String.format("http://%s:%d", svcName, port);
     }
 
-    public Graph getGraph(String namespaces, String graphType, String duration, boolean injectServices) {
+    public Graph getGraph(String namespaces, String graphType, String duration, boolean injectServices, String extraLabels) {
 
         Graph resp = restTemplate.getForObject(getKialiUrl() + String.format(GRAPH_QUERY_URI, duration, graphType, injectServices, namespaces),
-                Graph.class);
+                Graph.class, extraLabels);
 
         return resp;
     }

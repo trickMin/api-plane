@@ -32,7 +32,7 @@ public class TopoServiceImpl implements TopoService {
     private MultiClusterK8sClient multiClusterK8sClient;
 
     @Override
-    public Graph getAppGraph(String namespaces, String duration, String graphType, boolean injectServices, List<String> focalizationApps, int focalizationSize) {
+    public Graph getAppGraph(String namespaces, String duration, String graphType, boolean injectServices, List<String> focalizationApps, int focalizationSize, String extraLabels) {
 
         Set<String> existNss = new HashSet<>();
 
@@ -53,7 +53,7 @@ public class TopoServiceImpl implements TopoService {
         }
         if (safeNss.isEmpty()) return new Graph();
         //传入安全的namespace,多集群下可能还是有问题，看具体拓扑的数据
-        Graph graph = kialiHttpClient.getGraph(String.join(",", safeNss), graphType, duration, injectServices);
+        Graph graph = kialiHttpClient.getGraph(String.join(",", safeNss), graphType, duration, injectServices, extraLabels);
         if (!CollectionUtils.isEmpty(focalizationApps) && focalizationSize > 0) {
             GraphFocalizationDelegation.focalize(graph, focalizationApps, focalizationSize);
         }
