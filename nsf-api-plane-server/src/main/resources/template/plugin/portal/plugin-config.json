@@ -167,7 +167,7 @@
     },
     {
       "name": "sign-auth",
-      "displayName": "认证",
+      "displayName": "签名认证",
       "schema": "plugin/portal/signAuth.json",
       "description": "",
       "processor": "AggregateGatewayPluginProcessor",
@@ -182,7 +182,7 @@
     },
     {
       "name": "jwt-auth",
-      "displayName": "认证",
+      "displayName": "JWT认证",
       "schema": "plugin/portal/jwtAuth.json",
       "description": "",
       "processor": "AggregateGatewayPluginProcessor",
@@ -197,7 +197,7 @@
     },
     {
       "name": "oauth2-auth",
-      "displayName": "认证",
+      "displayName": "Oauth2认证",
       "schema": "plugin/portal/oauth2Auth.json",
       "description": "",
       "processor": "AggregateGatewayPluginProcessor",

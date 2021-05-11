@@ -31,9 +31,6 @@
       "key": "bufferSetting",
       "alias": "请求体设置",
       "type": "layouts",
-      "visible": {
-        "this.authnType": "aksk_authn_type"
-      },
       "layouts": [
         {
           "key": "maxRequestBytes",
