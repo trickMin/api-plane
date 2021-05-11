@@ -94,7 +94,7 @@ public class AggregateExtensionProcessor extends AbstractSchemaProcessor impleme
                 holder = getProcessor("Cache").process(plugin, serviceInfo);
                 coverToExtensionPlugin(holder, "com.netease.supercache");
                 break;
-            case "super-auth":
+            case "sign-auth": case "jwt-auth": case "oauth2-auth":
                 holder = getProcessor("SuperAuth").process(plugin, serviceInfo);
                 coverToExtensionPlugin(holder, "com.netease.superauthz");
                 break;

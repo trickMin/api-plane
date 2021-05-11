@@ -193,7 +193,7 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
 
         List<K8sResourcePack> resources = new ArrayList<>();
         RawResourceContainer rawResourceContainer = new RawResourceContainer();
-        List<FragmentHolder> plugins = pluginService.processGlobalPlugin(gp.getPlugins(), new ServiceInfo());
+        List<FragmentHolder> plugins = pluginService.processPlugin(gp.getPlugins(), new ServiceInfo());
         rawResourceContainer.add(plugins);
         List<Gateway> gateways = resourceManager.getGatewayList();
 

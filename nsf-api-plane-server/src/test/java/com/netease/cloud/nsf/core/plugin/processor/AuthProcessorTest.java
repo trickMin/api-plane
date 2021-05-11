@@ -1,6 +1,7 @@
 package com.netease.cloud.nsf.core.plugin.processor;
 
 import com.netease.cloud.nsf.core.plugin.FragmentHolder;
+import com.netease.cloud.nsf.core.plugin.processor.auth.AuthProcessor;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
