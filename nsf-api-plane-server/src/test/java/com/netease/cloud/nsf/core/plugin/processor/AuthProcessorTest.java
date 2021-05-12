@@ -14,7 +14,7 @@ public class AuthProcessorTest extends BasePluginTest {
     @Test
     public void process() {
 
-        String plugin = "{\"useAuthz\":true,\"kind\":\"super-auth\",\"authnType\":\"jwt_authn_type\","
+        String plugin = "{\"useAuthz\":true,\"kind\":\"jwt-auth\",\"authnType\":\"jwt_authn_type\","
                     + "\"cacheSwitch\":true,\"authz_result_cache\":{\"result_cache_key\":{\"ignore_case\":true},"
                     + "\"result_cache_ttl\":\"50000\"}}";
 
