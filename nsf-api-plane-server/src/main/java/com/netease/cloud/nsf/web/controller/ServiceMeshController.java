@@ -19,10 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Pattern;
 
 /**
@@ -102,6 +99,12 @@ public class ServiceMeshController extends BaseController {
     public Map<String, List<String>> GetTrafficMarks(@RequestParam(name = "Services") List<String> services) {
         Map<String, List<String>> result = serviceMeshService.getTrafficMarks(services);
         return result;
+    }
+
+    @RequestMapping(params = {"Action=RefreshNsfTrafficMarks"}, method = RequestMethod.POST)
+    public String refreshNsfTrafficMarks(@RequestBody Map<String, Set<String>> mappings) {
+    	serviceMeshService.updateNsfTrafficMarkAnnotations(mappings);
+        return apiReturn(ApiPlaneErrorCode.Success);
     }
 
     @RequestMapping(params = "Action=GetTopo", method = RequestMethod.GET)
