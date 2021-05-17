@@ -1,5 +1,6 @@
 package com.netease.cloud.nsf.cache.meta;
 
+import com.google.common.base.Strings;
 import com.netease.cloud.nsf.meta.Endpoint;
 import com.netease.cloud.nsf.util.Const;
 import io.fabric8.kubernetes.api.model.HasMetadata;
@@ -8,7 +9,6 @@ import io.fabric8.kubernetes.api.model.apps.DeploymentStatus;
 import io.fabric8.kubernetes.api.model.apps.StatefulSet;
 import io.fabric8.kubernetes.api.model.apps.StatefulSetStatus;
 import org.springframework.util.StringUtils;
-
 
 import java.util.List;
 import java.util.Map;
@@ -19,6 +19,8 @@ public class WorkLoadDTO<T extends HasMetadata> extends K8sResourceDTO {
     protected String serviceName;
 
     protected String serviceDomain;
+
+    private String trafficMark;
 
     protected List<String> sidecarVersion;
 
@@ -62,7 +64,7 @@ public class WorkLoadDTO<T extends HasMetadata> extends K8sResourceDTO {
         this.externalServiceInstance = externalServiceInstance;
     }
 
-    public WorkLoadDTO(T obj, String serviceName, String clusterId) {
+    public WorkLoadDTO(T obj, String serviceName, String trafficMark, String clusterId) {
         super(obj, clusterId);
         this.serviceDomain = serviceName;
         this.serviceName = serviceName;
@@ -94,6 +96,7 @@ public class WorkLoadDTO<T extends HasMetadata> extends K8sResourceDTO {
             this.lastUpdateTime = annotation.get(Const.WORKLOAD_UPDATE_TIME_ANNOTATION);
             this.lastOperationType = annotation.get(Const.WORKLOAD_OPERATION_TYPE_ANNOTATION);
         }
+        this.trafficMark = Strings.emptyToNull(trafficMark);
     }
 
     public String getServiceDomain() {
@@ -201,4 +204,13 @@ public class WorkLoadDTO<T extends HasMetadata> extends K8sResourceDTO {
     public void setPods(List<HasMetadata> pods) {
         this.pods = pods;
     }
+
+    public String getTrafficMark() {
+        return trafficMark;
+    }
+
+    public void setTrafficMark(String trafficMark) {
+        this.trafficMark = trafficMark;
+    }
+
 }
