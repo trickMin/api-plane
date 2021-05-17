@@ -2,7 +2,6 @@
   "formatter": {
     "kind": "oauth2-auth",
     "type": "super-auth",
-    "authnType": "&authnType",
     "useAuthz": "&useAuthz",
     "failureAuthAllow": "&failureAuthAllow",
     "cacheSwitch": "&cacheSwitch",
