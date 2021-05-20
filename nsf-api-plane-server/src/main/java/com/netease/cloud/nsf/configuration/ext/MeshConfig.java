@@ -12,6 +12,8 @@ public class MeshConfig {
     private String appKey;
     @Value("${selectorAppKey:nsf.skiff.netease.com/app}")
     private String selectorAppKey;
+    @Value("${trafficMarkLabel:nsf.skiff.netease.com/mark}")
+    private String trafficMarkLabel;
 
     public String getSelectorAppKey() {
         return selectorAppKey;
@@ -43,5 +45,13 @@ public class MeshConfig {
 
     public void setAppKey(String appKey) {
         this.appKey = appKey;
+    }
+
+    public String getTrafficMarkLabel() {
+        return trafficMarkLabel;
+    }
+
+    public void setTrafficMarkLabel(String trafficMarkLabel) {
+        this.trafficMarkLabel = trafficMarkLabel;
     }
 }

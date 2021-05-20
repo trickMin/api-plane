@@ -6,6 +6,7 @@ import io.fabric8.kubernetes.api.model.HasMetadata;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public interface ServiceMeshService {
 
@@ -32,6 +33,8 @@ public interface ServiceMeshService {
     ErrorCode removeInject(String clusterId, String kind, String namespace, String name);
 
     Map<String, List<String>> getTrafficMarks(List<String> services);
+
+    void updateNsfTrafficMarkAnnotations(Map<String, Set<String>> mappings);
 
     ErrorCode createAppOnService(String clusterId, String namespace, String name, String appName);
 

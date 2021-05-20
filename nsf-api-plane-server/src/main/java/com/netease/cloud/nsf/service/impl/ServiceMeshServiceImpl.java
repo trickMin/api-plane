@@ -427,6 +427,35 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
     }
 
     @Override
+    public void updateNsfTrafficMarkAnnotations(Map<String, Set<String>> mappings) {
+        String clusterId = MultiClusterK8sClient.DEFAULT_CLUSTER_NAME;
+        OwnerReferenceSupportStore<HasMetadata> store = ResourceStoreFactory.getResourceStore(clusterId);
+        io.fabric8.kubernetes.client.KubernetesClient client = multiClusterK8sClient.originalK8sClient(clusterId);
+
+        Map<String, HasMetadata> services = store.listByKind(K8sResourceEnum.Service.name())
+            .stream()
+            .collect(Collectors.toMap(s -> s.getMetadata().getName() + "." + s.getMetadata().getNamespace(), s -> s));
+        mappings.forEach((svcName, marks) -> {
+            HasMetadata svc = services.get(svcName);
+            if (svc == null) {
+                return;
+            }
+            String markString = marks.stream().sorted().collect(Collectors.joining(","));
+            if (svc.getMetadata().getAnnotations() == null || !markString.equals(svc.getMetadata().getAnnotations().get("nsf.skiff.netease.com/mark-nsf"))) {
+                client
+                    .services()
+                    .inNamespace(svc.getMetadata().getNamespace())
+                    .withName(svc.getMetadata().getName())
+                    .edit()
+                    .editMetadata()
+                    .addToAnnotations("nsf.skiff.netease.com/mark-nsf", markString)
+                    .endMetadata()
+                    .done();
+            }
+        });
+    }
+
+    @Override
     public ErrorCode createAppOnService(String clusterId, String namespace, String name, String appName) {
         if (StringUtils.isEmpty(clusterId)) {
             for (String cluster : ResourceStoreFactory.listClusterId()) {

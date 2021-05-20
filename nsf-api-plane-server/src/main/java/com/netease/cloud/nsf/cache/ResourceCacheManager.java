@@ -1,6 +1,7 @@
 package com.netease.cloud.nsf.cache;
 
 
+import com.google.common.base.Strings;
 import com.netease.cloud.nsf.cache.meta.PodDTO;
 import com.netease.cloud.nsf.cache.meta.WorkLoadDTO;
 import com.netease.cloud.nsf.configuration.ext.MeshConfig;
@@ -122,35 +123,49 @@ public class ResourceCacheManager implements ResourceEventDispatcher {
         return pod.getMetadata().getAnnotations().get("envoy.io/binaryName");
     }
 
+    private WorkLoadDTO newWorkLoadDTO(String clusterId, HasMetadata obj) {
+        String serviceName = getServiceNameByWorkload(obj);
+        if (StringUtils.isEmpty(serviceName)) {
+            return null;
+        }
+        String mark = getPodLabelFromWorkload(obj, meshConfig.getTrafficMarkLabel());
+        return new WorkLoadDTO(obj, serviceName, mark, clusterId);
+    }
+
     public String getServiceNameByWorkload(HasMetadata resourceObject) {
         String namespace = resourceObject.getMetadata().getNamespace();
         String appName = null;
         if (resourceObject.getMetadata().getLabels() != null) {
-            appName = resourceObject.getMetadata().getLabels().get(meshConfig.getSelectorAppKey());
+            appName = Strings.emptyToNull(resourceObject.getMetadata().getLabels().get(meshConfig.getSelectorAppKey()));
         }
-        if (StringUtils.isEmpty(appName)) {
-            if (resourceObject instanceof io.fabric8.kubernetes.api.model.apps.Deployment) {
-                io.fabric8.kubernetes.api.model.apps.Deployment deployment = (io.fabric8.kubernetes.api.model.apps.Deployment) resourceObject;
-                Map<String, String> label = deployment.getSpec().getTemplate().getMetadata().getLabels();
-                if (label != null && !label.isEmpty()) {
-                    appName = label.get(meshConfig.getSelectorAppKey());
-                }
-            } else if (resourceObject instanceof io.fabric8.kubernetes.api.model.apps.StatefulSet) {
-                io.fabric8.kubernetes.api.model.apps.StatefulSet statefulSet = (io.fabric8.kubernetes.api.model.apps.StatefulSet) resourceObject;
-                Map<String, String> label = statefulSet.getSpec().getTemplate().getMetadata().getLabels();
-                if (label != null && !label.isEmpty()) {
-                    appName = label.get(meshConfig.getSelectorAppKey());
-                }
-            } else {
-                log.warn("unknown resource type for workload [{}] ", resourceObject.getMetadata().getName());
-                return null;
-            }
+        String label = meshConfig.getSelectorAppKey();
+        if (appName == null) {
+            appName = getPodLabelFromWorkload(resourceObject, label);
         }
-        if (StringUtils.isEmpty(appName)) {
+        if (appName == null) {
             log.debug("no app info for workload [{}] ", resourceObject.getMetadata().getName());
             return null;
         }
         return appName + Const.SEPARATOR_DOT + namespace;
+    }
+
+    private String getPodLabelFromWorkload(HasMetadata resourceObject, String label) {
+        if (resourceObject instanceof io.fabric8.kubernetes.api.model.apps.Deployment) {
+            io.fabric8.kubernetes.api.model.apps.Deployment deployment = (io.fabric8.kubernetes.api.model.apps.Deployment) resourceObject;
+            Map<String, String> labels = deployment.getSpec().getTemplate().getMetadata().getLabels();
+            if (labels != null && !labels.isEmpty()) {
+                return Strings.emptyToNull(labels.get(label));
+            }
+        } else if (resourceObject instanceof io.fabric8.kubernetes.api.model.apps.StatefulSet) {
+            io.fabric8.kubernetes.api.model.apps.StatefulSet statefulSet = (io.fabric8.kubernetes.api.model.apps.StatefulSet) resourceObject;
+            Map<String, String> labels = statefulSet.getSpec().getTemplate().getMetadata().getLabels();
+            if (labels != null && !labels.isEmpty()) {
+                return Strings.emptyToNull(labels.get(label));
+            }
+        } else {
+            log.warn("unknown resource type for workload [{}] ", resourceObject.getMetadata().getName());
+        }
+        return null;
     }
 
     private void syncAll(List resourceList, String clusterId) {
@@ -159,13 +174,11 @@ public class ResourceCacheManager implements ResourceEventDispatcher {
         }
         Map<String, List<WorkLoadDTO>> newAppWorkLoadMap = new HashMap<>();
         for (Object obj : resourceList) {
-            HasMetadata workload = (HasMetadata) obj;
-            String serviceName = getServiceNameByWorkload(workload);
-            if (StringUtils.isEmpty(serviceName)) {
+            WorkLoadDTO newWorkLoadDTO = newWorkLoadDTO(clusterId, (HasMetadata) obj);
+            if (newWorkLoadDTO == null) {
                 continue;
             }
-            WorkLoadDTO newWorkLoadDTO = new WorkLoadDTO(workload, serviceName, clusterId);
-            List<WorkLoadDTO> workloadByServiceName = newAppWorkLoadMap.computeIfAbsent(serviceName, k -> new ArrayList<>());
+            List<WorkLoadDTO> workloadByServiceName = newAppWorkLoadMap.computeIfAbsent(newWorkLoadDTO.getServiceName(), k -> new ArrayList<>());
             workloadByServiceName.add(newWorkLoadDTO);
         }
         appWorkLoadMap.put(clusterId,newAppWorkLoadMap);
@@ -176,13 +189,12 @@ public class ResourceCacheManager implements ResourceEventDispatcher {
     }
 
     private void removeWorkloadList(HasMetadata obj, String clusterId) {
-        String serviceName = getServiceNameByWorkload(obj);
-        if (StringUtils.isEmpty(serviceName)) {
+        WorkLoadDTO removedWorkLoad = newWorkLoadDTO(clusterId, obj);
+        if (removedWorkLoad == null) {
             return;
         }
         Map<String, List<WorkLoadDTO>> workloadByAppName = this.appWorkLoadMap.computeIfAbsent(clusterId, k -> new HashMap<>());
-        List<WorkLoadDTO> oldWorkloadList = workloadByAppName.computeIfAbsent(serviceName, k -> new ArrayList<>());
-        WorkLoadDTO removedWorkLoad = new WorkLoadDTO(obj, serviceName, clusterId);
+        List<WorkLoadDTO> oldWorkloadList = workloadByAppName.computeIfAbsent(removedWorkLoad.getServiceName(), k -> new ArrayList<>());
         List<WorkLoadDTO> newWorkloadList = new ArrayList<>();
         for (WorkLoadDTO loadDTO : oldWorkloadList) {
             if (!loadDTO.getKind().equals(removedWorkLoad.getKind()) ||
@@ -193,20 +205,19 @@ public class ResourceCacheManager implements ResourceEventDispatcher {
             }
         }
         if (CollectionUtils.isEmpty(newWorkloadList)) {
-            workloadByAppName.remove(serviceName);
+            workloadByAppName.remove(removedWorkLoad.getServiceName());
         } else {
-            workloadByAppName.put(serviceName, newWorkloadList);
+            workloadByAppName.put(removedWorkLoad.getServiceName(), newWorkloadList);
         }
     }
 
     private void updateWorkloadList(HasMetadata obj, String clusterId) {
-        String serviceName = getServiceNameByWorkload(obj);
-        if (StringUtils.isEmpty(serviceName)) {
+        WorkLoadDTO newWorkLoadDTO = newWorkLoadDTO(clusterId, obj);
+        if (newWorkLoadDTO == null) {
             return;
         }
         Map<String, List<WorkLoadDTO>> workloadByAppName = this.appWorkLoadMap.computeIfAbsent(clusterId, k -> new HashMap<>());
-        List<WorkLoadDTO> oldWorkloadList = workloadByAppName.computeIfAbsent(serviceName, k -> new ArrayList<>());
-        WorkLoadDTO newWorkLoadDTO = new WorkLoadDTO(obj, serviceName, clusterId);
+        List<WorkLoadDTO> oldWorkloadList = workloadByAppName.computeIfAbsent(newWorkLoadDTO.getServiceName(), k -> new ArrayList<>());
         List<WorkLoadDTO> newWorkloadList = new ArrayList<>();
         for (WorkLoadDTO loadDTO : oldWorkloadList) {
             if (!loadDTO.getKind().equals(newWorkLoadDTO.getKind()) ||
@@ -218,22 +229,21 @@ public class ResourceCacheManager implements ResourceEventDispatcher {
         }
         newWorkloadList.add(newWorkLoadDTO);
         if (CollectionUtils.isEmpty(newWorkloadList)) {
-            workloadByAppName.remove(serviceName);
+            workloadByAppName.remove(newWorkLoadDTO.getServiceName());
         } else {
-            workloadByAppName.put(serviceName, newWorkloadList);
+            workloadByAppName.put(newWorkLoadDTO.getServiceName(), newWorkloadList);
         }
     }
 
     private void addWorkloadList(HasMetadata obj, String clusterId) {
-        String serviceName = getServiceNameByWorkload(obj);
-        if (StringUtils.isEmpty(serviceName)) {
+        WorkLoadDTO newWorkLoadDTO = newWorkLoadDTO(clusterId, obj);
+        if (newWorkLoadDTO == null) {
             return;
         }
         Map<String, List<WorkLoadDTO>> workloadByAppName = this.appWorkLoadMap.computeIfAbsent(clusterId, k -> new HashMap<>());
-        List<WorkLoadDTO> oldWorkloadList = workloadByAppName.computeIfAbsent(serviceName, k -> new ArrayList<>());
-        WorkLoadDTO newWorkLoadDTO = new WorkLoadDTO(obj, serviceName, clusterId);
+        List<WorkLoadDTO> oldWorkloadList = workloadByAppName.computeIfAbsent(newWorkLoadDTO.getServiceName(), k -> new ArrayList<>());
         oldWorkloadList.add(newWorkLoadDTO);
-        workloadByAppName.put(serviceName, oldWorkloadList);
+        workloadByAppName.put(newWorkLoadDTO.getServiceName(), oldWorkloadList);
     }
 
     @Override
