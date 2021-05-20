@@ -168,11 +168,11 @@ public class DynamicDowngradeProcessorTest extends BasePluginTest {
                 "  RedisHttpCache:\n" +
                 "    default: 30000\n" +
                 "    customs:\n" +
-                "      200: 50000\n" +
+                "      \"200\": 50000\n" +
                 "  LocalHttpCache:\n" +
                 "    default: 30000\n" +
                 "    customs:\n" +
-                "      200: 50000\n" +
+                "      \"200\": 50000\n" +
                 "key_maker:\n" +
                 "  query_params: []\n" +
                 "  headers_keys: []", f3.getVirtualServiceFragment().getContent().trim());
