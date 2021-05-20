@@ -13,6 +13,7 @@ import com.netease.cloud.nsf.service.ServiceMeshService;
 import com.netease.cloud.nsf.util.errorcode.ApiPlaneErrorCode;
 import com.netease.cloud.nsf.util.errorcode.ErrorCode;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
+import io.fabric8.kubernetes.api.model.HasMetadata;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
@@ -20,10 +21,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -70,7 +68,6 @@ public class K8sResourceController extends BaseController {
         ErrorCode code = ApiPlaneErrorCode.Success;
         return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), result);
     }
-
 
 
     @RequestMapping(params = {"Action=GetPodByWorkLoad"}, method = RequestMethod.GET)
@@ -149,12 +146,20 @@ public class K8sResourceController extends BaseController {
         List<MeshWorkLoadDTO> meshWorkLoadDTOS = workLoadList.stream().filter(WorkLoadDTO::isInMesh).map(workLoadItem -> {
             MeshWorkLoadDTO meshWorkLoadDTO = new MeshWorkLoadDTO();
             BeanUtils.copyProperties(workLoadItem, meshWorkLoadDTO);
-            if (!StringUtils.isEmpty(workLoadItem.getLabels().get(meshConfig.getAppKey()))){
-                meshWorkLoadDTO.setApp(String.valueOf(workLoadItem.getLabels().get(meshConfig.getAppKey())));
+            if (!CollectionUtils.isEmpty(workLoadItem.getPods())) {
+                // FIXME: 目前取第一个pod的app标签和version标签，可以通过取deployment template优化
+                PodDTO pod = (PodDTO) workLoadItem.getPods().get(0);
+                if (Objects.nonNull(pod.getLabels())) {
+                    Map<String, String> podLabel = pod.getLabels();
+                    if (!StringUtils.isEmpty(podLabel.get(meshConfig.getAppKey()))) {
+                        meshWorkLoadDTO.setApp(String.valueOf(podLabel.get(meshConfig.getAppKey())));
+                    }
+                    if (!StringUtils.isEmpty(podLabel.get(meshConfig.getVersionKey()))) {
+                        meshWorkLoadDTO.setVersion(String.valueOf(podLabel.get(meshConfig.getVersionKey())));
+                    }
+                }
             }
-            if(!StringUtils.isEmpty(workLoadItem.getLabels().get(meshConfig.getVersionKey()))){
-                meshWorkLoadDTO.setVersion(String.valueOf(workLoadItem.getLabels().get(meshConfig.getVersionKey())));
-            }
+
             return meshWorkLoadDTO;
         }).collect(Collectors.toList());
         result.put("Result", meshWorkLoadDTOS);

@@ -99,18 +99,8 @@
         <dependency>
             <groupId>me.snowdrop</groupId>
             <artifactId>istio-model</artifactId>
-            <version>1.0.5-QZ-SNAPSHOT</version>
-          <exclusions>
-              <!--存在版本冲突-->
-              <exclusion>
-                  <artifactId>kubernetes-model-common</artifactId>
-                  <groupId>io.fabric8</groupId>
-              </exclusion>
-              <exclusion>
-                  <artifactId>kubernetes-model</artifactId>
-                  <groupId>io.fabric8</groupId>
-              </exclusion>
-          </exclusions>
+            <version>1.0.6-QZ-SNAPSHOT</version>
+
         </dependency>
 
         <!-- k8s -->
@@ -118,6 +108,18 @@
             <groupId>io.fabric8</groupId>
             <artifactId>kubernetes-client</artifactId>
             <version>4.10.3</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.10.3</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>1.24</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/commons-beanutils/commons-beanutils -->
