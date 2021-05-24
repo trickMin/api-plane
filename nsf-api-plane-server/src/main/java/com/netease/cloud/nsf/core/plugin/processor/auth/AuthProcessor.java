@@ -1,10 +1,12 @@
-package com.netease.cloud.nsf.core.plugin.processor;
+package com.netease.cloud.nsf.core.plugin.processor.auth;
 
 import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.plugin.FragmentHolder;
 import com.netease.cloud.nsf.core.plugin.FragmentTypeEnum;
 import com.netease.cloud.nsf.core.plugin.FragmentWrapper;
+import com.netease.cloud.nsf.core.plugin.processor.AbstractSchemaProcessor;
+import com.netease.cloud.nsf.core.plugin.processor.SchemaProcessor;
 import com.netease.cloud.nsf.meta.ServiceInfo;
 import org.springframework.stereotype.Component;
 
@@ -25,24 +27,12 @@ public class AuthProcessor extends AbstractSchemaProcessor implements SchemaProc
     private String cacheKey = "$." + result_cache + "." + result_cache_key;
     private String cacheTtl = "$." + result_cache + "." + result_cache_ttl;
 
-    Map<String,String> authnType_to_cacheKey = new HashMap<String, String>(){{
-        put("aksk_authn_type", "x-nsf-accesskey");
-        put("jwt_authn_type", "authority");
-        put("oauth2_authn_type", "authority");
-    }};
-
     @Override
     public FragmentHolder process(String plugin, ServiceInfo serviceInfo) {
         ResourceGenerator source = ResourceGenerator.newInstance(plugin);
         ResourceGenerator builder = ResourceGenerator.newInstance("{\"need_authorization\":\"false\", \"failure_auth_allow\":\"false\"}");
-         String authType = source.getValue("$.authnType", String.class);
-        if ("aksk_authn_type".equals(authType)) {
-            builder.createOrUpdateJson("$", "aksk_authn_type", "{}");
-        } else if ("jwt_authn_type".equals(authType)){
-            builder.createOrUpdateJson("$", "jwt_authn_type", "{}");
-        }else {
-            builder.createOrUpdateJson("$", "oauth2_authn_type", "{}");
-        }
+        String kind = source.getValue("$.kind", String.class);
+        builder.createOrUpdateJson("$", AuthTypeEnum.getAuthTypeEnum(kind).getAuth_type(), "{}");
 
         builder.updateValue("$.need_authorization", source.getValue("$.useAuthz", Boolean.class));
         Boolean failureAuthAllow = source.getValue("$.failureAuthAllow", Boolean.class);
@@ -94,6 +84,7 @@ public class AuthProcessor extends AbstractSchemaProcessor implements SchemaProc
     private void createCacheKey(ResourceGenerator source, ResourceGenerator builder) {
         String ignore_case = "ignore_case";
         String header_keys = "headers_keys";
+        String kind = source.getValue("$.kind", String.class);
         builder.createOrUpdateJson("$."+ result_cache, result_cache_key, "{}");
         Boolean ignoreCase = source.getValue(cacheKey + "." + ignore_case, Boolean.class);
         if (nonNull(ignoreCase)) {
@@ -101,14 +92,12 @@ public class AuthProcessor extends AbstractSchemaProcessor implements SchemaProc
         }
         builder.createOrUpdateJson(cacheKey, header_keys, "[]");
         if (source.contain(cacheKey + "." + header_keys)) {
-
             List<String> headers = source.getValue(cacheKey + "." + header_keys , List.class);
             headers.forEach(item -> {
                 builder.addJsonElement(cacheKey + "." + header_keys, item);
             });
         }else {
-            String authType = source.getValue("$.authnType", String.class);
-            builder.addJsonElement(cacheKey + "." + header_keys, authnType_to_cacheKey.get(authType));
+            builder.addJsonElement(cacheKey + "." + header_keys, AuthTypeEnum.getAuthTypeEnum(kind).getCache_key());
         }
     }
 }

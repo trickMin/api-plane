@@ -36,10 +36,10 @@ public class PluginServiceImpl implements PluginService {
 
     private static final String PLUGIN_CONFIG = "plugin/%s/plugin-config.json";
 
-    @Value("${pluginConfigEnv:yx}")
+    @Value("${pluginConfigEnv:portal}")
     private String env;
 
-    @Value("${globalPluginConfigEnv:qzglobal}")
+    @Value("${globalPluginConfigEnv:portal}")
     private String globalEnv;
 
     @Autowired
