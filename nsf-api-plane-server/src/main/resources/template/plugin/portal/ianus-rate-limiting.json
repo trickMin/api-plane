@@ -10,7 +10,7 @@
   "layouts": [
     {
       "key": "limit_by_list",
-      "alias": "限制标识列表",
+      "alias": "限制规则列表",
       "type": "array",
       "layouts": [
         {

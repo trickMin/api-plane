@@ -6,8 +6,9 @@
     {
       "key": "limit_percent",
       "alias": "限流百分比",
-      "help": "0~100之间的整数",
+      "help": "0~100之间的整数, 代表拦截比例",
       "type": "input",
+      "placeholder": "请输出拦截比例",
       "rules": [
         "Required",
         "Number",

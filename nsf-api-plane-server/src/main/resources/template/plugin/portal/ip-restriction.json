@@ -24,7 +24,7 @@
     },
     {
       "key": "list",
-      "alias": "ip列表",
+      "alias": "IP列表",
       "default": [],
       "type": "multi_input"
     }
