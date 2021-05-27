@@ -12,17 +12,17 @@
     },
     {
       "key": "limit_by_list",
-      "alias": "限流标识列表",
+      "alias": "限制规则列表",
       "type": "array",
       "layouts": [
         {
           "key": "headers",
-          "alias": "限流headers",
+          "alias": "请求Header匹配",
           "type": "array",
           "layouts": [
             {
               "key": "headerKey",
-              "alias": "限流header",
+              "alias": "请求Header名",
               "type": "input"
             },
             {

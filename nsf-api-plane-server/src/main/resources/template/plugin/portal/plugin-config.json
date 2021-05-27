@@ -32,9 +32,9 @@
     },
     {
       "name": "ianus-router",
-      "displayName": "路由",
+      "displayName": "请求中断",
       "schema": "plugin/portal/ianus-router.json",
-      "description": "路由插件",
+      "description": "请求中断插件",
       "processor": "RouteProcessor",
       "author": "system",
       "createTime": "1572537600000",
