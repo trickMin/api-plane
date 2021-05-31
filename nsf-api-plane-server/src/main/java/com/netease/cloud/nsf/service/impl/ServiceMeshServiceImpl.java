@@ -23,6 +23,7 @@ import com.netease.cloud.nsf.core.servicemesh.MultiK8sConfigStore;
 import com.netease.cloud.nsf.core.servicemesh.ServiceMeshConfigManager;
 import com.netease.cloud.nsf.meta.SVMSpec;
 import com.netease.cloud.nsf.meta.SidecarVersionManagement;
+import com.netease.cloud.nsf.meta.TrafficMarkConfigDto;
 import com.netease.cloud.nsf.meta.dto.ResourceWrapperDTO;
 import com.netease.cloud.nsf.service.ServiceMeshService;
 import com.netease.cloud.nsf.service.VersionManagerService;
@@ -408,7 +409,7 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
     }
 
     @Override
-    public Map<String, List<String>> getTrafficMarks(List<String> services) {
+    public Map<String, List<String>> getServiceMeshTrafficMarks(List<String> services) {
         return services.stream()
             .filter(n -> n != null && n.contains("."))
             .distinct()
@@ -419,7 +420,7 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
                     .filter(Objects::nonNull)
                     .map(s -> s.getMetadata().getAnnotations())
                     .filter(Objects::nonNull)
-                    .map(a -> a.get(Const.TRAFFIC_MARK_ANNOTATION))
+                    .map(a -> a.get(Const.MARK_SM_ANNOTATION))
                     .filter(Objects::nonNull)
                     .map(mark -> Pair.of(n, mark.isEmpty() ? Collections.<String>emptyList() : Arrays.asList(mark.split(","))));
             })
@@ -427,7 +428,7 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
     }
 
     @Override
-    public void updateNsfTrafficMarkAnnotations(Map<String, Set<String>> mappings) {
+    public void updateNsfTrafficMarkAnnotations(TrafficMarkConfigDto config) {
         String clusterId = MultiClusterK8sClient.DEFAULT_CLUSTER_NAME;
         OwnerReferenceSupportStore<HasMetadata> store = ResourceStoreFactory.getResourceStore(clusterId);
         io.fabric8.kubernetes.client.KubernetesClient client = multiClusterK8sClient.originalK8sClient(clusterId);
@@ -435,20 +436,25 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
         Map<String, HasMetadata> services = store.listByKind(K8sResourceEnum.Service.name())
             .stream()
             .collect(Collectors.toMap(s -> s.getMetadata().getName() + "." + s.getMetadata().getNamespace(), s -> s));
-        mappings.forEach((svcName, marks) -> {
+        String switchMarkString = config.getEnabledMarks().stream().sorted().collect(Collectors.joining(","));
+        config.getServiceNames().forEach(svcName -> {
             HasMetadata svc = services.get(svcName);
             if (svc == null) {
                 return;
             }
-            String markString = marks.stream().sorted().collect(Collectors.joining(","));
-            if (svc.getMetadata().getAnnotations() == null || !markString.equals(svc.getMetadata().getAnnotations().get("nsf.skiff.netease.com/mark-nsf"))) {
+            String nsfMarkString = config.getMappings().getOrDefault(svcName, Collections.emptySet())
+                .stream().sorted().collect(Collectors.joining(","));
+            if (svc.getMetadata().getAnnotations() == null ||
+				!switchMarkString.equals(svc.getMetadata().getAnnotations().get(Const.MARK_SWITCH_ANNOTATION)) ||
+                !nsfMarkString.equals(svc.getMetadata().getAnnotations().get(Const.MARK_NSF_ANNOTATION))) {
                 client
                     .services()
                     .inNamespace(svc.getMetadata().getNamespace())
                     .withName(svc.getMetadata().getName())
                     .edit()
                     .editMetadata()
-                    .addToAnnotations("nsf.skiff.netease.com/mark-nsf", markString)
+                    .addToAnnotations(Const.MARK_SWITCH_ANNOTATION, switchMarkString)
+                    .addToAnnotations(Const.MARK_NSF_ANNOTATION, nsfMarkString)
                     .endMetadata()
                     .done();
             }

@@ -92,6 +92,8 @@ public interface Const {
 
     String NSF_LABEL_KEY_CLUSTER = "com.netease.nsf.cluster";
 
-    String TRAFFIC_MARK_ANNOTATION = "nsf.skiff.netease.com/mark";
+    String MARK_SM_ANNOTATION = "nsf.skiff.netease.com/mark-sm";
+    String MARK_SWITCH_ANNOTATION = "nsf.skiff.netease.com/mark-switch";
+    String MARK_NSF_ANNOTATION = "nsf.skiff.netease.com/mark-nsf";
 
 }

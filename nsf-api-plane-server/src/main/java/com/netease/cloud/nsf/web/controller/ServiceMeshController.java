@@ -2,6 +2,7 @@ package com.netease.cloud.nsf.web.controller;
 
 import com.google.common.collect.ImmutableMap;
 import com.netease.cloud.nsf.meta.Graph;
+import com.netease.cloud.nsf.meta.TrafficMarkConfigDto;
 import com.netease.cloud.nsf.meta.ValidateResult;
 import com.netease.cloud.nsf.meta.dto.ValidateResultDTO;
 import com.netease.cloud.nsf.service.ServiceMeshService;
@@ -19,7 +20,10 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
@@ -95,15 +99,15 @@ public class ServiceMeshController extends BaseController {
         return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), null);
     }
 
-    @RequestMapping(params = {"Action=GetTrafficMarks"}, method = RequestMethod.POST)
+    @RequestMapping(params = {"Action=GetServiceMeshTrafficMarks"}, method = RequestMethod.POST)
     public Map<String, List<String>> GetTrafficMarks(@RequestBody List<String> services) {
-        Map<String, List<String>> result = serviceMeshService.getTrafficMarks(services);
+        Map<String, List<String>> result = serviceMeshService.getServiceMeshTrafficMarks(services);
         return result;
     }
 
     @RequestMapping(params = {"Action=RefreshNsfTrafficMarks"}, method = RequestMethod.POST)
-    public String refreshNsfTrafficMarks(@RequestBody Map<String, Set<String>> mappings) {
-    	serviceMeshService.updateNsfTrafficMarkAnnotations(mappings);
+    public String refreshNsfTrafficMarks(@RequestBody TrafficMarkConfigDto config) {
+    	serviceMeshService.updateNsfTrafficMarkAnnotations(config);
         return apiReturn(ApiPlaneErrorCode.Success);
     }
 
