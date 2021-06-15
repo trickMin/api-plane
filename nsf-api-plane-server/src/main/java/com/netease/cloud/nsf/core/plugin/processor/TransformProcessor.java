@@ -140,7 +140,8 @@ public class TransformProcessor extends AbstractSchemaProcessor implements Schem
                 } else {
                     value = String.format("{\"text\":\"%s\",\"action\":\"%s\"}", text, action);
                 }
-                builder.createOrUpdateJson("$.request_transformations[0].transformation_template.headers", key, value);
+                builder.createOrUpdateJson("$.request_transformations[0].transformation_template.headers",
+                                           replaceString(key), replaceString(value));
             }
         }
     }
@@ -159,7 +160,8 @@ public class TransformProcessor extends AbstractSchemaProcessor implements Schem
                 } else {
                     value = String.format("{\"text\":\"%s\",\"action\":\"%s\"}", text, action);
                 }
-                builder.createOrUpdateJson("$.request_transformations[0].transformation_template.query_param_operators", key, value);
+                builder.createOrUpdateJson("$.request_transformations[0].transformation_template"
+                                           + ".query_param_operators", replaceString(key), replaceString(value));
             }
         }
     }
