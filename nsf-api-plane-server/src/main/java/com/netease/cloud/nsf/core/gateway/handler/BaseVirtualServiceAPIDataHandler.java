@@ -163,18 +163,15 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
 
     String produceMirror(API api){
         Service mirrorTraffic = api.getMirrorTraffic();
-        if(mirrorTraffic == null){
-            return null;
+        TemplateParams params = TemplateParams.instance();
+        if(mirrorTraffic != null){
+            params.put(VIRTUAL_SERVICE_MIRROR_PORT,mirrorTraffic.getPort())
+                    .put(VIRTUAL_SERVICE_MIRROR_SERVICE,mirrorTraffic.getBackendService());
+
+            if(StringUtils.isNotBlank(mirrorTraffic.getSubset())){
+                params.put(VIRTUAL_SERVICE_MIRROR_SUBSET,mirrorTraffic.getSubset());
+            }
         }
-
-        TemplateParams params = TemplateParams.instance()
-                .put(VIRTUAL_SERVICE_MIRROR_PORT,mirrorTraffic.getPort())
-                .put(VIRTUAL_SERVICE_MIRROR_SERVICE,mirrorTraffic.getBackendService());
-
-        if(StringUtils.isNotBlank(mirrorTraffic.getSubset())){
-            params.put(VIRTUAL_SERVICE_MIRROR_SUBSET,mirrorTraffic.getSubset());
-        }
-
         return subModelProcessor.process(apiVirtualServiceMirror, params);
     }
 

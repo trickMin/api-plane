@@ -17,13 +17,6 @@ public class PortalMirrorTrafficDto {
     private String backendService;
 
     /**
-     * 流量镜像转发比例
-     */
-    @NotEmpty(message = "MirrorPercent")
-    @JsonProperty(value = "MirrorPercent")
-    private int mirrorPercent;
-
-    /**
      * 流量镜像转发端口
      */
     @NotEmpty(message = "Port")
@@ -42,14 +35,6 @@ public class PortalMirrorTrafficDto {
 
     public void setBackendService(String backendService) {
         this.backendService = backendService;
-    }
-
-    public int getMirrorPercent() {
-        return mirrorPercent;
-    }
-
-    public void setMirrorPercent(int mirrorPercent) {
-        this.mirrorPercent = mirrorPercent;
     }
 
     public int getPort() {
