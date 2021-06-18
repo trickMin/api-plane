@@ -70,6 +70,10 @@ public interface TemplateConst {
     String VIRTUAL_SERVICE_REQUEST_HEADERS = "t_virtual_service_request_headers";
     String VIRTUAL_SERVICE_VIRTUAL_CLUSTER_NAME = "t_virtual_service_virtual_cluster_name";
     String VIRTUAL_SERVICE_VIRTUAL_CLUSTER_HEADERS = "t_virtual_service_virtual_cluster_headers";
+    String VIRTUAL_SERVICE_MIRROR_SERVICE = "t_virtual_service_mirror_service";
+    String VIRTUAL_SERVICE_MIRROR_PORT = "t_virtual_service_mirror_port";
+    String VIRTUAL_SERVICE_MIRROR_SUBSET = "t_virtual_service_mirror_subset";
+    String VIRTUAL_SERVICE_MIRROR_YAML = "t_virtual_service_mirror_yaml";
 
     /**
      * ServiceInfo

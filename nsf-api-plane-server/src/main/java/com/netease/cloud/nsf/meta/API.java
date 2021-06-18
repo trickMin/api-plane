@@ -166,6 +166,19 @@ public class API extends CommonModel {
      */
     private List<PairMatch> virtualClusterHeaders;
 
+    /**
+     * 流量镜像配置
+     */
+    private Service mirrorTraffic;
+
+    public Service getMirrorTraffic() {
+        return mirrorTraffic;
+    }
+
+    public void setMirrorTraffic(Service mirrorTraffic) {
+        this.mirrorTraffic = mirrorTraffic;
+    }
+
     public List<String> getGateways() {
         return gateways;
     }

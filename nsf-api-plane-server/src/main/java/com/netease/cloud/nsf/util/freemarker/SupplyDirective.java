@@ -29,6 +29,7 @@ public class SupplyDirective implements TemplateDirectiveModel {
         API("api:", wrap(TemplateConst.API_IDENTITY_NAME)),
         META("meta:", indent(wrap(TemplateConst.VIRTUAL_SERVICE_META_YAML))),
         PRIORITY("priority:", indent(wrap(TemplateConst.VIRTUAL_SERVICE_MATCH_PRIORITY_YAML))),
+        MIRROR("mirror:", indent(wrap(TemplateConst.VIRTUAL_SERVICE_MIRROR_YAML))),
 
         ;
 
@@ -62,6 +63,7 @@ public class SupplyDirective implements TemplateDirectiveModel {
         ResourceGenerator gen = ResourceGenerator.newInstance(string, ResourceType.YAML);
         gen.createOrUpdateValue("$[?]", "nsf-template-match", Keyword.MATCH.replacement, Criteria.where("match").exists(false));
         gen.createOrUpdateValue("$[?]", "nsf-template-route", Keyword.ROUTE.replacement, Criteria.where("route").exists(false));
+        gen.createOrUpdateValue("$[?]", "nsf-template-mirror", Keyword.MIRROR.replacement, Criteria.where("mirror").exists(false));
         gen.createOrUpdateValue("$[?]", "nsf-template-extra", Keyword.EXTRA.replacement, Criteria.where("extra").exists(false));
         gen.createOrUpdateValue("$[?]", "nsf-template-retry", Keyword.RETRY.replacement, Criteria.where("retry").exists(false));
         gen.createOrUpdateValue("$[?]", "nsf-template-meta", Keyword.META.replacement, Criteria.where("meta").exists(false));
