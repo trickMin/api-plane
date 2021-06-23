@@ -56,7 +56,7 @@
       "updateTime": "1572537600000",
       "pluginScope": "routeRule,global",
       "pluginPriority": "1000",
-      "instructionForUse": "根据ip过滤请求",
+      "instructionForUse": "根据IP过滤请求",
       "categoryKey": "security",
       "categoryName": "安全"
     },
@@ -197,7 +197,7 @@
     },
     {
       "name": "oauth2-auth",
-      "displayName": "Oauth2认证",
+      "displayName": "OAuth2认证",
       "schema": "plugin/portal/oauth2Auth.json",
       "description": "",
       "processor": "AggregateGatewayPluginProcessor",
@@ -236,7 +236,7 @@
       "updateTime": "1572537600000",
       "pluginScope": "routeRule,global",
       "pluginPriority": "3400",
-      "instructionForUse": "请求频率限流，按后端服务节点限流",
+      "instructionForUse": "请求频率限流，限制网关实例节点的服务请求流量",
       "categoryKey": "trafficPolicy",
       "categoryName": "流量管理"
     },

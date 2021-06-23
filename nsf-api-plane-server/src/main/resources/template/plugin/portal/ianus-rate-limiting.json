@@ -29,17 +29,6 @@
           "type": "array",
           "layouts": [
             {
-              "key": "right_value",
-              "alias": "取值",
-              "type": "string",
-              "invisible": {
-                "this.operator": "present"
-              },
-              "rules": [
-                "Required"
-              ]
-            },
-            {
               "key": "operator",
               "alias": "匹配方式",
               "type": "select",
@@ -67,6 +56,17 @@
                 "true",
                 "false"
               ],
+              "rules": [
+                "Required"
+              ]
+            },
+            {
+              "key": "right_value",
+              "alias": "取值",
+              "type": "string",
+              "invisible": {
+                "this.operator": "present"
+              },
               "rules": [
                 "Required"
               ]
