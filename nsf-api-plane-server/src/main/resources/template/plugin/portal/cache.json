@@ -257,18 +257,18 @@
     },
     {
       "key": "ttl",
-      "alias": "缓存ttl",
+      "alias": "缓存TTL",
       "type": "layouts",
       "layouts": [
         {
           "key": "local",
-          "alias": "本地缓存ttl",
+          "alias": "本地缓存TTL",
           "type": "layouts",
           "layouts": [
             {
               "key": "default",
-              "alias": "默认ttl",
-              "help": "默认ttl设置，填写0即不使用缓存，单位ms",
+              "alias": "默认TTL",
+              "help": "默认TTL设置，填写0即不使用缓存，单位ms",
               "type": "input",
               "rules": [
                 "Required",
@@ -279,8 +279,8 @@
             },
             {
               "key": "custom",
-              "alias": "定制化ttl配置",
-              "help": "当响应状态码满足如下条件时则使用单独的缓存ttl设置，否则使用默认ttl设置",
+              "alias": "定制化TTL配置",
+              "help": "当响应状态码满足如下条件时则使用单独的缓存TTL设置，否则使用默认TTL设置",
               "type": "array",
               "layouts": [
                 {
@@ -294,7 +294,7 @@
                 },
                 {
                   "key": "value",
-                  "alias": "ttl",
+                  "alias": "TTL",
                   "type": "input",
                   "rules": [
                     "Required",
@@ -309,13 +309,13 @@
         },
         {
           "key": "redis",
-          "alias": "Redis缓存ttl",
+          "alias": "Redis缓存TTL",
           "type": "layouts",
           "layouts": [
             {
               "key": "default",
-              "alias": "默认ttl",
-              "help": "默认ttl设置，填写0即不使用缓存，单位ms",
+              "alias": "默认TTL",
+              "help": "默认TTL设置，填写0即不使用缓存，单位ms",
               "type": "input",
               "rules": [
                 "Required",
@@ -326,8 +326,8 @@
             },
             {
               "key": "custom",
-              "alias": "定制化ttl配置",
-              "help": "当响应状态码满足如下条件时则使用单独的缓存ttl设置，否则使用默认ttl设置",
+              "alias": "定制化TTL配置",
+              "help": "当响应状态码满足如下条件时则使用单独的缓存TTL设置，否则使用默认TTL设置",
               "type": "array",
               "layouts": [
                 {
@@ -341,7 +341,7 @@
                 },
                 {
                   "key": "value",
-                  "alias": "ttl",
+                  "alias": "TTL",
                   "type": "input",
                   "rules": [
                     "Required",

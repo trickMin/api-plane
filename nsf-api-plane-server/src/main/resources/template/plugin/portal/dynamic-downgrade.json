@@ -377,13 +377,13 @@
         },
         {
           "key": "ttl",
-          "alias": "Redis缓存ttl",
+          "alias": "Redis缓存TTL",
           "type": "layouts",
           "layouts": [
             {
               "key": "default",
-              "alias": "默认ttl",
-              "help": "默认ttl设置，填写0即不使用缓存，单位ms",
+              "alias": "默认TTL",
+              "help": "默认TTL设置，填写0即不使用缓存，单位ms",
               "type": "input",
               "rules": [
                 "Required",

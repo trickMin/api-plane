@@ -19,7 +19,7 @@
           "value": "aksk_authn_type"
         },
         {
-          "text": "jwt认证",
+          "text": "JWT认证",
           "value": "jwt_authn_type"
         },
         {
