@@ -17,7 +17,7 @@ import java.util.Objects;
  * @date 2021/8/6 12:46
  */
 @Component
-public class UaRestrictionProcessor extends AbstractSchemaProcessor implements SchemaProcessor<ServiceInfo> {
+public class UaRestrictionProcessor extends HeadRestrictionProcessor {
     @Override
     public String getName() {
         return "UaRestrictionProcessor";
@@ -28,6 +28,6 @@ public class UaRestrictionProcessor extends AbstractSchemaProcessor implements S
         PluginGenerator rg = PluginGenerator.newInstance(plugin);
         rg.createOrUpdateJson("$", "kind","head-restriction");
         rg.createOrUpdateJson("$", "name","user-agent");
-        return getProcessor("HeadRestrictionProcessor").process(rg.jsonString(), serviceInfo);
+        return super.process(rg.jsonString(), serviceInfo);
     }
 }

@@ -22,7 +22,7 @@ import java.util.Objects;
  */
 
 @Component
-public class HeadRestrictionProcessor extends AbstractSchemaProcessor implements SchemaProcessor<ServiceInfo> {
+public class HeadRestrictionProcessor extends AbstractSchemaProcessor{
     @Override
     public String getName() {
         return "HeadRestrictionProcessor";
@@ -39,8 +39,7 @@ public class HeadRestrictionProcessor extends AbstractSchemaProcessor implements
                 continue;
             }
             String name = String.format("\"name\":\"%s\"", rg.getValue("$.name", String.class));
-            String match = String.format("\"%s\":\"%s\"", filterContent.startsWith("*") ? "prefix_match" : "exact_match", filterContent);
-            ret.addJsonElement("$.headers", String.format("{%s,%s}", name, match));
+            ret.addJsonElement("$.headers", String.format("{%s,safe_regex_match}", name));
         }
         String listType = Objects.equals("0", rg.getValue("$.type", String.class)) ? "black_list" : "white_list";
         ret.createOrUpdateJson("$", listType, ret.jsonString());
