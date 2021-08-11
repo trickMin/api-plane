@@ -114,9 +114,9 @@
       "author": "system",
       "createTime": "1572537600000",
       "updateTime": "1572537600000",
-      "pluginScope": "",
+      "pluginScope": "routeRule,global",
       "pluginPriority": "1100",
-      "instructionForUse": "聚合header条件过滤请求，用于获取HeaderProcess,不进行前端展示",
+      "instructionForUse": "header字段进行过滤",
       "categoryKey": "security",
       "categoryName": "安全"
     },

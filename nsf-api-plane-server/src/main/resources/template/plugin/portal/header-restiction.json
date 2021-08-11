@@ -1,6 +1,6 @@
 {
   "inject": {
-    "kind": "path-restriction"
+    "kind": "header-restriction"
   },
   "layouts": [
     {
@@ -27,6 +27,11 @@
       "alias": "过滤列表",
       "type": "array",
       "layouts": [
+        {
+          "key": "headerKey",
+          "alias": "header字段",
+          "type": "input"
+        },
         {
           "key": "match_type",
           "alias": "匹配方式",
