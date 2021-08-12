@@ -28,9 +28,13 @@
       "type": "array",
       "layouts": [
         {
-          "key": "headerKey",
+          "key": "header",
           "alias": "header字段",
-          "type": "input"
+          "type": "input",
+          "rules": [
+            "MaxLength(200)",
+            "Required"
+          ]
         },
         {
           "key": "match_type",
@@ -54,12 +58,16 @@
         },
         {
           "key": "value",
-          "type": "input",
+          "type": "multi_input",
           "alias": "过滤条件",
           "invisible": {
             "present_match": ["this", "match_type"],
             "present_match_invert": ["this", "match_type"]
-          }
+          },
+          "rules": [
+            "MaxLength(200)",
+            "Required"
+          ]
         }
       ],
       "rules": [

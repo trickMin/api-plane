@@ -91,24 +91,9 @@
       "categoryName": "安全"
     },
     {
-      "name": "path-restriction",
-      "displayName": "URI黑白名单",
-      "schema": "plugin/portal/path-restriction.json",
-      "description": "URI黑白名单插件",
-      "processor": "AggregateGatewayPluginProcessor",
-      "author": "system",
-      "createTime": "1572537600000",
-      "updateTime": "1572537600000",
-      "pluginScope": "routeRule,global",
-      "pluginPriority": "1100",
-      "instructionForUse": "根据uri过滤请求",
-      "categoryKey": "security",
-      "categoryName": "安全"
-    },
-    {
       "name": "header-restriction",
       "displayName": "Header黑白名单",
-      "schema": "plugin/portal/header-restriction.json",
+      "schema": "plugin/portal/header-restiction.json",
       "description": "Header黑白名单插件",
       "processor": "AggregateGatewayPluginProcessor",
       "author": "system",

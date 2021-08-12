@@ -201,7 +201,7 @@ public class ResourceGenerator implements Editor {
      * @param filter 配合jsonpath expression筛选path
      */
     @Override
-    public void addJsonElement(String path, String json, Predicate... filter) {
+    public ResourceGenerator addJsonElement(String path, String json, Predicate... filter) {
         if (json.startsWith("[")) {
             addElement(path, json2obj(json, List.class, editorContext), filter);
         } else if (json.startsWith("{")) {
@@ -209,7 +209,9 @@ public class ResourceGenerator implements Editor {
         } else {
             addElement(path, json, filter);
         }
+        return this;
     }
+
 
     /**
      * 将json串作为一个对象进行更新或添加对象
@@ -227,7 +229,7 @@ public class ResourceGenerator implements Editor {
      * @param filter 配合jsonpath expression筛选path
      */
     @Override
-    public void createOrUpdateJson(String path, String key, String json, Predicate... filter) {
+    public ResourceGenerator createOrUpdateJson(String path, String key, String json, Predicate... filter) {
         if (json.startsWith("[")) {
             createOrUpdateValue(path, key, json2obj(json, List.class, editorContext), filter);
         } else if (json.startsWith("{")) {
@@ -235,6 +237,7 @@ public class ResourceGenerator implements Editor {
         } else {
             createOrUpdateValue(path, key, json, filter);
         }
+        return this;
     }
 
     /**

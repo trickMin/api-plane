@@ -54,13 +54,18 @@
         },
         {
           "key": "value",
-          "type": "input",
+          "type": "multi_input",
           "alias": "过滤条件",
           "invisible": {
             "present_match": ["this", "match_type"],
             "present_match_invert": ["this", "match_type"]
-          }
+          },
+          "rules": [
+            "MaxLength(200)",
+            "Required"
+          ]
         }
+
       ],
       "rules": [
         "MaxLength(200)",
