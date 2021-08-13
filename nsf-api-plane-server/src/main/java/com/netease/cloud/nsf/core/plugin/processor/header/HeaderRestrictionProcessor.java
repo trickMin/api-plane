@@ -12,13 +12,9 @@ import com.netease.cloud.nsf.core.plugin.PluginGenerator;
 import com.netease.cloud.nsf.core.plugin.processor.AbstractSchemaProcessor;
 import com.netease.cloud.nsf.meta.ServiceInfo;
 import net.minidev.json.JSONArray;
-import net.minidev.json.JSONObject;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.Objects;
 
 /**
  * @author zhufengwei.sx
@@ -43,13 +39,19 @@ public class HeaderRestrictionProcessor extends AbstractSchemaProcessor {
         JsonArray jsonArray =new JsonParser().parse(rg.getValue("$.list[*]", JSONArray.class).toJSONString()).getAsJsonArray();
         for(JsonElement jsonElement : jsonArray){
             JsonObject matchCondition = jsonElement.getAsJsonObject();
-            JsonElement matchType = matchCondition.get("match_type");
+            String matchType = matchCondition.get("match_type").getAsString();
             String headerType = null == header ? matchCondition.get("header").getAsString() : header;
             JsonArray matchValues = matchCondition.getAsJsonArray("value");
             for (JsonElement matchValue : matchValues) {
                 PluginGenerator builder = PluginGenerator.newInstance("{}");
                 builder.createOrUpdateJson("$", "name", headerType);
-                builder.createOrUpdateJson("$", matchType.getAsString(), matchValue.getAsString());
+                String matchValueStr = matchValue.getAsString();
+                if ("safe_regex_match".equals(matchType)){
+                    matchValueStr = PluginGenerator.newInstance("{}")
+                            .createOrUpdateJson("$","google_re2", "{}")
+                            .createOrUpdateJson("$","regex", matchValueStr).jsonString();
+                }
+                builder.createOrUpdateJson("$", matchType, matchValueStr);
                 ret.addJsonElement("$.list", PluginGenerator.newInstance("{\"headers\":[]}")
                         .addJsonElement("$.headers", builder.jsonString()).jsonString());
             }
@@ -74,8 +76,5 @@ public class HeaderRestrictionProcessor extends AbstractSchemaProcessor {
     protected void setPluginHeader(String header){
         this.header = header;
     };
-
-
-
 }
 
