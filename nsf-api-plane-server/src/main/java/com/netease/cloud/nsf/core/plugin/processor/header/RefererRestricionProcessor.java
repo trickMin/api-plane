@@ -1,26 +1,9 @@
 package com.netease.cloud.nsf.core.plugin.processor.header;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.plugin.FragmentHolder;
-import com.netease.cloud.nsf.core.plugin.FragmentTypeEnum;
-import com.netease.cloud.nsf.core.plugin.FragmentWrapper;
-import com.netease.cloud.nsf.core.plugin.PluginGenerator;
-import com.netease.cloud.nsf.core.plugin.processor.AbstractSchemaProcessor;
 import com.netease.cloud.nsf.meta.ServiceInfo;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.json.JSONString;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
+import org.springframework.stereotype.Component;
+@Component
 public class RefererRestricionProcessor extends HeaderRestrictionProcessor {
 
 
