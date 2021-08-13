@@ -3,10 +3,11 @@ package com.netease.cloud.nsf.core.plugin.processor.header;
 import com.netease.cloud.nsf.core.plugin.FragmentHolder;
 import com.netease.cloud.nsf.meta.ServiceInfo;
 
-public class UaRestricionProcessor extends HeaderRestrictionProcessor{
+public class UaRestrictionProcessor extends HeaderRestrictionProcessor{
+
     @Override
     public String getName() {
-        return "UaRestricionProcessor";
+        return "UaRestrictionProcessor";
     }
 
     @Override
