@@ -14,7 +14,7 @@ public class UaRestrictionProcessor extends HeaderRestrictionProcessor{
 
     @Override
     public FragmentHolder process(String plugin, ServiceInfo serviceInfo) {
-        setPluginHeader("UserAgent");
+        setPluginHeader("User-Agent");
         return super.process(plugin, serviceInfo);
     }
 }
