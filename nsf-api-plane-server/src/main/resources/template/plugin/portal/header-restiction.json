@@ -1,6 +1,6 @@
 {
   "inject": {
-    "kind": "ua-restriction"
+    "kind": "header-restriction"
   },
   "layouts": [
     {
@@ -27,6 +27,15 @@
       "alias": "过滤列表",
       "type": "array",
       "layouts": [
+        {
+          "key": "header",
+          "alias": "header字段",
+          "type": "input",
+          "rules": [
+            "MaxLength(200)",
+            "Required"
+          ]
+        },
         {
           "key": "match_type",
           "alias": "匹配方式",

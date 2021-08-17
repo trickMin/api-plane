@@ -88,6 +88,14 @@ public class AggregateExtensionProcessor extends AbstractSchemaProcessor impleme
                 break;
             case "ua-restriction":
                 holder = getProcessor("UaRestrictionProcessor").process(plugin, serviceInfo);
+                coverToExtensionPlugin(holder, "proxy.filters.http.ua_restriction");
+                break;
+            case "referer-restriction":
+                holder = getProcessor("RefererRestrictionProcessor").process(plugin, serviceInfo);
+                coverToExtensionPlugin(holder, "proxy.filters.http.referer_restriction");
+                break;
+            case "header-restriction":
+                holder = getProcessor("HeaderRestrictionProcessor").process(plugin, serviceInfo);
                 coverToExtensionPlugin(holder, "proxy.filters.http.header_restriction");
                 break;
             case "cors":

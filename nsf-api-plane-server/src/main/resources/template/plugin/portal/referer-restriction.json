@@ -1,6 +1,6 @@
 {
   "inject": {
-    "kind": "ua-restriction"
+    "kind": "referer-restriction"
   },
   "layouts": [
     {
@@ -60,6 +60,7 @@
             "Required"
           ]
         }
+
       ],
       "rules": [
         "MaxLength(200)",

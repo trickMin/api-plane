@@ -76,6 +76,37 @@
       "categoryName": "安全"
     },
     {
+      "name": "referer-restriction",
+      "displayName": "Referer黑白名单",
+      "schema": "plugin/portal/referer-restriction.json",
+      "description": "Referer黑白名单插件",
+      "processor": "AggregateGatewayPluginProcessor",
+      "author": "system",
+      "createTime": "1572537600000",
+      "updateTime": "1572537600000",
+      "pluginScope": "routeRule,global",
+      "pluginPriority": "1100",
+      "instructionForUse": "根据referer过滤请求",
+      "categoryKey": "security",
+      "categoryName": "安全"
+    },
+    {
+      "name": "header-restriction",
+      "displayName": "Header黑白名单",
+      "schema": "plugin/portal/header-restiction.json",
+      "description": "Header黑白名单插件",
+      "processor": "AggregateGatewayPluginProcessor",
+      "author": "system",
+      "createTime": "1572537600000",
+      "updateTime": "1572537600000",
+      "pluginScope": "routeRule,global",
+      "pluginPriority": "1100",
+      "instructionForUse": "header字段进行过滤",
+      "categoryKey": "security",
+      "categoryName": "安全"
+    },
+
+    {
       "name": "cors",
       "displayName": "CORS",
       "schema": "plugin/portal/cors.json",
