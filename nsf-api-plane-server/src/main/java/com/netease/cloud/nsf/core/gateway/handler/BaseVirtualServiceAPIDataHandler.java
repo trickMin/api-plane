@@ -6,10 +6,12 @@ import com.netease.cloud.nsf.core.plugin.FragmentWrapper;
 import com.netease.cloud.nsf.core.template.TemplateParams;
 import com.netease.cloud.nsf.meta.API;
 import com.netease.cloud.nsf.meta.Endpoint;
+import com.netease.cloud.nsf.meta.Service;
 import com.netease.cloud.nsf.util.HandlerUtil;
 import com.netease.cloud.nsf.util.PriorityUtil;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -27,6 +29,7 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
     static final String apiVirtualServiceHttpRetry = "gateway/api/virtualServiceHttpRetry";
     static final String apiVirtualServiceMeta = "gateway/api/virtualServiceMeta";
     static final String apiVirtualServiceMatchPriority = "gateway/api/virtualServiceMatchPriority";
+    static final String apiVirtualServiceMirror = "gateway/api/virtualServiceMirror";
 
     ModelProcessor subModelProcessor;
     List<FragmentWrapper> fragments;
@@ -60,6 +63,7 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
         String matchYaml = produceMatch(baseParams);
         String httpRetryYaml = produceHttpRetry(baseParams);
         String matchPriorityYaml = produceMatchPriority(baseParams);
+        String mirrorYaml = produceMirror(api);
 
         TemplateParams vsParams = TemplateParams.instance()
                 .setParent(baseParams)
@@ -68,7 +72,8 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
                 .put(API_MATCH_PLUGINS, matchPlugins)
                 .put(VIRTUAL_SERVICE_HTTP_RETRY_YAML, httpRetryYaml)
                 .put(VIRTUAL_SERVICE_PLUGIN_MATCH_PRIORITY, pluginPriority)
-                .put(SERVICE_INFO_VIRTUAL_SERVICE_PLUGIN_MATCH_PRIORITY, pluginPriority);
+                .put(SERVICE_INFO_VIRTUAL_SERVICE_PLUGIN_MATCH_PRIORITY, pluginPriority)
+                .put(VIRTUAL_SERVICE_MIRROR_YAML,mirrorYaml);
 
         List<TemplateParams> collect = api.getGateways().stream()
                 .map(gw -> {
@@ -154,6 +159,20 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
 
         String destinationStr = subModelProcessor.process(apiVirtualServiceRoute, TemplateParams.instance().put(VIRTUAL_SERVICE_DESTINATIONS, destinations));
         return destinationStr;
+    }
+
+    String produceMirror(API api){
+        Service mirrorTraffic = api.getMirrorTraffic();
+        TemplateParams params = TemplateParams.instance();
+        if(mirrorTraffic != null){
+            params.put(VIRTUAL_SERVICE_MIRROR_PORT,mirrorTraffic.getPort())
+                    .put(VIRTUAL_SERVICE_MIRROR_SERVICE,mirrorTraffic.getBackendService());
+
+            if(StringUtils.isNotBlank(mirrorTraffic.getSubset())){
+                params.put(VIRTUAL_SERVICE_MIRROR_SUBSET,mirrorTraffic.getSubset());
+            }
+        }
+        return subModelProcessor.process(apiVirtualServiceMirror, params);
     }
 
     String decorateHost(String code) {

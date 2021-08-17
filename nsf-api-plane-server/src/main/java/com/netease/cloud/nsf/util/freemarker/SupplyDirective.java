@@ -5,10 +5,7 @@ import com.netease.cloud.nsf.core.editor.ResourceGenerator;
 import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.template.TemplateConst;
 import freemarker.core.Environment;
-import freemarker.template.TemplateDirectiveBody;
-import freemarker.template.TemplateDirectiveModel;
-import freemarker.template.TemplateException;
-import freemarker.template.TemplateModel;
+import freemarker.template.*;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
@@ -29,6 +26,7 @@ public class SupplyDirective implements TemplateDirectiveModel {
         API("api:", wrap(TemplateConst.API_IDENTITY_NAME)),
         META("meta:", indent(wrap(TemplateConst.VIRTUAL_SERVICE_META_YAML))),
         PRIORITY("priority:", indent(wrap(TemplateConst.VIRTUAL_SERVICE_MATCH_PRIORITY_YAML))),
+        MIRROR("mirror:", indent(wrap(TemplateConst.VIRTUAL_SERVICE_MIRROR_YAML))),
 
         ;
 
@@ -62,6 +60,10 @@ public class SupplyDirective implements TemplateDirectiveModel {
         ResourceGenerator gen = ResourceGenerator.newInstance(string, ResourceType.YAML);
         gen.createOrUpdateValue("$[?]", "nsf-template-match", Keyword.MATCH.replacement, Criteria.where("match").exists(false));
         gen.createOrUpdateValue("$[?]", "nsf-template-route", Keyword.ROUTE.replacement, Criteria.where("route").exists(false));
+        TemplateHashModel dataModel = environment.getDataModel();
+        if(org.apache.commons.lang3.StringUtils.isNotBlank(dataModel.get("t_virtual_service_mirror_yaml").toString())){
+            gen.createOrUpdateValue("$[?]", "nsf-template-mirror", Keyword.MIRROR.replacement, Criteria.where("mirror").exists(false));
+        }
         gen.createOrUpdateValue("$[?]", "nsf-template-extra", Keyword.EXTRA.replacement, Criteria.where("extra").exists(false));
         gen.createOrUpdateValue("$[?]", "nsf-template-retry", Keyword.RETRY.replacement, Criteria.where("retry").exists(false));
         gen.createOrUpdateValue("$[?]", "nsf-template-meta", Keyword.META.replacement, Criteria.where("meta").exists(false));

@@ -77,6 +77,15 @@ public class Trans {
             api.setVirtualClusterName(portalAPI.getVirtualClusterDTO().getVirtualClusterName());
             api.setVirtualClusterHeaders(pairsDTO2Pairs(portalAPI.getVirtualClusterDTO().getHeaders()));
         }
+        //流量镜像配置
+        if(portalAPI.getMirrorTrafficDto() != null){
+            PortalMirrorTrafficDto mirrorTrafficDto = portalAPI.getMirrorTrafficDto();
+            Service mirrorTraffic = new Service();
+            mirrorTraffic.setBackendService(mirrorTrafficDto.getBackendService());
+            mirrorTraffic.setPort(mirrorTrafficDto.getPort());
+            mirrorTraffic.setSubset(mirrorTrafficDto.getSubset());
+            api.setMirrorTraffic(mirrorTraffic);
+        }
         return api;
     }
 

@@ -135,6 +135,20 @@ public class PortalAPIDTO {
     @Valid
     private VirtualClusterDTO virtualClusterDTO;
 
+    /**
+     * 流量镜像配置
+     */
+    @JsonProperty(value = "MirrorTraffic")
+    private PortalMirrorTrafficDto mirrorTrafficDto;
+
+    public PortalMirrorTrafficDto getMirrorTrafficDto() {
+        return mirrorTrafficDto;
+    }
+
+    public void setMirrorTrafficDto(PortalMirrorTrafficDto mirrorTrafficDto) {
+        this.mirrorTrafficDto = mirrorTrafficDto;
+    }
+
     public String getGateway() {
         return gateway;
     }
