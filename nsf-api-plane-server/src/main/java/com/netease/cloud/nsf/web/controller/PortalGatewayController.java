@@ -1,15 +1,11 @@
 package com.netease.cloud.nsf.web.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.netease.cloud.nsf.core.plugin.processor.AggregateExtensionProcessor;
 import com.netease.cloud.nsf.meta.ServiceHealth;
 import com.netease.cloud.nsf.meta.dto.*;
 import com.netease.cloud.nsf.service.GatewayService;
 import com.netease.cloud.nsf.util.errorcode.ApiPlaneErrorCode;
 import com.netease.cloud.nsf.util.errorcode.ErrorCode;
 import com.netease.cloud.nsf.util.errorcode.ErrorCodeEnum;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -30,16 +26,8 @@ public class PortalGatewayController extends BaseController {
     @Autowired
     private GatewayService gatewayService;
 
-    private static final Logger logger = LoggerFactory.getLogger(PortalGatewayController.class);
-
     @RequestMapping(value = "/portal", params = "Action=PublishAPI", method = RequestMethod.POST)
     public String publishPortalAPI(@RequestBody @Valid PortalAPIDTO api) {
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            logger.info("method:publishPortalAPI request{}", objectMapper.writeValueAsString(api));
-        }catch (Exception e){
-            logger.info("method:publishPortalAPI error");
-        }
         gatewayService.updateAPI(api);
         return apiReturn(ApiPlaneErrorCode.Success);
     }

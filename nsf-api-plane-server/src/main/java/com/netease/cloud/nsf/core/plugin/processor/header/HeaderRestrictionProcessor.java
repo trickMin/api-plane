@@ -32,11 +32,29 @@ public class HeaderRestrictionProcessor extends AbstractSchemaProcessor {
 
     protected String header;
 
+    /**
+     * @link https://g.hz.netease.com/qingzhou/envoy-netease/-/blob/release-20211030/api/proxy/filters/http/header_restriction/v2/header_restriction.proto
+     * yaml格式
+     * plugins:
+     *   - name: proxy.filters.http.ua_restriction
+     *     settings:
+     *       config:
+     *         list:
+     *         - headers:
+     *           - name: User-Agent
+     *             safe_regex_match:
+     *               google_re2: {}
+     *               regex: (python|curl|java|wget|httpclient|okhttp)
+     *         - headers:
+     *           - exact_match: test
+     *             name: User-Agent
+     *         type: BLACK
+     */
     @Override
     public FragmentHolder process(String plugin, ServiceInfo serviceInfo) {
         PluginGenerator rg = PluginGenerator.newInstance(plugin);
         PluginGenerator ret = PluginGenerator.newInstance("{\"list\":[]}");
-        JsonArray jsonArray =new JsonParser().parse(rg.getValue("$.list[*]", JSONArray.class).toJSONString()).getAsJsonArray();
+        JsonArray jsonArray = new JsonParser().parse(rg.getValue("$.list[*]", JSONArray.class).toJSONString()).getAsJsonArray();
         for(JsonElement jsonElement : jsonArray){
             JsonObject matchCondition = jsonElement.getAsJsonObject();
             String matchType = matchCondition.get("match_type").getAsString();
