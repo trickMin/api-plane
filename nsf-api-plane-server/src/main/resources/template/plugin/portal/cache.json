@@ -24,7 +24,7 @@
           "layouts": [
             {
               "key": "requestSwitch",
-              "alias": "是否使用请求进行匹配",
+              "alias": "请求匹配",
               "type": "switch",
               "default": false
             },
@@ -165,7 +165,7 @@
           "layouts": [
             {
               "key": "responseSwitch",
-              "alias": "是否使用响应进行匹配",
+              "alias": "响应匹配",
               "type": "switch",
               "default": true
             },
@@ -279,7 +279,7 @@
             },
             {
               "key": "custom",
-              "alias": "定制化TTL配置",
+              "alias": "定制TTL",
               "help": "当响应状态码满足如下条件时则使用单独的缓存TTL设置，否则使用默认TTL设置",
               "type": "array",
               "layouts": [
@@ -326,7 +326,7 @@
             },
             {
               "key": "custom",
-              "alias": "定制化TTL配置",
+              "alias": "定制TTL",
               "help": "当响应状态码满足如下条件时则使用单独的缓存TTL设置，否则使用默认TTL设置",
               "type": "array",
               "layouts": [
@@ -376,7 +376,7 @@
         },
         {
           "key": "queryString",
-          "alias": "query string参数",
+          "alias": "query参数",
           "type": "multi_input"
         },
         {

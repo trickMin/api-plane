@@ -21,7 +21,7 @@
           "layouts": [
             {
               "key": "requestSwitch",
-              "alias": "是否使用请求进行匹配",
+              "alias": "请求匹配",
               "type": "switch",
               "default": false
             },
