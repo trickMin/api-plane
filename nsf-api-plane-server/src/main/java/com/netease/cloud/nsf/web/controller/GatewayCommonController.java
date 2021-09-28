@@ -40,7 +40,7 @@ public class GatewayCommonController extends BaseController {
                                         @RequestParam(name = "Registry", required = false) String registry) {
 
         if (type != null) {
-            if (!type.equals(Const.SERVICE_TYPE_CONSUL) && !type.equals(Const.SERVICE_TYPE_K8S)) {
+            if (!type.equals(Const.SERVICE_TYPE_CONSUL) && !type.equals(Const.SERVICE_TYPE_K8S) && !type.equals(Const.SERVICE_TYPE_DUBBO)) {
                 return apiReturn(ApiPlaneErrorCode.ParameterError("Type"));
             }
         }
@@ -81,6 +81,17 @@ public class GatewayCommonController extends BaseController {
 
         gatewayService.deletePluginOrder(pluginOrderDTO);
         return apiReturn(ApiPlaneErrorCode.Success);
+    }
+
+    @RequestMapping(params = "Action=GetDubboMeta", method = RequestMethod.GET)
+    public String getDubboMeta(@RequestParam(name = "Igv", required = false) String igv,
+                               @RequestParam(name = "Method", required = false) String method,
+                               @RequestParam(name = "ApplicationName", required = false) String applicationName) {
+
+        Map<String, Object> result = new HashMap<>();
+        result.put(RESULT, gatewayService.getDubboMeta(igv,applicationName,method));
+        return apiReturn(result);
+
     }
 
 }

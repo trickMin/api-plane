@@ -52,4 +52,15 @@ public interface GatewayService {
     void updateGlobalPlugins(GlobalPluginDTO globalPluginsDTO);
 
     void deleteGlobalPlugins(GlobalPluginsDeleteDTO globalPluginsDeleteDTO);
+
+    /**
+     * 获取Dubbo Meta元数据信息
+     *
+     * @param igv             接口+版本+分组 {interface:group:version}
+     * @param applicationName 应用名称
+     * @param method          dubbo方法
+     * @return
+     */
+    List<DubboMetaDto> getDubboMeta(String igv, String applicationName, String method);
+
 }

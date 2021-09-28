@@ -1,14 +1,17 @@
 package com.netease.cloud.nsf.service.impl;
 
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Table;
+import com.google.common.collect.Tables;
 import com.netease.cloud.nsf.core.gateway.service.GatewayConfigManager;
 import com.netease.cloud.nsf.core.gateway.service.ResourceManager;
-import com.netease.cloud.nsf.meta.Gateway;
-import com.netease.cloud.nsf.meta.IstioGateway;
-import com.netease.cloud.nsf.meta.PluginOrder;
-import com.netease.cloud.nsf.meta.ServiceHealth;
+import com.netease.cloud.nsf.meta.*;
 import com.netease.cloud.nsf.meta.dto.*;
 import com.netease.cloud.nsf.service.GatewayService;
+import com.netease.cloud.nsf.util.CommonUtil;
 import com.netease.cloud.nsf.util.Const;
+import com.netease.cloud.nsf.util.TelnetUtil;
 import com.netease.cloud.nsf.util.Trans;
 import com.netease.cloud.nsf.util.errorcode.ApiPlaneErrorCode;
 import com.netease.cloud.nsf.util.errorcode.ErrorCode;
@@ -21,12 +24,17 @@ import me.snowdrop.istio.api.networking.v1alpha3.Plugin;
 import me.snowdrop.istio.api.networking.v1alpha3.PluginManager;
 import me.snowdrop.istio.api.networking.v1alpha3.Server;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.commons.net.telnet.TelnetClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.function.Function;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -34,6 +42,8 @@ import java.util.stream.Collectors;
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/7/25
  **/
 public class GatewayServiceImpl implements GatewayService {
+
+    private static final Logger logger = LoggerFactory.getLogger(GatewayServiceImpl.class);
 
     private static final String COLON = ":";
     private static final String SERVICE_LOADBALANCER_SIMPLE = "Simple";
@@ -44,6 +54,10 @@ public class GatewayServiceImpl implements GatewayService {
     private static final String SERVICE_LOADBALANCER_HASH_HTTPHEADERNAME = "HttpHeaderName";
     private static final String SERVICE_LOADBALANCER_HASH_HTTPCOOKIE = "HttpCookie";
     private static final String SERVICE_LOADBALANCER_HASH_USESOURCEIP = "UseSourceIp";
+    private static final String DUBBO_TELNET_COMMAND_TEMPLATE = "ls -l %s";
+    private static final String DUBBO_TELNET_COMMAND_END_PATTERN = "dubbo>";
+    private static final Pattern DUBBO_INFO_PATTRERN =  Pattern.compile("^(\\S*) (\\S*)\\((\\S*)\\)$");
+
 
     private ResourceManager resourceManager;
 
@@ -273,6 +287,8 @@ public class GatewayServiceImpl implements GatewayService {
         if (type.equalsIgnoreCase(Const.SERVICE_TYPE_CONSUL) && name.endsWith(String.format(".consul.%s", registryId)))
             return true;
         if (type.equalsIgnoreCase(Const.SERVICE_TYPE_K8S) && name.endsWith(".svc.cluster.local")) return true;
+        if (type.equalsIgnoreCase(Const.SERVICE_TYPE_DUBBO) && name.endsWith(".dubbo")) return true;
+
         return false;
     }
 
@@ -304,5 +320,93 @@ public class GatewayServiceImpl implements GatewayService {
         istioGateway.setCustomIpAddressHeader(server.getCustomIpAddressHeader());
         istioGateway.setUseRemoteAddress(server.getUseRemoteAddress() == null ? null : String.valueOf(server.getUseRemoteAddress()));
         return Trans.GW2portal(istioGateway);
+    }
+
+    @Override
+    public List<DubboMetaDto> getDubboMeta(String igv, String applicationName, String method) {
+        List<DubboMetaDto> metaList = new ArrayList<>();
+        List<Endpoint> searchResult = resourceManager.getEndpointList().stream().filter(endpoint -> Const.PROTOCOL_DUBBO.equalsIgnoreCase(endpoint.getProtocol()))
+                .filter(endpoint -> StringUtils.isBlank(igv) || StringUtils.equals(igv + Const.DUBBO_SERVICE_SUFFIX, endpoint.getHostname()))
+                .filter(endpoint -> StringUtils.isBlank(applicationName) || StringUtils.equals(applicationName, endpoint.getLabels().get(Const.DUBBO_APPLICATION)))
+                .collect(Collectors.toList());
+        logger.info("dubbo endpoint filter result count is {}", searchResult.size());
+        //同样的IGV + APPLICATION 指定且仅指定一套服务
+        Map<String, List<Endpoint>> groupByService = searchResult.stream().collect(Collectors.groupingBy(endpoint -> endpoint.getHostname() + "###" + endpoint.getLabels().get(Const.DUBBO_APPLICATION)));
+        Iterator<Map.Entry<String, List<Endpoint>>> iterator = groupByService.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<String, List<Endpoint>> next = iterator.next();
+            List<Endpoint> backendServiceList = next.getValue();
+            Random random = new Random();
+            //随机选取任意一个Endpoint的地址进行Dubbo 元数据获取
+            Endpoint endpoint = backendServiceList.get(random.nextInt(backendServiceList.size()));
+            logger.info("选取的后端节点信息为 {}", ToStringBuilder.reflectionToString(endpoint, ToStringStyle.SHORT_PREFIX_STYLE));
+            metaList.addAll(handlerInfo(endpoint,method));
+        }
+        return metaList;
+    }
+
+    /**
+     * 发起Dubbo Telnet 请求，并组装数据
+     *
+     * @param endpoint
+     * @return
+     */
+    private List<DubboMetaDto> handlerInfo(Endpoint endpoint ,String queryMethod) {
+        List<DubboMetaDto> metaList = new ArrayList<>();
+        if (endpoint == null) {
+            logger.info("endpoint is null");
+            return Collections.emptyList();
+        }
+        //去除.dubbo 后缀
+        String[] igv = splitIgv(StringUtils.removeEnd(endpoint.getHostname(),  Const.DUBBO_SERVICE_SUFFIX));
+        String info = TelnetUtil.sendCommand(endpoint.getAddress(), NumberUtils.toInt(endpoint.getLabels().get(Const.DUBBO_TCP_PORT)), String.format(DUBBO_TELNET_COMMAND_TEMPLATE, igv), DUBBO_TELNET_COMMAND_END_PATTERN);
+        //解析dubbo telnet信息
+        String[] methodList = info.split("\r\n");
+        for (String methodInfo : methodList) {
+            Matcher matcher = DUBBO_INFO_PATTRERN.matcher(methodInfo);
+            if (!matcher.matches()|| matcher.groupCount() !=3){
+                logger.info("invalid method info , info is {}", methodInfo);
+                continue;
+            }
+            String returns = matcher.group(1);
+            String method = matcher.group(2);
+            String params = matcher.group(3);
+            if (StringUtils.isNotBlank(queryMethod)&&!StringUtils.equals(method,queryMethod)){
+                continue;
+            }
+            DubboMetaDto dubboMetaDto = new DubboMetaDto();
+            dubboMetaDto.setApplicationName(endpoint.getLabels().get(Const.DUBBO_APPLICATION));
+            dubboMetaDto.setInterfaceName(igv[0]);
+            dubboMetaDto.setGroup(igv[1]);
+            dubboMetaDto.setVersion(igv[2]);
+            dubboMetaDto.setProtocolVersion(endpoint.getLabels().get(Const.PROTOCOL_DUBBO));
+
+            dubboMetaDto.setReturns(returns);
+            dubboMetaDto.setMethod(method);
+            dubboMetaDto.setParams(Arrays.asList(StringUtils.splitPreserveAllTokens(params, ",")));
+            metaList.add(dubboMetaDto);
+        }
+        return metaList;
+    }
+
+
+    /**
+     * 分离igv{interface:group:version}
+     * <p>
+     * xxxService ===> new String[]{"xxxService","",""}
+     * xxxService:xxxGroup:xxxVersion ===> new String[]{"xxxService","xxxGroup","xxxVersion"}
+     * xxxService:xxxGroup ===> new String[]{"xxxService","xxxGroup",""}
+     * xxxService::xxxVersion ===> new String[]{"xxxService","","xxxVersion"}
+     *
+     * @param igv
+     * @return
+     */
+    public static String[] splitIgv(String igv) {
+        String[] result = new String[3];
+        String[] split = igv.split(":");
+        for (int i = 0; i < result.length; i++) {
+            result[i] = split.length > i ? split[i] : StringUtils.EMPTY;
+        }
+        return result;
     }
 }

@@ -223,4 +223,21 @@ public class CommonUtil {
         return str.indexOf(occur, xIndexOf(str, occur, order-1) + 1);
     }
 
+    /**
+     * 去除字符串末尾指定字符
+     *
+     * @param remove
+     * @param origin
+     * @return
+     */
+    public static String removeEnd(String remove, String origin) {
+        if (StringUtils.isAnyBlank(remove, origin)) {
+            return origin;
+        }
+        if (!StringUtils.endsWith(origin, remove)) {
+            return origin;
+        }
+        return removeEnd(remove, origin.substring(0, origin.length() - remove.length()));
+    }
+
 }
