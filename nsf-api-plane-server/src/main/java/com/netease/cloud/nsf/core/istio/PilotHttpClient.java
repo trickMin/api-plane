@@ -10,6 +10,8 @@ import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.k8s.KubernetesClient;
 import com.netease.cloud.nsf.meta.Endpoint;
 import com.netease.cloud.nsf.meta.Gateway;
+import com.netease.cloud.nsf.util.CommonUtil;
+import com.netease.cloud.nsf.util.Const;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.exception.ExceptionConst;
 import io.fabric8.kubernetes.api.model.Pod;
@@ -27,6 +29,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
@@ -228,9 +231,29 @@ public class PilotHttpClient {
             ep.setAddress(ipPort[0]);
             ep.setPort(Integer.valueOf(ipPort[1]));
             ep.setLabels(labelMap);
+            fixDubboEndPoint(hostNameProtocol,ep);
             endpoints.add(ep);
         }
         return endpoints;
+    }
+
+    /**
+     * 解析 dubbo 信息
+     * dubbo hostName 以 : 拼接, {@link this#getEndpointList()} 方法中的hostNameProtocol提取将会产生问题， 在本方法中处理
+     * @param hostNameProtocol
+     * @param ep
+     * @return
+     */
+    private void fixDubboEndPoint(String[] hostNameProtocol, Endpoint ep) {
+        if (ObjectUtils.isEmpty(hostNameProtocol)) {
+            return;
+        }
+        if (!Const.PROTOCOL_DUBBO.equalsIgnoreCase(hostNameProtocol[hostNameProtocol.length - 1])) {
+            return;
+        }
+        hostNameProtocol[hostNameProtocol.length - 1] = null;
+        ep.setHostname(CommonUtil.removeEnd(":", StringUtils.joinWith(":",hostNameProtocol)));
+        ep.setProtocol(Const.PROTOCOL_DUBBO);
     }
 
     public List<String> getServiceList(Predicate<Endpoint> filter) {

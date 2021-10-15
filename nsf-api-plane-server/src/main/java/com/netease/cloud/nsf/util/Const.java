@@ -42,6 +42,13 @@ public interface Const {
 
     String SERVICE_TYPE_CONSUL = "Consul";
     String SERVICE_TYPE_K8S = "Kubernetes";
+    String SERVICE_TYPE_DUBBO = "Zookeeper";
+    String PROTOCOL_DUBBO = "dubbo";
+    String DUBBO_APPLICATION = "application";
+    String DUBBO_TCP_PORT = "skiff_dubbo_tcp_port";
+    String DUBBO_SERVICE_SUFFIX = ".dubbo";
+
+
 
     String DOWNLOAD_ENVOY_EVENT = "1";
     String DELETE_ENVOY_EVENT = "2";
