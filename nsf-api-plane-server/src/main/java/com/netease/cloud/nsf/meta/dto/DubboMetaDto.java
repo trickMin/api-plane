@@ -87,7 +87,7 @@ public class DubboMetaDto {
      * 参数列表
      */
     
-    @JsonProperty(value = "Params")
+    @JsonProperty(value = "RequestParams")
     private List<String> params;
 
 
@@ -95,7 +95,7 @@ public class DubboMetaDto {
      * 返回类型
      */
     
-    @JsonProperty(value = "Returns")
+    @JsonProperty(value = "ResponseReturn")
     private String returns;
 
 
