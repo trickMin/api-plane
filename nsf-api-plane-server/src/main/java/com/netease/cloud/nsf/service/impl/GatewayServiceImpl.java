@@ -4,6 +4,7 @@ import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
 import com.google.common.collect.Tables;
+import com.netease.cloud.nsf.core.GlobalConfig;
 import com.netease.cloud.nsf.core.gateway.service.GatewayConfigManager;
 import com.netease.cloud.nsf.core.gateway.service.ResourceManager;
 import com.netease.cloud.nsf.meta.*;
@@ -63,9 +64,12 @@ public class GatewayServiceImpl implements GatewayService {
 
     private GatewayConfigManager configManager;
 
-    public GatewayServiceImpl(ResourceManager resourceManager, GatewayConfigManager configManager) {
+    private GlobalConfig globalConfig;
+
+    public GatewayServiceImpl(ResourceManager resourceManager, GatewayConfigManager configManager, GlobalConfig globalConfig) {
         this.resourceManager = resourceManager;
         this.configManager = configManager;
+        this.globalConfig = globalConfig;
     }
 
     @Override
@@ -359,7 +363,7 @@ public class GatewayServiceImpl implements GatewayService {
         }
         //去除.dubbo 后缀
         String[] igv = splitIgv(StringUtils.removeEnd(endpoint.getHostname(),  Const.DUBBO_SERVICE_SUFFIX));
-        String info = TelnetUtil.sendCommand(endpoint.getAddress(), NumberUtils.toInt(endpoint.getLabels().get(Const.DUBBO_TCP_PORT)), String.format(DUBBO_TELNET_COMMAND_TEMPLATE, igv), DUBBO_TELNET_COMMAND_END_PATTERN);
+        String info = TelnetUtil.sendCommand(endpoint.getAddress(), NumberUtils.toInt(endpoint.getLabels().get(Const.DUBBO_TCP_PORT)),globalConfig.getTelnetConnectTimeout(), String.format(DUBBO_TELNET_COMMAND_TEMPLATE, igv), DUBBO_TELNET_COMMAND_END_PATTERN);
         //解析dubbo telnet信息
         String[] methodList = info.split("\r\n");
         for (String methodInfo : methodList) {

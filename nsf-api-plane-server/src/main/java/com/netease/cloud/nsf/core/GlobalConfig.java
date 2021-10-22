@@ -18,6 +18,9 @@ public class GlobalConfig {
     @Value("${apiPlaneVersion}")
     private String apiPlaneVersion;
 
+    @Value("${telnet.connect.timeout:3000}")
+    private Integer telnetConnectTimeout;
+
     public String getResourceNamespace() {
         return resourceNamespace;
     }
@@ -28,5 +31,9 @@ public class GlobalConfig {
 
     public String getApiPlaneVersion() {
         return apiPlaneVersion;
+    }
+
+    public Integer getTelnetConnectTimeout() {
+        return telnetConnectTimeout;
     }
 }

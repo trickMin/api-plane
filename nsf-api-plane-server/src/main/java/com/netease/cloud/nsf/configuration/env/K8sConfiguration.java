@@ -38,7 +38,7 @@ public class K8sConfiguration {
     }
 
     @Bean
-    public GatewayService gatewayService(ResourceManager resourceManager, GatewayConfigManager configManager) {
-        return new GatewayServiceImpl(resourceManager, configManager);
+    public GatewayService gatewayService(ResourceManager resourceManager, GatewayConfigManager configManager, GlobalConfig globalConfig) {
+        return new GatewayServiceImpl(resourceManager, configManager, globalConfig);
     }
 }
