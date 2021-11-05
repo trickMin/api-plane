@@ -19,6 +19,7 @@ import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServicePort;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,7 +59,7 @@ public class PilotHttpClient {
     @Value(value = "${istioName:pilot}")
     private String NAME;
 
-    private static final String GET_ENDPOINTZ_PATH = "/debug/endpointz?brief=true";
+    private static final String GET_ENDPOINTZ_PATH = "/debug/endpointz?brief=true&instancePort=true";
     private static final String GET_CONFIGZ_PATH = "/debug/configz";
     private static final String HEALTH_CHECK_PATH = "/ready";
 
@@ -212,7 +213,9 @@ public class PilotHttpClient {
         String[] rawValues = StringUtils.split(getEndpoints(), "\n");
         for (String rawValue : rawValues) {
             String[] segments = StringUtils.splitPreserveAllTokens(rawValue, " ");
-            if (ArrayUtils.getLength(segments) != 5) {
+            //相对于/debug/endpointz?brief=true
+            // /debug/endpointz?brief=true&instancePort=true接口增加了Endpoint端口
+            if (ArrayUtils.getLength(segments) < 5) {
                 continue;
             }
             String[] hostNameProtocol = StringUtils.splitPreserveAllTokens(segments[0], ":");
@@ -229,9 +232,10 @@ public class PilotHttpClient {
             ep.setHostname(hostNameProtocol[0]);
             ep.setProtocol(hostNameProtocol[1]);
             ep.setAddress(ipPort[0]);
+            //service entry port
             ep.setPort(Integer.valueOf(ipPort[1]));
             ep.setLabels(labelMap);
-            fixDubboEndPoint(hostNameProtocol,ep);
+            fixDubboEndPoint(hostNameProtocol, ep, segments[segments.length - 1]);
             endpoints.add(ep);
         }
         return endpoints;
@@ -244,7 +248,7 @@ public class PilotHttpClient {
      * @param ep
      * @return
      */
-    private void fixDubboEndPoint(String[] hostNameProtocol, Endpoint ep) {
+    private void fixDubboEndPoint(String[] hostNameProtocol, Endpoint ep, String endpointPort) {
         if (ObjectUtils.isEmpty(hostNameProtocol)) {
             return;
         }
@@ -252,7 +256,12 @@ public class PilotHttpClient {
             return;
         }
         hostNameProtocol[hostNameProtocol.length - 1] = null;
-        ep.setHostname(CommonUtil.removeEnd(":", StringUtils.joinWith(":",hostNameProtocol)));
+        ep.setHostname(CommonUtil.removeEnd(":", StringUtils.joinWith(":", hostNameProtocol)));
+        Map<String, String> labels = ep.getLabels();
+        if (CollectionUtils.isEmpty(labels)) {
+            labels = new HashMap<>();
+        }
+        labels.put(Const.DUBBO_TCP_PORT, endpointPort);
         ep.setProtocol(Const.PROTOCOL_DUBBO);
     }
 

@@ -251,8 +251,8 @@ public class NonK8sConfiguration {
      * Service
      */
     @Bean
-    public GatewayService gatewayService(ResourceManager resourceManager, GatewayConfigManager configManager) {
-        return new GatewayServiceImpl(resourceManager, configManager);
+    public GatewayService gatewayService(ResourceManager resourceManager, GatewayConfigManager configManager, GlobalConfig globalConfig) {
+        return new GatewayServiceImpl(resourceManager, configManager, globalConfig);
     }
 
     /**

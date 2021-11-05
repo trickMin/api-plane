@@ -27,8 +27,9 @@ public class TelnetUtil {
     private static final Logger logger = LoggerFactory.getLogger(TelnetUtil.class);
 
 
-    private static TelnetClient build(String ip, Integer port) throws IOException {
+    private static TelnetClient build(String ip, Integer port, int connectTimeout) throws IOException {
         TelnetClient telnetClient = new TelnetClient();
+        telnetClient.setConnectTimeout(connectTimeout);
         telnetClient.connect(ip, port);
         return telnetClient;
     }
@@ -41,7 +42,7 @@ public class TelnetUtil {
         PrintStream print = new PrintStream(out);
         print.println(command);
         print.flush();
-       // print.close();
+        // print.close();
     }
 
 
@@ -59,11 +60,11 @@ public class TelnetUtil {
      * @param pattern 结束语
      * @return
      */
-    public static String sendCommand(String ip, Integer port, String command, String pattern) {
+    public static String sendCommand(String ip, Integer port,Integer connectTimeout, String command, String pattern) {
         StringBuffer buffer = new StringBuffer();
         try {
             logger.info("telent info , ip = {} ,port = {}", ip, port);
-            TelnetClient telnetClient = build(ip, port);
+            TelnetClient telnetClient = build(ip, port,connectTimeout);
             write(telnetClient.getOutputStream(), command);
             while (telnetClient.isAvailable()) {
                 read(telnetClient.getInputStream(), buffer);
@@ -77,7 +78,7 @@ public class TelnetUtil {
         }
 
         String info = buffer.toString().replace(pattern, StringUtils.EMPTY);
-        logger.info("Telnet info is {}",info);
+        logger.info("Telnet info is : \n {}", info);
         return info;
     }
 
