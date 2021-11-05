@@ -4,6 +4,7 @@ import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
 import com.google.common.collect.Tables;
+import com.google.protobuf.MessageLite;
 import com.netease.cloud.nsf.core.GlobalConfig;
 import com.netease.cloud.nsf.core.gateway.service.GatewayConfigManager;
 import com.netease.cloud.nsf.core.gateway.service.ResourceManager;
@@ -24,6 +25,7 @@ import me.snowdrop.istio.api.networking.v1alpha3.GatewaySpec;
 import me.snowdrop.istio.api.networking.v1alpha3.Plugin;
 import me.snowdrop.istio.api.networking.v1alpha3.PluginManager;
 import me.snowdrop.istio.api.networking.v1alpha3.Server;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -57,7 +59,8 @@ public class GatewayServiceImpl implements GatewayService {
     private static final String SERVICE_LOADBALANCER_HASH_USESOURCEIP = "UseSourceIp";
     private static final String DUBBO_TELNET_COMMAND_TEMPLATE = "ls -l %s";
     private static final String DUBBO_TELNET_COMMAND_END_PATTERN = "dubbo>";
-    private static final Pattern DUBBO_INFO_PATTRERN =  Pattern.compile("^(\\S*) (\\S*)\\((\\S*)\\)$");
+    private static final Pattern DUBBO_INFO_PATTRERN = Pattern.compile("^(\\S*) (\\S*)\\((\\S*)\\)$");
+    private static final Pattern DUBBO_TELNET_RETURN_PATTERN = Pattern.compile("[\\s\\S]*?\\(as (provider|consumer)\\):");
 
 
     private ResourceManager resourceManager;
@@ -344,7 +347,7 @@ public class GatewayServiceImpl implements GatewayService {
             //随机选取任意一个Endpoint的地址进行Dubbo 元数据获取
             Endpoint endpoint = backendServiceList.get(random.nextInt(backendServiceList.size()));
             logger.info("选取的后端节点信息为 {}", ToStringBuilder.reflectionToString(endpoint, ToStringStyle.SHORT_PREFIX_STYLE));
-            metaList.addAll(handlerInfo(endpoint,method));
+            metaList.addAll(handlerInfo(endpoint, method));
         }
         return metaList;
     }
@@ -355,27 +358,28 @@ public class GatewayServiceImpl implements GatewayService {
      * @param endpoint
      * @return
      */
-    private List<DubboMetaDto> handlerInfo(Endpoint endpoint ,String queryMethod) {
+    private List<DubboMetaDto> handlerInfo(Endpoint endpoint, String queryMethod) {
         List<DubboMetaDto> metaList = new ArrayList<>();
         if (endpoint == null) {
             logger.info("endpoint is null");
             return Collections.emptyList();
         }
         //去除.dubbo 后缀
-        String[] igv = splitIgv(StringUtils.removeEnd(endpoint.getHostname(),  Const.DUBBO_SERVICE_SUFFIX));
-        String info = TelnetUtil.sendCommand(endpoint.getAddress(), NumberUtils.toInt(endpoint.getLabels().get(Const.DUBBO_TCP_PORT)),globalConfig.getTelnetConnectTimeout(), String.format(DUBBO_TELNET_COMMAND_TEMPLATE, igv), DUBBO_TELNET_COMMAND_END_PATTERN);
+        String[] igv = splitIgv(StringUtils.removeEnd(endpoint.getHostname(), Const.DUBBO_SERVICE_SUFFIX));
+        String info = TelnetUtil.sendCommand(endpoint.getAddress(), NumberUtils.toInt(endpoint.getLabels().get(Const.DUBBO_TCP_PORT)), globalConfig.getTelnetConnectTimeout(), String.format(DUBBO_TELNET_COMMAND_TEMPLATE, igv), DUBBO_TELNET_COMMAND_END_PATTERN);
         //解析dubbo telnet信息
-        String[] methodList = info.split("\r\n");
+        String[] methodList = processMessageList(endpoint, info).split("\\r\\n");
         for (String methodInfo : methodList) {
-            Matcher matcher = DUBBO_INFO_PATTRERN.matcher(methodInfo);
-            if (!matcher.matches()|| matcher.groupCount() !=3){
-                logger.info("invalid method info , info is {}", methodInfo);
+            String methodForTrim = StringUtils.trim(methodInfo);
+            Matcher matcher = DUBBO_INFO_PATTRERN.matcher(methodForTrim);
+            if (!matcher.matches() || matcher.groupCount() != 3) {
+                logger.info("invalid method info , info is {}", methodForTrim);
                 continue;
             }
             String returns = matcher.group(1);
             String method = matcher.group(2);
             String params = matcher.group(3);
-            if (StringUtils.isNotBlank(queryMethod)&&!StringUtils.equals(method,queryMethod)){
+            if (StringUtils.isNotBlank(queryMethod) && !StringUtils.equals(method, queryMethod)) {
                 continue;
             }
             DubboMetaDto dubboMetaDto = new DubboMetaDto();
@@ -391,6 +395,91 @@ public class GatewayServiceImpl implements GatewayService {
             metaList.add(dubboMetaDto);
         }
         return metaList;
+    }
+
+    /**
+     * 处理dubbo telnet 返回数据
+     * <p>
+     * Dubbo 2.5.x ~ 2.6.x 版本 dubbo telnet 时 仅显示本 Interface 内的方法
+     * {@see https://github.com/apache/dubbo/blob/2.5.x/dubbo-rpc/dubbo-rpc-default/src/main/java/com/alibaba/dubbo/rpc/protocol/dubbo/telnet/ListTelnetHandler.java}
+     * {@see https://github.com/apache/dubbo/blob/2.6.x/dubbo-rpc/dubbo-rpc-dubbo/src/main/java/com/alibaba/dubbo/rpc/protocol/dubbo/telnet/ListTelnetHandler.java}
+     * 具体格式为:
+     * dubbo>ls -l xxxService
+     * xxMethod(param1, param2)
+     * xxxMethod(param3, param4)
+     * <p>
+     * Dubbo 2.7.x 版本 dubbo telnet 时， 会显示PROVIDER 侧 及 CONSUMER 侧信息
+     * {@see https://github.com/apache/dubbo/blob/dubbo-2.7.14/dubbo-plugin/dubbo-qos/src/main/java/org/apache/dubbo/qos/legacy/ListTelnetHandler.java}
+     * 具体格式为:
+     * dubbo>ls -l xxxService
+     * xxxGroup/xxxService:xxxVersion (as provider):
+     * xxMethod(param1, param2)
+     * xxxMethod(param3, param4)
+     * xxxGroup/xxxService:xxxVersion (as consumer):
+     * xxMethod(param1, param2)
+     * xxxMethod(param3, param4)
+     * <p>
+     * 暂不支持 Dubbo 3.x 版本
+     *
+     * @param endpoint
+     * @return
+     */
+    private String processMessageList(Endpoint endpoint, String message) {
+        if (StringUtils.isBlank(message)) {
+            return message;
+        }
+
+        String[] serviceArray = message.split("(?=(\r\n))");
+        String[] igvArray = splitIgv(StringUtils.removeEnd(endpoint.getHostname(), Const.DUBBO_SERVICE_SUFFIX));
+
+        List<StringBuilder> methodListByIgv = new ArrayList<>();
+        StringBuilder builder = null;
+        for (String stringBySeparator : serviceArray) {
+            if (StringUtils.indexOf(stringBySeparator, igvArray[0]) != NumberUtils.INTEGER_MINUS_ONE
+                    && DUBBO_TELNET_RETURN_PATTERN.matcher(stringBySeparator).matches()) {
+                builder = new StringBuilder();
+                builder.append(stringBySeparator);
+                methodListByIgv.add(builder);
+                continue;
+            }
+            if (null == builder) {
+                logger.warn("出现异常数据: {}", stringBySeparator);
+                continue;
+            }
+            builder.append(stringBySeparator);
+        }
+
+        String dubboTelnetServiceKey = getDubboTelnetServiceKey(igvArray);
+        for (StringBuilder stringBuilder : methodListByIgv) {
+            String messageInfo = stringBuilder.toString();
+            if (messageInfo.indexOf(dubboTelnetServiceKey) != NumberUtils.INTEGER_MINUS_ONE) {
+                return messageInfo;
+            }
+        }
+        return message;
+    }
+
+
+    /**
+     * 获取Dubbo service 作为Provider 的格式
+     *
+     * @param igvArray
+     * @return
+     */
+    private String getDubboTelnetServiceKey(String[] igvArray) {
+        StringBuilder builder = new StringBuilder();
+        //igvArray[1] 指 dubbo group
+        if (null != igvArray[1]) {
+            builder.append(igvArray[1]).append("/");
+        }
+        //igvArray[0] 指 dubbo interface
+        builder.append(igvArray[0]);
+        //igvArray[2] 指 dubbo version
+        if (null != igvArray[2]) {
+            builder.append(":").append(igvArray[2]);
+        }
+        builder.append(" (as provider):");
+        return builder.toString();
     }
 
 
