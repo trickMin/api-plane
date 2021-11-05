@@ -443,7 +443,6 @@ public class GatewayServiceImpl implements GatewayService {
                 continue;
             }
             if (null == builder) {
-                logger.warn("出现异常数据: {}", stringBySeparator);
                 continue;
             }
             builder.append(stringBySeparator);
