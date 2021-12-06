@@ -105,7 +105,21 @@
       "categoryKey": "security",
       "categoryName": "安全"
     },
-
+    {
+      "name": "response-header-rewrite",
+      "displayName": "响应头部重写",
+      "schema": "plugin/portal/response-header-rewrite.json",
+      "description": "",
+      "processor": "AggregateGatewayPluginProcessor",
+      "author": "system",
+      "createTime": "1636943353954",
+      "updateTime": "1636943353954",
+      "pluginScope": "routeRule,global",
+      "pluginPriority": "2500",
+      "instructionForUse": "修改请求响应头部信息",
+      "categoryKey": "dataFormat",
+      "categoryName": "数据转换"
+    },
     {
       "name": "cors",
       "displayName": "CORS",

@@ -99,63 +99,108 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
     /**
      * 将api转换为istio对应的规则
      *
-     * @param api
+     * @param api 路由信息
      * @param simple 是否为简单模式，部分字段不渲染，主要用于删除
-     * @return
+     * @return K8s资源集合
      */
     public List<K8sResourcePack> translate(API api, boolean simple) {
+        boolean isGPortal = isGPortal(api);
 
-        List<K8sResourcePack> resourcePacks = new ArrayList<>();
+        logger.info("[translate CRDs] start translate k8s resource, is gPortal: {}", isGPortal);
 
-        boolean isGPortal = !CollectionUtils.isEmpty(api.getProxyServices());
-        BaseVirtualServiceAPIDataHandler apiHandler = isGPortal ?
-                new PortalVirtualServiceAPIDataHandler(defaultModelProcessor) : new YxVirtualServiceAPIDataHandler(defaultModelProcessor);
-
+        BaseVirtualServiceAPIDataHandler apiHandler = isGPortal
+                ? new PortalVirtualServiceAPIDataHandler(defaultModelProcessor)
+                : new YxVirtualServiceAPIDataHandler(defaultModelProcessor);
         String matchYaml = apiHandler.produceMatch(apiHandler.handleApi(api));
         RawResourceContainer rawResourceContainer = new RawResourceContainer();
         rawResourceContainer.add(renderPlugins(api, matchYaml));
 
-        List<String> extraDestination = CollectionUtils.isEmpty(api.getPlugins()) ?
-                Collections.emptyList() : pluginService.extractService(api.getPlugins());
-        BaseVirtualServiceAPIDataHandler vsHandler;
+        logger.info("[translate CRDs] render Plugins ok, start to create vsHandler");
+        BaseVirtualServiceAPIDataHandler vsHandler = getVsHandler(api, simple, rawResourceContainer);
 
-        if (isGPortal) {
-            vsHandler = new PortalVirtualServiceAPIDataHandler(
-                    defaultModelProcessor, rawResourceContainer.getVirtualServices(), simple);
-        } else {
-            //yx 一个API发布关联到gateway、vs、dr
-            List<Endpoint> endpoints = resourceManager.getEndpointList();
-            vsHandler = new YxVirtualServiceAPIDataHandler(
-                    defaultModelProcessor, rawResourceContainer.getVirtualServices(), endpoints, simple);
-            List<String> rawGateways = defaultModelProcessor.process(apiGateway, api, new BaseGatewayAPIDataHandler(enableHttp10));
-            resourcePacks.addAll(generateK8sPack(rawGateways));
-            List<String> rawDestinationRules = defaultModelProcessor.process(apiDestinationRule, api, new BaseDestinationRuleAPIDataHandler(extraDestination));
-            //TODO 名字写死容易出错
-            resourcePacks.addAll(generateK8sPack(rawDestinationRules,
-                    new GatewayDestinationRuleSubtracter(String.format("%s-%s", api.getService(), api.getName()))));
-        }
+        logger.info("[translate CRDs] start to generate and add k8s resource");
+        return generateAndAddK8sResource(api, rawResourceContainer, vsHandler);
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<K8sResourcePack> generateAndAddK8sResource(API api,
+                                           RawResourceContainer rawResourceContainer,
+                                           BaseVirtualServiceAPIDataHandler vsHandler) {
+        List<K8sResourcePack> resourcePacks = new ArrayList<>();
 
         List<String> rawVirtualServices = renderTwiceModelProcessor.process(apiVirtualService, api, vsHandler);
-        List<String> rawSharedConfigs = neverNullRenderTwiceProcessor.process(apiSharedConfigConfigMap, api, new BaseSharedConfigAPIDataHandler(rawResourceContainer.getSharedConfigs(), rateLimitConfigMapName, rateLimitNamespace));
-        // vs上的插件转移到gatewayplugin上
+        List<String> rawSharedConfigs = neverNullRenderTwiceProcessor
+                .process(apiSharedConfigConfigMap, api,
+                        new BaseSharedConfigAPIDataHandler(
+                                rawResourceContainer.getSharedConfigs(), rateLimitConfigMapName, rateLimitNamespace));
+        // vs上的插件转移到gateway plugin上
         List<String> rawGatewayPlugins = neverNullRenderTwiceProcessor.process(gatewayPlugin, api,
-                new ApiGatewayPluginDataHandler(rawResourceContainer.getVirtualServices(), globalConfig.getResourceNamespace()));
+                new ApiGatewayPluginDataHandler(
+                        rawResourceContainer.getVirtualServices(), globalConfig.getResourceNamespace()));
 
-        resourcePacks.addAll(generateK8sPack(rawVirtualServices, new GatewayVirtualServiceSubtracter(vsHandler.getApiName(api)), r -> r, this::adjust));
+        // 严选分支，一个API发布关联到gateway、vs、dr
+        if (!isGPortal(api)) {
+            logger.info("[translate CRDs][yx branch] start generate and add k8s resource");
+            List<String> extraDestination = CollectionUtils.isEmpty(api.getPlugins())
+                    ? Collections.emptyList()
+                    : pluginService.extractService(api.getPlugins());
+
+            List<String> rawGateways = defaultModelProcessor.process(apiGateway, api,
+                    new BaseGatewayAPIDataHandler(enableHttp10));
+            resourcePacks.addAll(generateK8sPack(rawGateways));
+            logger.info("[translate CRDs][yx branch] raw gateways added ok");
+
+            List<String> rawDestinationRules = defaultModelProcessor.process(apiDestinationRule, api,
+                    new BaseDestinationRuleAPIDataHandler(extraDestination));
+            // 名字写死容易出错
+            resourcePacks.addAll(generateK8sPack(rawDestinationRules,
+                    new GatewayDestinationRuleSubtracter(String.format("%s-%s", api.getService(), api.getName()))));
+            logger.info("[translate CRDs][yx branch] raw destination rules added ok");
+        }
+
+        resourcePacks.addAll(generateK8sPack(rawVirtualServices,
+                new GatewayVirtualServiceSubtracter(vsHandler.getApiName(api)),
+                r -> r, this::adjust));
+        logger.info("[translate CRDs] raw virtual services added ok");
+
         // rate limit configmap
         resourcePacks.addAll(generateK8sPack(rawSharedConfigs,
                 new GatewayRateLimitConfigMapMerger(),
                 new GatewayRateLimitConfigMapSubtracter(String.join("|", api.getGateways()), api.getName()),
                 new EmptyResourceGenerator(new EmptyConfigMap(rateLimitConfigMapName, rateLimitNamespace))));
+        logger.info("[translate CRDs] raw shared configs added ok");
 
         //当插件传入为空时，生成空的gatewayplugin，删除时使用
-        DynamicGatewayPluginSupplier dynamicGatewayPluginSupplier = new DynamicGatewayPluginSupplier(api.getGateways(), api.getName(), "%s-%s");
+        DynamicGatewayPluginSupplier dynamicGatewayPluginSupplier =
+                new DynamicGatewayPluginSupplier(api.getGateways(), api.getName(), "%s-%s");
+
         resourcePacks.addAll(generateK8sPack(rawGatewayPlugins,
                 null,
                 new GatewayPluginNormalSubtracter(),
                 new DynamicResourceGenerator(dynamicGatewayPluginSupplier)));
+        logger.info("[translate CRDs] raw gateway plugins added ok");
 
         return resourcePacks;
+    }
+
+    private BaseVirtualServiceAPIDataHandler getVsHandler(API api,
+                                                          boolean simple,
+                                                          RawResourceContainer rawResourceContainer) {
+        BaseVirtualServiceAPIDataHandler vsHandler;
+        if (isGPortal(api)) {
+            vsHandler = new PortalVirtualServiceAPIDataHandler(
+                    defaultModelProcessor, rawResourceContainer.getVirtualServices(), simple);
+        } else {
+            // 严选分支，一个API发布关联到gateway、vs、dr
+            List<Endpoint> endpoints = resourceManager.getEndpointList();
+            vsHandler = new YxVirtualServiceAPIDataHandler(
+                    defaultModelProcessor, rawResourceContainer.getVirtualServices(), endpoints, simple);
+        }
+        return vsHandler;
+    }
+
+    private boolean isGPortal(API api) {
+        return !CollectionUtils.isEmpty(api.getProxyServices());
     }
 
     public List<K8sResourcePack> translate(Service service) {

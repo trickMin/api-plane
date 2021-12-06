@@ -98,6 +98,10 @@ public class AggregateExtensionProcessor extends AbstractSchemaProcessor impleme
                 holder = getProcessor("HeaderRestrictionProcessor").process(plugin, serviceInfo);
                 coverToExtensionPlugin(holder, "proxy.filters.http.header_restriction");
                 break;
+            case "response-header-rewrite":
+                holder = getProcessor("ResponseHeaderRewriteProcessor").process(plugin, serviceInfo);
+                coverToExtensionPlugin(holder, "com.netease.filters.http.header_rewrite");
+                break;
             case "cors":
                 holder = getProcessor("CorsProcessor").process(plugin, serviceInfo);
                 coverToExtensionPlugin(holder, "envoy.cors");
