@@ -16,6 +16,13 @@ public interface GatewayConfigManager extends ConfigManager {
     void updateConfig(API api);
 
     /**
+     * 将插件配置转换为CRD资源，并调用API server接口更新
+     *
+     * @param plugin 网关插件对象
+     */
+    void updateConfig(GatewayPlugin plugin);
+
+    /**
      * 更新服务
      * @param service
      */
@@ -50,18 +57,6 @@ public interface GatewayConfigManager extends ConfigManager {
      * @param pluginOrder
      */
     void deleteConfig(PluginOrder pluginOrder);
-
-    /**
-     * 更新全局插件
-     * @param gp
-     */
-    void updateConfig(GlobalPlugin gp);
-
-    /**
-     * 删除全局插件
-     * @param gp
-s     */
-    void deleteConfig(GlobalPlugin gp);
 
     /**
      * 查询网关

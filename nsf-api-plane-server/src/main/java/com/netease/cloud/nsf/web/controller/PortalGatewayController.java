@@ -32,6 +32,36 @@ public class PortalGatewayController extends BaseController {
         return apiReturn(ApiPlaneErrorCode.Success);
     }
 
+    @RequestMapping(value = "/portal", params = "Action=DeleteAPI", method = RequestMethod.POST)
+    public String deletePortalAPI(@RequestBody @Valid PortalAPIDeleteDTO api) {
+        gatewayService.deleteAPI(api);
+        return apiReturn(ApiPlaneErrorCode.Success);
+    }
+
+    /**
+     * 新增或更新插件CRD配置
+     *
+     * @param plugin 本次最新的插件对象（CRD渲染需要的必要信息 + 插件配置集合）
+     * @return 接口执行结果信息
+     */
+    @RequestMapping(value = "/portal", params = "Action=PublishGlobalPlugin", method = RequestMethod.POST)
+    public String publishGatewayPlugin(@RequestBody @Valid GatewayPluginDTO plugin) {
+        gatewayService.updateGatewayPlugin(plugin);
+        return apiReturn(ApiPlaneErrorCode.Success);
+    }
+
+    /**
+     * 删除路由插件CRD配置
+     *
+     * @param plugin 本次需要保留的插件对象（CRD渲染需要的必要信息 + 插件配置集合）
+     * @return 接口执行结果信息
+     */
+    @RequestMapping(value = "/portal", params = "Action=DeleteGlobalPlugin", method = RequestMethod.POST)
+    public String deleteGatewayPlugin(@RequestBody @Valid GatewayPluginDTO plugin) {
+        gatewayService.deleteGatewayPlugin(plugin);
+        return apiReturn(ApiPlaneErrorCode.Success);
+    }
+
     @RequestMapping(value = "/portal", params = "Action=PublishService", method = RequestMethod.POST)
     public String publishPortalService(@RequestBody @Valid PortalServiceDTO service) {
         //新增参数校验逻辑
@@ -41,12 +71,6 @@ public class PortalGatewayController extends BaseController {
         }
 
         gatewayService.updateService(service);
-        return apiReturn(ApiPlaneErrorCode.Success);
-    }
-
-    @RequestMapping(value = "/portal", params = "Action=DeleteAPI", method = RequestMethod.POST)
-    public String deletePortalAPI(@RequestBody @Valid PortalAPIDeleteDTO api) {
-        gatewayService.deleteAPI(api);
         return apiReturn(ApiPlaneErrorCode.Success);
     }
 
@@ -85,17 +109,5 @@ public class PortalGatewayController extends BaseController {
         result.put(RESULT, istioGateway);
 
         return apiReturn(result);
-    }
-
-    @RequestMapping(value = "/portal", params = "Action=PublishGlobalPlugin", method = RequestMethod.POST)
-    public String publishGlobalPlugin(@RequestBody @Valid GlobalPluginDTO globalPluginsDTO) {
-        gatewayService.updateGlobalPlugins(globalPluginsDTO);
-        return apiReturn(ApiPlaneErrorCode.Success);
-    }
-
-    @RequestMapping(value = "/portal", params = "Action=DeleteGlobalPlugin", method = RequestMethod.POST)
-    public String deleteGlobalPlugin(@RequestBody @Valid GlobalPluginsDeleteDTO globalPluginsDeleteDTO) {
-        gatewayService.deleteGlobalPlugins(globalPluginsDeleteDTO);
-        return apiReturn(ApiPlaneErrorCode.Success);
     }
 }

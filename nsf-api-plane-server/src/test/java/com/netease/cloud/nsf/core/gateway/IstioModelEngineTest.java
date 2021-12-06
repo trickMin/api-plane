@@ -12,6 +12,7 @@ import com.netease.cloud.nsf.core.k8s.K8sResourcePack;
 import com.netease.cloud.nsf.core.k8s.KubernetesClient;
 import com.netease.cloud.nsf.meta.Endpoint;
 import com.netease.cloud.nsf.meta.*;
+import com.netease.cloud.nsf.meta.GatewayPlugin;
 import com.netease.cloud.nsf.meta.dto.PluginOrderDTO;
 import com.netease.cloud.nsf.meta.dto.PluginOrderItemDTO;
 import com.netease.cloud.nsf.meta.dto.VirtualClusterDTO;
@@ -27,6 +28,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -118,7 +120,7 @@ public class IstioModelEngineTest extends BaseTest {
 
         List<K8sResourcePack> resources = gatewayIstioModelEngine.translate(api);
 
-        Assert.assertTrue(resources.size() == 9);
+        Assert.assertTrue(resources.size() == 2);
 
         resources.stream()
                 .map(r -> r.getResource())
@@ -177,7 +179,7 @@ public class IstioModelEngineTest extends BaseTest {
 
         List<K8sResourcePack> resources2 = gatewayIstioModelEngine.translate(api2);
 
-        Assert.assertTrue(resources2.size() == 9);
+        Assert.assertTrue(resources2.size() == 2);
 
         resources2.stream()
                 .map(r -> r.getResource())
@@ -399,14 +401,17 @@ public class IstioModelEngineTest extends BaseTest {
     @Test
     public void testTranslateGlobalPlugin() {
 
-        GlobalPlugin gp1 = getGlobalPlugin("code1", Collections.EMPTY_LIST,
-                "gateway-system/gw1", Arrays.asList("host1", "host2"));
+        List<String> gatewayList = new ArrayList<>();
+        gatewayList.add("gw1");
+        GatewayPlugin gp1 = getGatewayPlugin("code1", Collections.EMPTY_LIST,
+                gatewayList, Arrays.asList("host1", "host2"));
 
         List<K8sResourcePack> resources = gatewayIstioModelEngine.translate(gp1);
 
         assertEquals(1, resources.size());
 
-        GatewayPlugin gatewayPlugin = (GatewayPlugin) resources.get(0).getResource();
+        me.snowdrop.istio.api.networking.v1alpha3.GatewayPlugin gatewayPlugin =
+                (me.snowdrop.istio.api.networking.v1alpha3.GatewayPlugin) resources.get(0).getResource();
         GatewayPluginSpec spec = gatewayPlugin.getSpec();
         assertEquals(2, spec.getHost().size());
         assertTrue(spec.getHost().containsAll(Arrays.asList("host1", "host2")));
@@ -416,12 +421,12 @@ public class IstioModelEngineTest extends BaseTest {
     }
 
 
-    private GlobalPlugin getGlobalPlugin(String code, List<String> plugins, String gateway, List<String> hosts) {
+    private GatewayPlugin getGatewayPlugin(String code, List<String> plugins, List<String> gateway, List<String> hosts) {
 
-        GlobalPlugin gp = new GlobalPlugin();
+        GatewayPlugin gp = new GatewayPlugin();
         gp.setCode(code);
         gp.setPlugins(plugins);
-        gp.setGateway(gateway);
+        gp.setGateways(gateway);
         gp.setHosts(hosts);
         return gp;
     }
