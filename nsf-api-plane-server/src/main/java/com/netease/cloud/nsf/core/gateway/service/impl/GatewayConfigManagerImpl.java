@@ -17,7 +17,9 @@ import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.function.Subtracter;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import me.snowdrop.istio.api.IstioResource;
-import me.snowdrop.istio.api.networking.v1alpha3.*;
+import me.snowdrop.istio.api.networking.v1alpha3.DestinationRule;
+import me.snowdrop.istio.api.networking.v1alpha3.ServiceEntry;
+import me.snowdrop.istio.api.networking.v1alpha3.GatewaySpec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -49,6 +51,12 @@ public class GatewayConfigManagerImpl extends AbstractConfigManagerSupport imple
     @Override
     public void updateConfig(API api) {
         List<K8sResourcePack> resources = modelEngine.translate(api);
+        update(resources);
+    }
+
+    @Override
+    public void updateConfig(GatewayPlugin plugin) {
+        List<K8sResourcePack> resources = modelEngine.translate(plugin);
         update(resources);
     }
 
@@ -172,33 +180,6 @@ public class GatewayConfigManagerImpl extends AbstractConfigManagerSupport imple
     public void updateConfig(IstioGateway istioGateway) {
         List<K8sResourcePack> resources = modelEngine.translate(istioGateway);
         update(resources);
-    }
-
-    @Override
-    public void updateConfig(GlobalPlugin gp) {
-        List<K8sResourcePack> resources = modelEngine.translate(gp);
-        update(resources);
-    }
-
-    @Override
-    public void deleteConfig(GlobalPlugin gp) {
-        List<K8sResourcePack> resources = modelEngine.translate(gp);
-
-        Subtracter<HasMetadata> deleteFun = r -> {
-
-            if (r.getClass() == K8sResourceEnum.GatewayPlugin.mappingType()) {
-                GatewayPlugin gatewayPlugin = (GatewayPlugin) r;
-                gatewayPlugin.setSpec(null);
-                return gatewayPlugin;
-            } else if (r.getClass() == K8sResourceEnum.SharedConfig.mappingType()) {
-                //TODO sharedConfig唯一标识未更新
-                ResourceGenerator gen = ResourceGenerator.newInstance(r, ResourceType.OBJECT);
-                gen.removeElement(PathExpressionEnum.REMOVE_SC_RATELIMITDESC_BY_CODE.translate(gp.getCode()));
-                return gen.object(SharedConfig.class);
-            }
-            return r;
-        };
-        delete(resources, deleteFun);
     }
 
     private void delete(List<K8sResourcePack> resources, Subtracter<HasMetadata> fun) {

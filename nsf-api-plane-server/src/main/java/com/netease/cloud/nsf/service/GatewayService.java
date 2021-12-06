@@ -19,6 +19,10 @@ public interface GatewayService {
 
     void deleteAPI(PortalAPIDeleteDTO portalAPI);
 
+    void updateGatewayPlugin(GatewayPluginDTO plugin);
+
+    void deleteGatewayPlugin(GatewayPluginDTO plugin);
+
     void updateService(PortalServiceDTO service);
 
     /**
@@ -48,10 +52,6 @@ public interface GatewayService {
     void updateIstioGateway(PortalIstioGatewayDTO portalGateway);
 
     PortalIstioGatewayDTO getIstioGateway(String clusterName);
-
-    void updateGlobalPlugins(GlobalPluginDTO globalPluginsDTO);
-
-    void deleteGlobalPlugins(GlobalPluginsDeleteDTO globalPluginsDeleteDTO);
 
     /**
      * 获取Dubbo Meta元数据信息

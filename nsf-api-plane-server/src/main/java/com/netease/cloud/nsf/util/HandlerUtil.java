@@ -2,6 +2,7 @@ package com.netease.cloud.nsf.util;
 
 import com.netease.cloud.nsf.core.plugin.FragmentTypeEnum;
 import com.netease.cloud.nsf.core.plugin.FragmentWrapper;
+import com.netease.cloud.nsf.util.constant.PluginConstant;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -13,19 +14,6 @@ import java.util.stream.Collectors;
  **/
 public class HandlerUtil {
 
-
-    public static List<String> extractFragments(List<FragmentWrapper> fragments) {
-        List<String> plugins = Collections.emptyList();
-        if (!CollectionUtils.isEmpty(fragments)) {
-            plugins = fragments.stream()
-                    .filter(f -> f != null)
-                    .map(f -> f.getContent())
-                    .collect(Collectors.toList());
-        }
-        return plugins;
-    }
-
-    public static final String DEFAULT_USER_ID = "";
     /**
      * 分配插件
      *
@@ -34,7 +22,10 @@ public class HandlerUtil {
      * @param apiPlugins
      * @param hostPlugins
      */
-    public static void distributePlugins(List<FragmentWrapper> fragments, List<String> matchPlugins, Map<String, List<String>> apiPlugins, List<String> hostPlugins) {
+    public static void distributePlugins(List<FragmentWrapper> fragments,
+                                         List<String> matchPlugins,
+                                         Map<String, List<String>> apiPlugins,
+                                         List<String> hostPlugins) {
         fragments.stream()
                 .forEach(f -> {
                     switch (f.getFragmentType()) {
@@ -42,7 +33,8 @@ public class HandlerUtil {
                             matchPlugins.add(f.getContent());
                             break;
                         case VS_API:
-                            String userId = StringUtils.isEmpty(f.getXUserId()) ? DEFAULT_USER_ID : f.getXUserId();
+                            String userId = StringUtils.isEmpty(f.getXUserId()) ?
+                                    PluginConstant.DEFAULT_USER_ID : f.getXUserId();
                             apiPlugins.computeIfAbsent(userId, k -> new ArrayList<>()).add(f.getContent());
                             break;
                         case VS_HOST:
@@ -54,21 +46,25 @@ public class HandlerUtil {
     }
 
     /**
-     * 获取api级别的插件
-     * @param fragments
-     * @return
+     * 获取插件Map
+     *
+     * @param fragments CRD片段
+     * @return 以用户ID为key，插件CRD文本集合为value的Map对象
      */
-    public static Map<String, List<String>> getApiPlugins(List<FragmentWrapper> fragments) {
-        if (CollectionUtils.isEmpty(fragments)) return Collections.EMPTY_MAP;
+    public static Map<String, List<String>> getGatewayPlugins(List<FragmentWrapper> fragments) {
+        if (CollectionUtils.isEmpty(fragments)) {
+            return Collections.EMPTY_MAP;
+        }
 
-        Map<String, List<String>> apiPlugins = new HashMap<>();
+        Map<String, List<String>> pluginMap = new HashMap<>();
         fragments.stream()
-            .filter(f -> f.getFragmentType().equals(FragmentTypeEnum.VS_API))
-            .forEach(f -> {
-                String userId = StringUtils.isEmpty(f.getXUserId()) ? DEFAULT_USER_ID : f.getXUserId();
-                apiPlugins.computeIfAbsent(userId, k -> new ArrayList<>()).add(f.getContent());
-            });
-        return apiPlugins;
+                .filter(f -> f.getFragmentType().equals(FragmentTypeEnum.VS_API))
+                .forEach(f -> {
+                    String userId =
+                            StringUtils.isEmpty(f.getXUserId()) ? PluginConstant.DEFAULT_USER_ID : f.getXUserId();
+                    pluginMap.computeIfAbsent(userId, k -> new ArrayList<>()).add(f.getContent());
+                });
+        return pluginMap;
     }
 
 

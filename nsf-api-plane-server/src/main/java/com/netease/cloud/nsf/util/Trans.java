@@ -296,24 +296,6 @@ public class Trans {
         return api;
     }
 
-    public static GlobalPlugin globalPluginsDTO2GlobalPlugins(GlobalPluginDTO globalPluginsDTO) {
-
-        GlobalPlugin gp = new GlobalPlugin();
-        gp.setCode(globalPluginsDTO.getCode());
-        gp.setGateway(globalPluginsDTO.getGateway());
-        gp.setHosts(globalPluginsDTO.getHosts());
-        gp.setPlugins(globalPluginsDTO.getPlugins());
-        return gp;
-    }
-
-    public static GlobalPlugin globalPluginsDeleteDTO2GlobalPlugins(GlobalPluginsDeleteDTO globalPluginsDeleteDTO) {
-
-        GlobalPlugin gp = new GlobalPlugin();
-        gp.setCode(globalPluginsDeleteDTO.getCode());
-        gp.setPlugins(globalPluginsDeleteDTO.getPlugins());
-        return gp;
-    }
-
     public static ValidateResultDTO validateResult2ValidateResultDTO(ValidateResult validateResult) {
         ValidateResultDTO dto = new ValidateResultDTO();
         dto.setPass(validateResult.isPass());
@@ -321,5 +303,22 @@ public class Trans {
             dto.setItems(validateResult.getItems());
         }
         return dto;
+    }
+
+    /**
+     * 插件DTO对象转业务流转对象
+     *
+     * @param dto 来自其他服务的DTO对象
+     * @return 业务流转的网关插件对象
+     */
+    public static GatewayPlugin pluginDTOToPlugin(GatewayPluginDTO dto) {
+        GatewayPlugin gatewayPlugin = new GatewayPlugin();
+        gatewayPlugin.setPlugins(dto.getPlugins());
+        gatewayPlugin.setRouteId(dto.getRouteId());
+        gatewayPlugin.setGateways(dto.getGateways());
+        gatewayPlugin.setHosts(dto.getHosts());
+        gatewayPlugin.setCode(dto.getCode());
+        gatewayPlugin.setPluginType(dto.getPluginType());
+        return gatewayPlugin;
     }
 }

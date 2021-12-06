@@ -69,35 +69,30 @@ public class GatewayConfigManagerImplTest extends BaseTest {
         mockConfigManager.deleteConfig(api);
         Assert.assertEquals(0, mockK8sConfigStore.size());
 
+        // 去除yx分支后，需要有ServiceProxy
+        List<Service> serviceList = new ArrayList<>();
+        Service service = new Service();
+        service.setCode("dynamic-5013");
+        service.setBackendService("istio-e2e-app.apigw-demo.svc.cluster.local");
+        service.setType("DYNAMIC");
+        service.setWeight(100);
+        service.setPort(80);
+        serviceList.add(service);
         API api1 = buildAPI(list("gw1"), "apiName", list("host1"), list("/any"),
                 list("GET"), "svc",
                 list("{\"kind\":\"ianus-router\",\"rule\":[{\"name\":\"rewrite\",\"matcher\":[{\"source_type\":\"Header\",\"left_value\":\"plugin\",\"op\":\"=\",\"right_value\":\"rewrite\"}],\"action\":{\"action_type\":\"rewrite\",\"rewrite_regex\":\"/rewrite/{group1}/{group2}\",\"target\":\"/anything/{{group2}}/{{group1}}\"}}]}"),
                 "HTTP",
-                null,
+                serviceList,
                 Arrays.asList("a.default", "b.default"),
                 UriMatch.exact);
 
         mockConfigManager.updateConfig(api1);
-        Assert.assertEquals(4, mockK8sConfigStore.size());
+        Assert.assertEquals(1, mockK8sConfigStore.size());
         mockConfigManager.deleteConfig(api1);
         //保留gateway
-        Assert.assertEquals(1, mockK8sConfigStore.size());
+        Assert.assertEquals(0, mockK8sConfigStore.size());
 
         mockK8sConfigStore.clear();
-
-        //gportal 带gatewayplugin的多租户插件
-        API api2 = buildAPI(Arrays.asList("gw1", "gw2"), "apiName", list("host1"), list("/any"),
-                list("GET"), "svc",
-                list("{\"kind\": \"ip-restriction\",  \"type\": \"1\",  \"list\": [    \"127.0.0.1\"  ],  \"x_user_id\":\"user1\"}\",\"{  \"kind\": \"ip-restriction\",  \"type\": \"1\",  \"list\": [    \"127.0.0.1\"  ],  \"x_user_id\":\"user2\"}\",\"{  \"kind\": \"ip-restriction\",  \"type\": \"1\",  \"list\": [    \"127.0.0.1\"  ]}"),
-                "HTTP",
-                Arrays.asList(buildProxyService("www.163.com", "STATIC", 100, 80)),
-                null,
-                UriMatch.exact);
-
-        mockConfigManager.updateConfig(api2);
-        Assert.assertEquals(4, mockK8sConfigStore.size());
-        mockConfigManager.deleteConfig(api2);
-        Assert.assertEquals(0, mockK8sConfigStore.size());
     }
 
     @Test
@@ -131,10 +126,13 @@ public class GatewayConfigManagerImplTest extends BaseTest {
     @Test
     public void testUpdateGlobalPlugin() {
 
-        GlobalPlugin gp1 = buildGlobalPlugin("demo", Arrays.asList("a", "b"), Arrays.asList("{\"kind\":\"jsonp\",\"callback\":\"ddd\"}"), "ok");
+        List<String> gatewayList = new ArrayList<>();
+        gatewayList.add("demo");
+        GatewayPlugin gp1 = buildGatewayPlugin(gatewayList, Arrays.asList("a", "b"), Arrays.asList("{\"kind\":\"jsonp\",\"callback\":\"ddd\"}"), "ok");
         mockConfigManager.updateConfig(gp1);
         Assert.assertEquals(1, mockK8sConfigStore.size());
-        mockConfigManager.deleteConfig(gp1);
+        gp1.setPlugins(new ArrayList<>());
+        mockConfigManager.updateConfig(gp1);
         Assert.assertEquals(0, mockK8sConfigStore.size());
     }
 
@@ -201,9 +199,9 @@ public class GatewayConfigManagerImplTest extends BaseTest {
         return gateway;
     }
 
-    private GlobalPlugin buildGlobalPlugin(String gateway, List<String> hosts, List<String> plugins, String code) {
-        GlobalPlugin gp = new GlobalPlugin();
-        gp.setGateway(gateway);
+    private GatewayPlugin buildGatewayPlugin(List<String> gateway, List<String> hosts, List<String> plugins, String code) {
+        GatewayPlugin gp = new GatewayPlugin();
+        gp.setGateways(gateway);
         gp.setHosts(hosts);
         gp.setPlugins(plugins);
         gp.setCode(code);
