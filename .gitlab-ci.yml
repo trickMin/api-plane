@@ -22,6 +22,9 @@ job_unit_test:
   script:
     - pwd
     - git status
+    - cd /builds/qingzhou/yx-gateway-api-plane/nsf-proto
+    - $MAVEN_HOME/bin/mvn clean install
+    - cd /builds/qingzhou/yx-gateway-api-plane/nsf-api-plane-server
     - $MAVEN_HOME/bin/mvn clean package -U
     - git status
     - echo "now unit_test finished."
