@@ -16,6 +16,8 @@ stages:
 
 before_script:
   - export MAVEN_HOME=/usr/local/bin/apache-maven-3.6.3
+  - git submodule sync
+  - git submodule update --init
 
 job_unit_test:
   stage: test
