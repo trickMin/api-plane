@@ -37,7 +37,7 @@ public class RlsClusterClient {
         for (String address : mcpOptions.getRegisteredRlsCluster()) {
             String[] hostPort = StringUtils.split(address, ":");
             if (hostPort.length == 2) {
-                ManagedChannel channel = ManagedChannelBuilder.forAddress(hostPort[0], Integer.parseInt(hostPort[1])).usePlaintext().build();
+                ManagedChannel channel = ManagedChannelBuilder.forAddress(hostPort[0], Integer.parseInt(hostPort[1])).usePlaintext(true).build();
                 stubs.add(RatelimitConfigServiceGrpc.newStub(channel));
             }
         }

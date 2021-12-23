@@ -39,7 +39,6 @@ import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.apps.StatefulSet;
-import me.snowdrop.istio.api.IstioResource;
 import me.snowdrop.istio.api.networking.v1alpha3.GlobalConfig;
 import me.snowdrop.istio.api.networking.v1alpha3.GlobalConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;
@@ -323,10 +322,10 @@ public class ServiceMeshServiceImpl<T extends HasMetadata> implements ServiceMes
         return json;
     }
 
-    private IstioResource json2Resource(String json) {
+    private HasMetadata json2Resource(String json) {
         K8sResourceGenerator gen = K8sResourceGenerator.newInstance(json, ResourceType.JSON);
         K8sResourceEnum resourceEnum = K8sResourceEnum.get(gen.getKind());
-        return (IstioResource) gen.object(resourceEnum.mappingType());
+        return gen.object(resourceEnum.mappingType());
     }
 
     private boolean isInvalidApiVersion(String errorMsg) {
