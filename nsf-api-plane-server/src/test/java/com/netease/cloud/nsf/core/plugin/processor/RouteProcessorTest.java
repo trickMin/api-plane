@@ -13,7 +13,7 @@ public class RouteProcessorTest extends BasePluginTest {
     public void process() {
 
         String p1 = "{\n" +
-                "  \"kind\": \"ianus-router\",\n" +
+                "  \"kind\": \"hango-router\",\n" +
                 "  \"rule\": [\n" +
                 "  {\n" +
                 "    \"name\": \"rewrite\",\n" +
@@ -36,7 +36,7 @@ public class RouteProcessorTest extends BasePluginTest {
 
 
         String p2 = "{\n" +
-                "  \"kind\": \"ianus-router\",\n" +
+                "  \"kind\": \"hango-router\",\n" +
                 "  \"rule\": [\n" +
                 "  {\n" +
                 "    \"name\": \"rewrite\",\n" +
@@ -58,7 +58,7 @@ public class RouteProcessorTest extends BasePluginTest {
                 "}";
 
         String p3 = "{\n" +
-                "  \"kind\": \"ianus-router\",\n" +
+                "  \"kind\": \"hango-router\",\n" +
                 "  \"rule\": [\n" +
                 "  {\n" +
                 "    \"name\": \"redirect\",\n" +
@@ -79,7 +79,7 @@ public class RouteProcessorTest extends BasePluginTest {
                 "}";
 
         String p4 = "{\n" +
-                "  \"kind\": \"ianus-router\",\n" +
+                "  \"kind\": \"hango-router\",\n" +
                 "  \"rule\": [\n" +
                 "  {\n" +
                 "    \"name\": \"return\",\n" +
@@ -109,7 +109,7 @@ public class RouteProcessorTest extends BasePluginTest {
                 "}";
 
         String p5 = "{\n" +
-                "  \"kind\": \"ianus-router\",\n" +
+                "  \"kind\": \"hango-router\",\n" +
                 "  \"rule\": [\n" +
                 "    {\n" +
                 "      \"name\": \"return\",\n" +

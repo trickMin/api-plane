@@ -13,15 +13,17 @@ import com.netease.cloud.nsf.core.k8s.empty.DynamicGatewayPluginSupplier;
 import com.netease.cloud.nsf.core.k8s.empty.EmptyConfigMap;
 import com.netease.cloud.nsf.core.k8s.merger.GatewayRateLimitConfigMapMerger;
 import com.netease.cloud.nsf.core.k8s.operator.IntegratedResourceOperator;
-import com.netease.cloud.nsf.core.k8s.subtracter.GatewayDestinationRuleSubtracter;
 import com.netease.cloud.nsf.core.k8s.subtracter.GatewayPluginNormalSubtracter;
 import com.netease.cloud.nsf.core.k8s.subtracter.GatewayRateLimitConfigMapSubtracter;
 import com.netease.cloud.nsf.core.k8s.subtracter.GatewayVirtualServiceSubtracter;
 import com.netease.cloud.nsf.core.plugin.FragmentHolder;
+import com.netease.cloud.nsf.core.plugin.FragmentWrapper;
 import com.netease.cloud.nsf.core.template.TemplateTranslator;
 import com.netease.cloud.nsf.meta.*;
 import com.netease.cloud.nsf.service.PluginService;
 import com.netease.cloud.nsf.util.Const;
+import com.netease.cloud.nsf.util.constant.LogConstant;
+import com.netease.cloud.nsf.util.constant.PluginConstant;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import me.snowdrop.istio.api.networking.v1alpha3.HTTPRoute;
 import me.snowdrop.istio.api.networking.v1alpha3.VirtualService;
@@ -83,13 +85,11 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
 
     private static final String apiGateway = "gateway/api/gateway";
     private static final String apiVirtualService = "gateway/api/virtualService";
-    private static final String apiDestinationRule = "gateway/api/destinationRule";
-    private static final String apiSharedConfigConfigMap = "gateway/api/sharedConfigConfigMap";
+    private static final String rateLimitConfigMap = "gateway/api/rateLimitConfigMap";
 
     private static final String serviceDestinationRule = "gateway/service/destinationRule";
     private static final String pluginManager = "gateway/pluginManager";
     private static final String serviceServiceEntry = "gateway/service/serviceEntry";
-    private static final String globalGatewayPlugin = "gateway/globalGatewayPlugin";
     private static final String gatewayPlugin = "gateway/gatewayPlugin";
 
     public List<K8sResourcePack> translate(API api) {
@@ -104,103 +104,138 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
      * @return K8s资源集合
      */
     public List<K8sResourcePack> translate(API api, boolean simple) {
-        boolean isGPortal = isGPortal(api);
+        logger.info("{}{} start translate k8s resource", LogConstant.TRANSLATE_LOG_NOTE, LogConstant.ROUTE_LOG_NOTE);
+        List<K8sResourcePack> resourcePacks = new ArrayList<>();
+        List<FragmentWrapper> vsFragments = new ArrayList<>();
 
-        logger.info("[translate CRDs] start translate k8s resource, is gPortal: {}", isGPortal);
+        // 渲染VS上的插件片段（当前仅有Match插件）
+        if (!StringUtils.isEmpty(api.getPlugins())) {
+            vsFragments = renderPlugins(api.getPlugins()).stream()
+                    .map(FragmentHolder::getVirtualServiceFragment)
+                    .collect(Collectors.toList());
+        }
+        List<String> rawVirtualServices = renderTwiceModelProcessor
+                .process(apiVirtualService, api,
+                        new PortalVirtualServiceAPIDataHandler(
+                                defaultModelProcessor, vsFragments, simple));
 
-        BaseVirtualServiceAPIDataHandler apiHandler = isGPortal
-                ? new PortalVirtualServiceAPIDataHandler(defaultModelProcessor)
-                : new YxVirtualServiceAPIDataHandler(defaultModelProcessor);
-        String matchYaml = apiHandler.produceMatch(apiHandler.handleApi(api));
-        RawResourceContainer rawResourceContainer = new RawResourceContainer();
-        rawResourceContainer.add(renderPlugins(api, matchYaml));
+        logger.info("{}{} start to generate and add k8s resource",
+                LogConstant.TRANSLATE_LOG_NOTE, LogConstant.ROUTE_LOG_NOTE);
+        resourcePacks.addAll(generateK8sPack(rawVirtualServices,
+                new GatewayVirtualServiceSubtracter(api.getName()),
+                r -> r, this::adjust));
+        logger.info("{}{} raw virtual services added ok", LogConstant.TRANSLATE_LOG_NOTE, LogConstant.ROUTE_LOG_NOTE);
 
-        logger.info("[translate CRDs] render Plugins ok, start to create vsHandler");
-        BaseVirtualServiceAPIDataHandler vsHandler = getVsHandler(api, simple, rawResourceContainer);
-
-        logger.info("[translate CRDs] start to generate and add k8s resource");
-        return generateAndAddK8sResource(api, rawResourceContainer, vsHandler);
+        return resourcePacks;
     }
 
-    @SuppressWarnings("unchecked")
-    private List<K8sResourcePack> generateAndAddK8sResource(API api,
-                                           RawResourceContainer rawResourceContainer,
-                                           BaseVirtualServiceAPIDataHandler vsHandler) {
-        List<K8sResourcePack> resourcePacks = new ArrayList<>();
+    /**
+     * 转换GatewayPlugin数据为CRD资源
+     *
+     * @param plugin 网关插件实例（内含插件配置）
+     * @return k8s资源集合
+     */
+    public List<K8sResourcePack> translate(GatewayPlugin plugin) {
+        logger.info("{}{} start translate k8s resource", LogConstant.TRANSLATE_LOG_NOTE, LogConstant.PLUGIN_LOG_NOTE);
 
-        List<String> rawVirtualServices = renderTwiceModelProcessor.process(apiVirtualService, api, vsHandler);
-        List<String> rawSharedConfigs = neverNullRenderTwiceProcessor
-                .process(apiSharedConfigConfigMap, api,
-                        new BaseSharedConfigAPIDataHandler(
-                                rawResourceContainer.getSharedConfigs(), rateLimitConfigMapName, rateLimitNamespace));
-        // vs上的插件转移到gateway plugin上
-        List<String> rawGatewayPlugins = neverNullRenderTwiceProcessor.process(gatewayPlugin, api,
-                new ApiGatewayPluginDataHandler(
-                        rawResourceContainer.getVirtualServices(), globalConfig.getResourceNamespace()));
+        // 打印插件配置信息
+        plugin.showPluginConfigsInLog(logger);
 
-        // 严选分支，一个API发布关联到gateway、vs、dr
-        if (!isGPortal(api)) {
-            logger.info("[translate CRDs][yx branch] start generate and add k8s resource");
-            List<String> extraDestination = CollectionUtils.isEmpty(api.getPlugins())
-                    ? Collections.emptyList()
-                    : pluginService.extractService(api.getPlugins());
+        RawResourceContainer rawResourceContainer = new RawResourceContainer();
+        rawResourceContainer.add(renderPlugins(plugin.getPlugins()));
 
-            List<String> rawGateways = defaultModelProcessor.process(apiGateway, api,
-                    new BaseGatewayAPIDataHandler(enableHttp10));
-            resourcePacks.addAll(generateK8sPack(rawGateways));
-            logger.info("[translate CRDs][yx branch] raw gateways added ok");
+        logger.info("{}{} render plugins ok, start to generate and add k8s resource",
+                LogConstant.TRANSLATE_LOG_NOTE, LogConstant.PLUGIN_LOG_NOTE);
+        return generateAndAddK8sResource(rawResourceContainer, plugin);
+    }
 
-            List<String> rawDestinationRules = defaultModelProcessor.process(apiDestinationRule, api,
-                    new BaseDestinationRuleAPIDataHandler(extraDestination));
-            // 名字写死容易出错
-            resourcePacks.addAll(generateK8sPack(rawDestinationRules,
-                    new GatewayDestinationRuleSubtracter(String.format("%s-%s", api.getService(), api.getName()))));
-            logger.info("[translate CRDs][yx branch] raw destination rules added ok");
+    /**
+     * 生成k8s资源并将其合并为k8s资源集合
+     *
+     * @param rawResourceContainer k8s资源片段存放容器实例
+     * @param plugin 网关插件实例（内含插件配置）
+     * @return k8s资源集合
+     */
+    private List<K8sResourcePack> generateAndAddK8sResource(RawResourceContainer rawResourceContainer,
+                                                            GatewayPlugin plugin) {
+        // 插件渲染GatewayPlugin资源
+        logger.info("{}{} start render raw GatewayPlugin CRDs",
+                LogConstant.TRANSLATE_LOG_NOTE, LogConstant.PLUGIN_LOG_NOTE);
+        List<K8sResourcePack> resourcePacks = configureGatewayPlugin(rawResourceContainer, plugin);
+
+        // 路由级别的限流插件要渲染ConfigMap资源
+        if (isNeedToRenderConfigMap(plugin)) {
+            logger.info("{}{} start render raw ConfigMap CRDs",
+                    LogConstant.TRANSLATE_LOG_NOTE, LogConstant.PLUGIN_LOG_NOTE);
+            configureRateLimitConfigMap(rawResourceContainer, resourcePacks, plugin);
         }
 
-        resourcePacks.addAll(generateK8sPack(rawVirtualServices,
-                new GatewayVirtualServiceSubtracter(vsHandler.getApiName(api)),
-                r -> r, this::adjust));
-        logger.info("[translate CRDs] raw virtual services added ok");
+        return resourcePacks;
+    }
 
-        // rate limit configmap
-        resourcePacks.addAll(generateK8sPack(rawSharedConfigs,
-                new GatewayRateLimitConfigMapMerger(),
-                new GatewayRateLimitConfigMapSubtracter(String.join("|", api.getGateways()), api.getName()),
-                new EmptyResourceGenerator(new EmptyConfigMap(rateLimitConfigMapName, rateLimitNamespace))));
-        logger.info("[translate CRDs] raw shared configs added ok");
+    /**
+     * 插件流程只有两个场景需要渲染ConfigMap资源
+     * 1.路由级别的限流插件
+     * 2.没有传插件类型，即批量操作的场景，此时可能会有限流插件，因此需要无差别渲染（匹配路由启用、禁用、下线场景）
+     * 注：限流插件只有路由级别，因此路由插件是先决条件
+     *
+     * @param plugin 网关插件实例（内含插件配置）
+     * @return 是否需要渲染ConfigMap资源
+     */
+    private boolean isNeedToRenderConfigMap(GatewayPlugin plugin) {
+        return plugin.isRoutePlugin() &&
+                (StringUtils.isEmpty(plugin.getPluginType()) || plugin.getPluginType().equals(PluginConstant.RATE_LIMIT_PLUGIN_TYPE));
+    }
 
-        //当插件传入为空时，生成空的gatewayplugin，删除时使用
+    /**
+     * 插件转换为GatewayPlugin CRD资源
+     *
+     * @param rawResourceContainer 存放资源的容器对象
+     * @param plugin 插件对象
+     * @return k8s资源集合
+     */
+    private List<K8sResourcePack> configureGatewayPlugin(RawResourceContainer rawResourceContainer,
+                                                         GatewayPlugin plugin) {
+        List<K8sResourcePack> resourcePacks = new ArrayList<>();
+        // 插件配置放在GatewayPlugin的CRD上
+        List<String> rawGatewayPlugins = renderTwiceModelProcessor.process(gatewayPlugin, plugin,
+                new GatewayPluginDataHandler(
+                        rawResourceContainer.getVirtualServices(), globalConfig.getResourceNamespace()));
+
+        // 当插件传入为空时，生成空的GatewayPlugin，删除时使用
         DynamicGatewayPluginSupplier dynamicGatewayPluginSupplier =
-                new DynamicGatewayPluginSupplier(api.getGateways(), api.getName(), "%s-%s");
+                new DynamicGatewayPluginSupplier(plugin.getGateways(), plugin.getRouteId(), "%s-%s");
 
         resourcePacks.addAll(generateK8sPack(rawGatewayPlugins,
                 null,
                 new GatewayPluginNormalSubtracter(),
                 new DynamicResourceGenerator(dynamicGatewayPluginSupplier)));
-        logger.info("[translate CRDs] raw gateway plugins added ok");
+        logger.info("{}{} raw GatewayPlugin CRDs added ok",
+                LogConstant.TRANSLATE_LOG_NOTE, LogConstant.PLUGIN_LOG_NOTE);
 
         return resourcePacks;
     }
 
-    private BaseVirtualServiceAPIDataHandler getVsHandler(API api,
-                                                          boolean simple,
-                                                          RawResourceContainer rawResourceContainer) {
-        BaseVirtualServiceAPIDataHandler vsHandler;
-        if (isGPortal(api)) {
-            vsHandler = new PortalVirtualServiceAPIDataHandler(
-                    defaultModelProcessor, rawResourceContainer.getVirtualServices(), simple);
-        } else {
-            // 严选分支，一个API发布关联到gateway、vs、dr
-            List<Endpoint> endpoints = resourceManager.getEndpointList();
-            vsHandler = new YxVirtualServiceAPIDataHandler(
-                    defaultModelProcessor, rawResourceContainer.getVirtualServices(), endpoints, simple);
-        }
-        return vsHandler;
-    }
-
-    private boolean isGPortal(API api) {
-        return !CollectionUtils.isEmpty(api.getProxyServices());
+    /**
+     * 限流插件转换为ConfigMap CRD资源
+     *
+     * @param rawResourceContainer 存放资源的容器对象
+     * @param resourcePacks k8s资源集合
+     * @param plugin 插件对象
+     */
+    private void configureRateLimitConfigMap(RawResourceContainer rawResourceContainer,
+                                             List<K8sResourcePack> resourcePacks,
+                                             GatewayPlugin plugin) {
+        // 限流插件需要额外的configMap配置
+        List<String> rawConfigMaps = neverNullRenderTwiceProcessor.process(rateLimitConfigMap, plugin,
+                new GatewayPluginConfigMapDataHandler(
+                        rawResourceContainer.getSharedConfigs(), rateLimitConfigMapName, rateLimitNamespace));
+        // 加入限流插件configMap配置
+        resourcePacks.addAll(generateK8sPack(rawConfigMaps,
+                new GatewayRateLimitConfigMapMerger(),
+                new GatewayRateLimitConfigMapSubtracter(String.join("|", plugin.getGateways()), plugin.getRouteId()),
+                new EmptyResourceGenerator(new EmptyConfigMap(rateLimitConfigMapName, rateLimitNamespace))));
+        logger.info("{}{} raw ConfigMap CRDs added ok", LogConstant.TRANSLATE_LOG_NOTE, LogConstant.PLUGIN_LOG_NOTE);
     }
 
     public List<K8sResourcePack> translate(Service service) {
@@ -234,40 +269,17 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
         return resources;
     }
 
-    public List<K8sResourcePack> translate(GlobalPlugin gp) {
+    private List<FragmentHolder> renderPlugins(List<String> pluginList) {
 
-        List<K8sResourcePack> resources = new ArrayList<>();
-        RawResourceContainer rawResourceContainer = new RawResourceContainer();
-        List<FragmentHolder> plugins = pluginService.processPlugin(gp.getPlugins(), new ServiceInfo());
-        rawResourceContainer.add(plugins);
-        List<Gateway> gateways = resourceManager.getGatewayList();
+        if (CollectionUtils.isEmpty(pluginList)) {
+            return Collections.emptyList();
+        }
 
-        List<String> rawGatewayPlugins = defaultModelProcessor.process(globalGatewayPlugin, gp,
-                new GatewayPluginDataHandler(rawResourceContainer.getGatewayPlugins(), gateways, globalConfig.getResourceNamespace()));
-        //todo: shareConfig逻辑需要适配
-        List<String> rawSharedConfigs = renderTwiceModelProcessor.process(apiSharedConfigConfigMap, gp,
-                new GatewayPluginSharedConfigDataHandler(rawResourceContainer.getSharedConfigs(), gateways, rateLimitConfigMapName, rateLimitNamespace, globalConfig.getResourceNamespace()));
-        resources.addAll(generateK8sPack(rawGatewayPlugins));
-        resources.addAll(generateK8sPack(rawSharedConfigs,
-                new GatewayRateLimitConfigMapMerger(),
-                new GatewayRateLimitConfigMapSubtracter(gp.getGateway(), gp.getCode()),
-                new EmptyResourceGenerator(new EmptyConfigMap(rateLimitConfigMapName, rateLimitNamespace))));
-
-        return resources;
-    }
-
-    private List<FragmentHolder> renderPlugins(API api, String matchYaml) {
-
-        if (CollectionUtils.isEmpty(api.getPlugins())) return Collections.emptyList();
-        ServiceInfo serviceInfo = new ServiceInfo();
-        serviceInfo.setMatchYaml(matchYaml);
-
-        List<String> plugins = api.getPlugins().stream()
+        List<String> plugins = pluginList.stream()
                 .filter(p -> !StringUtils.isEmpty(p))
                 .collect(Collectors.toList());
-        api.setPlugins(plugins);
 
-        return pluginService.processPlugin(plugins, serviceInfo);
+        return pluginService.processPlugin(plugins, new ServiceInfo());
     }
 
     private HasMetadata adjust(HasMetadata rawVs) {

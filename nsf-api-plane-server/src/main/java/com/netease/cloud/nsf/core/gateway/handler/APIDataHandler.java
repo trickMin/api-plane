@@ -41,7 +41,6 @@ public abstract class APIDataHandler implements DataHandler<API> {
                 .put(API_NAME, api.getName())
                 .put(API_IDENTITY_NAME, apiName)
                 .put(API_LOADBALANCER, api.getLoadBalancer())
-                .put(API_GATEWAYS, api.getGateways())
                 .put(API_REQUEST_URIS, uriMatchMeta.getUri())
                 .put(VIRTUAL_SERVICE_URL_MATCH, uriMatchMeta.getUriMatch())
                 .put(API_MATCH_PLUGINS, api.getPlugins())

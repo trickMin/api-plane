@@ -31,9 +31,9 @@
       "categoryName": "流量管理"
     },
     {
-      "name": "ianus-router",
+      "name": "hango-router",
       "displayName": "请求中断",
-      "schema": "plugin/portal/ianus-router.json",
+      "schema": "plugin/portal/hango-router.json",
       "description": "请求中断插件",
       "processor": "RouteProcessor",
       "author": "system",

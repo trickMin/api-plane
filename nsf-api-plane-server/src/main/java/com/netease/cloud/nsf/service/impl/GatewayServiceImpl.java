@@ -1,17 +1,11 @@
 package com.netease.cloud.nsf.service.impl;
 
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Table;
-import com.google.common.collect.Tables;
-import com.google.protobuf.MessageLite;
 import com.netease.cloud.nsf.core.GlobalConfig;
 import com.netease.cloud.nsf.core.gateway.service.GatewayConfigManager;
 import com.netease.cloud.nsf.core.gateway.service.ResourceManager;
 import com.netease.cloud.nsf.meta.*;
 import com.netease.cloud.nsf.meta.dto.*;
 import com.netease.cloud.nsf.service.GatewayService;
-import com.netease.cloud.nsf.util.CommonUtil;
 import com.netease.cloud.nsf.util.Const;
 import com.netease.cloud.nsf.util.TelnetUtil;
 import com.netease.cloud.nsf.util.Trans;
@@ -25,18 +19,15 @@ import me.snowdrop.istio.api.networking.v1alpha3.GatewaySpec;
 import me.snowdrop.istio.api.networking.v1alpha3.Plugin;
 import me.snowdrop.istio.api.networking.v1alpha3.PluginManager;
 import me.snowdrop.istio.api.networking.v1alpha3.Server;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.commons.net.telnet.TelnetClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -88,6 +79,26 @@ public class GatewayServiceImpl implements GatewayService {
     @Override
     public void updateAPI(PortalAPIDTO api) {
         configManager.updateConfig(Trans.portalAPI2API(api));
+    }
+
+    /**
+     * 调用发布插件接口，做DTO->POJO转换
+     *
+     * @param plugin 路由插件DTO对象
+     */
+    @Override
+    public void updateGatewayPlugin(GatewayPluginDTO plugin) {
+        configManager.updateConfig(Trans.pluginDTOToPlugin(plugin));
+    }
+
+    /**
+     * 调用更新插件接口，做DTO->POJO转换（对于插件CRD而言，删除的本质还是在更新CRD配置）
+     *
+     * @param plugin 插件DTO对象
+     */
+    @Override
+    public void deleteGatewayPlugin(GatewayPluginDTO plugin) {
+        configManager.updateConfig(Trans.pluginDTOToPlugin(plugin));
     }
 
     @Override
@@ -269,17 +280,6 @@ public class GatewayServiceImpl implements GatewayService {
     @Override
     public List<Gateway> getGatewayList() {
         return resourceManager.getGatewayList();
-    }
-
-    @Override
-    public void updateGlobalPlugins(GlobalPluginDTO globalPluginDTO) {
-        configManager.updateConfig(Trans.globalPluginsDTO2GlobalPlugins(globalPluginDTO));
-
-    }
-
-    @Override
-    public void deleteGlobalPlugins(GlobalPluginsDeleteDTO globalPluginsDeleteDTO) {
-        configManager.deleteConfig(Trans.globalPluginsDeleteDTO2GlobalPlugins(globalPluginsDeleteDTO));
     }
 
     @Override
