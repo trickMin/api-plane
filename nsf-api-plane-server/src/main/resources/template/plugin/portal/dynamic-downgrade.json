@@ -164,18 +164,9 @@
           "type": "layouts",
           "layouts": [
             {
-              "key": "responseSwitch",
-              "alias": "响应匹配",
-              "type": "switch",
-              "default": true
-            },
-            {
               "key": "code",
               "alias": "响应状态码",
               "type": "layouts",
-              "visible": {
-                "this.responseSwitch": true
-              },
               "layouts": [
                 {
                   "key": "match_type",
@@ -186,10 +177,6 @@
                     {
                       "text": "精确匹配",
                       "value": "exact_match"
-                    },
-                    {
-                      "text": "正则表达式",
-                      "value": "safe_regex_match"
                     }
                   ]
                 },
