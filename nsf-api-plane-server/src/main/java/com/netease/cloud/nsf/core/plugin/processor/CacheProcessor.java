@@ -108,8 +108,10 @@ public class CacheProcessor extends AbstractSchemaProcessor implements SchemaPro
 
         // redis http cache ttl
         Integer redisDefaultTtl = source.getValue("$.ttl.redis.default", Integer.class);
+        // local http cache ttl
+        Integer localDefaultTtl = source.getValue("$.ttl.local.default", Integer.class);
         if (nonNull(redisDefaultTtl) && redisDefaultTtl != 0) {
-            builder.createOrUpdateJson("$", "cache_ttls.RedisHttpCache", "{}");
+            builder.createOrUpdateJson("$", "cache_ttls", "{\"RedisHttpCache\":{}}");
             builder.createOrUpdateValue("$.cache_ttls.RedisHttpCache", "default", redisDefaultTtl);
         }
         if (source.contain("$.ttl.redis.custom")) {
@@ -122,10 +124,13 @@ public class CacheProcessor extends AbstractSchemaProcessor implements SchemaPro
                 builder.createOrUpdateValue("$.cache_ttls.RedisHttpCache.customs", code, Integer.parseInt(value));
             });
         }
-        // local http cache ttl
-        Integer localDefaultTtl = source.getValue("$.ttl.local.default", Integer.class);
+
         if (nonNull(localDefaultTtl) && localDefaultTtl != 0) {
-            builder.createOrUpdateJson("$", "cache_ttls.LocalHttpCache", "{}");
+            if (nonNull(redisDefaultTtl) || redisDefaultTtl !=0 ) {
+                builder.createOrUpdateJson("$.cache_ttls", "LocalHttpCache" ,"{}");
+            }else {
+                builder.createOrUpdateJson("$", "cache_ttls", "{\"LocalHttpCache\":{}}");
+            }
             builder.createOrUpdateValue("$.cache_ttls.LocalHttpCache", "default", localDefaultTtl);
         }
         if (source.contain("$.ttl.local.custom")) {
