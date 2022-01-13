@@ -9,19 +9,14 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import com.google.common.collect.ImmutableList;
 import com.hubspot.jackson.datatype.protobuf.ProtobufModule;
-import com.netease.cloud.nsf.cache.K8sResourceCache;
-import com.netease.cloud.nsf.cache.ResourceCache;
-import com.netease.cloud.nsf.configuration.ext.ApiPlaneConfig;
 import com.netease.cloud.nsf.configuration.ext.MeshConfig;
 import com.netease.cloud.nsf.util.freemarker.AutoRemoveDirective;
 import com.netease.cloud.nsf.util.freemarker.IgnoreDirective;
 import com.netease.cloud.nsf.util.freemarker.IndentationDirective;
 import com.netease.cloud.nsf.util.freemarker.SupplyDirective;
 import com.netease.cloud.nsf.util.interceptor.RestTemplateLogInterceptor;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -106,17 +101,5 @@ public class ApiPlaneAutoBaseConfiguration {
     @Bean
     MeshConfig meshConfig(){
         return new MeshConfig();
-    }
-
-    @Bean
-    @ConditionalOnMissingBean(K8sResourceCache.class)
-    ResourceCache k8sResourceCache() {
-        return Mockito.mock(ResourceCache.class);
-    }
-
-    @Bean
-    @ConditionalOnMissingBean(ApiPlaneConfig.class)
-    ApiPlaneConfig apiPlaneConfig() {
-        return Mockito.mock(ApiPlaneConfig.class);
     }
 }
