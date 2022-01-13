@@ -19,32 +19,6 @@ import java.util.stream.Collectors;
  **/
 public class Trans {
 
-
-    public static API yxAPI2API(YxAPIDTO yxApi) {
-        API api = new API();
-
-        if (!CollectionUtils.isEmpty(yxApi.getGateways())) {
-            api.setGateways(yxApi.getGateways().stream()
-                        .map(g -> g.toLowerCase())
-                        .collect(Collectors.toList()));
-        }
-        ApiOption option = yxApi.getOption();
-        api.setUriMatch(UriMatch.get(yxApi.getUriMatch()));
-        api.setRetries(option.getRetries());
-        api.setPreserveHost(option.getPreserveHost());
-        api.setHosts(yxApi.getHosts());
-        api.setMethods(yxApi.getMethods());
-        api.setName(yxApi.getName());
-        api.setPlugins(yxApi.getPlugins());
-        api.setProxyUris(yxApi.getProxyUris());
-        api.setRequestUris(yxApi.getRequestUris());
-        api.setService(yxApi.getService());
-        api.setHeaders(pairsDTO2Pairs(yxApi.getHeaders()));
-        api.setQueryParams(pairsDTO2Pairs(yxApi.getQueryParams()));
-
-        return api;
-    }
-
     public static API portalAPI2API(PortalAPIDTO portalAPI) {
 
         API api = new API();

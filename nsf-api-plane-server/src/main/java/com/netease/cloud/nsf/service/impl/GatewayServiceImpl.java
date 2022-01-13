@@ -67,16 +67,6 @@ public class GatewayServiceImpl implements GatewayService {
     }
 
     @Override
-    public void updateAPI(YxAPIDTO api) {
-        configManager.updateConfig(Trans.yxAPI2API(api));
-    }
-
-    @Override
-    public void deleteAPI(YxAPIDTO api) {
-        configManager.deleteConfig(Trans.yxAPI2API(api));
-    }
-
-    @Override
     public void updateAPI(PortalAPIDTO api) {
         configManager.updateConfig(Trans.portalAPI2API(api));
     }

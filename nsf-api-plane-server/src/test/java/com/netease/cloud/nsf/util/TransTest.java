@@ -15,36 +15,6 @@ import java.util.List;
 
 public class TransTest {
 
-
-    @Test
-    public void testYxAPI2API() {
-
-        List<String> gateways = ImmutableList.of("GW1", "gw2");
-        List<String> hosts = ImmutableList.of("h1", "h2");
-        List<String> methods = ImmutableList.of("GET", "POST");
-        String name = "api";
-        ApiOption option = new ApiOption();
-        List<String> plugins = ImmutableList.of("p1", "p2");
-        List<String> proxyUris = ImmutableList.of("backend1", "backend2");
-        List<String> requestUris = ImmutableList.of("/a", "/b");
-        String service = "service";
-        String uriMatch = "prefix";
-
-        YxAPIDTO dto = getYxAPIDTO(gateways, hosts, methods, name, option, plugins, proxyUris, requestUris, service, uriMatch);
-        API api = Trans.yxAPI2API(dto);
-
-        Assert.assertEquals(api.getService(), dto.getService());
-        Assert.assertEquals(api.getName(), dto.getName());
-        Assert.assertEquals(api.getPlugins(), dto.getPlugins());
-        Assert.assertEquals(api.getHosts(), dto.getHosts());
-        Assert.assertEquals(api.getProxyUris(), dto.getProxyUris());
-        Assert.assertEquals(api.getUriMatch().name().toLowerCase(), dto.getUriMatch());
-        Assert.assertEquals(api.getMethods(), dto.getMethods());
-        Assert.assertEquals(api.getRequestUris(), dto.getRequestUris());
-
-        Assert.assertNotEquals(api.getGateways(), dto.getGateways());
-    }
-
     @Test
     public void testPortalAPI2API() {
 
@@ -149,23 +119,6 @@ public class TransTest {
         return dto;
     }
 
-
-    private YxAPIDTO getYxAPIDTO(List<String> gateways, List<String> hosts, List<String> methods, String name,
-                                 ApiOption option, List<String> plugins, List<String> proxyUris, List<String> requestUris,
-                                 String service, String uriMatch) {
-        YxAPIDTO dto = new YxAPIDTO();
-        dto.setGateways(gateways);
-        dto.setHosts(hosts);
-        dto.setMethods(methods);
-        dto.setName(name);
-        dto.setOption(option);
-        dto.setPlugins(plugins);
-        dto.setProxyUris(proxyUris);
-        dto.setRequestUris(requestUris);
-        dto.setService(service);
-        dto.setUriMatch(uriMatch);
-        return dto;
-    }
 
     private PortalServiceDTO getPortalServiceDTO(String service, String code, String gateway, String type, int weight) {
         PortalServiceDTO dto = new PortalServiceDTO();
