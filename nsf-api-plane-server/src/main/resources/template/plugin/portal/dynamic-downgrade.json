@@ -26,7 +26,7 @@
           "layouts": [
             {
               "key": "requestSwitch",
-              "alias": "是否使用请求进行匹配",
+              "alias": "请求匹配",
               "type": "switch",
               "default": false
             },
@@ -164,18 +164,9 @@
           "type": "layouts",
           "layouts": [
             {
-              "key": "responseSwitch",
-              "alias": "是否使用响应进行匹配",
-              "type": "switch",
-              "default": true
-            },
-            {
               "key": "code",
               "alias": "响应状态码",
               "type": "layouts",
-              "visible": {
-                "this.responseSwitch": true
-              },
               "layouts": [
                 {
                   "key": "match_type",
@@ -186,10 +177,6 @@
                     {
                       "text": "精确匹配",
                       "value": "exact_match"
-                    },
-                    {
-                      "text": "正则表达式",
-                      "value": "safe_regex_match"
                     }
                   ]
                 },
@@ -408,7 +395,7 @@
             },
             {
               "key": "query_params",
-              "alias": "query string参数",
+              "alias": "query参数",
               "type": "multi_input"
             },
             {
@@ -442,7 +429,7 @@
           "layouts": [
             {
               "key": "requestSwitch",
-              "alias": "是否配置降级服务",
+              "alias": "自定义服务",
               "type": "switch",
               "default": false
             },
@@ -460,7 +447,7 @@
             },
             {
               "key": "timeout",
-              "alias": "接口降级超时时间",
+              "alias": "超时时间",
               "type": "input",
               "help": "单位s",
               "visible": {

@@ -1,6 +1,8 @@
 package com.netease.cloud.nsf.meta;
 
+import com.netease.cloud.nsf.util.constant.LogConstant;
 import com.netease.cloud.nsf.util.constant.PluginConstant;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
 import java.util.List;
@@ -79,7 +81,7 @@ public class GatewayPlugin {
      * @return 是否为路由级别插件（true: 路由级别；false: 非路由级别）
      */
     public boolean isRoutePlugin() {
-        return routeId != null && !routeId.isEmpty();
+        return StringUtils.isNotEmpty(routeId);
     }
 
     /**
@@ -88,7 +90,7 @@ public class GatewayPlugin {
      * @return 是否为全局插件（true: 全局级别；false: 非全局级别）
      */
     public boolean isGlobalPlugin() {
-        return code != null && !code.isEmpty();
+        return StringUtils.isNotEmpty(code);
     }
 
     /**
@@ -115,7 +117,8 @@ public class GatewayPlugin {
             return;
         }
         for (int i = 1; i <= plugins.size(); i++) {
-            logger.info("[gateway plugin] plugin config count: {}, plugin NO.{}: {}",
+            logger.info("{} plugin config count: {}, plugin NO.{}: {}",
+                    LogConstant.PLUGIN_LOG_NOTE,
                     plugins.size(),
                     i,
                     plugins.get(i - 1));

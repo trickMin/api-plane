@@ -22,6 +22,7 @@ import com.netease.cloud.nsf.core.template.TemplateTranslator;
 import com.netease.cloud.nsf.meta.*;
 import com.netease.cloud.nsf.service.PluginService;
 import com.netease.cloud.nsf.util.Const;
+import com.netease.cloud.nsf.util.constant.LogConstant;
 import com.netease.cloud.nsf.util.constant.PluginConstant;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import me.snowdrop.istio.api.networking.v1alpha3.HTTPRoute;
@@ -103,7 +104,7 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
      * @return K8s资源集合
      */
     public List<K8sResourcePack> translate(API api, boolean simple) {
-        logger.info("[translate CRDs][route API] start translate k8s resource");
+        logger.info("{}{} start translate k8s resource", LogConstant.TRANSLATE_LOG_NOTE, LogConstant.ROUTE_LOG_NOTE);
         List<K8sResourcePack> resourcePacks = new ArrayList<>();
         List<FragmentWrapper> vsFragments = new ArrayList<>();
 
@@ -118,11 +119,12 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
                         new PortalVirtualServiceAPIDataHandler(
                                 defaultModelProcessor, vsFragments, simple));
 
-        logger.info("[translate CRDs][route API] start to generate and add k8s resource");
+        logger.info("{}{} start to generate and add k8s resource",
+                LogConstant.TRANSLATE_LOG_NOTE, LogConstant.ROUTE_LOG_NOTE);
         resourcePacks.addAll(generateK8sPack(rawVirtualServices,
                 new GatewayVirtualServiceSubtracter(api.getName()),
                 r -> r, this::adjust));
-        logger.info("[translate CRDs][route API] raw virtual services added ok");
+        logger.info("{}{} raw virtual services added ok", LogConstant.TRANSLATE_LOG_NOTE, LogConstant.ROUTE_LOG_NOTE);
 
         return resourcePacks;
     }
@@ -134,7 +136,7 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
      * @return k8s资源集合
      */
     public List<K8sResourcePack> translate(GatewayPlugin plugin) {
-        logger.info("[translate CRDs][gateway plugin] start translate k8s resource");
+        logger.info("{}{} start translate k8s resource", LogConstant.TRANSLATE_LOG_NOTE, LogConstant.PLUGIN_LOG_NOTE);
 
         // 打印插件配置信息
         plugin.showPluginConfigsInLog(logger);
@@ -142,7 +144,8 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
         RawResourceContainer rawResourceContainer = new RawResourceContainer();
         rawResourceContainer.add(renderPlugins(plugin.getPlugins()));
 
-        logger.info("[translate CRDs][gateway plugin] render plugins ok, start to generate and add k8s resource");
+        logger.info("{}{} render plugins ok, start to generate and add k8s resource",
+                LogConstant.TRANSLATE_LOG_NOTE, LogConstant.PLUGIN_LOG_NOTE);
         return generateAndAddK8sResource(rawResourceContainer, plugin);
     }
 
@@ -156,12 +159,14 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
     private List<K8sResourcePack> generateAndAddK8sResource(RawResourceContainer rawResourceContainer,
                                                             GatewayPlugin plugin) {
         // 插件渲染GatewayPlugin资源
-        logger.info("[translate CRDs][gateway plugin] start render raw GatewayPlugin CRDs");
+        logger.info("{}{} start render raw GatewayPlugin CRDs",
+                LogConstant.TRANSLATE_LOG_NOTE, LogConstant.PLUGIN_LOG_NOTE);
         List<K8sResourcePack> resourcePacks = configureGatewayPlugin(rawResourceContainer, plugin);
 
         // 路由级别的限流插件要渲染ConfigMap资源
         if (isNeedToRenderConfigMap(plugin)) {
-            logger.info("[translate CRDs][gateway plugin] start render raw ConfigMap CRDs");
+            logger.info("{}{} start render raw ConfigMap CRDs",
+                    LogConstant.TRANSLATE_LOG_NOTE, LogConstant.PLUGIN_LOG_NOTE);
             configureRateLimitConfigMap(rawResourceContainer, resourcePacks, plugin);
         }
 
@@ -205,7 +210,8 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
                 null,
                 new GatewayPluginNormalSubtracter(),
                 new DynamicResourceGenerator(dynamicGatewayPluginSupplier)));
-        logger.info("[translate CRDs][gateway plugin] raw GatewayPlugin CRDs added ok");
+        logger.info("{}{} raw GatewayPlugin CRDs added ok",
+                LogConstant.TRANSLATE_LOG_NOTE, LogConstant.PLUGIN_LOG_NOTE);
 
         return resourcePacks;
     }
@@ -229,7 +235,7 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
                 new GatewayRateLimitConfigMapMerger(),
                 new GatewayRateLimitConfigMapSubtracter(String.join("|", plugin.getGateways()), plugin.getRouteId()),
                 new EmptyResourceGenerator(new EmptyConfigMap(rateLimitConfigMapName, rateLimitNamespace))));
-        logger.info("[translate CRDs][gateway plugin] raw ConfigMap CRDs added ok");
+        logger.info("{}{} raw ConfigMap CRDs added ok", LogConstant.TRANSLATE_LOG_NOTE, LogConstant.PLUGIN_LOG_NOTE);
     }
 
     public List<K8sResourcePack> translate(Service service) {

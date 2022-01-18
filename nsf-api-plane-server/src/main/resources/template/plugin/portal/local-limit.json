@@ -6,7 +6,7 @@
   "layouts": [
     {
       "key": "IsSafe",
-      "alias": "是否线程独立",
+      "alias": "线程独立",
       "type": "switch",
       "help": "默认使用锁机制保证安全；如果打开该字段，代表线程独立。限流规则上限为rate*proxy worker"
     },
@@ -17,12 +17,12 @@
       "layouts": [
         {
           "key": "headers",
-          "alias": "请求Header匹配",
+          "alias": "请求头匹配",
           "type": "array",
           "layouts": [
             {
               "key": "headerKey",
-              "alias": "请求Header名",
+              "alias": "请求头名称",
               "type": "input"
             },
             {
