@@ -91,26 +91,6 @@ public class GatewayServiceImpl implements GatewayService {
         configManager.updateConfig(Trans.pluginDTOToPlugin(plugin));
     }
 
-    /**
-     * 调用发布插件接口，做DTO->POJO转换
-     *
-     * @param plugin 路由插件DTO对象
-     */
-    @Override
-    public void updateGatewayPlugin(GatewayPluginDTO plugin) {
-        configManager.updateConfig(Trans.pluginDTOToPlugin(plugin));
-    }
-
-    /**
-     * 调用更新插件接口，做DTO->POJO转换（对于插件CRD而言，删除的本质还是在更新CRD配置）
-     *
-     * @param plugin 插件DTO对象
-     */
-    @Override
-    public void deleteGatewayPlugin(GatewayPluginDTO plugin) {
-        configManager.updateConfig(Trans.pluginDTOToPlugin(plugin));
-    }
-
     @Override
     public void deleteAPI(PortalAPIDeleteDTO api) {
         configManager.deleteConfig(Trans.portalDeleteAPI2API(api));
