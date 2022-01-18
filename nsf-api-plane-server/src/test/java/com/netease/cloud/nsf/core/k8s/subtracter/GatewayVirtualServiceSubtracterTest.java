@@ -36,7 +36,7 @@ public class GatewayVirtualServiceSubtracterTest {
 
     private static HTTPRoute getHTTPRoute(String api, List<HTTPMatchRequest> requests) {
         HTTPRoute route = new HTTPRoute();
-        route.setApi(api);
+        route.setName(api);
         route.setMatch(requests);
         return route;
     }

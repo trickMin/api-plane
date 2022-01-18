@@ -125,10 +125,7 @@ public class GatewayConfigManagerImplTest extends BaseTest {
 
     @Test
     public void testUpdateGlobalPlugin() {
-
-        List<String> gatewayList = new ArrayList<>();
-        gatewayList.add("demo");
-        GatewayPlugin gp1 = buildGatewayPlugin(gatewayList, Arrays.asList("a", "b"), Arrays.asList("{\"kind\":\"jsonp\",\"callback\":\"ddd\"}"), "ok");
+        GatewayPlugin gp1 = buildGatewayPlugin("demo", Arrays.asList("a", "b"), Arrays.asList("{\"kind\":\"jsonp\",\"callback\":\"ddd\"}"), "ok");
         mockConfigManager.updateConfig(gp1);
         Assert.assertEquals(1, mockK8sConfigStore.size());
         gp1.setPlugins(new ArrayList<>());
@@ -199,9 +196,9 @@ public class GatewayConfigManagerImplTest extends BaseTest {
         return gateway;
     }
 
-    private GatewayPlugin buildGatewayPlugin(List<String> gateway, List<String> hosts, List<String> plugins, String code) {
+    private GatewayPlugin buildGatewayPlugin(String gateway, List<String> hosts, List<String> plugins, String code) {
         GatewayPlugin gp = new GatewayPlugin();
-        gp.setGateways(gateway);
+        gp.setGateway(gateway);
         gp.setHosts(hosts);
         gp.setPlugins(plugins);
         gp.setCode(code);

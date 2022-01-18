@@ -1,6 +1,5 @@
 package com.netease.cloud.nsf.meta;
 
-import com.netease.cloud.nsf.util.constant.PluginConstant;
 import org.slf4j.Logger;
 
 import java.util.List;
@@ -21,7 +20,7 @@ public class GatewayPlugin {
 
     private List<String> hosts;
 
-    private List<String> gateways;
+    private String gateway;
 
     private String code;
 
@@ -49,12 +48,12 @@ public class GatewayPlugin {
         this.routeId = routeId;
     }
 
-    public List<String> getGateways() {
-        return gateways;
+    public void setGateway(String gateway) {
+        this.gateway = gateway;
     }
 
-    public void setGateways(List<String> gateways) {
-        this.gateways = gateways;
+    public String getGateway() {
+        return gateway;
     }
 
     public String getCode() {
@@ -89,20 +88,6 @@ public class GatewayPlugin {
      */
     public boolean isGlobalPlugin() {
         return code != null && !code.isEmpty();
-    }
-
-    /**
-     * 当前轻舟平台插件作用域仅单网关
-     * 网关的数据格式写成集合是因为要迎合CRD中的格式便于日后扩展
-     *
-     * @return 网关名称
-     */
-    public String getGateway() {
-        if (gateways != null && gateways.size() > 0) {
-            return getGateways().get(0);
-        } else {
-            return PluginConstant.DEFAULT_GATEWAY_NAME;
-        }
     }
 
     /**

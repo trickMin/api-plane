@@ -21,7 +21,7 @@ public class GatewayVirtualServiceSubtracter implements Subtracter<VirtualServic
     @Override
     public VirtualService subtract(VirtualService old) {
         List<HTTPRoute> latestHttp = old.getSpec().getHttp().stream()
-                .filter(h -> !h.getApi().equals(key))
+                .filter(h -> !h.getName().equals(key))
                 .collect(Collectors.toList());
 
         old.getSpec().setHttp(latestHttp);

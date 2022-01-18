@@ -43,7 +43,7 @@ public class VirtualServiceOperator implements k8sResourceOperator<VirtualServic
     private class HttpRouteEquals implements Equals<HTTPRoute> {
         @Override
         public boolean apply(HTTPRoute ot, HTTPRoute nt) {
-            return Objects.equals(ot.getApi(), nt.getApi());
+            return Objects.equals(ot.getName(), nt.getName());
         }
     }
 
@@ -65,7 +65,7 @@ public class VirtualServiceOperator implements k8sResourceOperator<VirtualServic
 
         //根据api name删除httpRoute
         List<HTTPRoute> latestHttp = old.getSpec().getHttp().stream()
-                .filter(h -> !h.getApi().equals(value))
+                .filter(h -> !h.getName().equals(value))
                 .collect(Collectors.toList());
 
         old.getSpec().setHttp(latestHttp);

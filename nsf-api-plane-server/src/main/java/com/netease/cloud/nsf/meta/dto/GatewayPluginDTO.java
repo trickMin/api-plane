@@ -26,9 +26,9 @@ public class GatewayPluginDTO {
     @JsonProperty(value = "Hosts")
     private List<String> hosts;
 
-    @NotEmpty(message = "Gateways")
-    @JsonProperty(value = "Gateways")
-    private List<String> gateways;
+    @NotEmpty(message = "Gateway")
+    @JsonProperty(value = "Gateway")
+    private String gateway;
 
     @JsonProperty(value = "Code")
     private String code;
@@ -57,12 +57,12 @@ public class GatewayPluginDTO {
         this.routeId = routeId;
     }
 
-    public List<String> getGateways() {
-        return gateways;
+    public String getGateway() {
+        return gateway;
     }
 
-    public void setGateways(List<String> gateways) {
-        this.gateways = gateways;
+    public void setGateway(String gateway) {
+        this.gateway = gateway;
     }
 
     public String getCode() {

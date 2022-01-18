@@ -301,7 +301,7 @@ public class IstioModelEngineTest extends BaseTest {
                 "          regex: rewrite\n" +
                 "      uri:\n" +
                 "        regex: (?:.*.*)\n" +
-                "    api: plane-istio-test\n" +
+                "    name: plane-istio-test\n" +
                 "    requestTransform:\n" +
                 "      new:\n" +
                 "        path: /{{backendUrl}}\n" +
@@ -324,7 +324,7 @@ public class IstioModelEngineTest extends BaseTest {
                 "        regex: GET|POST\n" +
                 "      uri:\n" +
                 "        regex: (?:.*.*)\n" +
-                "    api: plane-istio-test\n" +
+                "    name: plane-istio-test\n" +
                 "    redirect:\n" +
                 "      uri: /redirect\n" +
                 "  - match:\n" +
@@ -335,7 +335,7 @@ public class IstioModelEngineTest extends BaseTest {
                 "        regex: GET|POST\n" +
                 "      uri:\n" +
                 "        regex: (?:.*.*)\n" +
-                "    api: plane-istio-test\n" +
+                "    name: plane-istio-test\n" +
                 "    return:\n" +
                 "      body:\n" +
                 "        inlineString: '{is return plugin}'\n" +
@@ -352,7 +352,7 @@ public class IstioModelEngineTest extends BaseTest {
                 "        regex: GET|POST\n" +
                 "      uri:\n" +
                 "        regex: (?:.*.*)\n" +
-                "    api: plane-istio-test\n" +
+                "    name: plane-istio-test\n" +
                 "    route:\n" +
                 "    - destination:\n" +
                 "        host: productpage.default.svc.cluster.local\n" +
@@ -371,7 +371,7 @@ public class IstioModelEngineTest extends BaseTest {
                 "        regex: GET|POST\n" +
                 "      uri:\n" +
                 "        regex: .*\n" +
-                "    api: plane-istio-test-1\n" +
+                "    name: plane-istio-test-1\n" +
                 "    route:\n" +
                 "    - destination:\n" +
                 "        host: productpage.default.svc.cluster.local\n" +
@@ -400,11 +400,8 @@ public class IstioModelEngineTest extends BaseTest {
 
     @Test
     public void testTranslateGlobalPlugin() {
-
-        List<String> gatewayList = new ArrayList<>();
-        gatewayList.add("gw1");
         GatewayPlugin gp1 = getGatewayPlugin("code1", Collections.EMPTY_LIST,
-                gatewayList, Arrays.asList("host1", "host2"));
+                "gw1", Arrays.asList("host1", "host2"));
 
         List<K8sResourcePack> resources = gatewayIstioModelEngine.translate(gp1);
 
@@ -421,12 +418,12 @@ public class IstioModelEngineTest extends BaseTest {
     }
 
 
-    private GatewayPlugin getGatewayPlugin(String code, List<String> plugins, List<String> gateway, List<String> hosts) {
+    private GatewayPlugin getGatewayPlugin(String code, List<String> plugins, String gateway, List<String> hosts) {
 
         GatewayPlugin gp = new GatewayPlugin();
         gp.setCode(code);
         gp.setPlugins(plugins);
-        gp.setGateways(gateway);
+        gp.setGateway(gateway);
         gp.setHosts(hosts);
         return gp;
     }

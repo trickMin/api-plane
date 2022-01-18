@@ -58,12 +58,12 @@ public class VirtualServiceOperatorTest {
         int cCount = 0;
 
         for (HTTPRoute httpRoute : merge.getSpec().getHttp()) {
-            if (httpRoute.getApi().equals("a")) {
+            if (httpRoute.getName().equals("a")) {
                 aCount++;
                 assertTrue(httpRoute.getMatch().size() == 2);
-            } else if (httpRoute.getApi().equals("b")) {
+            } else if (httpRoute.getName().equals("b")) {
                 assertTrue(httpRoute.getMatch() == null || httpRoute.getMatch().size() == 0);
-            } else if (httpRoute.getApi().equals("c")) {
+            } else if (httpRoute.getName().equals("c")) {
                 cCount++;
             }
         }
@@ -100,7 +100,7 @@ public class VirtualServiceOperatorTest {
 
     private static HTTPRoute getHTTPRoute(String api, List<HTTPMatchRequest> requests) {
         HTTPRoute route = new HTTPRoute();
-        route.setApi(api);
+        route.setName(api);
         route.setMatch(requests);
         return route;
     }

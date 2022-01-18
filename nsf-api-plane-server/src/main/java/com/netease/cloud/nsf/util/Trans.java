@@ -315,7 +315,7 @@ public class Trans {
         GatewayPlugin gatewayPlugin = new GatewayPlugin();
         gatewayPlugin.setPlugins(dto.getPlugins());
         gatewayPlugin.setRouteId(dto.getRouteId());
-        gatewayPlugin.setGateways(dto.getGateways());
+        gatewayPlugin.setGateway(dto.getGateway());
         gatewayPlugin.setHosts(dto.getHosts());
         gatewayPlugin.setCode(dto.getCode());
         gatewayPlugin.setPluginType(dto.getPluginType());

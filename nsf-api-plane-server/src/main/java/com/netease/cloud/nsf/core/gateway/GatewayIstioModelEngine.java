@@ -199,7 +199,7 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
 
         // 当插件传入为空时，生成空的GatewayPlugin，删除时使用
         DynamicGatewayPluginSupplier dynamicGatewayPluginSupplier =
-                new DynamicGatewayPluginSupplier(plugin.getGateways(), plugin.getRouteId(), "%s-%s");
+                new DynamicGatewayPluginSupplier(plugin.getGateway(), plugin.getRouteId(), "%s-%s");
 
         resourcePacks.addAll(generateK8sPack(rawGatewayPlugins,
                 null,
@@ -227,7 +227,7 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
         // 加入限流插件configMap配置
         resourcePacks.addAll(generateK8sPack(rawConfigMaps,
                 new GatewayRateLimitConfigMapMerger(),
-                new GatewayRateLimitConfigMapSubtracter(String.join("|", plugin.getGateways()), plugin.getRouteId()),
+                new GatewayRateLimitConfigMapSubtracter(plugin.getGateway(), plugin.getRouteId()),
                 new EmptyResourceGenerator(new EmptyConfigMap(rateLimitConfigMapName, rateLimitNamespace))));
         logger.info("[translate CRDs][gateway plugin] raw ConfigMap CRDs added ok");
     }
