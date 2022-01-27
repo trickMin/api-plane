@@ -141,6 +141,9 @@ public class PortalAPIDTO {
     @JsonProperty(value = "MirrorTraffic")
     private PortalMirrorTrafficDto mirrorTrafficDto;
 
+    @JsonProperty(value = "StatsMeta")
+    private List<String> statsMeta;
+
     public PortalMirrorTrafficDto getMirrorTrafficDto() {
         return mirrorTrafficDto;
     }
@@ -307,5 +310,13 @@ public class PortalAPIDTO {
 
     public void setVirtualClusterDTO(VirtualClusterDTO virtualClusterDTO) {
         this.virtualClusterDTO = virtualClusterDTO;
+    }
+
+    public List<String> getStatsMeta() {
+        return statsMeta;
+    }
+
+    public void setStatsMeta(final List<String> statsMeta) {
+        this.statsMeta = statsMeta;
     }
 }

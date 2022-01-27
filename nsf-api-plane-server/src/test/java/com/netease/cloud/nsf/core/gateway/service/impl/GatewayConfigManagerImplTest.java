@@ -156,6 +156,7 @@ public class GatewayConfigManagerImplTest extends BaseTest {
         api.setProxyServices(proxyServices);
         api.setProxyUris(proxyUris);
         api.setUriMatch(uriMatch);
+        api.setApiId(8888L);
         return api;
     }
 

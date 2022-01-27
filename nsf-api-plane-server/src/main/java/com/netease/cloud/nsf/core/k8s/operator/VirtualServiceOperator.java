@@ -1,11 +1,11 @@
 package com.netease.cloud.nsf.core.k8s.operator;
 
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
+import com.netease.cloud.nsf.proto.k8s.K8sTypes;
 import com.netease.cloud.nsf.util.function.Equals;
-import me.snowdrop.istio.api.networking.v1alpha3.HTTPRoute;
-import me.snowdrop.istio.api.networking.v1alpha3.VirtualService;
+import istio.networking.v1alpha3.VirtualServiceOuterClass;
+import istio.networking.v1alpha3.VirtualServiceOuterClass.VirtualService;
 import me.snowdrop.istio.api.networking.v1alpha3.VirtualServiceBuilder;
-import me.snowdrop.istio.api.networking.v1alpha3.VirtualServiceSpec;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -18,31 +18,37 @@ import java.util.stream.Collectors;
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/7/30
  **/
 @Component
-public class VirtualServiceOperator implements k8sResourceOperator<VirtualService> {
+public class VirtualServiceOperator implements k8sResourceOperator<K8sTypes.VirtualService> {
 
     @Override
-    public VirtualService merge(VirtualService old, VirtualService fresh) {
+    public K8sTypes.VirtualService merge(K8sTypes.VirtualService old, K8sTypes.VirtualService fresh) {
 
-        VirtualServiceSpec oldSpec = old.getSpec();
-        VirtualServiceSpec freshSpec = fresh.getSpec();
+        VirtualService oldSpec = old.getSpec();
+        VirtualService freshSpec = fresh.getSpec();
 
-        VirtualService latest = new VirtualServiceBuilder(old).build();
+        /**
+         * 深拷贝，后续改造构造函数，是在clone方法。nsf-proto
+         */
+        K8sTypes.VirtualService latest = new K8sTypes.VirtualService();
+        latest.setKind(old.getKind());
+        latest.setApiVersion(old.getApiVersion());
+        latest.setMetadata(old.getMetadata());
+        latest.setSpec(oldSpec);
 
-        List<HTTPRoute> latestHttp = mergeList(oldSpec.getHttp(), freshSpec.getHttp(), new HttpRouteEquals());
-        latest.getSpec().setHttp(latestHttp);
+        List<VirtualServiceOuterClass.HTTPRoute> latestHttp = mergeList(oldSpec.getHttpList(), freshSpec.getHttpList(), new HttpRouteEquals());
 
-        latest.getSpec().setHosts(fresh.getSpec().getHosts());
-
-        latest.getSpec().setPriority(fresh.getSpec().getPriority());
-
-        //VirtualCluster 合并
-        latest.getSpec().setVirtualCluster(fresh.getSpec().getVirtualCluster());
+        latest.setSpec(VirtualService.newBuilder()
+                .addAllHttp(latestHttp)
+                .addAllVirtualCluster(freshSpec.getVirtualClusterList())
+                .addAllHosts(freshSpec.getHostsList())
+                .addAllGateways(freshSpec.getGatewaysList())
+                .setPriority(freshSpec.getPriority()).build());
         return latest;
     }
 
-    private class HttpRouteEquals implements Equals<HTTPRoute> {
+    private class HttpRouteEquals implements Equals<VirtualServiceOuterClass.HTTPRoute> {
         @Override
-        public boolean apply(HTTPRoute ot, HTTPRoute nt) {
+        public boolean apply(VirtualServiceOuterClass.HTTPRoute ot, VirtualServiceOuterClass.HTTPRoute nt) {
             return Objects.equals(ot.getName(), nt.getName());
         }
     }
@@ -53,22 +59,23 @@ public class VirtualServiceOperator implements k8sResourceOperator<VirtualServic
     }
 
     @Override
-    public boolean isUseless(VirtualService virtualService) {
+    public boolean isUseless(K8sTypes.VirtualService virtualService) {
         return virtualService == null ||
                 StringUtils.isEmpty(virtualService.getApiVersion()) ||
-                 virtualService.getSpec() == null ||
-                  CollectionUtils.isEmpty(virtualService.getSpec().getHttp());
+                virtualService.getSpec() == null ||
+                CollectionUtils.isEmpty(virtualService.getSpec().getHttpList());
     }
 
     @Override
-    public VirtualService subtract(VirtualService old, String value) {
+    public K8sTypes.VirtualService subtract(K8sTypes.VirtualService old, String value) {
 
-        //根据api name删除httpRoute
-        List<HTTPRoute> latestHttp = old.getSpec().getHttp().stream()
+        //根据name删除httpRoute
+        List<VirtualServiceOuterClass.HTTPRoute> latestHttp = old.getSpec().getHttpList().stream()
                 .filter(h -> !h.getName().equals(value))
                 .collect(Collectors.toList());
 
-        old.getSpec().setHttp(latestHttp);
+        VirtualService build = old.getSpec().toBuilder().clearHttp().build();
+        old.setSpec(build.toBuilder().addAllHttp(latestHttp).build());
         return old;
     }
 }

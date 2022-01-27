@@ -27,7 +27,6 @@ public class SupplyDirective implements TemplateDirectiveModel {
         META("meta:", indent(wrap(TemplateConst.VIRTUAL_SERVICE_META_YAML))),
         PRIORITY("priority:", indent(wrap(TemplateConst.VIRTUAL_SERVICE_MATCH_PRIORITY_YAML))),
         MIRROR("mirror:", indent(wrap(TemplateConst.VIRTUAL_SERVICE_MIRROR_YAML))),
-
         ;
 
         String name;

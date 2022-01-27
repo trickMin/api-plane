@@ -1,8 +1,8 @@
 package com.netease.cloud.nsf.core.k8s.subtracter;
 
+import com.netease.cloud.nsf.proto.k8s.K8sTypes;
 import com.netease.cloud.nsf.util.function.Subtracter;
-import me.snowdrop.istio.api.networking.v1alpha3.HTTPRoute;
-import me.snowdrop.istio.api.networking.v1alpha3.VirtualService;
+import istio.networking.v1alpha3.VirtualServiceOuterClass;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2020/4/17
  **/
-public class GatewayVirtualServiceSubtracter implements Subtracter<VirtualService> {
+public class GatewayVirtualServiceSubtracter implements Subtracter<K8sTypes.VirtualService> {
 
     private String key;
 
@@ -19,12 +19,13 @@ public class GatewayVirtualServiceSubtracter implements Subtracter<VirtualServic
     }
 
     @Override
-    public VirtualService subtract(VirtualService old) {
-        List<HTTPRoute> latestHttp = old.getSpec().getHttp().stream()
+    public K8sTypes.VirtualService subtract(K8sTypes.VirtualService old) {
+        List<VirtualServiceOuterClass.HTTPRoute> latestHttp = old.getSpec().getHttpList().stream()
                 .filter(h -> !h.getName().equals(key))
                 .collect(Collectors.toList());
 
-        old.getSpec().setHttp(latestHttp);
+        VirtualServiceOuterClass.VirtualService build = old.getSpec().toBuilder().clearHttp().build();
+        old.setSpec(build.toBuilder().addAllHttp(latestHttp).build());
         return old;
     }
 }
