@@ -181,6 +181,36 @@
       "categoryName": "流量管理"
     },
     {
+      "name": "local-cache",
+      "displayName": "缓存",
+      "schema": "plugin/portal/local-cache.json",
+      "description": "",
+      "processor": "AggregateGatewayPluginProcessor",
+      "author": "system",
+      "createTime": "1572537600000",
+      "updateTime": "1572537600000",
+      "pluginScope": "routeRule,global",
+      "pluginPriority": "3000",
+      "instructionForUse": "本地缓存后端应答，以缓存响应请求",
+      "categoryKey": "trafficPolicy",
+      "categoryName": "流量管理"
+    },
+    {
+      "name": "redis-cache",
+      "displayName": "缓存",
+      "schema": "plugin/portal/redis-cache.json",
+      "description": "",
+      "processor": "AggregateGatewayPluginProcessor",
+      "author": "system",
+      "createTime": "1572537600000",
+      "updateTime": "1572537600000",
+      "pluginScope": "routeRule,global",
+      "pluginPriority": "3000",
+      "instructionForUse": "redis缓存后端应答，以缓存响应请求",
+      "categoryKey": "trafficPolicy",
+      "categoryName": "流量管理"
+    },
+    {
       "name": "transformer",
       "displayName": "请求转换",
       "schema": "plugin/portal/request-transformer-new.json",
