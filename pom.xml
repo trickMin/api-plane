@@ -18,7 +18,6 @@
     </properties>
     <modules>
         <module>nsf-api-plane-server</module>
-        <module>nsf-api-plane-daemon</module>
         <module>nsf-proto</module>
     </modules>
 

@@ -11,10 +11,6 @@ import java.util.List;
  **/
 public interface GatewayService {
 
-    void updateAPI(YxAPIDTO api);
-
-    void deleteAPI(YxAPIDTO api);
-
     void updateAPI(PortalAPIDTO portalAPI);
 
     void deleteAPI(PortalAPIDeleteDTO portalAPI);

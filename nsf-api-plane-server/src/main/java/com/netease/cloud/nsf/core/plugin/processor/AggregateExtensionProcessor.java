@@ -110,6 +110,14 @@ public class AggregateExtensionProcessor extends AbstractSchemaProcessor impleme
                 holder = getProcessor("Cache").process(plugin, serviceInfo);
                 coverToExtensionPlugin(holder, "com.netease.supercache");
                 break;
+            case "local-cache":
+                holder = getProcessor("LocalCache").process(plugin, serviceInfo);
+                coverToExtensionPlugin(holder, "proxy.filters.http.local_cache");
+                break;
+            case "redis-cache":
+                holder = getProcessor("RedisCache").process(plugin, serviceInfo);
+                coverToExtensionPlugin(holder, "proxy.filters.http.redis_cache");
+                break;
             case "sign-auth": case "jwt-auth": case "oauth2-auth":
                 holder = getProcessor("SuperAuth").process(plugin, serviceInfo);
                 coverToExtensionPlugin(holder, "com.netease.superauthz");

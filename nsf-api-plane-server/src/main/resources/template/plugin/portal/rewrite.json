@@ -28,7 +28,7 @@
     {
       "key": "target",
       "type": "input",
-      "alias": "重新后的path前缀",
+      "alias": "重写后的path前缀",
       "help": "需要以/开头，如果想要将某个前缀重写掉，则此值不填写",
       "rules": [
         "MaxLength(100)",

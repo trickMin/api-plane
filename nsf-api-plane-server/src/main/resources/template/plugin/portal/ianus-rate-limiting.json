@@ -16,7 +16,7 @@
         {
           "key": "identifier_extractor",
           "help": "用于计算请求标识，以供计数使用;仅Header参数限流，例如 Header[User-Agent]",
-          "alias": "请求Header名",
+          "alias": "请求头名称",
           "type": "string",
           "rules":[
             "Header\\[.*\\]"
@@ -25,7 +25,7 @@
         {
           "key": "pre_condition",
           "help": "满足前置条件的请求才会进入频控流程",
-          "alias": "请求Header匹配",
+          "alias": "请求头匹配",
           "type": "array",
           "layouts": [
             {

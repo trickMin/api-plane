@@ -31,9 +31,9 @@
       "categoryName": "流量管理"
     },
     {
-      "name": "ianus-router",
+      "name": "hango-router",
       "displayName": "请求中断",
-      "schema": "plugin/portal/ianus-router.json",
+      "schema": "plugin/portal/hango-router.json",
       "description": "请求中断插件",
       "processor": "RouteProcessor",
       "author": "system",
@@ -177,6 +177,36 @@
       "pluginScope": "routeRule,global",
       "pluginPriority": "3000",
       "instructionForUse": "缓存后端应答，以缓存响应请求",
+      "categoryKey": "trafficPolicy",
+      "categoryName": "流量管理"
+    },
+    {
+      "name": "local-cache",
+      "displayName": "缓存",
+      "schema": "plugin/portal/local-cache.json",
+      "description": "",
+      "processor": "AggregateGatewayPluginProcessor",
+      "author": "system",
+      "createTime": "1572537600000",
+      "updateTime": "1572537600000",
+      "pluginScope": "routeRule,global",
+      "pluginPriority": "3000",
+      "instructionForUse": "本地缓存后端应答，以缓存响应请求",
+      "categoryKey": "trafficPolicy",
+      "categoryName": "流量管理"
+    },
+    {
+      "name": "redis-cache",
+      "displayName": "缓存",
+      "schema": "plugin/portal/redis-cache.json",
+      "description": "",
+      "processor": "AggregateGatewayPluginProcessor",
+      "author": "system",
+      "createTime": "1572537600000",
+      "updateTime": "1572537600000",
+      "pluginScope": "routeRule,global",
+      "pluginPriority": "3000",
+      "instructionForUse": "redis缓存后端应答，以缓存响应请求",
       "categoryKey": "trafficPolicy",
       "categoryName": "流量管理"
     },

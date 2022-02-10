@@ -113,8 +113,8 @@
     },
     {
       "key": "lookbackDuration",
-      "alias": "统计时间窗口",
-      "help": "统计时间窗口，单位s，默认10s，最大值为120s",
+      "alias": "统计窗口",
+      "help": "统计窗口，单位s，默认10s，最大值为120s",
       "type": "input",
       "placeholder": "单位s，范围(0.0,120.0)",
       "rules": [
@@ -126,7 +126,7 @@
     },
     {
       "key": "breakDuration",
-      "alias": "熔断惩罚时间",
+      "alias": "惩罚时间",
       "help": "当触发熔断时的惩罚时间，单位s，在该时间内不再请求后端服务而之间返回熔断后的定制响应",
       "type": "input",
       "placeholder": "单位s，范围 (0.0, 10000]",

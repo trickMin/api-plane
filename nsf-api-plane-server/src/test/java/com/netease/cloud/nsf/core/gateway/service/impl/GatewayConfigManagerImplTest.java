@@ -58,7 +58,7 @@ public class GatewayConfigManagerImplTest extends BaseTest {
         //gportal 路由插件
         API api = buildAPI(list("gw1"), "apiName", list("host1"), list("/any"),
                 list("GET"), "svc",
-                list("{\"kind\":\"ianus-router\",\"rule\":[{\"name\":\"rewrite\",\"matcher\":[{\"source_type\":\"Header\",\"left_value\":\"plugin\",\"op\":\"=\",\"right_value\":\"rewrite\"}],\"action\":{\"action_type\":\"rewrite\",\"rewrite_regex\":\"/rewrite/{group1}/{group2}\",\"target\":\"/anything/{{group2}}/{{group1}}\"}}]}"),
+                list("{\"kind\":\"hango-router\",\"rule\":[{\"name\":\"rewrite\",\"matcher\":[{\"source_type\":\"Header\",\"left_value\":\"plugin\",\"op\":\"=\",\"right_value\":\"rewrite\"}],\"action\":{\"action_type\":\"rewrite\",\"rewrite_regex\":\"/rewrite/{group1}/{group2}\",\"target\":\"/anything/{{group2}}/{{group1}}\"}}]}"),
                 "HTTP",
                 Arrays.asList(buildProxyService("www.163.com", "STATIC", 100, 80)),
                 null,
@@ -80,7 +80,7 @@ public class GatewayConfigManagerImplTest extends BaseTest {
         serviceList.add(service);
         API api1 = buildAPI(list("gw1"), "apiName", list("host1"), list("/any"),
                 list("GET"), "svc",
-                list("{\"kind\":\"ianus-router\",\"rule\":[{\"name\":\"rewrite\",\"matcher\":[{\"source_type\":\"Header\",\"left_value\":\"plugin\",\"op\":\"=\",\"right_value\":\"rewrite\"}],\"action\":{\"action_type\":\"rewrite\",\"rewrite_regex\":\"/rewrite/{group1}/{group2}\",\"target\":\"/anything/{{group2}}/{{group1}}\"}}]}"),
+                list("{\"kind\":\"hango-router\",\"rule\":[{\"name\":\"rewrite\",\"matcher\":[{\"source_type\":\"Header\",\"left_value\":\"plugin\",\"op\":\"=\",\"right_value\":\"rewrite\"}],\"action\":{\"action_type\":\"rewrite\",\"rewrite_regex\":\"/rewrite/{group1}/{group2}\",\"target\":\"/anything/{{group2}}/{{group1}}\"}}]}"),
                 "HTTP",
                 serviceList,
                 Arrays.asList("a.default", "b.default"),
