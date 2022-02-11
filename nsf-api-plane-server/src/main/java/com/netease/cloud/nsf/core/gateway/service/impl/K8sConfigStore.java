@@ -86,6 +86,7 @@ public class K8sConfigStore implements ConfigStore {
                     new HashMap<>() : new HashMap<>(metadata.getLabels());
             oldLabels.put(TemplateConst.LABEL_API_PLANE_TYPE, globalConfig.getApiPlaneType());
             oldLabels.put(TemplateConst.LABEL_API_PLANE_VERSION, globalConfig.getApiPlaneVersion());
+            oldLabels.put(TemplateConst.LABLE_ISTIO_REV, globalConfig.getIstioRev());
             metadata.setLabels(oldLabels);
         }
     }
