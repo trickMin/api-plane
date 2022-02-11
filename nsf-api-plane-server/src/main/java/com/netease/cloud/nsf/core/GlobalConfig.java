@@ -18,6 +18,9 @@ public class GlobalConfig {
     @Value("${apiPlaneVersion}")
     private String apiPlaneVersion;
 
+    @Value("${istioRev:gw-1.12}")
+    private String istioRev;
+
     @Value("${telnet.connect.timeout:3000}")
     private Integer telnetConnectTimeout;
 
@@ -27,6 +30,10 @@ public class GlobalConfig {
 
     public String getApiPlaneType() {
         return apiPlaneType;
+    }
+
+    public String getIstioRev() {
+        return istioRev;
     }
 
     public String getApiPlaneVersion() {

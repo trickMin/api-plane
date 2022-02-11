@@ -16,6 +16,7 @@ public interface TemplateConst {
     String LABEL_RESOURCE_IDENTITY = "skiff-api-plane-resource-identity";
     String LABEL_API_PLANE_TYPE = "skiff-api-plane-type";
     String LABEL_API_PLANE_VERSION = "skiff-api-plane-version";
+    String LABLE_ISTIO_REV = "istio.io/rev";
     /** ---------- 模板占位符名 begin ---------- **/
 
     /**
