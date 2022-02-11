@@ -20,11 +20,13 @@ import com.netease.cloud.nsf.core.plugin.FragmentHolder;
 import com.netease.cloud.nsf.core.plugin.FragmentWrapper;
 import com.netease.cloud.nsf.core.template.TemplateTranslator;
 import com.netease.cloud.nsf.meta.*;
+import com.netease.cloud.nsf.proto.k8s.K8sTypes;
 import com.netease.cloud.nsf.service.PluginService;
 import com.netease.cloud.nsf.util.Const;
 import com.netease.cloud.nsf.util.constant.LogConstant;
 import com.netease.cloud.nsf.util.constant.PluginConstant;
 import io.fabric8.kubernetes.api.model.HasMetadata;
+import istio.networking.v1alpha3.VirtualServiceOuterClass;
 import me.snowdrop.istio.api.networking.v1alpha3.HTTPRoute;
 import me.snowdrop.istio.api.networking.v1alpha3.VirtualService;
 import org.slf4j.Logger;
@@ -55,7 +57,7 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
 
     @Autowired
     public GatewayIstioModelEngine(IntegratedResourceOperator operator, TemplateTranslator templateTranslator, EditorContext editorContext,
-                            ResourceManager resourceManager, PluginService pluginService, GlobalConfig globalConfig) {
+                                   ResourceManager resourceManager, PluginService pluginService, GlobalConfig globalConfig) {
         super(operator);
         this.operator = operator;
         this.templateTranslator = templateTranslator;
@@ -91,6 +93,7 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
     private static final String pluginManager = "gateway/pluginManager";
     private static final String serviceServiceEntry = "gateway/service/serviceEntry";
     private static final String gatewayPlugin = "gateway/gatewayPlugin";
+    private static final String VIRTUAL_SERVICE = "VirtualService";
 
     public List<K8sResourcePack> translate(API api) {
         return translate(api, false);
@@ -99,7 +102,7 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
     /**
      * 将api转换为istio对应的规则
      *
-     * @param api 路由信息
+     * @param api    路由信息
      * @param simple 是否为简单模式，部分字段不渲染，主要用于删除
      * @return K8s资源集合
      */
@@ -153,7 +156,7 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
      * 生成k8s资源并将其合并为k8s资源集合
      *
      * @param rawResourceContainer k8s资源片段存放容器实例
-     * @param plugin 网关插件实例（内含插件配置）
+     * @param plugin               网关插件实例（内含插件配置）
      * @return k8s资源集合
      */
     private List<K8sResourcePack> generateAndAddK8sResource(RawResourceContainer rawResourceContainer,
@@ -191,7 +194,7 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
      * 插件转换为GatewayPlugin CRD资源
      *
      * @param rawResourceContainer 存放资源的容器对象
-     * @param plugin 插件对象
+     * @param plugin               插件对象
      * @return k8s资源集合
      */
     private List<K8sResourcePack> configureGatewayPlugin(RawResourceContainer rawResourceContainer,
@@ -204,7 +207,7 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
 
         // 当插件传入为空时，生成空的GatewayPlugin，删除时使用
         DynamicGatewayPluginSupplier dynamicGatewayPluginSupplier =
-                new DynamicGatewayPluginSupplier(plugin.getGateways(), plugin.getRouteId(), "%s-%s");
+                new DynamicGatewayPluginSupplier(plugin.getGateway(), plugin.getRouteId(), "%s-%s");
 
         resourcePacks.addAll(generateK8sPack(rawGatewayPlugins,
                 null,
@@ -220,8 +223,8 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
      * 限流插件转换为ConfigMap CRD资源
      *
      * @param rawResourceContainer 存放资源的容器对象
-     * @param resourcePacks k8s资源集合
-     * @param plugin 插件对象
+     * @param resourcePacks        k8s资源集合
+     * @param plugin               插件对象
      */
     private void configureRateLimitConfigMap(RawResourceContainer rawResourceContainer,
                                              List<K8sResourcePack> resourcePacks,
@@ -233,7 +236,7 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
         // 加入限流插件configMap配置
         resourcePacks.addAll(generateK8sPack(rawConfigMaps,
                 new GatewayRateLimitConfigMapMerger(),
-                new GatewayRateLimitConfigMapSubtracter(String.join("|", plugin.getGateways()), plugin.getRouteId()),
+                new GatewayRateLimitConfigMapSubtracter(plugin.getGateway(), plugin.getRouteId()),
                 new EmptyResourceGenerator(new EmptyConfigMap(rateLimitConfigMapName, rateLimitNamespace))));
         logger.info("{}{} raw ConfigMap CRDs added ok", LogConstant.TRANSLATE_LOG_NOTE, LogConstant.PLUGIN_LOG_NOTE);
     }
@@ -283,16 +286,41 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
     }
 
     private HasMetadata adjust(HasMetadata rawVs) {
-        if ("VirtualService".equalsIgnoreCase(rawVs.getKind())) {
-            VirtualService vs = (VirtualService) rawVs;
-            List<HTTPRoute> routes = Optional.ofNullable(vs.getSpec().getHttp()).orElse(new ArrayList<>());
-            routes.forEach(route -> {
-                if (Objects.nonNull(route.getReturn())) route.setRoute(null);
-                if (Objects.nonNull(route.getRedirect())) route.setRoute(null);
-                if (Objects.nonNull(route.getRedirect())) route.setFault(null);
-            });
+        if (VIRTUAL_SERVICE.equalsIgnoreCase(rawVs.getKind())) {
+            // VS需要特殊处理，VS中有中断或重定向插件则将Route清空
+            K8sTypes.VirtualService originalVs = (K8sTypes.VirtualService) rawVs;
+            VirtualServiceOuterClass.VirtualService originalSpec = originalVs.getSpec();
+            List<VirtualServiceOuterClass.HTTPRoute> originalRoutes = Optional.ofNullable(originalSpec.getHttpList()).orElse(new ArrayList<>());
+            // 修改RouteList，此处为UnmodifiableList，需要新建集合对象
+            List<VirtualServiceOuterClass.HTTPRoute> resRoutes = new ArrayList<>(originalRoutes.size());
+            for (VirtualServiceOuterClass.HTTPRoute route : originalRoutes) {
+                if (route.hasReturn() || route.hasRedirect()) {
+                    resRoutes.add(route.toBuilder().clearRoute().build());
+                } else {
+                    resRoutes.add(route);
+                }
+            }
+            // proto文件生成的Java对象没有直接修改属性的方法，只能通过"Builder模式"，因此需要创建新资源修改属性
+            K8sTypes.VirtualService resVs = new K8sTypes.VirtualService();
+            resVs.setKind(originalVs.getKind());
+            resVs.setApiVersion(originalVs.getApiVersion());
+            resVs.setMetadata(originalVs.getMetadata());
+            resVs.setSpec(VirtualServiceOuterClass.VirtualService.newBuilder()
+                    // HTTP字段用处理过的替换
+                    .addAllHttp(resRoutes)
+                    .addAllGateways(originalSpec.getGatewaysList())
+                    .addAllHosts(originalSpec.getHostsList())
+                    .addAllDubbo(originalSpec.getDubboList())
+                    .addAllExportTo(originalSpec.getExportToList())
+                    .addAllVirtualCluster(originalSpec.getVirtualClusterList())
+                    .addAllTcp(originalSpec.getTcpList())
+                    .addAllThrift(originalSpec.getThriftList())
+                    .addAllTls(originalSpec.getTlsList())
+                    .build());
+            return resVs;
+        } else {
+            // 非VS资源下不处理
+            return rawVs;
         }
-        return rawVs;
     }
-
 }

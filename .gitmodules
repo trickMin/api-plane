@@ -1,3 +1,4 @@
 [submodule "nsf-proto"]
 	path = nsf-proto
 	url = ../../zhangwu/nsf-proto.git
+	branch = dev-api-plane-1.12

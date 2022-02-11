@@ -74,6 +74,7 @@ public interface TemplateConst {
     String VIRTUAL_SERVICE_MIRROR_PORT = "t_virtual_service_mirror_port";
     String VIRTUAL_SERVICE_MIRROR_SUBSET = "t_virtual_service_mirror_subset";
     String VIRTUAL_SERVICE_MIRROR_YAML = "t_virtual_service_mirror_yaml";
+    String VIRTUAL_SERVICE_STATS = "t_virtual_service_stats";
 
     /**
      * ServiceInfo

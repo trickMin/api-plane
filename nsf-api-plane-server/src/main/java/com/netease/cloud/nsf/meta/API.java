@@ -171,6 +171,11 @@ public class API extends CommonModel {
      */
     private Service mirrorTraffic;
 
+    /**
+     * 路由指标，为空不开启
+     */
+    private List<String> statsMeta;
+
     public Service getMirrorTraffic() {
         return mirrorTraffic;
     }
@@ -466,5 +471,13 @@ public class API extends CommonModel {
 
     public void setVirtualClusterHeaders(List<PairMatch> virtualClusterHeaders) {
         this.virtualClusterHeaders = virtualClusterHeaders;
+    }
+
+    public List<String> getStatsMeta() {
+        return statsMeta;
+    }
+
+    public void setStatsMeta(final List<String> statsMeta) {
+        this.statsMeta = statsMeta;
     }
 }

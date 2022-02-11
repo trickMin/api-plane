@@ -2,6 +2,7 @@ package com.netease.cloud.nsf.core.k8s;
 
 
 import com.google.common.collect.ImmutableMap;
+import com.netease.cloud.nsf.proto.k8s.K8sTypes;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.slime.api.microservice.v1alpha1.SmartLimiterList;
 import io.fabric8.kubernetes.api.model.*;
@@ -25,8 +26,8 @@ import java.util.regex.Pattern;
  **/
 public enum K8sResourceEnum {
     VirtualService(
-            VirtualService.class,
-            VirtualServiceList.class,
+            K8sTypes.VirtualService.class,
+            K8sTypes.VirtualServiceList.class,
             ImmutableMap.of(K8sVersion.V1_11_0, "/apis/networking.istio.io/v1alpha3/namespaces/%s/virtualservices")),
     DestinationRule(
             DestinationRule.class,

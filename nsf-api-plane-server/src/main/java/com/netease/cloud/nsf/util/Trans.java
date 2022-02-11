@@ -61,6 +61,9 @@ public class Trans {
             mirrorTraffic.setSubset(mirrorTrafficDto.getSubset());
             api.setMirrorTraffic(mirrorTraffic);
         }
+        if (!CollectionUtils.isEmpty(portalAPI.getStatsMeta())){
+            api.setStatsMeta(portalAPI.getStatsMeta());
+        }
         return api;
     }
 
@@ -287,12 +290,10 @@ public class Trans {
      * @return 业务流转的网关插件对象
      */
     public static GatewayPlugin pluginDTOToPlugin(GatewayPluginDTO dto) {
-        List<String> gatewayList = new ArrayList<>();
-        gatewayList.add(dto.getGateways());
         GatewayPlugin gatewayPlugin = new GatewayPlugin();
         gatewayPlugin.setPlugins(dto.getPlugins());
         gatewayPlugin.setRouteId(dto.getRouteId());
-        gatewayPlugin.setGateways(gatewayList);
+        gatewayPlugin.setGateway(dto.getGateway());
         gatewayPlugin.setHosts(dto.getHosts());
         gatewayPlugin.setCode(dto.getCode());
         gatewayPlugin.setPluginType(dto.getPluginType());

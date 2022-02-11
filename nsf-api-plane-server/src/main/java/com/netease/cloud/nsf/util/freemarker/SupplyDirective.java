@@ -23,11 +23,10 @@ public class SupplyDirective implements TemplateDirectiveModel {
         ROUTE("route:", indent(wrap(TemplateConst.VIRTUAL_SERVICE_ROUTE_YAML))),
         EXTRA("extra:", indent(wrap(TemplateConst.VIRTUAL_SERVICE_EXTRA_YAML))),
         RETRY("retry:", indent(wrap(TemplateConst.VIRTUAL_SERVICE_HTTP_RETRY_YAML))),
-        API("api:", wrap(TemplateConst.API_IDENTITY_NAME)),
+        API("name:", wrap(TemplateConst.API_IDENTITY_NAME)),
         META("meta:", indent(wrap(TemplateConst.VIRTUAL_SERVICE_META_YAML))),
         PRIORITY("priority:", indent(wrap(TemplateConst.VIRTUAL_SERVICE_MATCH_PRIORITY_YAML))),
         MIRROR("mirror:", indent(wrap(TemplateConst.VIRTUAL_SERVICE_MIRROR_YAML))),
-
         ;
 
         String name;
@@ -68,7 +67,7 @@ public class SupplyDirective implements TemplateDirectiveModel {
         gen.createOrUpdateValue("$[?]", "nsf-template-retry", Keyword.RETRY.replacement, Criteria.where("retry").exists(false));
         gen.createOrUpdateValue("$[?]", "nsf-template-meta", Keyword.META.replacement, Criteria.where("meta").exists(false));
         gen.createOrUpdateValue("$[?]", "nsf-template-priority", Keyword.PRIORITY.replacement, Criteria.where("priority").exists(false));
-        gen.createOrUpdateValue("$[?]", "api", Keyword.API.replacement, Criteria.where("api").exists(false));
+        gen.createOrUpdateValue("$[?]", "name", Keyword.API.replacement, Criteria.where("name").exists(false));
 
         String yaml = gen.yamlString();
         yaml = yaml.replaceAll("(?m)^(-?\\s*)nsf-template-.*?:(?:\\s*)(<.*>)", "$1$2");
