@@ -1,7 +1,5 @@
 meta:
-<#if t_virtual_service_api_id?has_content>
   com.netease.metadatahub:
-</#if>
 <#if t_gateway_name?has_content>
     qz_cluster_name: ${t_gateway_name}
 </#if>
