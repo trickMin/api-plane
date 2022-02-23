@@ -6,6 +6,7 @@ import com.netease.cloud.nsf.core.plugin.FragmentTypeEnum;
 import com.netease.cloud.nsf.core.plugin.FragmentWrapper;
 import com.netease.cloud.nsf.core.plugin.PluginGenerator;
 import com.netease.cloud.nsf.meta.ServiceInfo;
+import com.netease.cloud.nsf.util.Const;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -196,8 +197,23 @@ public class DynamicDowngradeProcessor extends AbstractSchemaProcessor implement
         }
         if (source.contain("$.httpx.remote") && source.getValue("$.httpx.remote.requestSwitch", Boolean.class)) {
             builder.createOrUpdateJson("$", "override_remote", "{}");
-            builder.createOrUpdateValue("$.override_remote", "cluster", source.getValue("$.httpx.remote.cluster"));
+            builder.createOrUpdateValue("$.override_remote", "cluster", assembleClusterOutboundInfo(source));
             builder.createOrUpdateValue("$.override_remote", "timeout", source.getValue("$.httpx.remote.timeout", Integer.class) + "s");
         }
+    }
+
+    /**
+     * outbound示例：
+     * outbound|80|dynamic-5314-demo-gateway|istio-e2e-app.apigw-demo.svc.cluster.local
+     *
+     * @param source 数据源
+     * @return 组装的outbound信息
+     */
+    private String assembleClusterOutboundInfo(PluginGenerator source) {
+        String code = source.getValue("$.httpx.remote.cluster.Code", String.class);
+        String backendService = source.getValue("$.httpx.remote.cluster.BackendService", String.class);
+        String gwName = source.getValue("$.httpx.remote.cluster.GwName", String.class);
+        Integer port = source.getValue("$.httpx.remote.cluster.Port[0]", Integer.class);
+        return Const.OUTBOUND + "|" + port + "|" + code.toLowerCase() + "-" + gwName + "|" + backendService;
     }
 }

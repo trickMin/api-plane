@@ -35,5 +35,8 @@ public interface Const {
     String CONTAINER_STATUS_WAITING = "Waiting";
     String CONTAINER_STATUS_TERMINATED = "Terminated";
 
-
+    /**
+     * envoy outbound prefix
+     */
+    String OUTBOUND = "outbound";
 }
