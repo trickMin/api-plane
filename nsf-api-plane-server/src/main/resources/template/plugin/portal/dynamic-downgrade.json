@@ -435,15 +435,16 @@
             },
             {
               "key": "cluster",
-              "alias": "降级服务cluster",
-              "type": "input",
+              "alias": "降级服务",
+              "type": "dynamic_service_list",
               "visible": {
                 "this.requestSwitch": true
               },
-              "help": "需要填写网关对应的cluster",
-              "rules": [
-                "Required"
-              ]
+              "default": {
+                "Id": "",
+                "Port": ""
+              },
+              "help": "需要选择网关对应的cluster"
             },
             {
               "key": "timeout",

@@ -375,12 +375,12 @@
         },
         {
           "key": "queryString",
-          "alias": "query参数",
+          "alias": "查询参数参与key计算",
           "type": "multi_input"
         },
         {
           "key": "headers",
-          "alias": "请求头",
+          "alias": "请求头参与key计算",
           "type": "multi_input"
         }
       ]
