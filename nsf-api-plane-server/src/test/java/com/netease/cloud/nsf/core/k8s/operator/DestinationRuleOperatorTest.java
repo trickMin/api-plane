@@ -2,12 +2,14 @@ package com.netease.cloud.nsf.core.k8s.operator;
 
 
 import com.google.common.collect.ImmutableMap;
+import com.netease.cloud.nsf.service.GatewayService;
 import me.snowdrop.istio.api.networking.v1alpha3.DestinationRule;
 import me.snowdrop.istio.api.networking.v1alpha3.DestinationRuleSpec;
 import me.snowdrop.istio.api.networking.v1alpha3.Subset;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Arrays;
 import java.util.List;
@@ -16,6 +18,9 @@ import java.util.Map;
 public class DestinationRuleOperatorTest {
 
     DestinationRuleOperator operator;
+
+    @Autowired
+    private GatewayService gatewayService;
 
     @Before
     public void init() {
@@ -67,6 +72,12 @@ public class DestinationRuleOperatorTest {
         Assert.assertTrue(result.getSpec().getSubsets().get(0).getName().equals("s2"));
         Assert.assertTrue(result.getSpec().getSubsets().get(0).getGwLabels().equals(getGwLabels("gw2")));
     }
+
+//    @Test
+//    public void testYaml(){
+//        PortalServiceDTO dto = new PortalServiceDTO();
+//        gatewayService.updateService(dto);
+//    }
 
 
     private static DestinationRule getDestinationRule(String apiVersion, String kind, DestinationRuleSpec spec) {
