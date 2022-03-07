@@ -71,12 +71,25 @@ trafficPolicy:
     minHealthPercent: ${t_destination_rule_min_health_percent}
 </#if>
   healthCheck:
-<#if t_destination_rule_path?has_content || t_destination_rule_expected_statuses?has_content>
-    host: ${t_destination_rule_host}
-</#if>
-<#if t_destination_rule_path?has_content>
-    path: ${t_destination_rule_path}
-</#if>
+  <#if t_destination_rule_healthy_checker_type?has_content>
+    healthChecker:
+    <#if t_destination_rule_healthy_checker_type == "http">
+      httpHealthCheck:
+      <#if t_destination_rule_path?has_content || t_destination_rule_expected_statuses?has_content>
+        host: ${t_destination_rule_host}
+      </#if>
+      <#if t_destination_rule_path?has_content>
+        path: ${t_destination_rule_path}
+      </#if>
+      <#if t_destination_rule_expected_statuses?has_content>
+        expectedStatuses:
+        <#list t_destination_rule_expected_statuses as s>
+        - start: ${s}
+          end: ${s+1}
+      </#list>
+    </#if>
+    </#if>
+  </#if>
 <#if t_destination_rule_timeout?has_content>
     timeout: ${t_destination_rule_timeout}ms
 </#if>
@@ -91,11 +104,4 @@ trafficPolicy:
 </#if>
 <#if t_destination_rule_unhealthy_threshold?has_content>
     unhealthyThreshold: ${t_destination_rule_unhealthy_threshold}
-</#if>
-<#if t_destination_rule_expected_statuses?has_content>
-    expectedStatuses:
-    <#list t_destination_rule_expected_statuses as s>
-    - start: ${s}
-      end: ${s+1}
-    </#list>
 </#if>

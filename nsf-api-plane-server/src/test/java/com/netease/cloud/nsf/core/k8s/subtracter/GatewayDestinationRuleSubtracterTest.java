@@ -1,14 +1,12 @@
 package com.netease.cloud.nsf.core.k8s.subtracter;
 
 import com.google.common.collect.ImmutableMap;
-import me.snowdrop.istio.api.networking.v1alpha3.DestinationRule;
-import me.snowdrop.istio.api.networking.v1alpha3.DestinationRuleSpec;
-import me.snowdrop.istio.api.networking.v1alpha3.Subset;
+import com.netease.cloud.nsf.proto.k8s.K8sTypes;
+import istio.networking.v1alpha3.DestinationRuleOuterClass;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 
@@ -19,39 +17,22 @@ public class GatewayDestinationRuleSubtracterTest {
 
         GatewayDestinationRuleSubtracter subtracter1 = new GatewayDestinationRuleSubtracter("se-s1");
 
-        Subset s1 = getSubset("s1", "se-s1", null, "gw1");
-        Subset s2 = getSubset("s2", "se-s2", null, "gw2");
+        DestinationRuleOuterClass.Subset s1 = getSubset("s1", "se-s1",  "gw1");
+        DestinationRuleOuterClass.Subset s2 = getSubset("s2", "se-s2",  "gw2");
+        K8sTypes.DestinationRule old = new K8sTypes.DestinationRule();
+        old.setApiVersion("v1");
+        old.setKind("destinationRule");
+        old.setSpec(DestinationRuleOuterClass.DestinationRule.newBuilder()
+                .addAllSubsets(Arrays.asList(s1,s2)).build());
 
-        DestinationRuleSpec spec = getDestinationRuleSpec(Arrays.asList(s1,s2));
-        DestinationRule old = getDestinationRule("v1", "destinationRule", spec);
-
-        DestinationRule result = subtracter1.subtract(old);
-        Assert.assertTrue(result.getSpec().getSubsets().size() == 1);
-        Assert.assertTrue(result.getSpec().getSubsets().get(0).getName().equals("s2"));
-        Assert.assertTrue(result.getSpec().getSubsets().get(0).getGwLabels().equals(getGwLabels("gw2")));
+        K8sTypes.DestinationRule result = subtracter1.subtract(old);
+        Assert.assertEquals(1, result.getSpec().getSubsetsList().size());
+        Assert.assertEquals("s2", result.getSpec().getSubsetsList().get(0).getName());
+        Assert.assertEquals(result.getSpec().getSubsetsList().get(0).getGwLabelsMap(), getGwLabels("gw2"));
     }
 
-    private static DestinationRule getDestinationRule(String apiVersion, String kind, DestinationRuleSpec spec) {
-        DestinationRule ds = new DestinationRule();
-        ds.setApiVersion(apiVersion);
-        ds.setKind(kind);
-        ds.setSpec(spec);
-        return ds;
-    }
-
-    private static Subset getSubset(String name, String api, Map<String, String> labels, String gw) {
-        Subset ss = new Subset();
-        ss.setName(name);
-        ss.setApi(api);
-        ss.setLabels(labels);
-        ss.setGwLabels(getGwLabels(gw));
-        return ss;
-    }
-
-    private static DestinationRuleSpec getDestinationRuleSpec(List<Subset> subsets) {
-        DestinationRuleSpec drs = new DestinationRuleSpec();
-        drs.setSubsets(subsets);
-        return drs;
+    private static DestinationRuleOuterClass.Subset getSubset(String name, String api, String gw) {
+        return DestinationRuleOuterClass.Subset.newBuilder().setName(name).setApi(api).putAllGwLabels(getGwLabels(gw)).build();
     }
 
     private static Map<String, String> getGwLabels(String gw) {

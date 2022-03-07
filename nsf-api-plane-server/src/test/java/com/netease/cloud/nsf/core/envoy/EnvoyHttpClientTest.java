@@ -1,8 +1,11 @@
 package com.netease.cloud.nsf.core.envoy;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netease.cloud.nsf.core.BaseTest;
 import com.netease.cloud.nsf.core.k8s.KubernetesClient;
 import com.netease.cloud.nsf.meta.ServiceHealth;
+import com.netease.cloud.nsf.meta.dto.PortalServiceDTO;
+import com.netease.cloud.nsf.service.GatewayService;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodSpec;
 import io.fabric8.kubernetes.api.model.PodStatus;
@@ -30,6 +33,9 @@ public class EnvoyHttpClientTest extends BaseTest {
     @MockBean
     KubernetesClient k8sClient;
 
+    @Autowired
+    private GatewayService gatewayService;
+
     @Test
     public void getServiceHealth() {
 
@@ -40,6 +46,14 @@ public class EnvoyHttpClientTest extends BaseTest {
         List<ServiceHealth> serviceHealth = envoyHttpClient.getServiceHealth(null, null, "gw1");
 
         Assert.assertEquals(4, serviceHealth.size());
+    }
+
+    @Test
+    public void testYaml() throws Exception{
+        ObjectMapper mapper = new ObjectMapper();
+        String str = "{\"Code\":\"DYNAMIC-5756\",\"BackendService\":\"a.powerful.svc.cluster.local\",\"Type\":\"DYNAMIC\",\"Gateway\":\"demo-gateway\",\"Protocol\":\"http\",\"TrafficPolicy\":{\"LoadBalancer\":{\"Simple\":\"ROUND_ROBIN\",\"ConsistentHash\":null},\"HealthCheck\":{\"Path\":\"/healtch\",\"Timeout\":100,\"ExpectedStatuses\":[200],\"HealthyInterval\":50,\"HealthyThreshold\":2,\"UnhealthyInterval\":30,\"UnhealthyThreshold\":3},\"OutlierDetection\":null,\"ConnectionPool\":{\"TCP\":{\"MaxConnections\":1024,\"ConnectTimeout\":60000},\"HTTP\":{\"Http1MaxPendingRequests\":1024,\"Http2MaxRequests\":1024,\"MaxRequestsPerConnection\":0,\"IdleTimeout\":3000}}},\"ServiceTag\":\"healthtest\",\"Subsets\":[]}";
+        PortalServiceDTO s1 = mapper.readValue(str, PortalServiceDTO.class);
+        gatewayService.updateService(s1);
     }
 
     private Pod getPod(PodSpec spec, PodStatus status) {

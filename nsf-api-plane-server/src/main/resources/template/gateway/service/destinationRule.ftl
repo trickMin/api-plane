@@ -99,11 +99,24 @@ spec:
       </#if>
       <#if ss.trafficPolicy.healthCheck?has_content>
       healthCheck:
-        <#if t_destination_rule_path?has_content || t_destination_rule_expected_statuses?has_content>
-        host: ${t_destination_rule_host}
+        <#if t_destination_rule_healthy_checker_type?has_content>
+        healthChecker:
+        <#if t_destination_rule_healthy_checker_type == "http">
+          httpHealthCheck:
+            <#if t_destination_rule_path?has_content || t_destination_rule_expected_statuses?has_content>
+            host: ${t_destination_rule_host}
+            </#if>
+            <#if t_destination_rule_path?has_content>
+            path: ${t_destination_rule_path}
+            </#if>
+            <#if t_destination_rule_expected_statuses?has_content>
+            expectedStatuses:
+            <#list t_destination_rule_expected_statuses as s>
+            - start: ${s}
+              end: ${s+1}
+          </#list>
+         </#if>
         </#if>
-        <#if ss.trafficPolicy.healthCheck.path?has_content>
-        path: ${ss.trafficPolicy.healthCheck.path}
         </#if>
         <#if ss.trafficPolicy.healthCheck.timeout?has_content>
         timeout: ${ss.trafficPolicy.healthCheck.timeout}ms
@@ -119,13 +132,6 @@ spec:
         </#if>
         <#if ss.trafficPolicy.healthCheck.unhealthyThreshold?has_content>
         unhealthyThreshold: ${ss.trafficPolicy.healthCheck.unhealthyThreshold}
-        </#if>
-        <#if ss.trafficPolicy.healthCheck.expectedStatuses?has_content>
-        expectedStatuses:
-        <#list ss.trafficPolicy.healthCheck.expectedStatuses as s>
-        - start: ${s}
-          end: ${s+1}
-        </#list>
         </#if>
       </#if>
     </#if>

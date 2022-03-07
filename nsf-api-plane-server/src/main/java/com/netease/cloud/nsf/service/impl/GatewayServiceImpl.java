@@ -1,6 +1,5 @@
 package com.netease.cloud.nsf.service.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netease.cloud.nsf.core.GlobalConfig;
 import com.netease.cloud.nsf.core.gateway.service.GatewayConfigManager;
 import com.netease.cloud.nsf.core.gateway.service.ResourceManager;
@@ -99,13 +98,6 @@ public class GatewayServiceImpl implements GatewayService {
 
     @Override
     public void updateService(PortalServiceDTO service) {
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            String Json =  mapper.writeValueAsString(service);
-            logger.info("publishService, service:{}", Json);
-        }catch (Exception e){
-
-        }
         configManager.updateConfig(Trans.portalService2Service(service));
     }
 
