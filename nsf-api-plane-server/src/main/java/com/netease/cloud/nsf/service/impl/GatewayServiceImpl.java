@@ -5,6 +5,7 @@ import com.netease.cloud.nsf.core.gateway.service.GatewayConfigManager;
 import com.netease.cloud.nsf.core.gateway.service.ResourceManager;
 import com.netease.cloud.nsf.meta.*;
 import com.netease.cloud.nsf.meta.dto.*;
+import com.netease.cloud.nsf.proto.k8s.K8sTypes;
 import com.netease.cloud.nsf.service.GatewayService;
 import com.netease.cloud.nsf.util.Const;
 import com.netease.cloud.nsf.util.TelnetUtil;
@@ -16,8 +17,6 @@ import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import me.snowdrop.istio.api.IstioResource;
 import me.snowdrop.istio.api.networking.v1alpha3.GatewaySpec;
-import me.snowdrop.istio.api.networking.v1alpha3.Plugin;
-import me.snowdrop.istio.api.networking.v1alpha3.PluginManager;
 import me.snowdrop.istio.api.networking.v1alpha3.Server;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -26,6 +25,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
+import slime.microservice.plugin.v1alpha1.PluginManagerOuterClass;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -217,9 +217,9 @@ public class GatewayServiceImpl implements GatewayService {
         PluginOrder pluginOrder = Trans.pluginOrderDTO2PluginOrder(pluginOrderDto);
         HasMetadata config = configManager.getConfig(pluginOrder);
         if (Objects.isNull(config)) throw new ApiPlaneException("plugin manager config can not found.");
-        PluginManager pm = (PluginManager) config;
+        K8sTypes.PluginManager pm = (K8sTypes.PluginManager) config;
         dto.setGatewayLabels(pm.getSpec().getWorkloadLabels());
-        List<Plugin> plugins = pm.getSpec().getPlugin();
+        List<PluginManagerOuterClass.Plugin> plugins = pm.getSpec().getPluginList();
         dto.setPlugins(new ArrayList<>());
         if (CollectionUtils.isEmpty(plugins)) return dto;
         plugins.forEach(p -> {

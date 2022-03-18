@@ -2,6 +2,7 @@ package com.netease.cloud.nsf.core.gateway.service;
 
 import com.netease.cloud.nsf.core.ConfigManager;
 import com.netease.cloud.nsf.meta.*;
+import com.netease.cloud.nsf.proto.k8s.K8sTypes;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 
 /**
@@ -20,7 +21,7 @@ public interface GatewayConfigManager extends ConfigManager {
      *
      * @param plugin 网关插件对象
      */
-    void updateConfig(GatewayPlugin plugin);
+    void updateConfig(K8sTypes.EnvoyPlugin plugin);
 
     /**
      * 更新服务

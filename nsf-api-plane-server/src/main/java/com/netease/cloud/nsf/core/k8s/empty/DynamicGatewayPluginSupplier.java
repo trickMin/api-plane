@@ -1,13 +1,13 @@
 package com.netease.cloud.nsf.core.k8s.empty;
 
-import me.snowdrop.istio.api.networking.v1alpha3.GatewayPlugin;
+import com.netease.cloud.nsf.proto.k8s.K8sTypes;
 
 import java.util.function.Supplier;
 
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2020/4/23
  **/
-public class DynamicGatewayPluginSupplier implements Supplier<GatewayPlugin> {
+public class DynamicGatewayPluginSupplier implements Supplier<K8sTypes.EnvoyPlugin> {
 
     private String gw;
     private String name;
@@ -20,7 +20,7 @@ public class DynamicGatewayPluginSupplier implements Supplier<GatewayPlugin> {
     }
 
     @Override
-    public GatewayPlugin get() {
+    public K8sTypes.EnvoyPlugin get() {
         String realName = String.format(format, name, gw);
         return new EmptyGatewayPlugin(realName);
     }

@@ -1,12 +1,10 @@
 package com.netease.cloud.nsf.core.k8s.operator;
 
 import com.google.common.collect.ImmutableMap;
-import com.netease.cloud.nsf.core.k8s.operator.PluginManagerOperator;
-import me.snowdrop.istio.api.networking.v1alpha3.Plugin;
-import me.snowdrop.istio.api.networking.v1alpha3.PluginManager;
-import me.snowdrop.istio.api.networking.v1alpha3.PluginManagerSpec;
+import com.netease.cloud.nsf.proto.k8s.K8sTypes;
 import org.junit.Before;
 import org.junit.Test;
+import slime.microservice.plugin.v1alpha1.PluginManagerOuterClass;
 
 import java.util.Arrays;
 import java.util.List;
@@ -29,23 +27,21 @@ public class PluginManagerOperatorTest {
     @Test
     public void testMerge() {
 
-        PluginManager pm1 = getPluginManager(
-                getPluginManagerSpec(
+        K8sTypes.PluginManager pm1 = getPluginManager(
                         Arrays.asList(getPlugin("pa", true)),
-                        ImmutableMap.of("gw","gw11")));
+                        ImmutableMap.of("gw","gw11"));
 
-        PluginManager pm2 = getPluginManager(
-                getPluginManagerSpec(
+        K8sTypes.PluginManager pm2 = getPluginManager(
                         Arrays.asList(getPlugin("pa", false), getPlugin("pb", true)),
-                        ImmutableMap.of("gw","gw12")));
+                        ImmutableMap.of("gw","gw12"));
 
-        PluginManager merge = operator.merge(pm1, pm2);
+        K8sTypes.PluginManager merge = operator.merge(pm1, pm2);
 
-        PluginManagerSpec mergeSpec = merge.getSpec();
+        PluginManagerOuterClass.PluginManager spec = merge.getSpec();
 
-        assertTrue(mergeSpec.getWorkloadLabels().get("gw").equals("gw12"));
-        assertTrue(mergeSpec.getPlugin().size() == 2);
-        for (Plugin p : mergeSpec.getPlugin()) {
+        assertTrue(spec.getWorkloadLabels().get("gw").equals("gw12"));
+        assertTrue(spec.getPluginCount() == 2);
+        for (PluginManagerOuterClass.Plugin p : spec.getPluginList()) {
             if (p.getName().equals("pa")) {
                 assertTrue(!p.getEnable());
             } else if (p.getName().equals("pb")) {
@@ -60,32 +56,24 @@ public class PluginManagerOperatorTest {
     @Test
     public void testSubtract() {
 
-        PluginManager pm1 = getPluginManager(
-                getPluginManagerSpec(
+        K8sTypes.PluginManager pm1 = getPluginManager(
                         Arrays.asList(getPlugin("pa", true)),
-                        ImmutableMap.of("gw","gw11")));
+                        ImmutableMap.of("gw","gw11"));
 
         operator.subtract(pm1, "1");
         assertTrue(operator.isUseless(pm1));
     }
 
-    private PluginManager getPluginManager(PluginManagerSpec spec) {
-        PluginManager pm = new PluginManager();
-        pm.setSpec(spec);
-        return pm;
+
+    private K8sTypes.PluginManager getPluginManager(List<PluginManagerOuterClass.Plugin> plugins, Map<String, String> workloads) {
+        PluginManagerOuterClass.PluginManager build = PluginManagerOuterClass.PluginManager.newBuilder()
+                .addAllPlugin(plugins).putAllWorkloadLabels(workloads).build();
+        K8sTypes.PluginManager pluginManager = new K8sTypes.PluginManager();
+        pluginManager.setSpec(build);
+        return pluginManager;
     }
 
-    private PluginManagerSpec getPluginManagerSpec(List<Plugin> plugins, Map<String, String> workloads) {
-        PluginManagerSpec pms = new PluginManagerSpec();
-        pms.setPlugin(plugins);
-        pms.setWorkloadLabels(workloads);
-        return pms;
-    }
-
-    private Plugin getPlugin(String name, boolean enable) {
-        Plugin plugin = new Plugin();
-        plugin.setName(name);
-        plugin.setEnable(enable);
-        return plugin;
+    private PluginManagerOuterClass.Plugin getPlugin(String name, boolean enable) {
+        return PluginManagerOuterClass.Plugin.newBuilder().setEnable(enable).setName(name).build();
     }
 }

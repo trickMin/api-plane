@@ -3,7 +3,12 @@ package com.netease.cloud.nsf.mcp;
 import com.google.protobuf.Any;
 import com.google.protobuf.Message;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
-import istio.networking.v1alpha3.*;
+import istio.networking.v1alpha3.DestinationRuleOuterClass;
+import istio.networking.v1alpha3.GatewayOuterClass;
+import istio.networking.v1alpha3.ServiceEntryOuterClass;
+import istio.networking.v1alpha3.VirtualServiceOuterClass;
+import slime.microservice.plugin.v1alpha1.EnvoyPluginOuterClass;
+import slime.microservice.plugin.v1alpha1.PluginManagerOuterClass;
 
 /**
  * @author wupenghuai@corp.netease.com
@@ -13,8 +18,8 @@ public enum McpResourceEnum {
     VirtualService("istio/networking/v1alpha3/virtualservices", VirtualServiceOuterClass.VirtualService.getDefaultInstance()),
     Gateway("istio/networking/v1alpha3/gateways", GatewayOuterClass.Gateway.getDefaultInstance()),
     DestinationRule("istio/networking/v1alpha3/destinationrules", DestinationRuleOuterClass.DestinationRule.getDefaultInstance()),
-    GatewayPlugin("istio/networking/v1alpha3/gatewayplugins", GatewayPluginOuterClass.GatewayPlugin.getDefaultInstance()),
-    PluginManager("istio/networking/v1alpha3/pluginmanagers", PluginManagerOuterClass.PluginManager.getDefaultInstance()),
+    EnvoyPlugin("slime/microservice/plugin/plugin/v1alpha1/envoyplugins", EnvoyPluginOuterClass.EnvoyPlugin.getDefaultInstance()),
+    PluginManager("slime/microservice/plugin/plugin/v1alpha1/pluginmanagers", PluginManagerOuterClass.PluginManager.getDefaultInstance()),
     ServiceEntry("istio/networking/v1alpha3/serviceentries", ServiceEntryOuterClass.ServiceEntry.getDefaultInstance()),
     ConfigMap("api/v1/configmaps"),
     ;

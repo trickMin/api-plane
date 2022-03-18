@@ -55,7 +55,7 @@ public class GatewayConfigManagerImpl extends AbstractConfigManagerSupport imple
     }
 
     @Override
-    public void updateConfig(GatewayPlugin plugin) {
+    public void updateConfig(K8sTypes.EnvoyPlugin plugin) {
         List<K8sResourcePack> resources = modelEngine.translate(plugin);
         update(resources);
     }

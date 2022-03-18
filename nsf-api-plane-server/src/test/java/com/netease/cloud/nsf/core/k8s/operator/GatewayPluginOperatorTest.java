@@ -1,6 +1,6 @@
 package com.netease.cloud.nsf.core.k8s.operator;
 
-import me.snowdrop.istio.api.networking.v1alpha3.GatewayPlugin;
+import com.netease.cloud.nsf.proto.k8s.K8sTypes;
 import me.snowdrop.istio.api.networking.v1alpha3.GatewayPluginSpec;
 import me.snowdrop.istio.api.networking.v1alpha3.Plugins;
 import org.junit.Before;
@@ -26,19 +26,19 @@ public class GatewayPluginOperatorTest {
     @Test
     public void merge() {
 
-        GatewayPlugin gp1 = getGatewayPlugin(getGatewayPluginSpec(Arrays.asList("gw-1", "gw-2"),
+        K8sTypes.EnvoyPlugin gp1 = getGatewayPlugin(getGatewayPluginSpec(Arrays.asList("gw-1", "gw-2"),
                 Arrays.asList("host1", "host2"),
                 Arrays.asList(getPlugins("p1", Collections.emptyMap())),
                 Arrays.asList("route1", "route2"),
                 Arrays.asList("service1", "service2")));
 
-        GatewayPlugin gp2 = getGatewayPlugin(getGatewayPluginSpec(Arrays.asList("gw-3"),
+        K8sTypes.EnvoyPlugin gp2 = getGatewayPlugin(getGatewayPluginSpec(Arrays.asList("gw-3"),
                 Arrays.asList("host3", "host4"),
                 Arrays.asList(getPlugins("p2", Collections.emptyMap())),
                 Arrays.asList("route3"),
                 Arrays.asList("service3")));
 
-        GatewayPlugin merge = operator.merge(gp1, gp2);
+        K8sTypes.EnvoyPlugin merge = operator.merge(gp1, gp2);
 
         GatewayPluginSpec spec = merge.getSpec();
         assertEquals(1, spec.getGateway().size());
@@ -53,8 +53,8 @@ public class GatewayPluginOperatorTest {
     }
 
 
-    private static GatewayPlugin getGatewayPlugin(GatewayPluginSpec spec) {
-        GatewayPlugin gp = new GatewayPlugin();
+    private static K8sTypes.EnvoyPlugin getGatewayPlugin(GatewayPluginSpec spec) {
+        K8sTypes.EnvoyPlugin gp = new K8sTypes.EnvoyPlugin();
         gp.setSpec(spec);
         return gp;
     }

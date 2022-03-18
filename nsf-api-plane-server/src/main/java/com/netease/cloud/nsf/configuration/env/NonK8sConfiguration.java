@@ -43,6 +43,7 @@ import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
+import slime.microservice.plugin.v1alpha1.PluginManagerOuterClass;
 
 import java.io.IOException;
 import java.util.Date;
@@ -86,7 +87,7 @@ public class NonK8sConfiguration {
         options.registerSnapshotCollection(McpResourceEnum.VirtualService.getCollection());
         options.registerSnapshotCollection(McpResourceEnum.Gateway.getCollection());
         options.registerSnapshotCollection(McpResourceEnum.DestinationRule.getCollection());
-        options.registerSnapshotCollection(McpResourceEnum.GatewayPlugin.getCollection());
+        options.registerSnapshotCollection(McpResourceEnum.EnvoyPlugin.getCollection());
         options.registerSnapshotCollection(McpResourceEnum.PluginManager.getCollection());
         options.registerSnapshotCollection(McpResourceEnum.ServiceEntry.getCollection());
 

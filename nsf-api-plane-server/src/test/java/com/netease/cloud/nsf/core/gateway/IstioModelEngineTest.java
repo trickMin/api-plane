@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.util.CollectionUtils;
+import slime.microservice.plugin.v1alpha1.EnvoyPluginOuterClass;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -204,10 +205,10 @@ public class IstioModelEngineTest extends BaseTest {
 
         Assert.assertTrue(res.size() == 1);
 
-        PluginManager pm = (PluginManager) res.get(0).getResource();
+        K8sTypes.PluginManager pm = (K8sTypes.PluginManager) res.get(0).getResource();
 
         Assert.assertTrue(pm.getSpec().getWorkloadLabels().size() == 2);
-        Assert.assertTrue(pm.getSpec().getPlugin().size() == 3);
+        Assert.assertTrue(pm.getSpec().getPluginCount() == 3);
 
         PluginOrderDTO po1 = new PluginOrderDTO();
         po1.setPlugins(ImmutableList.of(
@@ -218,15 +219,15 @@ public class IstioModelEngineTest extends BaseTest {
 
         Assert.assertTrue(res1.size() == 1);
 
-        PluginManager pm1 = (PluginManager) res1.get(0).getResource();
+        K8sTypes.PluginManager pm1 = (K8sTypes.PluginManager) res1.get(0).getResource();
         Assert.assertTrue(CollectionUtils.isEmpty(pm1.getSpec().getWorkloadLabels()));
         Assert.assertTrue(pm1.getMetadata().getName().equals("qz-global"));
-        assertEquals(2, pm1.getSpec().getPlugin().size());
-        assertEquals("p1", pm1.getSpec().getPlugin().get(0).getName());
+        assertEquals(2, pm1.getSpec().getPluginCount());
+        assertEquals("p1", pm1.getSpec().getPlugin(0).getName());
 //        assertEquals(false, pm1.getSpec().getPlugin().get(0).getEnable());
-        assertEquals("p2", pm1.getSpec().getPlugin().get(1).getName());
-        assertEquals(true, pm1.getSpec().getPlugin().get(1).getEnable());
-        assertEquals(ImmutableMap.of("key","good"), pm1.getSpec().getPlugin().get(1).getSettings());
+        assertEquals("p2", pm1.getSpec().getPlugin(1).getName());
+        assertEquals(true, pm1.getSpec().getPlugin(1).getEnable());
+        assertEquals(ImmutableMap.of("key","good"), pm1.getSpec().getPlugin(1).getSettings());
     }
 
     @Test
@@ -397,15 +398,15 @@ public class IstioModelEngineTest extends BaseTest {
 
     @Test
     public void testTranslateGlobalPlugin() {
-        GatewayPlugin gp1 = getGatewayPlugin("code1", Collections.EMPTY_LIST,
+        K8sTypes.EnvoyPlugin gp1 = getEnvoyPlugin("code1", Collections.EMPTY_LIST,
                 "gw1", Arrays.asList("host1", "host2"));
 
         List<K8sResourcePack> resources = gatewayIstioModelEngine.translate(gp1);
 
         assertEquals(1, resources.size());
 
-        me.snowdrop.istio.api.networking.v1alpha3.GatewayPlugin gatewayPlugin =
-                (me.snowdrop.istio.api.networking.v1alpha3.GatewayPlugin) resources.get(0).getResource();
+        K8sTypes.EnvoyPlugin gatewayPlugin =
+                (K8sTypes.EnvoyPlugin) resources.get(0).getResource();
         GatewayPluginSpec spec = gatewayPlugin.getSpec();
         assertEquals(2, spec.getHost().size());
         assertTrue(spec.getHost().containsAll(Arrays.asList("host1", "host2")));
@@ -415,9 +416,10 @@ public class IstioModelEngineTest extends BaseTest {
     }
 
 
-    private GatewayPlugin getGatewayPlugin(String code, List<String> plugins, String gateway, List<String> hosts) {
+    private K8sTypes.EnvoyPlugin getEnvoyPlugin(String code, List<String> plugins, String gateway, List<String> hosts) {
 
-        GatewayPlugin gp = new GatewayPlugin();
+        K8sTypes.EnvoyPlugin gp = new K8sTypes.EnvoyPlugin();
+        EnvoyPluginOuterClass.EnvoyPlugin.newBuilder().addAllPlugins(plugins)
         gp.setCode(code);
         gp.setPlugins(plugins);
         gp.setGateway(gateway);

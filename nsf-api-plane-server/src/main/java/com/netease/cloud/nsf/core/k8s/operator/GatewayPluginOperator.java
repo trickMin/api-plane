@@ -1,7 +1,9 @@
 package com.netease.cloud.nsf.core.k8s.operator;
 
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
-import me.snowdrop.istio.api.networking.v1alpha3.*;
+import com.netease.cloud.nsf.proto.k8s.K8sTypes;
+import me.snowdrop.istio.api.networking.v1alpha3.GatewayPluginBuilder;
+import me.snowdrop.istio.api.networking.v1alpha3.Plugins;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -12,12 +14,12 @@ import java.util.List;
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2020/1/13
  **/
 @Component
-public class GatewayPluginOperator implements k8sResourceOperator<GatewayPlugin> {
+public class GatewayPluginOperator implements k8sResourceOperator<K8sTypes.EnvoyPlugin> {
 
     @Override
-    public GatewayPlugin merge(GatewayPlugin old, GatewayPlugin fresh) {
+    public K8sTypes.EnvoyPlugin merge(K8sTypes.EnvoyPlugin old, K8sTypes.EnvoyPlugin fresh) {
 
-        GatewayPlugin latest = new GatewayPluginBuilder(old).build();
+        K8sTypes.EnvoyPlugin latest = new K8sTypes.EnvoyPlugin();
 
         List<Plugins> latestPlugins = fresh.getSpec().getPlugins();
         latest.getSpec().setPlugins(latestPlugins);
@@ -32,21 +34,21 @@ public class GatewayPluginOperator implements k8sResourceOperator<GatewayPlugin>
     }
 
     @Override
-    public GatewayPlugin subtract(GatewayPlugin old, String value) {
+    public K8sTypes.EnvoyPlugin subtract(K8sTypes.EnvoyPlugin old, String value) {
         old.setSpec(null);
         return old;
     }
 
     @Override
     public boolean adapt(String name) {
-        return K8sResourceEnum.GatewayPlugin.name().equals(name);
+        return K8sResourceEnum.EnvoyPlugin.name().equals(name);
     }
 
     @Override
-    public boolean isUseless(GatewayPlugin gp) {
+    public boolean isUseless(K8sTypes.EnvoyPlugin gp) {
         return gp == null ||
                 StringUtils.isEmpty(gp.getApiVersion()) ||
                  gp.getSpec() == null ||
-                  CollectionUtils.isEmpty(gp.getSpec().getPlugins());
+                  CollectionUtils.isEmpty(gp.getSpec().getPluginsList());
     }
 }

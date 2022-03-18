@@ -1,37 +1,46 @@
 package com.netease.cloud.nsf.core.k8s.operator;
 
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
+import com.netease.cloud.nsf.proto.k8s.K8sTypes;
 import com.netease.cloud.nsf.util.function.Equals;
-import me.snowdrop.istio.api.networking.v1alpha3.Plugin;
-import me.snowdrop.istio.api.networking.v1alpha3.PluginManager;
-import me.snowdrop.istio.api.networking.v1alpha3.PluginManagerBuilder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import slime.microservice.plugin.v1alpha1.PluginManagerOuterClass;
 
-import java.util.List;
 import java.util.Objects;
 
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/9/26
  **/
 @Component
-public class PluginManagerOperator implements k8sResourceOperator<PluginManager> {
+public class PluginManagerOperator implements k8sResourceOperator<K8sTypes.PluginManager> {
 
     @Override
-    public PluginManager merge(PluginManager old, PluginManager fresh) {
+    public K8sTypes.PluginManager merge(K8sTypes.PluginManager old, K8sTypes.PluginManager fresh) {
 
-        PluginManager latest = new PluginManagerBuilder(old).build();
 
-        List<Plugin> latestPlugins = fresh.getSpec().getPlugin();
-        latest.getSpec().setPlugin(latestPlugins);
-        latest.getSpec().setWorkloadLabels(fresh.getSpec().getWorkloadLabels());
+        K8sTypes.PluginManager latest = new K8sTypes.PluginManager();
+        latest.setKind(old.getKind());
+        latest.setApiVersion(old.getApiVersion());
+        latest.setMetadata(old.getMetadata());
+
+        PluginManagerOuterClass.PluginManager oldSpec = old.getSpec();
+        PluginManagerOuterClass.PluginManager freshSpec = fresh.getSpec();
+        PluginManagerOuterClass.PluginManager.Builder builder = oldSpec.toBuilder();
+        if (freshSpec.getPluginCount() > 0){
+            builder.addAllPlugin(freshSpec.getPluginList());
+        }
+        if (freshSpec.getWorkloadLabelsCount() > 0){
+            builder.putAllWorkloadLabels(freshSpec.getWorkloadLabelsMap());
+        }
+        latest.setSpec(builder.build());
         return latest;
     }
 
-    private class PluginEquals implements Equals<Plugin> {
+    private class PluginEquals implements Equals<PluginManagerOuterClass.Plugin> {
         @Override
-        public boolean apply(Plugin op, Plugin np) {
+        public boolean apply(PluginManagerOuterClass.Plugin op, PluginManagerOuterClass.Plugin np) {
             return Objects.equals(op.getName(), np.getName());
         }
     }
@@ -42,14 +51,14 @@ public class PluginManagerOperator implements k8sResourceOperator<PluginManager>
     }
 
     @Override
-    public boolean isUseless(PluginManager pm) {
+    public boolean isUseless(K8sTypes.PluginManager pm) {
         return pm.getSpec() == null ||
                 StringUtils.isEmpty(pm.getApiVersion()) ||
-                 CollectionUtils.isEmpty(pm.getSpec().getPlugin());
+                 CollectionUtils.isEmpty(pm.getSpec().getPluginList());
     }
 
     @Override
-    public PluginManager subtract(PluginManager old, String value) {
+    public K8sTypes.PluginManager subtract(K8sTypes.PluginManager old, String value) {
         old.setSpec(null);
         return old;
     }

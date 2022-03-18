@@ -24,6 +24,7 @@ import java.util.regex.Pattern;
  * @auther wupenghuai@corp.netease.com
  * @date 2019/7/23
  **/
+
 public enum K8sResourceEnum {
     VirtualService(
             K8sTypes.VirtualService.class,
@@ -74,9 +75,9 @@ public enum K8sResourceEnum {
             ServiceEntryList.class,
             ImmutableMap.of(K8sVersion.V1_11_0, "/apis/networking.istio.io/v1alpha3/namespaces/%s/serviceentries")),
     PluginManager(
-            PluginManager.class,
-            PluginManagerList.class,
-            ImmutableMap.of(K8sVersion.V1_11_0, "/apis/networking.istio.io/v1alpha3/namespaces/%s/pluginmanagers")),
+            K8sTypes.PluginManager.class,
+            K8sTypes.PluginManagerList.class,
+            ImmutableMap.of(K8sVersion.V1_11_0, "/apis/microservice.slime.io/v1alpha1/namespaces/%s/pluginmanagers")),
     Deployment(
             Deployment.class,
             DeploymentList.class,
@@ -124,10 +125,10 @@ public enum K8sResourceEnum {
             NamespaceList.class,
             ImmutableMap.of(K8sVersion.V1_11_0, "/api/v1/namespaces/%s")),
     //FIXME：传媒版本是否还遗留GlobalScope的GatewayPlugin
-    GatewayPlugin(
-            GatewayPlugin.class,
-            GatewayPluginList.class,
-            ImmutableMap.of(K8sVersion.V1_11_0, "/apis/networking.istio.io/v1alpha3/namespaces/%s/gatewayplugins")),
+    EnvoyPlugin(
+            K8sTypes.EnvoyPlugin.class,
+            K8sTypes.EnvoyPluginList.class,
+            ImmutableMap.of(K8sVersion.V1_11_0, "/apis/microservice.slime.io/v1alpha1/namespaces/%s/envoyplugins")),
     MixerUrlPattern(
             MixerUrlPattern.class,
             MixerUrlPatternList.class,
