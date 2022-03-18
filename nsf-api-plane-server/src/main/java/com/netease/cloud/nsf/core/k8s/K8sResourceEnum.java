@@ -30,8 +30,8 @@ public enum K8sResourceEnum {
             K8sTypes.VirtualServiceList.class,
             ImmutableMap.of(K8sVersion.V1_11_0, "/apis/networking.istio.io/v1alpha3/namespaces/%s/virtualservices")),
     DestinationRule(
-            DestinationRule.class,
-            DestinationRuleList.class,
+            K8sTypes.DestinationRule.class,
+            K8sTypes.DestinationRuleList.class,
             ImmutableMap.of(K8sVersion.V1_11_0, "/apis/networking.istio.io/v1alpha3/namespaces/%s/destinationrules")),
     ServiceRole(
             ServiceRole.class,

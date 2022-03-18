@@ -2,9 +2,9 @@ package com.netease.cloud.nsf.core.k8s.operator;
 
 
 import com.google.common.collect.ImmutableMap;
-import me.snowdrop.istio.api.networking.v1alpha3.DestinationRule;
-import me.snowdrop.istio.api.networking.v1alpha3.DestinationRuleSpec;
-import me.snowdrop.istio.api.networking.v1alpha3.Subset;
+import com.netease.cloud.nsf.proto.k8s.K8sTypes;
+import istio.networking.v1alpha3.DestinationRuleOuterClass;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,6 +17,7 @@ public class DestinationRuleOperatorTest {
 
     DestinationRuleOperator operator;
 
+
     @Before
     public void init() {
         operator = new DestinationRuleOperator();
@@ -28,27 +29,31 @@ public class DestinationRuleOperatorTest {
 
         Map<String, String> labels = ImmutableMap.of("a", "b");
 
-        Subset s1 = getSubset("s1", null, null, "gw1");
-        Subset s2 = getSubset("s2", null, null, "gw2");
-        Subset s3 = getSubset("s3", null, null, "gw3");
+        DestinationRuleOuterClass.Subset s1 = getSubset("s1", null, null, "gw1");
+        DestinationRuleOuterClass.Subset s2 = getSubset("s2", null, null, "gw2");
+        DestinationRuleOuterClass.Subset s3 = getSubset("s3", null, null, "gw3");
+        K8sTypes.DestinationRule old = new K8sTypes.DestinationRule();
+        old.setApiVersion("v1");
+        old.setKind("destinationRule");
+        old.setSpec(DestinationRuleOuterClass.DestinationRule.newBuilder()
+                .addAllSubsets(Arrays.asList(s1,s2,s3)).build());
 
-        DestinationRuleSpec spec = getDestinationRuleSpec(Arrays.asList(s1,s2,s3));
-        DestinationRule old = getDestinationRule("v1", "destinationRule", spec);
+        DestinationRuleOuterClass.Subset fresh1 = getSubset("s1", null, labels, "gw11");
+        DestinationRuleOuterClass.Subset fresh4 = getSubset("s4", null, null, "gw4");
+        K8sTypes.DestinationRule fresh = new K8sTypes.DestinationRule();
+        fresh.setApiVersion("v1");
+        fresh.setKind("destinationRule");
+        fresh.setSpec(DestinationRuleOuterClass.DestinationRule.newBuilder()
+                .addAllSubsets(Arrays.asList(fresh1,fresh4)).build());
 
-        Subset fresh1 = getSubset("s1", null, labels, "gw11");
-        Subset fresh4 = getSubset("s4", null, null, "gw4");
-
-        DestinationRuleSpec freshSpec = getDestinationRuleSpec(Arrays.asList(fresh1, fresh4));
-        DestinationRule fresh = getDestinationRule("v1", "destinationRule", freshSpec);
-
-        DestinationRule destinationRule = operator.merge(old, fresh);
-        List<Subset> subsets = destinationRule.getSpec().getSubsets();
-        Assert.assertTrue(subsets.size() == 4);
-        subsets.stream().forEach(ss -> {
+        K8sTypes.DestinationRule destinationRule = operator.merge(old, fresh);
+        List<DestinationRuleOuterClass.Subset> subsets = destinationRule.getSpec().getSubsetsList();
+        Assert.assertEquals(4, subsets.size());
+        subsets.forEach(ss -> {
             if (ss.getName().equals("s1")) {
-                Assert.assertEquals(ss.getGwLabels(), getGwLabels("gw11"));
+                Assert.assertEquals(ss.getGwLabelsMap(), getGwLabels("gw11"));
             } else if (ss.getName().equals("s4")) {
-                Assert.assertEquals(ss.getGwLabels(), getGwLabels("gw4"));
+                Assert.assertEquals(ss.getGwLabelsMap(), getGwLabels("gw4"));
             }
         });
     }
@@ -56,41 +61,40 @@ public class DestinationRuleOperatorTest {
     @Test
     public void testSubtract() {
 
-        Subset s1 = getSubset("s1", "se-s1", null, "gw1");
-        Subset s2 = getSubset("s2", "se-s2", null, "gw2");
+        DestinationRuleOuterClass.Subset s1 = getSubset("s1", "se-s1", null, "gw1");
+        DestinationRuleOuterClass.Subset s2 = getSubset("s2", "se-s2", null, "gw2");
+        K8sTypes.DestinationRule old = new K8sTypes.DestinationRule();
+        old.setApiVersion("v1");
+        old.setKind("destinationRule");
+        old.setSpec(DestinationRuleOuterClass.DestinationRule.newBuilder()
+                .addAllSubsets(Arrays.asList(s1,s2)).build());
 
-        DestinationRuleSpec spec = getDestinationRuleSpec(Arrays.asList(s1,s2));
-        DestinationRule old = getDestinationRule("v1", "destinationRule", spec);
 
-        DestinationRule result = operator.subtract(old, "se-s1");
-        Assert.assertTrue(result.getSpec().getSubsets().size() == 1);
-        Assert.assertTrue(result.getSpec().getSubsets().get(0).getName().equals("s2"));
-        Assert.assertTrue(result.getSpec().getSubsets().get(0).getGwLabels().equals(getGwLabels("gw2")));
+        K8sTypes.DestinationRule result = operator.subtract(old, "se-s1");
+        Assert.assertEquals(1, result.getSpec().getSubsetsList().size());
+        Assert.assertEquals("s2", result.getSpec().getSubsetsList().get(0).getName());
+        Assert.assertEquals(result.getSpec().getSubsetsList().get(0).getGwLabelsMap(), getGwLabels("gw2"));
     }
 
 
-    private static DestinationRule getDestinationRule(String apiVersion, String kind, DestinationRuleSpec spec) {
-        DestinationRule ds = new DestinationRule();
-        ds.setApiVersion(apiVersion);
-        ds.setKind(kind);
-        ds.setSpec(spec);
-        return ds;
+
+    private static DestinationRuleOuterClass.Subset getSubset(String name, String api, Map<String, String> labels, String gw) {
+        DestinationRuleOuterClass.Subset.Builder builder = DestinationRuleOuterClass.Subset.newBuilder();
+        if (StringUtils.isNotBlank(name)){
+            builder.setName(name);
+        }
+        if (StringUtils.isNotBlank(api)){
+            builder.setApi(api);
+        }
+        if (null != labels){
+            builder.putAllLabels(labels);
+        }
+        if (StringUtils.isNotBlank(gw)){
+            builder.putAllGwLabels(getGwLabels(gw));
+        }
+        return builder.build();
     }
 
-    private static Subset getSubset(String name, String api, Map<String, String> labels, String gw) {
-        Subset ss = new Subset();
-        ss.setName(name);
-        ss.setApi(api);
-        ss.setLabels(labels);
-        ss.setGwLabels(getGwLabels(gw));
-        return ss;
-    }
-
-    private static DestinationRuleSpec getDestinationRuleSpec(List<Subset> subsets) {
-        DestinationRuleSpec drs = new DestinationRuleSpec();
-        drs.setSubsets(subsets);
-        return drs;
-    }
 
     private static Map<String, String> getGwLabels(String gw) {
         return ImmutableMap.of("gw_cluster", gw);

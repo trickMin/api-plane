@@ -69,7 +69,6 @@ public class PortalGatewayController extends BaseController {
         if (!ErrorCodeEnum.Success.getCode().equals(errorCode.getCode())) {
             return apiReturn(errorCode);
         }
-
         gatewayService.updateService(service);
         return apiReturn(ApiPlaneErrorCode.Success);
     }

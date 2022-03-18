@@ -11,16 +11,15 @@ import com.netease.cloud.nsf.core.k8s.K8sResourceGenerator;
 import com.netease.cloud.nsf.core.k8s.K8sResourcePack;
 import com.netease.cloud.nsf.core.k8s.KubernetesClient;
 import com.netease.cloud.nsf.meta.Endpoint;
-import com.netease.cloud.nsf.meta.*;
 import com.netease.cloud.nsf.meta.GatewayPlugin;
+import com.netease.cloud.nsf.meta.*;
 import com.netease.cloud.nsf.meta.dto.PluginOrderDTO;
 import com.netease.cloud.nsf.meta.dto.PluginOrderItemDTO;
-import com.netease.cloud.nsf.meta.dto.VirtualClusterDTO;
 import com.netease.cloud.nsf.proto.k8s.K8sTypes;
 import com.netease.cloud.nsf.util.Const;
 import com.netease.cloud.nsf.util.Trans;
+import istio.networking.v1alpha3.DestinationRuleOuterClass;
 import istio.networking.v1alpha3.VirtualServiceOuterClass;
-import me.snowdrop.istio.api.IstioResource;
 import me.snowdrop.istio.api.networking.v1alpha3.*;
 import org.assertj.core.util.Lists;
 import org.junit.Assert;
@@ -30,7 +29,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Arrays;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -239,8 +237,8 @@ public class IstioModelEngineTest extends BaseTest {
         List<K8sResourcePack> istioResources = gatewayIstioModelEngine.translate(service);
 
         Assert.assertTrue(istioResources.size() == 1);
-        DestinationRule ds = (DestinationRule) istioResources.get(0).getResource();
-        DestinationRuleSpec spec = ds.getSpec();
+        K8sTypes.DestinationRule ds = (K8sTypes.DestinationRule) istioResources.get(0).getResource();
+        DestinationRuleOuterClass.DestinationRule spec = ds.getSpec();
         Assert.assertTrue(spec.getHost().equals(service.getBackendService()));
 
         Service service1 = getService(Const.PROXY_SERVICE_TYPE_STATIC, "10.10.10.10:1024,10.10.10.9:1025", 100, "b", "gw2", "https", "static-1");
@@ -251,7 +249,7 @@ public class IstioModelEngineTest extends BaseTest {
                 .map(r -> r.getResource())
                 .forEach(ir -> {
                     if (ir.getKind().equals(K8sResourceEnum.DestinationRule.name())) {
-                        DestinationRule ds1 = (DestinationRule) istioResources.get(0).getResource();
+                        K8sTypes.DestinationRule ds1 = (K8sTypes.DestinationRule) istioResources.get(0).getResource();
                         Assert.assertTrue(ds1.getSpec().getHost().equals(service.getBackendService()));
                         Assert.assertTrue(ds1.getSpec().getAltStatName().equals(service.getServiceTag()));
                     } else if (ir.getKind().equals(K8sResourceEnum.ServiceEntry.name())) {

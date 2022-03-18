@@ -1,46 +1,54 @@
 package com.netease.cloud.nsf.core.k8s.operator;
 
-import com.netease.cloud.nsf.core.editor.PathExpressionEnum;
-import com.netease.cloud.nsf.core.editor.ResourceGenerator;
-import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
+import com.netease.cloud.nsf.proto.k8s.K8sTypes;
 import com.netease.cloud.nsf.util.function.Equals;
-import me.snowdrop.istio.api.networking.v1alpha3.DestinationRule;
-import me.snowdrop.istio.api.networking.v1alpha3.DestinationRuleBuilder;
-import me.snowdrop.istio.api.networking.v1alpha3.DestinationRuleSpec;
-import me.snowdrop.istio.api.networking.v1alpha3.Subset;
+import istio.networking.v1alpha3.DestinationRuleOuterClass;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/7/30
  **/
 @Component
-public class DestinationRuleOperator implements k8sResourceOperator<DestinationRule> {
+public class DestinationRuleOperator implements k8sResourceOperator<K8sTypes.DestinationRule> {
 
     @Override
-    public DestinationRule merge(DestinationRule old, DestinationRule fresh) {
+    public K8sTypes.DestinationRule merge(K8sTypes.DestinationRule old, K8sTypes.DestinationRule fresh) {
+        DestinationRuleOuterClass.DestinationRule oldSpec = old.getSpec();
+        DestinationRuleOuterClass.DestinationRule freshSpec = fresh.getSpec();
 
-        DestinationRuleSpec oldSpec = old.getSpec();
-        DestinationRuleSpec freshSpec = fresh.getSpec();
+        K8sTypes.DestinationRule latest = new K8sTypes.DestinationRule();
+        latest.setKind(old.getKind());
+        latest.setApiVersion(old.getApiVersion());
+        latest.setMetadata(old.getMetadata());
+        DestinationRuleOuterClass.DestinationRule.Builder builder = DestinationRuleOuterClass.DestinationRule.newBuilder();
+        if (!StringUtils.isEmpty(freshSpec.getAltStatName())){
+            builder.setAltStatName(freshSpec.getAltStatName());
+        }
+        if (!StringUtils.isEmpty(freshSpec.getHost())){
+            builder.setHost(freshSpec.getHost());
+        }
 
-        DestinationRule latest = new DestinationRuleBuilder(old).build();
-        DestinationRuleSpec latestSpec = latest.getSpec();
-
-        latestSpec.setAltStatName(freshSpec.getAltStatName());
-        latestSpec.setHost(freshSpec.getHost());
-        latestSpec.setTrafficPolicy(freshSpec.getTrafficPolicy());
-        latestSpec.setSubsets(mergeList(oldSpec.getSubsets(), freshSpec.getSubsets(), new SubsetEquals()));
+        List subList = mergeList(oldSpec.getSubsetsList(), freshSpec.getSubsetsList(), new SubsetEquals());
+        if (!CollectionUtils.isEmpty(subList)){
+            builder.addAllSubsets(subList);
+        }
+        builder.setTrafficPolicy(freshSpec.getTrafficPolicy());
+        latest.setSpec(builder.build());
         return latest;
+
     }
 
-    private class SubsetEquals implements Equals<Subset> {
+    private class SubsetEquals implements Equals<DestinationRuleOuterClass.Subset> {
 
         @Override
-        public boolean apply(Subset ot, Subset nt) {
+        public boolean apply(DestinationRuleOuterClass.Subset ot, DestinationRuleOuterClass.Subset nt) {
             return Objects.equals(ot.getName(), nt.getName());
         }
     }
@@ -51,18 +59,21 @@ public class DestinationRuleOperator implements k8sResourceOperator<DestinationR
     }
 
     @Override
-    public boolean isUseless(DestinationRule destinationRule) {
+    public boolean isUseless(K8sTypes.DestinationRule destinationRule) {
         return destinationRule == null ||
                 StringUtils.isEmpty(destinationRule.getApiVersion()) ||
                  destinationRule.getSpec() == null ||
-                  CollectionUtils.isEmpty(destinationRule.getSpec().getSubsets());
+                  CollectionUtils.isEmpty(destinationRule.getSpec().getSubsetsList());
     }
 
     @Override
-    public DestinationRule subtract(DestinationRule old, String value) {
-        ResourceGenerator gen = ResourceGenerator.newInstance(old, ResourceType.OBJECT);
-        gen.removeElement(PathExpressionEnum.REMOVE_DST_SUBSET_API.translate(value));
-        return gen.object(DestinationRule.class);
+    public K8sTypes.DestinationRule subtract(K8sTypes.DestinationRule old, String value) {
+        List<DestinationRuleOuterClass.Subset> subsets = old.getSpec().getSubsetsList().stream()
+                .filter(subset -> !subset.getApi().equals(value))
+                .collect(Collectors.toList());
+        DestinationRuleOuterClass.DestinationRule build = old.getSpec().toBuilder().clearSubsets().build();
+        old.setSpec((build.toBuilder().addAllSubsets(subsets).build()));
+        return old;
     }
 
     /**

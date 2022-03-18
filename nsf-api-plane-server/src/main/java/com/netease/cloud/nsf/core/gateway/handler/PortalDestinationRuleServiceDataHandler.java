@@ -37,6 +37,8 @@ public class PortalDestinationRuleServiceDataHandler extends ServiceDataHandler 
                 .put(DESTINATION_RULE_PATH, service.getPath())
                 .put(DESTINATION_RULE_TIMEOUT, service.getTimeout())
                 .put(DESTINATION_RULE_EXPECTED_STATUSES, service.getExpectedStatuses())
+                //当前只支持HTTP健康检查
+                .put(DESTINATION_RULE_HEALTHY_CHECKER_TYPE, "http")
                 .put(DESTINATION_RULE_HEALTHY_INTERVAL, service.getHealthyInterval())
                 .put(DESTINATION_RULE_HEALTHY_THRESHOLD, service.getHealthyThreshold())
                 .put(DESTINATION_RULE_UNHEALTHY_INTERVAL, service.getUnhealthyInterval())

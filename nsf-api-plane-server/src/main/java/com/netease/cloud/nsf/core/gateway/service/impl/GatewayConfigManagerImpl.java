@@ -13,13 +13,13 @@ import com.netease.cloud.nsf.core.k8s.K8sResourcePack;
 import com.netease.cloud.nsf.core.k8s.event.K8sResourceDeleteNotificationEvent;
 import com.netease.cloud.nsf.core.k8s.subtracter.ServiceEntryEndpointsSubtracter;
 import com.netease.cloud.nsf.meta.*;
+import com.netease.cloud.nsf.proto.k8s.K8sTypes;
 import com.netease.cloud.nsf.util.exception.ApiPlaneException;
 import com.netease.cloud.nsf.util.function.Subtracter;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import me.snowdrop.istio.api.IstioResource;
-import me.snowdrop.istio.api.networking.v1alpha3.DestinationRule;
-import me.snowdrop.istio.api.networking.v1alpha3.ServiceEntry;
 import me.snowdrop.istio.api.networking.v1alpha3.GatewaySpec;
+import me.snowdrop.istio.api.networking.v1alpha3.ServiceEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -110,8 +110,8 @@ public class GatewayConfigManagerImpl extends AbstractConfigManagerSupport imple
                         subsets.add(String.format("%s-%s", service.getCode(), service.getGateway()));
                     }
                     subsets.forEach(ss -> gen.removeElement(PathExpressionEnum.REMOVE_DST_SUBSET_NAME.translate(ss)));
-                    DestinationRule dr = gen.object(DestinationRule.class);
-                    if (CollectionUtils.isEmpty(dr.getSpec().getSubsets())) noSubsets = true;
+                    K8sTypes.DestinationRule dr = gen.object(K8sTypes.DestinationRule.class);
+                    if (dr.getSpec().getSubsetsCount() == 0) noSubsets = true;
                     return dr;
                 } else if (r.getClass() == seClz) {
                     // 若没有subset，则删除整个se
