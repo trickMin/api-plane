@@ -398,7 +398,7 @@ public class IstioModelEngineTest extends BaseTest {
 
     @Test
     public void testTranslateGlobalPlugin() {
-        K8sTypes.EnvoyPlugin gp1 = getEnvoyPlugin("code1", Collections.EMPTY_LIST,
+        GatewayPlugin gp1 = getGatewayPlugin("code1", Collections.EMPTY_LIST,
                 "gw1", Arrays.asList("host1", "host2"));
 
         List<K8sResourcePack> resources = gatewayIstioModelEngine.translate(gp1);
@@ -407,19 +407,18 @@ public class IstioModelEngineTest extends BaseTest {
 
         K8sTypes.EnvoyPlugin gatewayPlugin =
                 (K8sTypes.EnvoyPlugin) resources.get(0).getResource();
-        GatewayPluginSpec spec = gatewayPlugin.getSpec();
-        assertEquals(2, spec.getHost().size());
-        assertTrue(spec.getHost().containsAll(Arrays.asList("host1", "host2")));
+        EnvoyPluginOuterClass.EnvoyPlugin spec = gatewayPlugin.getSpec();
+        assertEquals(2, spec.getHostCount());
+        assertTrue(spec.getHostList().containsAll(Arrays.asList("host1", "host2")));
         assertEquals("code1", gatewayPlugin.getMetadata().getName());
-        assertEquals(1, spec.getGateway().size());
-        assertEquals("gateway-system/gw1", spec.getGateway().get(0));
+        assertEquals(1, spec.getGatewayCount());
+        assertEquals("gateway-system/gw1", spec.getGateway(0));
     }
 
 
-    private K8sTypes.EnvoyPlugin getEnvoyPlugin(String code, List<String> plugins, String gateway, List<String> hosts) {
+    private GatewayPlugin getGatewayPlugin(String code, List<String> plugins, String gateway, List<String> hosts) {
 
-        K8sTypes.EnvoyPlugin gp = new K8sTypes.EnvoyPlugin();
-        EnvoyPluginOuterClass.EnvoyPlugin.newBuilder().addAllPlugins(plugins)
+        GatewayPlugin gp = new GatewayPlugin();
         gp.setCode(code);
         gp.setPlugins(plugins);
         gp.setGateway(gateway);

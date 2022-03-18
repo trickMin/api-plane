@@ -4,6 +4,7 @@ import istio.mcp.nsf.SnapshotOuterClass;
 import istio.mcp.v1alpha1.ResourceOuterClass;
 import istio.networking.v1alpha3.*;
 import org.junit.Test;
+import slime.microservice.plugin.v1alpha1.PluginManagerOuterClass;
 
 /**
  * @author wupenghuai@corp.netease.com
