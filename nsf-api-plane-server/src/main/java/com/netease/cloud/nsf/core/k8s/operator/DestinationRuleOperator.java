@@ -1,18 +1,16 @@
 package com.netease.cloud.nsf.core.k8s.operator;
 
-import com.netease.cloud.nsf.core.editor.PathExpressionEnum;
-import com.netease.cloud.nsf.core.editor.ResourceGenerator;
-import com.netease.cloud.nsf.core.editor.ResourceType;
 import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.proto.k8s.K8sTypes;
 import com.netease.cloud.nsf.util.function.Equals;
 import istio.networking.v1alpha3.DestinationRuleOuterClass;
-import me.snowdrop.istio.api.networking.v1alpha3.Subset;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/7/30
@@ -29,19 +27,28 @@ public class DestinationRuleOperator implements k8sResourceOperator<K8sTypes.Des
         latest.setKind(old.getKind());
         latest.setApiVersion(old.getApiVersion());
         latest.setMetadata(old.getMetadata());
-        latest.setSpec(DestinationRuleOuterClass.DestinationRule.newBuilder()
-                .setAltStatName(freshSpec.getAltStatName())
-                .setHost(freshSpec.getHost())
-                .setTrafficPolicy(freshSpec.getTrafficPolicy())
-                .addAllSubsets(mergeList(oldSpec.getSubsetsList(), freshSpec.getSubsetsList(), new SubsetEquals())).build());
+        DestinationRuleOuterClass.DestinationRule.Builder builder = DestinationRuleOuterClass.DestinationRule.newBuilder();
+        if (!StringUtils.isEmpty(freshSpec.getAltStatName())){
+            builder.setAltStatName(freshSpec.getAltStatName());
+        }
+        if (!StringUtils.isEmpty(freshSpec.getHost())){
+            builder.setHost(freshSpec.getHost());
+        }
+
+        List subList = mergeList(oldSpec.getSubsetsList(), freshSpec.getSubsetsList(), new SubsetEquals());
+        if (!CollectionUtils.isEmpty(subList)){
+            builder.addAllSubsets(subList);
+        }
+        builder.setTrafficPolicy(freshSpec.getTrafficPolicy());
+        latest.setSpec(builder.build());
         return latest;
 
     }
 
-    private class SubsetEquals implements Equals<Subset> {
+    private class SubsetEquals implements Equals<DestinationRuleOuterClass.Subset> {
 
         @Override
-        public boolean apply(Subset ot, Subset nt) {
+        public boolean apply(DestinationRuleOuterClass.Subset ot, DestinationRuleOuterClass.Subset nt) {
             return Objects.equals(ot.getName(), nt.getName());
         }
     }
@@ -61,9 +68,12 @@ public class DestinationRuleOperator implements k8sResourceOperator<K8sTypes.Des
 
     @Override
     public K8sTypes.DestinationRule subtract(K8sTypes.DestinationRule old, String value) {
-        ResourceGenerator gen = ResourceGenerator.newInstance(old, ResourceType.OBJECT);
-        gen.removeElement(PathExpressionEnum.REMOVE_DST_SUBSET_API.translate(value));
-        return gen.object(K8sTypes.DestinationRule.class);
+        List<DestinationRuleOuterClass.Subset> subsets = old.getSpec().getSubsetsList().stream()
+                .filter(subset -> !subset.getApi().equals(value))
+                .collect(Collectors.toList());
+        DestinationRuleOuterClass.DestinationRule build = old.getSpec().toBuilder().clearSubsets().build();
+        old.setSpec((build.toBuilder().addAllSubsets(subsets).build()));
+        return old;
     }
 
     /**

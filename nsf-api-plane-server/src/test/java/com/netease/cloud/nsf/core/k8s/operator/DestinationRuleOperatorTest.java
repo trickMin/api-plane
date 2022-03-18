@@ -4,6 +4,7 @@ package com.netease.cloud.nsf.core.k8s.operator;
 import com.google.common.collect.ImmutableMap;
 import com.netease.cloud.nsf.proto.k8s.K8sTypes;
 import istio.networking.v1alpha3.DestinationRuleOuterClass;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,9 +41,9 @@ public class DestinationRuleOperatorTest {
         DestinationRuleOuterClass.Subset fresh1 = getSubset("s1", null, labels, "gw11");
         DestinationRuleOuterClass.Subset fresh4 = getSubset("s4", null, null, "gw4");
         K8sTypes.DestinationRule fresh = new K8sTypes.DestinationRule();
-        old.setApiVersion("v1");
-        old.setKind("destinationRule");
-        old.setSpec(DestinationRuleOuterClass.DestinationRule.newBuilder()
+        fresh.setApiVersion("v1");
+        fresh.setKind("destinationRule");
+        fresh.setSpec(DestinationRuleOuterClass.DestinationRule.newBuilder()
                 .addAllSubsets(Arrays.asList(fresh1,fresh4)).build());
 
         K8sTypes.DestinationRule destinationRule = operator.merge(old, fresh);
@@ -78,7 +79,20 @@ public class DestinationRuleOperatorTest {
 
 
     private static DestinationRuleOuterClass.Subset getSubset(String name, String api, Map<String, String> labels, String gw) {
-        return DestinationRuleOuterClass.Subset.newBuilder().setName(name).setApi(api).putAllLabels(labels).putAllGwLabels(getGwLabels(gw)).build();
+        DestinationRuleOuterClass.Subset.Builder builder = DestinationRuleOuterClass.Subset.newBuilder();
+        if (StringUtils.isNotBlank(name)){
+            builder.setName(name);
+        }
+        if (StringUtils.isNotBlank(api)){
+            builder.setApi(api);
+        }
+        if (null != labels){
+            builder.putAllLabels(labels);
+        }
+        if (StringUtils.isNotBlank(gw)){
+            builder.putAllGwLabels(getGwLabels(gw));
+        }
+        return builder.build();
     }
 
 
