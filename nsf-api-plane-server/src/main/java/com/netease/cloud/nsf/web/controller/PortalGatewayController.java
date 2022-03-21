@@ -46,6 +46,7 @@ public class PortalGatewayController extends BaseController {
      */
     @RequestMapping(value = "/portal", params = "Action=PublishGlobalPlugin", method = RequestMethod.POST)
     public String publishGatewayPlugin(@RequestBody @Valid GatewayPluginDTO plugin) {
+
         gatewayService.updateGatewayPlugin(plugin);
         return apiReturn(ApiPlaneErrorCode.Success);
     }

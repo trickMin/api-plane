@@ -41,50 +41,36 @@ public class AggregateExtensionProcessor extends AbstractSchemaProcessor impleme
         switch (rg.getValue("$.kind", String.class)) {
             case "rewrite":
                 holder = getProcessor("RewriteProcessor").process(plugin, serviceInfo);
-                coverToExtensionPlugin(holder, "com.netease.rewrite");
+                coverToExtensionPlugin(holder, "proxy.filters.http.rewrite");
                 break;
             case "jsonp":
                 holder = getProcessor("JsonpProcessor").process(plugin, serviceInfo);
-                coverToExtensionPlugin(holder, "com.netease.jsonp");
+                coverToExtensionPlugin(holder, "proxy.filters.http.jsonp");
                 break;
             case "ianus-request-transformer":
             case "transformer":
                 holder = getProcessor("TransformProcessor").process(plugin, serviceInfo);
-                coverToExtensionPlugin(holder, "com.netease.transformation");
-                break;
-            case "body-extractor":
-                //todo: encapsulated
-                holder = getProcessor("DefaultProcessor").process(plugin, serviceInfo);
-                coverToExtensionPlugin(holder, "com.netease.bodyextractor");
-                break;
-            case "auth":
-                //todo: encapsulated
-                holder = getProcessor("DefaultProcessor").process(plugin, serviceInfo);
-                coverToExtensionPlugin(holder, "envoy.ext_authz");
+                coverToExtensionPlugin(holder, "proxy.filters.http.transformation");
                 break;
             case "static-downgrade":
                 holder = getProcessor("StaticDowngradeProcessor").process(plugin, serviceInfo);
-                coverToExtensionPlugin(holder, "com.netease.staticdowngrade");
+                coverToExtensionPlugin(holder, "proxy.filters.http.staticdowngrade");
                 break;
             case "dynamic-downgrade":
                 holder = getProcessor("DynamicDowngradeProcessor").process(plugin, serviceInfo);
-                coverToExtensionPlugin(holder, "com.netease.dynamicdowngrade");
+                coverToExtensionPlugin(holder, "proxy.filters.http.dynamicdowngrade");
                 break;
             case "ianus-rate-limiting":
                 holder = getProcessor("RateLimitProcessor").process(plugin, serviceInfo);
-                coverToExtensionPlugin(holder, "envoy.ratelimit");
-                break;
-            case "mesh-rate-limiting":
-                holder = getProcessor("MeshRateLimitProcessor").process(plugin, serviceInfo);
-                coverToExtensionPlugin(holder, "envoy.ratelimit");
+                coverToExtensionPlugin(holder, "envoy.filters.http.ratelimit");
                 break;
             case "ianus-percent-limit":
                 holder = getProcessor("FlowLimitProcessor").process(plugin, serviceInfo);
-                coverToExtensionPlugin(holder, "envoy.fault");
+                coverToExtensionPlugin(holder, "envoy.filters.http.fault");
                 break;
             case "ip-restriction":
                 holder = getProcessor("IpRestrictionProcessor").process(plugin, serviceInfo);
-                coverToExtensionPlugin(holder, "com.netease.iprestriction");
+                coverToExtensionPlugin(holder, "proxy.filters.http.iprestriction");
                 break;
             case "ua-restriction":
                 holder = getProcessor("UaRestrictionProcessor").process(plugin, serviceInfo);
@@ -100,15 +86,15 @@ public class AggregateExtensionProcessor extends AbstractSchemaProcessor impleme
                 break;
             case "response-header-rewrite":
                 holder = getProcessor("ResponseHeaderRewriteProcessor").process(plugin, serviceInfo);
-                coverToExtensionPlugin(holder, "com.netease.filters.http.header_rewrite");
+                coverToExtensionPlugin(holder, "proxy.filters.http.header_rewrite");
                 break;
             case "cors":
                 holder = getProcessor("CorsProcessor").process(plugin, serviceInfo);
-                coverToExtensionPlugin(holder, "envoy.cors");
+                coverToExtensionPlugin(holder, "envoy.filters.http.cors");
                 break;
             case "cache":
                 holder = getProcessor("Cache").process(plugin, serviceInfo);
-                coverToExtensionPlugin(holder, "com.netease.supercache");
+                coverToExtensionPlugin(holder, "proxy.filters.http.super_cache");
                 break;
             case "local-cache":
                 holder = getProcessor("LocalCache").process(plugin, serviceInfo);
@@ -120,32 +106,32 @@ public class AggregateExtensionProcessor extends AbstractSchemaProcessor impleme
                 break;
             case "sign-auth": case "jwt-auth": case "oauth2-auth":
                 holder = getProcessor("SuperAuth").process(plugin, serviceInfo);
-                coverToExtensionPlugin(holder, "com.netease.superauthz");
+                coverToExtensionPlugin(holder, "proxy.filters.http.super_authz");
                 break;
             case "request-transformer":
                 holder = getProcessor("DefaultProcessor").process(plugin, serviceInfo);
-                coverToExtensionPlugin(holder, "com.netease.transformation");
+                coverToExtensionPlugin(holder, "proxy.filters.http.transformation");
                 break;
             case "circuit-breaker":
                 holder = getProcessor("CircuitBreakerProcessor").process(plugin, serviceInfo);
-                coverToExtensionPlugin(holder, "com.netease.circuitbreaker");
+                coverToExtensionPlugin(holder, "proxy.filters.http.circuitbreaker");
                 break;
             case "function":
                 holder = getProcessor("FunctionProcessor").process(plugin, serviceInfo);
-                coverToExtensionPlugin(holder, "envoy.lua");
+                coverToExtensionPlugin(holder, "envoy.filters.http.lua");
                 break;
             case "local-limiting":
                 holder = getProcessor("LocalLimitProcessor").process(plugin, serviceInfo);
-                coverToExtensionPlugin(holder, "com.netease.filters.http.locallimit");
+                coverToExtensionPlugin(holder, "proxy.filters.http.locallimit");
                 break;
             case "soap-json-transcoder":
                 holder = getProcessor("SoapJsonTranscoderProcessor").process(plugin, serviceInfo);
-                coverToExtensionPlugin(holder, "com.netease.filters.http.soapjsontranscoder");
+                coverToExtensionPlugin(holder, "proxy.filters.http.soapjsontranscoder");
                 break;
             case "trace":
             default:
                 holder = getProcessor("RestyProcessor").process(plugin, serviceInfo);
-                coverToExtensionPlugin(holder, "com.netease.resty");
+                coverToExtensionPlugin(holder, "proxy.filters.http.rider");
                 break;
         }
         return holder;
@@ -155,7 +141,10 @@ public class AggregateExtensionProcessor extends AbstractSchemaProcessor impleme
         if (Objects.nonNull(holder.getVirtualServiceFragment())) {
             PluginGenerator source = PluginGenerator.newInstance(holder.getVirtualServiceFragment().getContent(), ResourceType.YAML);
             PluginGenerator builder = PluginGenerator.newInstance(String.format("{\"name\":\"%s\"}", name));
-            builder.createOrUpdateJson("$", "settings", source.jsonString());
+            builder.createOrUpdateJson("$", "inline", "{}");
+            builder.createOrUpdateJson("$.inline", "settings", source.jsonString());
+            builder.createOrUpdateValue("$", "enable", true);
+            builder.createOrUpdateJson("$", "listenerType", "Gateway");
             holder.getVirtualServiceFragment().setContent(builder.yamlString());
             logger.info("Extension plugin: [{}]", builder.yamlString());
         }

@@ -40,7 +40,7 @@ public class GatewayPluginOperatorTest {
 
         EnvoyPluginOuterClass.EnvoyPlugin spec = merge.getSpec();
         assertEquals(1, spec.getGatewayCount());
-        assertEquals("gw-3", spec.getGatewayCount());
+        assertEquals("gw-3", spec.getGateway(0));
         assertEquals(2, spec.getHostCount());
         assertTrue(spec.getHostList().contains("host3") && spec.getHostList().contains("host4"));
         assertEquals(1, spec.getPluginsCount());

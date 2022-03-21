@@ -29,6 +29,7 @@ public class PluginManagerOperator implements k8sResourceOperator<K8sTypes.Plugi
         PluginManagerOuterClass.PluginManager freshSpec = fresh.getSpec();
         PluginManagerOuterClass.PluginManager.Builder builder = oldSpec.toBuilder();
         if (freshSpec.getPluginCount() > 0){
+            builder.clearPlugin();
             builder.addAllPlugin(freshSpec.getPluginList());
         }
         if (freshSpec.getWorkloadLabelsCount() > 0){

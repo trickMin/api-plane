@@ -27,18 +27,23 @@ public class GatewayPluginOperator implements k8sResourceOperator<K8sTypes.Envoy
         EnvoyPluginOuterClass.EnvoyPlugin.Builder builder = old.getSpec().toBuilder();
         EnvoyPluginOuterClass.EnvoyPlugin freshSpec = fresh.getSpec();
         if (freshSpec.getPluginsCount() > 0){
+            builder.clearPlugins();
             builder.addAllPlugins(freshSpec.getPluginsList());
         }
         if (freshSpec.getHostCount() > 0){
+            builder.clearHost();
             builder.addAllHost(freshSpec.getHostList());
         }
         if (freshSpec.getGatewayCount() > 0){
+            builder.clearGateway();
             builder.addAllGateway(freshSpec.getGatewayList());
         }
         if (freshSpec.getRouteCount() > 0){
+            builder.clearRoute();
             builder.addAllRoute(freshSpec.getRouteList());
         }
         if (freshSpec.getServiceCount() > 0){
+            builder.clearService();
             builder.addAllService(freshSpec.getServiceList());
         }
         latest.setSpec(builder.build());

@@ -1,5 +1,7 @@
 package com.netease.cloud.nsf.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netease.cloud.nsf.core.GlobalConfig;
 import com.netease.cloud.nsf.core.gateway.service.GatewayConfigManager;
 import com.netease.cloud.nsf.core.gateway.service.ResourceManager;
@@ -24,6 +26,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import slime.microservice.plugin.v1alpha1.PluginManagerOuterClass;
 
@@ -60,6 +63,9 @@ public class GatewayServiceImpl implements GatewayService {
 
     private GlobalConfig globalConfig;
 
+    @Autowired
+    ObjectMapper objectMapper;
+
     public GatewayServiceImpl(ResourceManager resourceManager, GatewayConfigManager configManager, GlobalConfig globalConfig) {
         this.resourceManager = resourceManager;
         this.configManager = configManager;
@@ -78,6 +84,11 @@ public class GatewayServiceImpl implements GatewayService {
      */
     @Override
     public void updateGatewayPlugin(GatewayPluginDTO plugin) {
+        try {
+            logger.info("updateGatewayPlugin,plugin:{}", objectMapper.writeValueAsString(plugin));
+        } catch (JsonProcessingException e) {
+            logger.error("log error");
+        }
         configManager.updateConfig(Trans.pluginDTOToPlugin(plugin));
     }
 
@@ -88,6 +99,11 @@ public class GatewayServiceImpl implements GatewayService {
      */
     @Override
     public void deleteGatewayPlugin(GatewayPluginDTO plugin) {
+        try {
+            logger.info("updateGatewayPlugin,plugin:{}", objectMapper.writeValueAsString(plugin));
+        } catch (JsonProcessingException e) {
+            logger.error("log error");
+        }
         configManager.updateConfig(Trans.pluginDTOToPlugin(plugin));
     }
 
@@ -226,7 +242,9 @@ public class GatewayServiceImpl implements GatewayService {
             PluginOrderItemDTO itemDTO = new PluginOrderItemDTO();
             itemDTO.setEnable(p.getEnable());
             itemDTO.setName(p.getName());
-            itemDTO.setSettings(p.getSettings());
+            itemDTO.setInline(p.getInline());
+            itemDTO.setListenerType(p.getListenerTypeValue());
+            itemDTO.setPort(p.getPort());
             dto.getPlugins().add(itemDTO);
         });
         return dto;

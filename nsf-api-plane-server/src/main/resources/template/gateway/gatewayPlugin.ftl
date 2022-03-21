@@ -1,5 +1,5 @@
-apiVersion: networking.istio.io/v1alpha3
-kind: GatewayPlugin
+apiVersion: microservice.slime.io/v1alpha1
+kind: EnvoyPlugin
 metadata:
   name: ${t_gateway_plugin_name}
 <#if t_gateway_plugin_namespace?has_content>

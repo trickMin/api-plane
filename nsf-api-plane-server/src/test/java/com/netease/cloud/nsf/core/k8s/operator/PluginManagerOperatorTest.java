@@ -39,7 +39,7 @@ public class PluginManagerOperatorTest {
 
         PluginManagerOuterClass.PluginManager spec = merge.getSpec();
 
-        assertTrue(spec.getWorkloadLabels().get("gw").equals("gw12"));
+        assertTrue(spec.getWorkloadLabelsMap().get("gw").equals("gw12"));
         assertTrue(spec.getPluginCount() == 2);
         for (PluginManagerOuterClass.Plugin p : spec.getPluginList()) {
             if (p.getName().equals("pa")) {

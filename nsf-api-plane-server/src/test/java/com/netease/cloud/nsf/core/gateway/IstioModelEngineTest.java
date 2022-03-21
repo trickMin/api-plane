@@ -392,7 +392,7 @@ public class IstioModelEngineTest extends BaseTest {
         PluginOrderItemDTO item = new PluginOrderItemDTO();
         item.setName(name);
         item.setEnable(enable);
-        item.setSettings(content);
+        item.setInline(content);
         return item;
     }
 

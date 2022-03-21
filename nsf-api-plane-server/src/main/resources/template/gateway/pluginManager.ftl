@@ -1,4 +1,4 @@
-apiVersion: networking.istio.io/v1alpha3
+apiVersion: microservice.slime.io/v1alpha1
 kind: PluginManager
 metadata:
   name: ${t_plugin_manager_name}
