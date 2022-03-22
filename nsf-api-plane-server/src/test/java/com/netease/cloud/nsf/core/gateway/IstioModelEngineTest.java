@@ -2,6 +2,7 @@ package com.netease.cloud.nsf.core.gateway;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.protobuf.Value;
 import com.netease.cloud.nsf.core.BaseTest;
 import com.netease.cloud.nsf.core.editor.EditorContext;
 import com.netease.cloud.nsf.core.editor.ResourceType;
@@ -10,8 +11,6 @@ import com.netease.cloud.nsf.core.k8s.K8sResourceEnum;
 import com.netease.cloud.nsf.core.k8s.K8sResourceGenerator;
 import com.netease.cloud.nsf.core.k8s.K8sResourcePack;
 import com.netease.cloud.nsf.core.k8s.KubernetesClient;
-import com.netease.cloud.nsf.meta.Endpoint;
-import com.netease.cloud.nsf.meta.GatewayPlugin;
 import com.netease.cloud.nsf.meta.*;
 import com.netease.cloud.nsf.meta.dto.PluginOrderDTO;
 import com.netease.cloud.nsf.meta.dto.PluginOrderItemDTO;
@@ -20,7 +19,8 @@ import com.netease.cloud.nsf.util.Const;
 import com.netease.cloud.nsf.util.Trans;
 import istio.networking.v1alpha3.DestinationRuleOuterClass;
 import istio.networking.v1alpha3.VirtualServiceOuterClass;
-import me.snowdrop.istio.api.networking.v1alpha3.*;
+import me.snowdrop.istio.api.networking.v1alpha3.ServiceEntry;
+import me.snowdrop.istio.api.networking.v1alpha3.VirtualService;
 import org.assertj.core.util.Lists;
 import org.junit.Assert;
 import org.junit.Test;
@@ -227,7 +227,11 @@ public class IstioModelEngineTest extends BaseTest {
 //        assertEquals(false, pm1.getSpec().getPlugin().get(0).getEnable());
         assertEquals("p2", pm1.getSpec().getPlugin(1).getName());
         assertEquals(true, pm1.getSpec().getPlugin(1).getEnable());
-        assertEquals(ImmutableMap.of("key","good"), pm1.getSpec().getPlugin(1).getSettings());
+        Map<String, Value> fieldsMap = pm1.getSpec().getPlugin(1).getInline().getSettings().getFieldsMap();
+        assertEquals(fieldsMap.size(), 1);
+        assertTrue(fieldsMap.containsKey("key"));
+        Value value = fieldsMap.get("key");
+        assertEquals("good", value.getStringValue());
     }
 
     @Test
@@ -392,7 +396,9 @@ public class IstioModelEngineTest extends BaseTest {
         PluginOrderItemDTO item = new PluginOrderItemDTO();
         item.setName(name);
         item.setEnable(enable);
-        item.setInline(content);
+        if (content != null){
+            item.setInline(ImmutableMap.of("settings", content));
+        }
         return item;
     }
 

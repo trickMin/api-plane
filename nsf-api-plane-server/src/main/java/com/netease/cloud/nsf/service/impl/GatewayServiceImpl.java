@@ -1,6 +1,5 @@
 package com.netease.cloud.nsf.service.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netease.cloud.nsf.core.GlobalConfig;
 import com.netease.cloud.nsf.core.gateway.service.GatewayConfigManager;
@@ -84,11 +83,6 @@ public class GatewayServiceImpl implements GatewayService {
      */
     @Override
     public void updateGatewayPlugin(GatewayPluginDTO plugin) {
-        try {
-            logger.info("updateGatewayPlugin,plugin:{}", objectMapper.writeValueAsString(plugin));
-        } catch (JsonProcessingException e) {
-            logger.error("log error");
-        }
         configManager.updateConfig(Trans.pluginDTOToPlugin(plugin));
     }
 
@@ -99,11 +93,6 @@ public class GatewayServiceImpl implements GatewayService {
      */
     @Override
     public void deleteGatewayPlugin(GatewayPluginDTO plugin) {
-        try {
-            logger.info("updateGatewayPlugin,plugin:{}", objectMapper.writeValueAsString(plugin));
-        } catch (JsonProcessingException e) {
-            logger.error("log error");
-        }
         configManager.updateConfig(Trans.pluginDTOToPlugin(plugin));
     }
 
@@ -243,6 +232,7 @@ public class GatewayServiceImpl implements GatewayService {
             itemDTO.setEnable(p.getEnable());
             itemDTO.setName(p.getName());
             itemDTO.setInline(p.getInline());
+            itemDTO.setSettings(p.getInline().getSettings());
             itemDTO.setListenerType(p.getListenerTypeValue());
             itemDTO.setPort(p.getPort());
             dto.getPlugins().add(itemDTO);
