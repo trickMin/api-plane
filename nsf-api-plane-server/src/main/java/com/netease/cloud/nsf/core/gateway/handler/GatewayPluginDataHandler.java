@@ -36,6 +36,9 @@ public class GatewayPluginDataHandler implements DataHandler<GatewayPlugin> {
         if (plugin == null) {
             return Collections.EMPTY_LIST;
         }
+        if (plugin.getPort() == null){
+            plugin.setPort(80);
+        }
         List<TemplateParams> params = new ArrayList<>();
         Map<String, List<String>> gatewayPluginMap = HandlerUtil.getGatewayPlugins(fragments);
         TemplateParams gatewayPluginParams = TemplateParams.instance()

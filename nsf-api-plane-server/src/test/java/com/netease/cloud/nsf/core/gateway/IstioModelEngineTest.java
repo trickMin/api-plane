@@ -406,7 +406,7 @@ public class IstioModelEngineTest extends BaseTest {
     public void testTranslateGlobalPlugin() {
         GatewayPlugin gp1 = getGatewayPlugin("code1", Collections.EMPTY_LIST,
                 "gw1", Arrays.asList("host1", "host2"));
-
+        gp1.setPort(80);
         List<K8sResourcePack> resources = gatewayIstioModelEngine.translate(gp1);
 
         assertEquals(1, resources.size());
@@ -415,7 +415,7 @@ public class IstioModelEngineTest extends BaseTest {
                 (K8sTypes.EnvoyPlugin) resources.get(0).getResource();
         EnvoyPluginOuterClass.EnvoyPlugin spec = gatewayPlugin.getSpec();
         assertEquals(2, spec.getHostCount());
-        assertTrue(spec.getHostList().containsAll(Arrays.asList("host1", "host2")));
+        assertTrue(spec.getHostList().containsAll(Arrays.asList("host1:80", "host2:80")));
         assertEquals("code1", gatewayPlugin.getMetadata().getName());
         assertEquals(1, spec.getGatewayCount());
         assertEquals("gateway-system/gw1", spec.getGateway(0));
