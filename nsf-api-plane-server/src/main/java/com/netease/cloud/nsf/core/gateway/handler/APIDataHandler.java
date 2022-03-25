@@ -56,6 +56,7 @@ public abstract class APIDataHandler implements DataHandler<API> {
                 .put(VIRTUAL_SERVICE_HOSTS, hostList)
                 .put(API_PRIORITY, api.getPriority())
                 .put(VIRTUAL_SERVICE_SERVICE_TAG, api.getServiceTag())
+                .put(GATEWAY_NS, api.getNamespace())
                 .put(VIRTUAL_SERVICE_API_ID, api.getApiId())
                 .put(VIRTUAL_SERVICE_API_NAME, api.getApiName())
                 .put(VIRTUAL_SERVICE_TENANT_ID, api.getTenantId())

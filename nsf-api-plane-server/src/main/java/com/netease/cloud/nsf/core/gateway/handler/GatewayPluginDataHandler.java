@@ -6,6 +6,7 @@ import com.netease.cloud.nsf.core.template.TemplateParams;
 import com.netease.cloud.nsf.meta.GatewayPlugin;
 import com.netease.cloud.nsf.util.HandlerUtil;
 import com.netease.cloud.nsf.util.constant.PluginConstant;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -51,6 +52,11 @@ public class GatewayPluginDataHandler implements DataHandler<GatewayPlugin> {
                     .put(TemplateConst.SERVICE_INFO_API_GATEWAY, plugin.getGateway())
                     .put(TemplateConst.SERVICE_INFO_API_NAME, plugin.getRouteId());
         } else if (plugin.isGlobalPlugin()) {
+            if (!CollectionUtils.isEmpty(plugin.getHosts())){
+                Integer port = plugin.getPort();
+                List<String> hosts = plugin.getHosts().stream().map(host -> host + ":" + port).collect(Collectors.toList());
+                plugin.setHosts(hosts);
+            }
             gatewayPluginParams.put(TemplateConst.GATEWAY_PLUGIN_HOSTS, plugin.getHosts());
         }
 
@@ -65,8 +71,9 @@ public class GatewayPluginDataHandler implements DataHandler<GatewayPlugin> {
 
     private List<String> getRouteList(GatewayPlugin plugin) {
         final String routeId = plugin.getRouteId();
+        Integer port = plugin.getPort();
         return plugin.getHosts().stream()
-                .map(host -> host + "/" + routeId)
+                .map(host -> host + ":"+ port + "/" + routeId)
                 .collect(Collectors.toList());
     }
 

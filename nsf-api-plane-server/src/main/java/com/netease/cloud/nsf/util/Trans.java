@@ -300,6 +300,7 @@ public class Trans {
         gatewayPlugin.setHosts(dto.getHosts());
         gatewayPlugin.setCode(dto.getCode());
         gatewayPlugin.setPluginType(dto.getPluginType());
+        gatewayPlugin.setPort(dto.getPort() == null ? 80 : dto.getPort());
         return gatewayPlugin;
     }
 }
