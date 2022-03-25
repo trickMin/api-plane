@@ -56,7 +56,7 @@ public class PilotHttpClient {
     @Value("#{ '${istioNamespaces:istio-system}'.split(',') }")
     private List<String> pilotNamespaces;
 
-    @Value(value = "${istioName:pilot}")
+    @Value(value = "${istioName:istiod}")
     private String NAME;
 
     private static final String GET_ENDPOINTZ_PATH = "/debug/endpointz?brief=true&instancePort=true";
