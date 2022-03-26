@@ -44,7 +44,7 @@ public class PortalGatewayController extends BaseController {
      * @param plugin 本次最新的插件对象（CRD渲染需要的必要信息 + 插件配置集合）
      * @return 接口执行结果信息
      */
-    @RequestMapping(value = "/portal", params = "Action=PublishGlobalPlugin", method = RequestMethod.POST)
+    @RequestMapping(value = "/portal", params = "Action=PublishPlugin", method = RequestMethod.POST)
     public String publishGatewayPlugin(@RequestBody @Valid GatewayPluginDTO plugin) {
 
         gatewayService.updateGatewayPlugin(plugin);
@@ -57,7 +57,7 @@ public class PortalGatewayController extends BaseController {
      * @param plugin 本次需要保留的插件对象（CRD渲染需要的必要信息 + 插件配置集合）
      * @return 接口执行结果信息
      */
-    @RequestMapping(value = "/portal", params = "Action=DeleteGlobalPlugin", method = RequestMethod.POST)
+    @RequestMapping(value = "/portal", params = "Action=DeletePlugin", method = RequestMethod.POST)
     public String deleteGatewayPlugin(@RequestBody @Valid GatewayPluginDTO plugin) {
         gatewayService.deleteGatewayPlugin(plugin);
         return apiReturn(ApiPlaneErrorCode.Success);
