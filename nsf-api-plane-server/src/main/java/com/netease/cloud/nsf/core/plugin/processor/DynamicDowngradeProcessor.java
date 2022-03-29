@@ -7,6 +7,7 @@ import com.netease.cloud.nsf.core.plugin.FragmentWrapper;
 import com.netease.cloud.nsf.core.plugin.PluginGenerator;
 import com.netease.cloud.nsf.meta.ServiceInfo;
 import com.netease.cloud.nsf.util.Const;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -214,6 +215,13 @@ public class DynamicDowngradeProcessor extends AbstractSchemaProcessor implement
         String backendService = source.getValue("$.httpx.remote.cluster.BackendService", String.class);
         String gwName = source.getValue("$.httpx.remote.cluster.GwName", String.class);
         Integer port = source.getValue("$.httpx.remote.cluster.Port[0]", Integer.class);
-        return Const.OUTBOUND + "|" + port + "|" + code.toLowerCase() + "-" + gwName + "|" + backendService;
+        String outboundService = "";
+        if (StringUtils.isEmpty(code) || StringUtils.isEmpty(gwName)) {
+            // outbound第三部分为subset，一般情况下不会为空，为空代表全局cluster，字段为空则不拼接
+            outboundService = Const.OUTBOUND + "|" + port + "||" + backendService;
+        } else {
+            outboundService = Const.OUTBOUND + "|" + port + "|" + code.toLowerCase() + "-" + gwName + "|" + backendService;
+        }
+        return outboundService;
     }
 }
