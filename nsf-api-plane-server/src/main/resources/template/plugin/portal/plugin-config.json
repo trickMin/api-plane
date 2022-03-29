@@ -182,7 +182,7 @@
     },
     {
       "name": "local-cache",
-      "displayName": "缓存",
+      "displayName": "本地缓存",
       "schema": "plugin/portal/local-cache.json",
       "description": "",
       "processor": "AggregateGatewayPluginProcessor",
@@ -197,7 +197,7 @@
     },
     {
       "name": "redis-cache",
-      "displayName": "缓存",
+      "displayName": "Redis缓存",
       "schema": "plugin/portal/redis-cache.json",
       "description": "",
       "processor": "AggregateGatewayPluginProcessor",
