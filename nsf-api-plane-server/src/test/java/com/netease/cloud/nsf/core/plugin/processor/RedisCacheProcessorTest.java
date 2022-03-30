@@ -31,13 +31,33 @@ public class RedisCacheProcessorTest extends BasePluginTest {
                     + "    }\n" + "}";
 
         FragmentHolder f = cacheProcessor.process(p1, serviceInfo);
-        Assert.assertEquals("key_maker:\n" + "  exclude_host: true\n"
-                            + "  ignore_case: true\n" + "  headers_keys:\n" + "  - \"header1\"\n" + "  query_params:\n"
-                            + "  - \"query1\"\n" + "enable_rqx:\n" + "  headers:\n" + "  - name: \":authority\"\n"
-                            + "    exact_match: \"abc.com\"\n" + "  - name: \":method\"\n"
-                            + "    exact_match: \"GET\"\n" + "  - name: \":path\"\n" + "    exact_match: \"/abc\"\n"
-                            + "enable_rpx:\n" + "  headers:\n" + "  - name: \":status\"\n"
-                            + "    regex_match: \"200|\"\n" + "cache_ttls:\n" + "  RedisHttpCache:\n"
-                            + "    default: 2000", f.getVirtualServiceFragment().getContent().trim());
+        Assert.assertEquals("key_maker:\n"
+            + "  exclude_host: true\n"
+            + "  ignore_case: true\n"
+            + "  headers_keys:\n"
+            + "  - \"header1\"\n"
+            + "  query_params:\n"
+            + "  - \"query1\"\n"
+            + "enable_rqx:\n"
+            + "  headers:\n"
+            + "  - name: \":authority\"\n"
+            + "    string_match:\n"
+            + "      exact: \"abc.com\"\n"
+            + "  - name: \":method\"\n"
+            + "    string_match:\n"
+            + "      exact: \"GET\"\n"
+            + "  - name: \":path\"\n"
+            + "    string_match:\n"
+            + "      exact: \"/abc\"\n"
+            + "enable_rpx:\n"
+            + "  headers:\n"
+            + "  - name: \":status\"\n"
+            + "    string_match:\n"
+            + "      safe_regex_match:\n"
+            + "        google_re2: \"{}\"\n"
+            + "        regex: \"200|\"\n"
+            + "cache_ttls:\n"
+            + "  RedisHttpCache:\n"
+            + "    default: 2000", f.getVirtualServiceFragment().getContent().trim());
     }
 }
