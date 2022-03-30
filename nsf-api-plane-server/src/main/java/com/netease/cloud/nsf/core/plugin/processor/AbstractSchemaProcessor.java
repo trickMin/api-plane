@@ -40,7 +40,7 @@ public abstract class AbstractSchemaProcessor implements SchemaProcessor<Service
         }
      }
      */
-    public String header_safe_regex = "{\"name\":\"%s\",\"string_match\":{\"safe_regex_match\":{\"google_re2\":\"{}\",\"regex\":\"%s\"}}}";
+    public String header_safe_regex = "{\"name\":\"%s\",\"string_match\":{\"safe_regex\":{\"google_re2\":{},\"regex\":\"%s\"}}}";
 
     public String header_exact = "{\"name\":\"%s\",\"string_match\":{\"exact\": \"%s\"}}";
 
