@@ -21,6 +21,8 @@ public class CorsProcessor extends AbstractSchemaProcessor implements SchemaProc
         return "CorsProcessor";
     }
 
+    private String allow_origin_string_match = "{\"string_match\":{\"safe_regex_match\":{\"google_re2\":{},\"regex\":\"%s\"}}}";
+
     @Override
     public FragmentHolder process(String plugin, ServiceInfo serviceInfo) {
         PluginGenerator source = PluginGenerator.newInstance(plugin);
@@ -28,8 +30,15 @@ public class CorsProcessor extends AbstractSchemaProcessor implements SchemaProc
         if (source.contain("$.corsPolicy.allowOrigin")) {
             builder.createOrUpdateValue("$", "allow_origin", source.getValue("$.corsPolicy.allowOrigin", List.class));
         }
+        /**
+         * https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/route/v3/route_components.proto#config-route-v3-corspolicy
+         */
         if (source.contain("$.corsPolicy.allowOriginRegex")) {
-            builder.createOrUpdateValue("$", "allow_origin_regex", source.getValue("$.corsPolicy.allowOriginRegex", List.class));
+            builder.createOrUpdateJson("$", "allow_origin_string_match", "[]");
+            List<String> value = source.getValue("$.corsPolicy.allowOriginRegex", List.class);
+            value.forEach(item -> {
+                builder.addElement("$.allow_origin_string_match", String.format(allow_origin_string_match, item + "|"));
+            });
         }
         if (source.contain("$.corsPolicy.allowMethods")) {
             String allowMethods = String.join(",", source.getValue("$.corsPolicy.allowMethods", List.class));

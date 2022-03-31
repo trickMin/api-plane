@@ -154,27 +154,34 @@ public class DynamicDowngradeProcessorTest extends BasePluginTest {
         FragmentHolder f1 = dynamicDowngradeProcessor.process(p1, serviceInfo);
         FragmentHolder f2 = dynamicDowngradeProcessor.process(p2, serviceInfo);
         FragmentHolder f3 = dynamicDowngradeProcessor.process(p3, serviceInfo);
-        Assert.assertEquals("downgrade_rpx:\n" +
-                "  headers:\n" +
-                "  - name: \":status\"\n" +
-                "    regex_match: \"500|\"\n" +
-                "cache_rpx_rpx:\n" +
-                "  headers:\n" +
-                "  - name: \":status\"\n" +
-                "    regex_match: \"200|\"\n" +
-                "  - name: \"server\"\n" +
-                "    exact_match: \"envoy\"\n" +
-                "cache_ttls:\n" +
-                "  RedisHttpCache:\n" +
-                "    default: 30000\n" +
-                "    customs:\n" +
-                "      \"200\": 50000\n" +
-                "  LocalHttpCache:\n" +
-                "    default: 30000\n" +
-                "    customs:\n" +
-                "      \"200\": 50000\n" +
-                "key_maker:\n" +
-                "  query_params: []\n" +
-                "  headers_keys: []", f3.getVirtualServiceFragment().getContent().trim());
+        Assert.assertEquals("downgrade_rpx:\n"
+            + "  headers:\n"
+            + "  - name: \":status\"\n"
+            + "    string_match:\n"
+            + "      safe_regex:\n"
+            + "        google_re2: {}\n"
+            + "        regex: \"500|\"\n"
+            + "cache_rpx_rpx:\n"
+            + "  headers:\n"
+            + "  - name: \":status\"\n"
+            + "    string_match:\n"
+            + "      safe_regex:\n"
+            + "        google_re2: {}\n"
+            + "        regex: \"200|\"\n"
+            + "  - name: \"server\"\n"
+            + "    string_match:\n"
+            + "      exact: \"envoy\"\n"
+            + "cache_ttls:\n"
+            + "  RedisHttpCache:\n"
+            + "    default: 30000\n"
+            + "    customs:\n"
+            + "      \"200\": 50000\n"
+            + "  LocalHttpCache:\n"
+            + "    default: 30000\n"
+            + "    customs:\n"
+            + "      \"200\": 50000\n"
+            + "key_maker:\n"
+            + "  query_params: []\n"
+            + "  headers_keys: []", f3.getVirtualServiceFragment().getContent().trim());
     }
 }
