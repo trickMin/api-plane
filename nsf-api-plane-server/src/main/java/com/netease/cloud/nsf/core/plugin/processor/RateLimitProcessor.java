@@ -19,7 +19,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * @auther wupenghuai@corp.netease.com
+ * @author hanjiahao
  * @date 2019/8/22
  **/
 @Component
@@ -107,22 +107,22 @@ public class RateLimitProcessor extends AbstractSchemaProcessor implements Schem
                     case "≈":
                         expression = escapeBackSlash(rightValue);
                         vs.addJsonElement("$.actions[0].header_value_match.headers",
-                                String.format("{\"name\":\"%s\",\"regex_match\":\"%s\",\"invert_match\":%s}", matchHeader, expression, invertMatch));
+                                String.format(header_safe_regex_invert, matchHeader, expression, invertMatch));
                         break;
                     case "!≈":
                         expression = escapeBackSlash(rightValue);
                         vs.addJsonElement("$.actions[0].header_value_match.headers",
-                                String.format("{\"name\":\"%s\",\"regex_match\":\"%s\",\"invert_match\":%s}", matchHeader, expression, !invertMatch));
+                                String.format(header_safe_regex_invert, matchHeader, expression, !invertMatch));
                         break;
                     case "=":
                         expression = rightValue;
                         vs.addJsonElement("$.actions[0].header_value_match.headers",
-                                String.format("{\"name\":\"%s\",\"exact_match\":\"%s\",\"invert_match\":%s}", matchHeader, expression, invertMatch));
+                                String.format(header_exact_invert, matchHeader, expression, invertMatch));
                         break;
                     case "!=":
                         expression = rightValue;
                         vs.addJsonElement("$.actions[0].header_value_match.headers",
-                                String.format("{\"name\":\"%s\",\"exact_match\":\"%s\",\"invert_match\":%s}", matchHeader, expression, !invertMatch));
+                                String.format(header_exact_invert, matchHeader, expression, !invertMatch));
                         break;
                     case "present":
                         vs.addJsonElement("$.actions[0].header_value_match.headers",
