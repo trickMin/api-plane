@@ -37,7 +37,7 @@ public class CorsProcessor extends AbstractSchemaProcessor implements SchemaProc
             builder.createOrUpdateJson("$", "allow_origin_string_match", "[]");
             List<String> value = source.getValue("$.corsPolicy.allowOriginRegex", List.class);
             value.forEach(item -> {
-                builder.addElement("$.allow_origin_string_match", String.format(allow_origin_string_match, item + "|"));
+                builder.addJsonElement("$.allow_origin_string_match", String.format(allow_origin_string_match, item + "|"));
             });
         }
         if (source.contain("$.corsPolicy.allowMethods")) {
