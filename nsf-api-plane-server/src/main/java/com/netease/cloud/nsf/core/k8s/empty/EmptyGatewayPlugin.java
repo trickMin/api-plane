@@ -1,13 +1,13 @@
 package com.netease.cloud.nsf.core.k8s.empty;
 
+import com.netease.cloud.nsf.proto.k8s.K8sTypes;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
-import me.snowdrop.istio.api.networking.v1alpha3.GatewayPlugin;
 
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2020/3/19
  **/
-public class EmptyGatewayPlugin extends GatewayPlugin implements HasMetadata, EmptyResource{
+public class EmptyGatewayPlugin extends K8sTypes.EnvoyPlugin implements HasMetadata, EmptyResource{
 
     private ObjectMeta om;
 

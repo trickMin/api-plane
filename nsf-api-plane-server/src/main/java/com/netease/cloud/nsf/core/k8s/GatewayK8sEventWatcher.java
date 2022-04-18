@@ -16,7 +16,7 @@ import java.util.Set;
 public class GatewayK8sEventWatcher {
 
     final static Set<String> SUPPORTED_RESOURCES = ImmutableSet.of(K8sResourceEnum.VirtualService.name(),
-            K8sResourceEnum.DestinationRule.name(), K8sResourceEnum.GatewayPlugin.name());
+            K8sResourceEnum.DestinationRule.name(), K8sResourceEnum.EnvoyPlugin.name());
 
     SlimeHttpClient slimeClient;
 

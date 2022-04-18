@@ -7,6 +7,7 @@ import com.netease.cloud.nsf.core.plugin.FragmentWrapper;
 import com.netease.cloud.nsf.core.plugin.PluginGenerator;
 import com.netease.cloud.nsf.meta.ServiceInfo;
 import com.netease.cloud.nsf.util.Const;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -66,9 +67,9 @@ public class DynamicDowngradeProcessor extends AbstractSchemaProcessor implement
                 String headerValue = item.get("value");
                 if (haveNull(matchType, headerKey, headerValue)) return;
                 if ("safe_regex_match".equals(matchType)) {
-                    builder.addJsonElement("$.downgrade_rqx.headers", String.format("{\"name\":\"%s\",\"regex_match\":\"%s\"}", headerKey, headerValue));
+                    builder.addJsonElement("$.downgrade_rqx.headers", String.format(header_safe_regex, headerKey, headerValue));
                 } else {
-                    builder.addJsonElement("$.downgrade_rqx.headers", String.format("{\"name\":\"%s\",\"exact_match\":\"%s\"}", headerKey, headerValue));
+                    builder.addJsonElement("$.downgrade_rqx.headers", String.format(header_exact, headerKey, headerValue));
                 }
             });
         }
@@ -77,18 +78,18 @@ public class DynamicDowngradeProcessor extends AbstractSchemaProcessor implement
             String host = source.getValue("$.condition.request.host.value", String.class);
             if (nonNull(matchType, host)) {
                 if ("safe_regex_match".equals(matchType)) {
-                    builder.addJsonElement("$.downgrade_rqx.headers", String.format("{\"name\":\":authority\",\"regex_match\":\"%s\"}", host));
+                    builder.addJsonElement("$.downgrade_rqx.headers", String.format(header_safe_regex, ":authority", host));
                 } else {
-                    builder.addJsonElement("$.downgrade_rqx.headers", String.format("{\"name\":\":authority\",\"exact_match\":\"%s\"}", host));
+                    builder.addJsonElement("$.downgrade_rqx.headers", String.format(header_exact, ":authority", host));
                 }
             }
         }
         if (source.contain("$.condition.request.method")) {
             List<String> method = source.getValue("$.condition.request.method", List.class);
             if (method.size() == 1) {
-                builder.addJsonElement("$.downgrade_rqx.headers", String.format("{\"name\":\":method\",\"exact_match\":\"%s\"}", method.get(0)));
+                builder.addJsonElement("$.downgrade_rqx.headers", String.format(header_exact, ":method", method.get(0)));
             } else if (method.size() > 1) {
-                builder.addJsonElement("$.downgrade_rqx.headers", String.format("{\"name\":\":method\",\"regex_match\":\"%s\"}", String.join("|", method)));
+                builder.addJsonElement("$.downgrade_rqx.headers", String.format(header_safe_regex, ":method", String.join("|", method)));
             }
         }
         if (source.contain("$.condition.request.path")) {
@@ -96,9 +97,9 @@ public class DynamicDowngradeProcessor extends AbstractSchemaProcessor implement
             String path = source.getValue("$.condition.request.path.value", String.class);
             if (nonNull(matchType, path)) {
                 if ("safe_regex_match".equals(matchType)) {
-                    builder.addJsonElement("$.downgrade_rqx.headers", String.format("{\"name\":\":path\",\"regex_match\":\"%s\"}", path));
+                    builder.addJsonElement("$.downgrade_rqx.headers", String.format(header_safe_regex, ":path", path));
                 } else {
-                    builder.addJsonElement("$.downgrade_rqx.headers", String.format("{\"name\":\":path\",\"exact_match\":\"%s\"}", path));
+                    builder.addJsonElement("$.downgrade_rqx.headers", String.format(header_exact, ":path", path));
                 }
             }
         }
@@ -110,9 +111,9 @@ public class DynamicDowngradeProcessor extends AbstractSchemaProcessor implement
                 String headerValue = item.get("value");
                 if (haveNull(matchType, headerKey, headerValue)) return;
                 if ("safe_regex_match".equals(matchType)) {
-                    builder.addJsonElement("$.downgrade_rpx.headers", String.format("{\"name\":\"%s\",\"regex_match\":\"%s\"}", headerKey, headerValue));
+                    builder.addJsonElement("$.downgrade_rpx.headers", String.format(header_safe_regex, headerKey, headerValue));
                 } else {
-                    builder.addJsonElement("$.downgrade_rpx.headers", String.format("{\"name\":\"%s\",\"exact_match\":\"%s\"}", headerKey, headerValue));
+                    builder.addJsonElement("$.downgrade_rpx.headers", String.format(header_exact, headerKey, headerValue));
                 }
             });
         }
@@ -120,7 +121,7 @@ public class DynamicDowngradeProcessor extends AbstractSchemaProcessor implement
             String matchType = source.getValue("$.condition.response.code.match_type", String.class);
             String code = source.getValue("$.condition.response.code.value", String.class);
             if (nonNull(code)) {
-                builder.addJsonElement("$.downgrade_rpx.headers", String.format("{\"name\":\":status\",\"regex_match\":\"%s|\"}", code));
+                builder.addJsonElement("$.downgrade_rpx.headers", String.format(header_safe_regex, ":status", code+"|"));
             }
         }
     }
@@ -131,7 +132,7 @@ public class DynamicDowngradeProcessor extends AbstractSchemaProcessor implement
             String mathchType = source.getValue("$.cache.condition.response.code.match_type");
             String code = source.getValue("$.cache.condition.response.code.value");
             if (nonNull(code)) {
-                builder.addJsonElement("$.cache_rpx_rpx.headers", String.format("{\"name\":\":status\",\"regex_match\":\"%s|\"}", code));
+                builder.addJsonElement("$.cache_rpx_rpx.headers", String.format(header_safe_regex, ":status", code+"|"));
             }
         }
         if (source.contain("$.cache.condition.response.headers")) {
@@ -142,9 +143,9 @@ public class DynamicDowngradeProcessor extends AbstractSchemaProcessor implement
                 String headerValue = item.get("value");
                 if (haveNull(matchType, headerKey, headerValue)) return;
                 if ("safe_regex_match".equals(matchType)) {
-                    builder.addJsonElement("$.cache_rpx_rpx.headers", String.format("{\"name\":\"%s\",\"regex_match\":\"%s\"}", headerKey, headerValue));
+                    builder.addJsonElement("$.cache_rpx_rpx.headers", String.format(header_safe_regex, headerKey, headerValue));
                 } else {
-                    builder.addJsonElement("$.cache_rpx_rpx.headers", String.format("{\"name\":\"%s\",\"exact_match\":\"%s\"}", headerKey, headerValue));
+                    builder.addJsonElement("$.cache_rpx_rpx.headers", String.format(header_exact, headerKey, headerValue));
                 }
             });
         }
@@ -214,6 +215,13 @@ public class DynamicDowngradeProcessor extends AbstractSchemaProcessor implement
         String backendService = source.getValue("$.httpx.remote.cluster.BackendService", String.class);
         String gwName = source.getValue("$.httpx.remote.cluster.GwName", String.class);
         Integer port = source.getValue("$.httpx.remote.cluster.Port[0]", Integer.class);
-        return Const.OUTBOUND + "|" + port + "|" + code.toLowerCase() + "-" + gwName + "|" + backendService;
+        String outboundService = "";
+        if (StringUtils.isEmpty(code) || StringUtils.isEmpty(gwName)) {
+            // outbound第三部分为subset，一般情况下不会为空，为空代表全局cluster，字段为空则不拼接
+            outboundService = Const.OUTBOUND + "|" + port + "||" + backendService;
+        } else {
+            outboundService = Const.OUTBOUND + "|" + port + "|" + code.toLowerCase() + "-" + gwName + "|" + backendService;
+        }
+        return outboundService;
     }
 }

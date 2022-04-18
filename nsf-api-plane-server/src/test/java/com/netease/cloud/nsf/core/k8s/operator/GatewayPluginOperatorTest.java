@@ -1,15 +1,13 @@
 package com.netease.cloud.nsf.core.k8s.operator;
 
-import me.snowdrop.istio.api.networking.v1alpha3.GatewayPlugin;
-import me.snowdrop.istio.api.networking.v1alpha3.GatewayPluginSpec;
-import me.snowdrop.istio.api.networking.v1alpha3.Plugins;
+import com.netease.cloud.nsf.proto.k8s.K8sTypes;
 import org.junit.Before;
 import org.junit.Test;
+import slime.microservice.plugin.v1alpha1.EnvoyPluginOuterClass;
+import slime.microservice.plugin.v1alpha1.PluginManagerOuterClass;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -26,54 +24,47 @@ public class GatewayPluginOperatorTest {
     @Test
     public void merge() {
 
-        GatewayPlugin gp1 = getGatewayPlugin(getGatewayPluginSpec(Arrays.asList("gw-1", "gw-2"),
+        K8sTypes.EnvoyPlugin gp1 = getGatewayPlugin(Arrays.asList("gw-1", "gw-2"),
                 Arrays.asList("host1", "host2"),
-                Arrays.asList(getPlugins("p1", Collections.emptyMap())),
+                Arrays.asList(getPlugins("p1")),
                 Arrays.asList("route1", "route2"),
-                Arrays.asList("service1", "service2")));
+                Arrays.asList("service1", "service2"));
 
-        GatewayPlugin gp2 = getGatewayPlugin(getGatewayPluginSpec(Arrays.asList("gw-3"),
+        K8sTypes.EnvoyPlugin gp2 = getGatewayPlugin(Arrays.asList("gw-3"),
                 Arrays.asList("host3", "host4"),
-                Arrays.asList(getPlugins("p2", Collections.emptyMap())),
+                Arrays.asList(getPlugins("p2")),
                 Arrays.asList("route3"),
-                Arrays.asList("service3")));
+                Arrays.asList("service3"));
 
-        GatewayPlugin merge = operator.merge(gp1, gp2);
+        K8sTypes.EnvoyPlugin merge = operator.merge(gp1, gp2);
 
-        GatewayPluginSpec spec = merge.getSpec();
-        assertEquals(1, spec.getGateway().size());
-        assertEquals("gw-3", spec.getGateway().get(0));
-        assertEquals(2, spec.getHost().size());
-        assertTrue(spec.getHost().contains("host3") && spec.getHost().contains("host4"));
-        assertEquals(1, spec.getPlugins().size());
-        assertEquals("p2", spec.getPlugins().get(0).getName());
-        assertEquals(1, spec.getRoute().size());
-        assertEquals("route3", spec.getRoute().get(0));
-        assertEquals("service3", spec.getService().get(0));
+        EnvoyPluginOuterClass.EnvoyPlugin spec = merge.getSpec();
+        assertEquals(1, spec.getGatewayCount());
+        assertEquals("gw-3", spec.getGateway(0));
+        assertEquals(2, spec.getHostCount());
+        assertTrue(spec.getHostList().contains("host3") && spec.getHostList().contains("host4"));
+        assertEquals(1, spec.getPluginsCount());
+        assertEquals("p2", spec.getPlugins(0).getName());
+        assertEquals(1, spec.getRouteCount());
+        assertEquals("route3", spec.getRoute(0));
+        assertEquals("service3", spec.getService(0));
     }
 
 
-    private static GatewayPlugin getGatewayPlugin(GatewayPluginSpec spec) {
-        GatewayPlugin gp = new GatewayPlugin();
-        gp.setSpec(spec);
-        return gp;
-    }
-
-    private static GatewayPluginSpec getGatewayPluginSpec(List<String> gateway, List<String> hosts, List<Plugins> plugins,
+    private static K8sTypes.EnvoyPlugin getGatewayPlugin(List<String> gateway, List<String> hosts, List<PluginManagerOuterClass.Plugin> plugins,
                                                           List<String> routes, List<String> service) {
-        GatewayPluginSpec spec = new GatewayPluginSpec();
-        spec.setGateway(gateway);
-        spec.setHost(hosts);
-        spec.setPlugins(plugins);
-        spec.setRoute(routes);
-        spec.setService(service);
+        K8sTypes.EnvoyPlugin spec = new K8sTypes.EnvoyPlugin();
+        EnvoyPluginOuterClass.EnvoyPlugin.Builder builder = EnvoyPluginOuterClass.EnvoyPlugin.newBuilder()
+                .addAllGateway(gateway)
+                .addAllHost(hosts)
+                .addAllPlugins(plugins)
+                .addAllRoute(routes)
+                .addAllService(service);
+        spec.setSpec(builder.build());
         return spec;
     }
 
-    private static Plugins getPlugins(String name, Map<String, Object> settings) {
-        Plugins plugins = new Plugins();
-        plugins.setName(name);
-        plugins.setSettings(settings);
-        return plugins;
+    private static PluginManagerOuterClass.Plugin getPlugins(String name) {
+        return PluginManagerOuterClass.Plugin.newBuilder().setName(name).build();
     }
 }

@@ -27,8 +27,6 @@ import com.netease.cloud.nsf.util.constant.LogConstant;
 import com.netease.cloud.nsf.util.constant.PluginConstant;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import istio.networking.v1alpha3.VirtualServiceOuterClass;
-import me.snowdrop.istio.api.networking.v1alpha3.HTTPRoute;
-import me.snowdrop.istio.api.networking.v1alpha3.VirtualService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +35,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -109,8 +110,8 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
     public List<K8sResourcePack> translate(API api, boolean simple) {
         logger.info("{}{} start translate k8s resource", LogConstant.TRANSLATE_LOG_NOTE, LogConstant.ROUTE_LOG_NOTE);
         List<K8sResourcePack> resourcePacks = new ArrayList<>();
+        api.setNamespace(globalConfig.getResourceNamespace());
         List<FragmentWrapper> vsFragments = new ArrayList<>();
-
         // 渲染VS上的插件片段（当前仅有Match插件）
         if (!StringUtils.isEmpty(api.getPlugins())) {
             vsFragments = renderPlugins(api.getPlugins()).stream()

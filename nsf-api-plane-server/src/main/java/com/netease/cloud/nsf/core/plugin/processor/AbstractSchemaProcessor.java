@@ -28,6 +28,33 @@ public abstract class AbstractSchemaProcessor implements SchemaProcessor<Service
     @Autowired
     protected List<SchemaProcessor> processorList;
 
+    /**
+     * https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/route/v3/route_components.proto#envoy-v3-api-field-config-route-v3-headermatcher-string-match
+     {
+        "name":"%s",
+        "string_match":{
+            "safe_regex_match":{
+                "google_re2":"{}",
+                "regex":"%s"
+            }
+        }
+     }
+     */
+    public String header_safe_regex = "{\"name\":\"%s\",\"string_match\":{\"safe_regex\":{\"google_re2\":{},\"regex\":\"%s\"}}}";
+
+    public String header_exact = "{\"name\":\"%s\",\"string_match\":{\"exact\": \"%s\"}}";
+
+    public String header_safe_regex_invert = "{\"name\":\"%s\",\"string_match\":{\"safe_regex_match\":{\"google_re2\":{},\"regex\":\"%s\"}},\"invert_match\": %s}";
+
+    public String header_exact_invert = "{\"name\":\"%s\",\"string_match\":{\"exact\": \"%s\"},\"invert_match\": %s}";
+
+    public String header_prefix = "{\"name\":\"%s\",\"string_match\":{\"prefix\": \"%s\"}}";
+
+    public String present_match = "{\"name\":\"%s\", \"present_match\":true, \"invert_match\":true}";
+
+    public String present_invert_match = "{\"name\":\"%s\", \"present_match\":true, \"invert_match\":true}";
+
+
     protected SchemaProcessor getProcessor(String name) {
         logger.info("Get processor {}", name);
         if (CollectionUtils.isEmpty(processorList)) throw new ApiPlaneException("The list of processors is empty");

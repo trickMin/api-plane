@@ -18,8 +18,18 @@ public class PluginOrderItemDTO {
     @NotNull(message = "name")
     private String name;
 
+    @JsonProperty("port")
+    @NotNull(message = "port")
+    private Integer port;
+
     @JsonProperty("settings")
     private Object settings;
+
+    @JsonProperty("inline")
+    private Object inline;
+
+    @JsonProperty("listenerType")
+    private Integer listenerType;
 
     public Boolean getEnable() {
         return enable;
@@ -43,5 +53,29 @@ public class PluginOrderItemDTO {
 
     public void setSettings(Object settings) {
         this.settings = settings;
+    }
+
+    public Integer getPort() {
+        return port;
+    }
+
+    public void setPort(Integer port) {
+        this.port = port;
+    }
+
+    public Object getInline() {
+        return inline;
+    }
+
+    public void setInline(Object inline) {
+        this.inline = inline;
+    }
+
+    public Integer getListenerType() {
+        return listenerType;
+    }
+
+    public void setListenerType(Integer listenerType) {
+        this.listenerType = listenerType;
     }
 }

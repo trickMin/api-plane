@@ -3,6 +3,9 @@ metadata:
 <#if t_gateway_name?has_content>
     qz_cluster_name: ${t_gateway_name}
 </#if>
+<#if t_gateway_ns?has_content>
+    qz_cluster_ns: ${t_gateway_ns}
+</#if>
 <#if t_virtual_service_service_tag?has_content>
     qz_svc_id: ${t_virtual_service_service_tag}
 </#if>
@@ -18,6 +21,7 @@ metadata:
 <#if t_virtual_service_api_name?has_content>
     qz_api_name: ${t_virtual_service_api_name}
 </#if>
+
 <#if t_virtual_service_stats?has_content>
   proxy.filters.http.detailed_stats:
     stats:

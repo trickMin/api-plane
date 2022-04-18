@@ -26,6 +26,8 @@ public class GatewayPlugin {
 
     private String code;
 
+    private Integer port;
+
     public List<String> getPlugins() {
         return plugins;
     }
@@ -92,6 +94,14 @@ public class GatewayPlugin {
         return StringUtils.isNotEmpty(code);
     }
 
+    public Integer getPort() {
+        return port;
+    }
+
+    public void setPort(Integer port) {
+        this.port = port;
+    }
+
     /**
      * 打印插件配置
      *
@@ -109,4 +119,6 @@ public class GatewayPlugin {
                     plugins.get(i - 1));
         }
     }
+
+
 }

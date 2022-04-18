@@ -237,6 +237,9 @@ public class Trans {
         List<String> orderItems = new ArrayList<>();
         for (PluginOrderItemDTO dto : pluginOrderDTO.getPlugins()) {
             if (Objects.nonNull(dto)) {
+                if (dto.getPort() == null){
+                    dto.setPort(80);
+                }
                 orderItems.add(ResourceGenerator.newInstance(dto, ResourceType.OBJECT).yamlString());
             }
         }
@@ -297,6 +300,7 @@ public class Trans {
         gatewayPlugin.setHosts(dto.getHosts());
         gatewayPlugin.setCode(dto.getCode());
         gatewayPlugin.setPluginType(dto.getPluginType());
+        gatewayPlugin.setPort(dto.getPort() == null ? 80 : dto.getPort());
         return gatewayPlugin;
     }
 }

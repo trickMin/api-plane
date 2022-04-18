@@ -195,6 +195,7 @@ public interface TemplateConst {
      * Gateway
      **/
     String GATEWAY_NAME = "t_gateway_name";
+    String GATEWAY_NS = "t_gateway_ns";
     String GATEWAY_HOSTS = "t_gateway_hosts";
     String GATEWAY_HTTP_10 = "t_gateway_http_10";
     String GATEWAY_GW_CLUSTER = "t_api_gateway";

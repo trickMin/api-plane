@@ -4,7 +4,7 @@
     "variable": "/$1"
   },
   "formatter": {
-    "kind": "hango-router",
+    "kind": "ianus-router",
     "version": "1.0",
     "rewrite_regex_user": "&rewrite_regex_user",
     "target_user": "&target_user",

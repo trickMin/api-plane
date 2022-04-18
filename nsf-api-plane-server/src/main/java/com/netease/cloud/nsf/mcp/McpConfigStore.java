@@ -26,7 +26,7 @@ public class McpConfigStore implements ConfigStore {
             K8sResourceEnum.VirtualService,
             K8sResourceEnum.DestinationRule,
             K8sResourceEnum.Gateway,
-            K8sResourceEnum.GatewayPlugin,
+            K8sResourceEnum.EnvoyPlugin,
             K8sResourceEnum.PluginManager,
             K8sResourceEnum.ServiceEntry,
             K8sResourceEnum.ConfigMap

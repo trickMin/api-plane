@@ -1,9 +1,12 @@
 package com.netease.cloud.nsf.core.envoy;
 
+import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netease.cloud.nsf.core.BaseTest;
 import com.netease.cloud.nsf.core.k8s.KubernetesClient;
 import com.netease.cloud.nsf.meta.ServiceHealth;
+import com.netease.cloud.nsf.meta.dto.GatewayPluginDTO;
+import com.netease.cloud.nsf.meta.dto.PluginOrderDTO;
 import com.netease.cloud.nsf.meta.dto.PortalServiceDTO;
 import com.netease.cloud.nsf.service.GatewayService;
 import io.fabric8.kubernetes.api.model.Pod;
@@ -15,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -35,6 +39,9 @@ public class EnvoyHttpClientTest extends BaseTest {
 
     @Autowired
     private GatewayService gatewayService;
+
+    @Autowired
+    ObjectMapper objectMapper;
 
     @Test
     public void getServiceHealth() {
@@ -69,4 +76,58 @@ public class EnvoyHttpClientTest extends BaseTest {
         ps.setPhase(phase);
         return ps;
     }
+
+    @Test
+    public void pluginManager() throws Exception{
+        String str = "{\n" +
+                "          \"GatewayLabels\": {\n" +
+                "              \"gw_cluster\": \"prod-gateway\"\n" +
+                "          },\n" +
+                "          \"Plugins\": [\n" +
+                "            {\n" +
+                "                  \"name\": \"com.netease.metadatahub\",\n" +
+                "                  \"enable\": \"true\",\n" +
+                "                  \"listenerType\": 2,\n" +
+                "                  \"inline\":{\n" +
+                "\"settings\": {\n" +
+                "                      \"set_to_metadata\": [\n" +
+                "                        {\n" +
+                "                          \"name\": \":path\",\n" +
+                "                          \"rename\": \"x-envoy-origin-path\"\n" +
+                "                        },\n" +
+                "                        {\n" +
+                "                          \"name\": \":method\",\n" +
+                "                          \"rename\": \"x-envoy-origin-method\"\n" +
+                "                        },\n" +
+                "                        {\n" +
+                "                          \"name\": \":authority\",\n" +
+                "                          \"rename\": \"x-envoy-origin-host\"\n" +
+                "                        }\n" +
+                "                      ]\n" +
+                "                  }\n" +
+                "                  }\n" +
+                "                  \n" +
+                "              }\n" +
+                "          ]\n" +
+                "        }";
+        PluginOrderDTO pluginOrderDTO = JSONObject.parseObject(str, PluginOrderDTO.class);
+        System.out.println(objectMapper.writeValueAsString(pluginOrderDTO));
+        gatewayService.updatePluginOrder(pluginOrderDTO);
+    }
+
+
+    @Test
+    public void envoyplugin() throws  Exception{
+        GatewayPluginDTO gatewayPluginDTO = new GatewayPluginDTO();
+        gatewayPluginDTO.setGateway("prod-gateway");
+        gatewayPluginDTO.setPlugins(Arrays.asList("{\"type\":\"1\",\"list\":[\"192.168.134.132\"],\"kind\":\"ip-restriction\"}"));
+        gatewayPluginDTO.setPlugins(new ArrayList<>());
+        gatewayPluginDTO.setPluginType("routeRule");
+        gatewayPluginDTO.setRouteId("430032");
+        gatewayPluginDTO.setCode("aa");
+        gatewayPluginDTO.setHosts(Arrays.asList("netaese.test.com", "net.163.com"));
+        System.out.println(objectMapper.writeValueAsString(gatewayPluginDTO));
+        gatewayService.deleteGatewayPlugin(gatewayPluginDTO);
+    }
+
 }
