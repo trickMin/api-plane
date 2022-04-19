@@ -59,7 +59,9 @@ public class PilotHttpClient {
     @Value(value = "${istioName:pilot}")
     private String NAME;
 
-    private static final String GET_ENDPOINTZ_PATH = "/debug/endpointz?brief=true&instancePort=true";
+//    private static final String GET_ENDPOINTZ_PATH = "/debug/endpointz?brief=true&instancePort=true";
+    //todo 优化istio-apiplane处理逻辑
+    private static final String GET_ENDPOINTZ_PATH = "/debug/endpointz?brief=true";
     private static final String GET_CONFIGZ_PATH = "/debug/configz";
     private static final String HEALTH_CHECK_PATH = "/ready";
 
@@ -210,18 +212,20 @@ public class PilotHttpClient {
 
     private List<Endpoint> getEndpointList() {
         List<Endpoint> endpoints = new ArrayList<>();
+        //fmt.Fprintf(w, "%s:%s %s:%d %v %s\n", ss.Hostname,
+        //            p.Name, svc.Endpoint.Address, svc.Endpoint.EndpointPort, svc.Endpoint.Labels,
+        //            svc.Endpoint.ServiceAccount)
+
         String[] rawValues = StringUtils.split(getEndpoints(), "\n");
         for (String rawValue : rawValues) {
             String[] segments = StringUtils.splitPreserveAllTokens(rawValue, " ");
-            //相对于/debug/endpointz?brief=true
-            // /debug/endpointz?brief=true&instancePort=true接口增加了Endpoint端口
-            if (ArrayUtils.getLength(segments) < 5) {
+            if (ArrayUtils.getLength(segments) != 4) {
                 continue;
             }
             String[] hostNameProtocol = StringUtils.splitPreserveAllTokens(segments[0], ":");
-            String[] ipPort = StringUtils.splitPreserveAllTokens(segments[2], ":");
+            String[] ipPort = StringUtils.splitPreserveAllTokens(segments[1], ":");
             Map<String, String> labelMap = new HashMap<>();
-            String[] labels = StringUtils.split(segments[3], ",");
+            String[] labels = StringUtils.split(segments[2], ",");
             for (String label : labels) {
                 String[] kv = StringUtils.splitPreserveAllTokens(label, "=");
                 if (ArrayUtils.getLength(kv) == 2) {
@@ -232,13 +236,40 @@ public class PilotHttpClient {
             ep.setHostname(hostNameProtocol[0]);
             ep.setProtocol(hostNameProtocol[1]);
             ep.setAddress(ipPort[0]);
-            //service entry port
             ep.setPort(Integer.valueOf(ipPort[1]));
             ep.setLabels(labelMap);
-            fixDubboEndPoint(hostNameProtocol, ep, segments[segments.length - 1]);
             endpoints.add(ep);
         }
         return endpoints;
+
+//        for (String rawValue : rawValues) {
+//            String[] segments = StringUtils.splitPreserveAllTokens(rawValue, " ");
+//            //相对于/debug/endpointz?brief=true
+//            // /debug/endpointz?brief=true&instancePort=true接口增加了Endpoint端口
+//            if (ArrayUtils.getLength(segments) < 5) {
+//                continue;
+//            }
+//            String[] hostNameProtocol = StringUtils.splitPreserveAllTokens(segments[0], ":");
+//            String[] ipPort = StringUtils.splitPreserveAllTokens(segments[2], ":");
+//            Map<String, String> labelMap = new HashMap<>();
+//            String[] labels = StringUtils.split(segments[3], ",");
+//            for (String label : labels) {
+//                String[] kv = StringUtils.splitPreserveAllTokens(label, "=");
+//                if (ArrayUtils.getLength(kv) == 2) {
+//                    labelMap.put(kv[0], kv[1]);
+//                }
+//            }
+//            Endpoint ep = new Endpoint();
+//            ep.setHostname(hostNameProtocol[0]);
+//            ep.setProtocol(hostNameProtocol[1]);
+//            ep.setAddress(ipPort[0]);
+//            //service entry port
+//            ep.setPort(Integer.valueOf(ipPort[1]));
+//            ep.setLabels(labelMap);
+//            fixDubboEndPoint(hostNameProtocol, ep, segments[segments.length - 1]);
+//            endpoints.add(ep);
+//        }
+//        return endpoints;
     }
 
     /**
