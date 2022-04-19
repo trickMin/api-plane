@@ -35,12 +35,12 @@ public class PilotHttpClientTest extends BaseTest {
     @Test
     public void getEndpointList() {
 
-        String resp = "rate-limit.gateway-system.svc.cluster.local:grpc tcp 10.244.1.29:18081 app=rate-limit,pod-template-hash=6ffc9fdcf9 spiffe://cluster.local/ns/gateway-system/sa/default\n" +
-                "rate-limit.gateway-system.svc.cluster.local:config-grpc tcp 10.244.1.29:16071 app=rate-limit,pod-template-hash=6ffc9fdcf9 spiffe://cluster.local/ns/gateway-system/sa/default\n" +
-                "ratings.default.svc.cluster.local:http tcp 10.244.0.154:9080 app=ratings,pod-template-hash=7bdfd65ccc,version=v1 spiffe://cluster.local/ns/default/sa/bookinfo-ratings\n" +
-                "redis.gateway-system.svc.cluster.local:redis tcp 10.244.1.49:6379 app=redis,pod-template-hash=5cc57965f7 spiffe://cluster.local/ns/gateway-system/sa/default\n" +
-                "reviews.default.svc.cluster.local:http tcp 10.244.1.242:9080 app=reviews,pod-template-hash=844bc59d88,version=v3 spiffe://cluster.local/ns/default/sa/bookinfo-reviews\n" +
-                "tiller-deploy.kube-system.svc.cluster.local:tiller tcp 10.244.1.244:44134 app=helm,name=tiller,pod-template-hash=856685bc59 spiffe://cluster.local/ns/kube-system/sa/tiller\n";
+        String resp = "rate-limit.gateway-system.svc.cluster.local:grpc 10.244.1.29:18081 app=rate-limit,pod-template-hash=6ffc9fdcf9 spiffe://cluster.local/ns/gateway-system/sa/default\n" +
+                "rate-limit.gateway-system.svc.cluster.local:config-grpc 10.244.1.29:16071 app=rate-limit,pod-template-hash=6ffc9fdcf9 spiffe://cluster.local/ns/gateway-system/sa/default\n" +
+                "ratings.default.svc.cluster.local:http 10.244.0.154:9080 app=ratings,pod-template-hash=7bdfd65ccc,version=v1 spiffe://cluster.local/ns/default/sa/bookinfo-ratings\n" +
+                "redis.gateway-system.svc.cluster.local:redis 10.244.1.49:6379 app=redis,pod-template-hash=5cc57965f7 spiffe://cluster.local/ns/gateway-system/sa/default\n" +
+                "reviews.default.svc.cluster.local:http 10.244.1.242:9080 app=reviews,pod-template-hash=844bc59d88,version=v3 spiffe://cluster.local/ns/default/sa/bookinfo-reviews\n" +
+                "tiller-deploy.kube-system.svc.cluster.local:tiller 10.244.1.244:44134 app=helm,name=tiller,pod-template-hash=856685bc59 spiffe://cluster.local/ns/kube-system/sa/tiller\n";
 
         ResponseEntity entity = new ResponseEntity(resp, HttpStatus.OK);
 
