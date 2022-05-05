@@ -24,10 +24,10 @@ job_unit_test:
   script:
     - pwd
     - git status
-    - cd /builds/qingzhou/yx-gateway-api-plane/hango-proto
-    - $MAVEN_HOME/bin/mvn clean install
+    - cd /builds/qingzhou/yx-gateway-api-plane
+    - $MAVEN_HOME/bin/mvn clean package
     - cd /builds/qingzhou/yx-gateway-api-plane/hango-api-plane-server
-    - $MAVEN_HOME/bin/mvn package -U
+    - $MAVEN_HOME/bin/mvn test -U
     - git status
     - echo "now unit_test finished."
   artifacts:
