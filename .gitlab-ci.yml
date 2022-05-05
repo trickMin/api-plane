@@ -26,8 +26,6 @@ job_unit_test:
     - git status
     - cd /builds/qingzhou/yx-gateway-api-plane
     - $MAVEN_HOME/bin/mvn clean package
-    - cd /builds/qingzhou/yx-gateway-api-plane/hango-api-plane-server
-    - $MAVEN_HOME/bin/mvn test -U
     - git status
     - echo "now unit_test finished."
   artifacts:
