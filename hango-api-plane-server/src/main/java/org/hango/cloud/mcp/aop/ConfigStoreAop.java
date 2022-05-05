@@ -24,7 +24,7 @@ public class ConfigStoreAop {
         this.statusNotifier = statusNotifier;
     }
 
-    @Pointcut("this(com.netease.cloud.nsf.mcp.McpConfigStore)")
+    @Pointcut("this(org.hango.cloud.mcp.McpConfigStore)")
     public void classPointcut() {
     }
 

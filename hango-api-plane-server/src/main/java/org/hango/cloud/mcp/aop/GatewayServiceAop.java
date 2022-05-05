@@ -25,7 +25,7 @@ public class GatewayServiceAop {
         this.statusNotifier = statusNotifier;
     }
 
-    @Pointcut("this(com.netease.cloud.nsf.service.GatewayService)")
+    @Pointcut("this(org.hango.cloud.service.GatewayService)")
     public void interfacePointcut() {
     }
 
