@@ -27,7 +27,7 @@ job_unit_test:
     - cd /builds/qingzhou/yx-gateway-api-plane/hango-proto
     - $MAVEN_HOME/bin/mvn clean install
     - cd /builds/qingzhou/yx-gateway-api-plane/hango-api-plane-server
-    - $MAVEN_HOME/bin/mvn clean package -U
+    - $MAVEN_HOME/bin/mvn package -U
     - git status
     - echo "now unit_test finished."
   artifacts:
