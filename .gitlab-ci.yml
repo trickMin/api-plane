@@ -16,23 +16,23 @@ stages:
 
 before_script:
   - export MAVEN_HOME=/usr/local/bin/apache-maven-3.6.3
-  - git submodule sync
-  - git submodule update --init
+#  - git submodule sync
+#  - git submodule update --init
 
 job_unit_test:
   stage: test
   script:
     - pwd
     - git status
-    - cd /builds/qingzhou/yx-gateway-api-plane/nsf-proto
+    - cd /builds/qingzhou/yx-gateway-api-plane/hango-proto
     - $MAVEN_HOME/bin/mvn clean install
-    - cd /builds/qingzhou/yx-gateway-api-plane/nsf-api-plane-server
+    - cd /builds/qingzhou/yx-gateway-api-plane/hango-api-plane-server
     - $MAVEN_HOME/bin/mvn clean package -U
     - git status
     - echo "now unit_test finished."
   artifacts:
     paths:
-      - /builds/qingzhou/yx-gateway-api-plane/nsf-api-plane-server
+      - /builds/qingzhou/yx-gateway-api-plane/hango-api-plane-server
   tags:
     - qz-gitlab-runner    
 
