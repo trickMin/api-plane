@@ -35,7 +35,7 @@
       "displayName": "请求中断",
       "schema": "plugin/portal/ianus-router.json",
       "description": "请求中断插件",
-      "processor": "RouteProcessor",
+      "processor": "AggregateGatewayPluginProcessor",
       "author": "system",
       "createTime": "1572537600000",
       "updateTime": "1572537600000",
