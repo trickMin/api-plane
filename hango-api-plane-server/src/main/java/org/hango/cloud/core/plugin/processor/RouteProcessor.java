@@ -7,6 +7,7 @@ import org.hango.cloud.core.k8s.K8sResourceEnum;
 import org.hango.cloud.core.plugin.FragmentHolder;
 import org.hango.cloud.core.plugin.FragmentTypeEnum;
 import org.hango.cloud.core.plugin.FragmentWrapper;
+import org.hango.cloud.core.plugin.PluginGenerator;
 import org.hango.cloud.meta.Endpoint;
 import org.hango.cloud.meta.ServiceInfo;
 import org.hango.cloud.util.exception.ApiPlaneException;

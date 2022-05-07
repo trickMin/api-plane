@@ -1011,7 +1011,7 @@ message HttpReturn {
 message DataSource {
   string filename = 1;
   bytes inlinebyte = 2;
-  string inlinestring = 3;
+  string inline_string  = 3;
 }
 // Describes match conditions and actions for routing unterminated TLS
 // traffic (TLS/HTTPS) The following routing rule forwards unterminated TLS
