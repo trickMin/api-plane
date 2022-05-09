@@ -501,7 +501,7 @@ message OutlierDetection {
     // 502, 503 or 504 return code qualifies as an error. When the upstream host
     // is accessed over an opaque TCP connection, connect timeouts and
     // connection error/failure events qualify as an error.
-    int32 consecutive_errors = 1;
+    int32 consecutive_gateway_errors  = 1;
 
     // Time interval between ejection sweep analysis. format:
     // 1h/1m/1s/1ms. MUST BE >=1ms. Default is 10s.

@@ -18,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -118,16 +117,15 @@ public class EnvoyHttpClientTest extends BaseTest {
 
     @Test
     public void envoyplugin() throws  Exception{
-        GatewayPluginDTO gatewayPluginDTO = new GatewayPluginDTO();
-        gatewayPluginDTO.setGateway("prod-gateway");
-        gatewayPluginDTO.setPlugins(Arrays.asList("{\"type\":\"1\",\"list\":[\"192.168.134.132\"],\"kind\":\"ip-restriction\"}"));
-        gatewayPluginDTO.setPlugins(new ArrayList<>());
-        gatewayPluginDTO.setPluginType("routeRule");
-        gatewayPluginDTO.setRouteId("430032");
-        gatewayPluginDTO.setCode("aa");
-        gatewayPluginDTO.setHosts(Arrays.asList("netaese.test.com", "net.163.com"));
-        System.out.println(objectMapper.writeValueAsString(gatewayPluginDTO));
-        gatewayService.deleteGatewayPlugin(gatewayPluginDTO);
+        String str = "{\"Hosts\":[\"gateway-proxy.qa-yl.service.163.org\",\"istio.com\",\"test.cn\",\"xty.com\",\"abc.abc\"],\"Gateway\":\"prod-gateway\",\"Code\":\"project2-3-1-cors\",\"PluginType\":\"cors\",\"Plugins\":[\"{\\\"maxAge\\\":false,\\\"kind\\\":\\\"cors\\\",\\\"corsPolicy\\\":{\\\"kind\\\":\\\"cors\\\",\\\"allowOriginRegex\\\":[\\\"openzfw.com\\\"]}}\"]}";
+        String str1 = "{\"Hosts\":[\"gateway-proxy.qa-yl.service.163.org\",\"istio.com\",\"test.cn\",\"xty.com\",\"abc.abc\"],\"Gateway\":\"prod-gateway\",\"RouteId\":9779,\"PluginType\":\"ianus-router\",\"Plugins\":[\"{\\\"kind\\\":\\\"ianus-router\\\",\\\"rule\\\":[{\\\"name\\\":\\\"return\\\",\\\"action\\\":{\\\"rewrite_regex\\\":\\\"/(.*)\\\",\\\"action_type\\\":\\\"return\\\",\\\"return_target\\\":{\\\"code\\\":\\\"344\\\",\\\"body\\\":\\\"aaaasda\\\"},\\\"target\\\":\\\"/$1\\\"}}],\\\"version\\\":\\\"1.0\\\"}\"]}";
+
+        GatewayPluginDTO pluginOrderDTO = JSONObject.parseObject(str1, GatewayPluginDTO.class);
+        String str2 = "{\"kind\":\"ianus-router\",\"code\":\"344\",\"body\":\"aaaasda\",\"version\":\"1.0\"}";
+        pluginOrderDTO.setPlugins(Arrays.asList(str2));
+        String s = JSONObject.toJSONString(pluginOrderDTO);
+        System.out.println(s);
+        gatewayService.updateGatewayPlugin(pluginOrderDTO);
     }
 
 }

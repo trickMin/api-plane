@@ -6,72 +6,13 @@
   "formatter": {
     "kind": "ianus-router",
     "version": "1.0",
-    "rewrite_regex_user": "&rewrite_regex_user",
-    "target_user": "&target_user",
-    "rule": [
-      {
-        "name": "&action_type",
-        "action": {
-          "action_type": "&action_type",
-          "rewrite_regex": "&rewrite_regex_user+&regex",
-          "target": "&target_user+&variable",
-          "return_target?": {
-            "code": "&return_target.code",
-            "body": "&return_target.body"
-          }
-        }
-      }
-    ]
+    "code": "&return_target.code",
+    "body": "&return_target.body"
   },
   "layouts":[
     {
-      "key": "action_type",
-      "alias": "动作类型",
-      "type": "select",
-      "default": "return",
-      "options": [
-        {
-          "text": "请求中断",
-          "value": "return"
-        }
-      ],
-      "rules": [
-        "Required"
-      ]
-    },
-    {
-      "key": "rewrite_regex_user",
-      "alias": "重写前的path前缀",
-      "help": "需要以/开头",
-      "visible": {
-        "this.action_type": "rewrite"
-      },
-      "type": "input",
-      "default": null,
-      "rules": [
-        "Required",
-        "^/"
-      ]
-    },
-    {
-      "key": "target_user",
-      "type": "input",
-      "alias": "重写后的path前缀",
-      "help": "需要以/开头，如果想要将某个前缀重写掉，则此值不填写",
-      "visible": {
-        "this.action_type": "rewrite"
-      },
-      "default": null,
-      "rules": [
-        "^/"
-      ]
-    },
-    {
       "key": "return_target",
       "alias": "中断响应",
-      "visible": {
-        "this.action_type": "return"
-      },
       "layouts": [
         {
           "key": "code",

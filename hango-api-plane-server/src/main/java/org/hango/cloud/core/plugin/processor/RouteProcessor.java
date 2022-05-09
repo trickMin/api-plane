@@ -7,20 +7,18 @@ import org.hango.cloud.core.k8s.K8sResourceEnum;
 import org.hango.cloud.core.plugin.FragmentHolder;
 import org.hango.cloud.core.plugin.FragmentTypeEnum;
 import org.hango.cloud.core.plugin.FragmentWrapper;
+import org.hango.cloud.core.plugin.PluginGenerator;
 import org.hango.cloud.meta.Endpoint;
 import org.hango.cloud.meta.ServiceInfo;
 import org.hango.cloud.util.exception.ApiPlaneException;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -44,54 +42,21 @@ public class RouteProcessor extends AbstractSchemaProcessor implements SchemaPro
 
     @Override
     public FragmentHolder process(String plugin, ServiceInfo serviceInfo) {
-        //todo: yx add querystring and header match
-        //todo: meta copy
-        MultiValueMap<String, String> pluginMap = new LinkedMultiValueMap<>();
-
-        ResourceGenerator total = ResourceGenerator.newInstance(plugin, ResourceType.JSON, editorContext);
-        // 如果路由插件自身配置了priority，则使用配置的priority，如果没有配置，则使用占位符传递的priority
-        Integer priority = getPriority(total);
-        if (Objects.nonNull(priority)) serviceInfo.setPriority(String.valueOf(priority));
-
-        // 将路由plugin细分，例如rewrite部分,redirect部分
-        List<Object> plugins = total.getValue("$.rule");
-        plugins.forEach(innerPlugin -> {
-            ResourceGenerator rg = ResourceGenerator.newInstance(innerPlugin, ResourceType.OBJECT, editorContext);
-            String innerType = rg.getValue("$.name");
-            switch (innerType) {
-                case "rewrite": {
-                    pluginMap.add(innerType, createRewrite(rg, serviceInfo, null));
-                    break;
-                }
-                case "redirect": {
-                    pluginMap.add(innerType, createRedirect(rg, serviceInfo, null));
-                    break;
-                }
-                case "return": {
-                    pluginMap.add(innerType, createReturn(rg, serviceInfo, null));
-                    break;
-                }
-                case "pass_proxy": {
-                    pluginMap.add(innerType, createPassProxy(rg, serviceInfo, null));
-                    break;
-                }
-                default:
-                    throw new ApiPlaneException("Unsupported inner routing plugin types.");
-            }
-        });
-
-        ResourceGenerator result = ResourceGenerator.newInstance("[]", ResourceType.JSON, editorContext);
-        pluginMap.values().forEach(item -> item.forEach(o -> result.addJsonElement("$", o)));
-
-        FragmentHolder holder = new FragmentHolder();
+        PluginGenerator source = PluginGenerator.newInstance(plugin);
+        PluginGenerator builder = PluginGenerator.newInstance("{}");
+        builder.createOrUpdateJson("$","direct_response", "{}");
+        builder.createOrUpdateValue("$.direct_response", "status", source.getValue("$.code", Integer.class));
+        builder.createOrUpdateJson("$.direct_response", "body", "{}");
+        builder.createOrUpdateValue("$.direct_response.body", "inline_string", source.getValue("$.body", String.class));
+        FragmentHolder fragmentHolder = new FragmentHolder();
         FragmentWrapper wrapper = new FragmentWrapper.Builder()
-                .withContent(result.yamlString())
+                .withXUserId(getAndDeleteXUserId(source))
+                .withFragmentType(FragmentTypeEnum.VS_API)
                 .withResourceType(K8sResourceEnum.VirtualService)
-                .withFragmentType(FragmentTypeEnum.VS_MATCH)
-                .withXUserId(getAndDeleteXUserId(total))
+                .withContent(builder.yamlString())
                 .build();
-        holder.setVirtualServiceFragment(wrapper);
-        return holder;
+        fragmentHolder.setVirtualServiceFragment(wrapper);
+        return fragmentHolder;
     }
 
     private String createPassProxy(ResourceGenerator rg, ServiceInfo info, String xUserId) {

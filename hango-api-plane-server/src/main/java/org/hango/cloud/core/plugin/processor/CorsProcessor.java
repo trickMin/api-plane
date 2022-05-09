@@ -21,7 +21,7 @@ public class CorsProcessor extends AbstractSchemaProcessor implements SchemaProc
         return "CorsProcessor";
     }
 
-    private String allow_origin_string_match = "{\"string_match\":{\"safe_regex_match\":{\"google_re2\":{},\"regex\":\"%s\"}}}";
+    private String allow_origin_string_match = "{\"safe_regex\":{\"google_re2\":{},\"regex\":\"%s\"}}";
 
     @Override
     public FragmentHolder process(String plugin, ServiceInfo serviceInfo) {
@@ -34,10 +34,11 @@ public class CorsProcessor extends AbstractSchemaProcessor implements SchemaProc
          * https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/route/v3/route_components.proto#config-route-v3-corspolicy
          */
         if (source.contain("$.corsPolicy.allowOriginRegex")) {
-            builder.createOrUpdateJson("$", "allow_origin_string_match", "[]");
+            builder.createOrUpdateJson("$", "cors", "{}");
+            builder.createOrUpdateJson("$.cors", "allow_origin_string_match", "[]");
             List<String> value = source.getValue("$.corsPolicy.allowOriginRegex", List.class);
             value.forEach(item -> {
-                builder.addJsonElement("$.allow_origin_string_match", String.format(allow_origin_string_match, item + "|"));
+                builder.addJsonElement("$.cors.allow_origin_string_match", String.format(allow_origin_string_match, item + "|"));
             });
         }
         if (source.contain("$.corsPolicy.allowMethods")) {

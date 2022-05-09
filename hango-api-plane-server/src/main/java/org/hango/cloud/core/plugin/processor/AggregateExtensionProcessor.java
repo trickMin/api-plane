@@ -128,6 +128,10 @@ public class AggregateExtensionProcessor extends AbstractSchemaProcessor impleme
                 holder = getProcessor("SoapJsonTranscoderProcessor").process(plugin, serviceInfo);
                 coverToExtensionPlugin(holder, "proxy.filters.http.soapjsontranscoder");
                 break;
+            case "ianus-router":
+                holder = getProcessor("RouteProcessor").process(plugin, serviceInfo);
+                coverToExtensionPlugin(holder, "envoy.filters.http.fault", true, "ROOT");
+                break;
             case "trace":
             default:
                 holder = getProcessor("RestyProcessor").process(plugin, serviceInfo);
@@ -138,17 +142,27 @@ public class AggregateExtensionProcessor extends AbstractSchemaProcessor impleme
     }
 
     private void coverToExtensionPlugin(FragmentHolder holder, String name) {
+       coverToExtensionPlugin(holder, name, false, null);
+    }
+
+    private void coverToExtensionPlugin(FragmentHolder holder, String name, boolean directPatch, String field) {
         if (Objects.nonNull(holder.getVirtualServiceFragment())) {
             PluginGenerator source = PluginGenerator.newInstance(holder.getVirtualServiceFragment().getContent(), ResourceType.YAML);
             PluginGenerator builder = PluginGenerator.newInstance(String.format("{\"name\":\"%s\"}", name));
             builder.createOrUpdateJson("$", "inline", "{}");
+
             builder.createOrUpdateJson("$.inline", "settings", source.jsonString());
             builder.createOrUpdateValue("$", "enable", true);
             builder.createOrUpdateJson("$", "listenerType", "Gateway");
+            if (directPatch){
+                builder.createOrUpdateJson("$.inline", "directPatch", "true");
+                builder.createOrUpdateJson("$.inline", "fieldPatchTo", StringUtils.isEmpty(field) ? "route" : field);
+            }
             holder.getVirtualServiceFragment().setContent(builder.yamlString());
             logger.info("Extension plugin: [{}]", builder.yamlString());
         }
     }
+
 
     @Override
     public List<FragmentHolder> process(List<String> plugins, ServiceInfo serviceInfo) {
