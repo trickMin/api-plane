@@ -1,5 +1,5 @@
 metadata:
-  com.netease.metadatahub:
+  proxy.filters.http.metadatahub:
 <#if t_gateway_name?has_content>
     qz_cluster_name: ${t_gateway_name}
 </#if>
