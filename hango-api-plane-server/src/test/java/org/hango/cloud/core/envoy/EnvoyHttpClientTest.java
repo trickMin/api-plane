@@ -7,6 +7,7 @@ import org.hango.cloud.core.k8s.KubernetesClient;
 import org.hango.cloud.meta.ServiceHealth;
 import org.hango.cloud.meta.dto.GatewayPluginDTO;
 import org.hango.cloud.meta.dto.PluginOrderDTO;
+import org.hango.cloud.meta.dto.PortalAPIDTO;
 import org.hango.cloud.meta.dto.PortalServiceDTO;
 import org.hango.cloud.service.GatewayService;
 import io.fabric8.kubernetes.api.model.Pod;
@@ -126,6 +127,12 @@ public class EnvoyHttpClientTest extends BaseTest {
         String s = JSONObject.toJSONString(pluginOrderDTO);
         System.out.println(s);
         gatewayService.updateGatewayPlugin(pluginOrderDTO);
+    }
+    @Test
+    public void testApi(){
+        String str = "{\"Order\":50200861,\"ProxyServices\":[{\"BackendService\":\"istio-e2e-app.apigw-demo.svc.cluster.local\",\"Type\":\"DYNAMIC\",\"Port\":80,\"Code\":\"DYNAMIC-7134\",\"Weight\":100}],\"Hosts\":[\"gateway-proxy.qa-yl.service.163.org\"],\"RequestUris\":[\"/corsScenario\"],\"StatsMeta\":[10067],\"ServiceTag\":\"CorsScenarioServiceName\",\"Timeout\":60000,\"ProjectId\":3,\"RouteId\":10067,\"HttpRetry\":{\"Attempts\":2,\"RetryOn\":\"\",\"IsRetry\":false,\"PerTryTimeout\":60000},\"Code\":\"10067\",\"Gateway\":\"prod-gateway\",\"RouteName\":\"CorsScenario-RuleName-1\",\"UriMatch\":\"prefix\",\"Methods\":[\"*\"],\"Plugins\":[]}";
+        PortalAPIDTO portalAPIDTO = JSONObject.parseObject(str, PortalAPIDTO.class);
+        gatewayService.updateAPI(portalAPIDTO);
     }
 
 }
