@@ -151,6 +151,21 @@
       "categoryName": "安全"
     },
     {
+      "name": "traffic-mark",
+      "displayName": "流量染色",
+      "schema": "plugin/route/traffic-mark.json",
+      "description": "",
+      "processor": "AggregateGatewayPluginProcessor",
+      "author": "system",
+      "createTime": "1636943353954",
+      "updateTime": "1636943353954",
+      "pluginScope": "routeRule,global",
+      "pluginPriority": "2500",
+      "instructionForUse": "为符合条件的请求带上染色标志",
+      "categoryKey": "dataFormat",
+      "categoryName": "数据转换"
+    },
+    {
       "name": "rewrite",
       "displayName": "请求Path重写",
       "schema": "plugin/route/rewrite.json",
