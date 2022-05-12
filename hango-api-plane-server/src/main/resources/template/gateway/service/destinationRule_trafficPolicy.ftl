@@ -59,7 +59,7 @@ trafficPolicy:
 <#--</#if>-->
   outlierDetection:
 <#if t_destination_rule_consecutive_errors?has_content>
-    consecutiveErrors: ${t_destination_rule_consecutive_errors}
+    consecutiveGatewayErrors: ${t_destination_rule_consecutive_errors}
 </#if>
 <#if t_destination_rule_base_ejection_time?has_content>
     baseEjectionTime: ${t_destination_rule_base_ejection_time}ms
@@ -71,7 +71,7 @@ trafficPolicy:
     minHealthPercent: ${t_destination_rule_min_health_percent}
 </#if>
   healthCheck:
-  <#if t_destination_rule_healthy_checker_type?has_content>
+  <#if t_destination_rule_path?has_content>
     healthChecker:
     <#if t_destination_rule_healthy_checker_type == "http">
       httpHealthCheck:

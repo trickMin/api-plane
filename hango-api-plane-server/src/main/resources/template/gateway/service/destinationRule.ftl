@@ -88,7 +88,7 @@ spec:
       <#if ss.trafficPolicy.outlierDetection?has_content>
       outlierDetection:
         <#if ss.trafficPolicy.outlierDetection.consecutiveErrors?has_content>
-        consecutiveErrors: ${ss.trafficPolicy.outlierDetection.consecutiveErrors}
+        consecutiveGatewayErrors: ${ss.trafficPolicy.outlierDetection.consecutiveErrors}
         </#if>
         <#if ss.trafficPolicy.outlierDetection.baseEjectionTime?has_content>
         baseEjectionTime: ${ss.trafficPolicy.outlierDetection.baseEjectionTime}ms
@@ -99,7 +99,7 @@ spec:
       </#if>
       <#if ss.trafficPolicy.healthCheck?has_content>
       healthCheck:
-        <#if t_destination_rule_healthy_checker_type?has_content>
+        <#if t_destination_rule_path?has_content>
         healthChecker:
         <#if t_destination_rule_healthy_checker_type == "http">
           httpHealthCheck:
