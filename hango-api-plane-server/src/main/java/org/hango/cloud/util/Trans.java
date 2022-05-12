@@ -65,7 +65,8 @@ public class Trans {
         api.setTenantId(portalAPI.getTenantId());
         api.setProjectId(portalAPI.getProjectId());
         //timeout 默认60000ms
-        if (api.getTimeout() == null) api.setTimeout(60000L);
+        //0512 to cm, remove default timeout
+//        if (api.getTimeout() == null) api.setTimeout(60000L);
         if (portalAPI.getHttpRetry() != null && portalAPI.getHttpRetry() instanceof HttpRetryDTO
         && portalAPI.getHttpRetry().isRetry()){
             api.setAttempts(portalAPI.getHttpRetry().getAttempts());

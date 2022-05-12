@@ -25,7 +25,7 @@ match:
       ${p.type}: ${p.value}
 </#list>
 </#if>
-<#if t_virtual_service_timeout??>
+<#if t_virtual_service_timeout?has_content>
 timeout: ${t_virtual_service_timeout}ms
 </#if>
 <@autoremove><#include "virtualServiceHeaderOperation.ftl"/></@autoremove>
