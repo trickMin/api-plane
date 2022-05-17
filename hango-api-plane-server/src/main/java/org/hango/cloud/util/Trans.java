@@ -1,39 +1,13 @@
 package org.hango.cloud.util;
 
 import com.google.common.collect.ImmutableList;
+import istio.networking.v1alpha3.EnvoyFilterOuterClass;
+import org.apache.commons.lang3.BooleanUtils;
 import org.hango.cloud.core.editor.ResourceGenerator;
 import org.hango.cloud.core.editor.ResourceType;
-import org.hango.cloud.meta.dto.HttpRetryDTO;
-import org.hango.cloud.meta.dto.PairMatchDTO;
-import org.hango.cloud.meta.dto.PluginOrderDTO;
-import org.hango.cloud.meta.dto.PluginOrderItemDTO;
-import org.hango.cloud.meta.dto.PortalAPIDTO;
-import org.hango.cloud.meta.dto.PortalAPIDeleteDTO;
-import org.hango.cloud.meta.dto.PortalHealthCheckDTO;
-import org.hango.cloud.meta.dto.PortalIstioGatewayDTO;
-import org.hango.cloud.meta.dto.PortalLoadBalancerDTO;
-import org.hango.cloud.meta.dto.PortalMirrorTrafficDto;
-import org.hango.cloud.meta.dto.PortalOutlierDetectionDTO;
-import org.hango.cloud.meta.dto.PortalRouteServiceDTO;
-import org.hango.cloud.meta.dto.PortalServiceConnectionPoolDTO;
-import org.hango.cloud.meta.dto.PortalServiceDTO;
-import org.hango.cloud.meta.dto.PortalTrafficPolicyDTO;
-import org.hango.cloud.meta.dto.RequestOperationDTO;
-import org.hango.cloud.meta.dto.ServiceSubsetDTO;
-import org.hango.cloud.meta.dto.ValidateResultDTO;
+import org.hango.cloud.meta.*;
+import org.hango.cloud.meta.dto.*;
 import org.hango.cloud.util.exception.ApiPlaneException;
-import org.apache.commons.lang3.BooleanUtils;
-import org.hango.cloud.meta.API;
-import org.hango.cloud.meta.GatewayPlugin;
-import org.hango.cloud.meta.IstioGateway;
-import org.hango.cloud.meta.PairMatch;
-import org.hango.cloud.meta.PluginOrder;
-import org.hango.cloud.meta.RequestOperation;
-import org.hango.cloud.meta.Service;
-import org.hango.cloud.meta.ServiceSubset;
-import org.hango.cloud.meta.UriMatch;
-import org.hango.cloud.meta.ValidateResult;
-import org.hango.cloud.meta.dto.GatewayPluginDTO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -274,6 +248,18 @@ public class Trans {
         return po;
     }
 
+    public static EnvoyFilterOrder envoyFilterOrderDTO2EnvoyFilter(EnvoyFilterOrderDTO envoyFilterOrderDTO) {
+        EnvoyFilterOrder efo = new EnvoyFilterOrder();
+        efo.setWorkloadSelector(envoyFilterOrderDTO.getWorkloadSelector());
+        List<String> orderItems = new ArrayList<>();
+        for (EnvoyFilterOuterClass.EnvoyFilter.EnvoyConfigObjectPatch dto : envoyFilterOrderDTO.getConfigPatches()) {
+            if (Objects.nonNull(dto)) {
+                orderItems.add(ResourceGenerator.newInstance(dto, ResourceType.OBJECT).yamlString());
+            }
+        }
+        efo.setConfigPatches(orderItems);
+        return efo;
+    }
     private static List<PairMatch> pairsDTO2Pairs(List<PairMatchDTO> pairMatchDTOS) {
         if (CollectionUtils.isEmpty(pairMatchDTOS)) return Collections.emptyList();
         return pairMatchDTOS.stream()
@@ -330,4 +316,5 @@ public class Trans {
         gatewayPlugin.setPort(dto.getPort() == null ? 80 : dto.getPort());
         return gatewayPlugin;
     }
+
 }

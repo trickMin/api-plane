@@ -3,6 +3,7 @@ package org.hango.cloud.web.controller;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.StringUtils;
 import org.hango.cloud.meta.Gateway;
+import org.hango.cloud.meta.dto.GrpcEnvoyFilterDto;
 import org.hango.cloud.meta.dto.PluginOrderDTO;
 import org.hango.cloud.service.GatewayService;
 import org.hango.cloud.util.Const;
@@ -73,10 +74,26 @@ public class GatewayCommonController extends BaseController {
         return apiReturn(code.getStatusCode(), code.getCode(), null, result);
     }
 
+    @RequestMapping(params = "Action=GetGrpcEnvoyFilter", method = RequestMethod.POST)
+    public String getGrpcEnvoyFilter(@RequestBody GrpcEnvoyFilterDto grpcEnvoyFilterDto) {
+        Map<String, Object> result = new HashMap<>();
+
+        result.put(RESULT, gatewayService.getGrpcEnvoyFilter(grpcEnvoyFilterDto));
+        ErrorCode code = ApiPlaneErrorCode.Success;
+        return apiReturn(code.getStatusCode(), code.getCode(), null, result);
+    }
+
     @RequestMapping(params = "Action=PublishPluginOrder", method = RequestMethod.POST)
     public String publishPluginOrder(@RequestBody @Valid PluginOrderDTO pluginOrderDTO) {
 
         gatewayService.updatePluginOrder(pluginOrderDTO);
+        return apiReturn(ApiPlaneErrorCode.Success);
+    }
+
+    @RequestMapping(params = "Action=PublishGrpcEnvoyFilter", method = RequestMethod.POST)
+    public String publishGrpcEnvoyFilter(@RequestBody @Valid GrpcEnvoyFilterDto envoyFilterOrderDTO) {
+
+        gatewayService.updateGrpcEnvoyFilter(envoyFilterOrderDTO);
         return apiReturn(ApiPlaneErrorCode.Success);
     }
 
@@ -93,7 +110,7 @@ public class GatewayCommonController extends BaseController {
                                @RequestParam(name = "ApplicationName", required = false) String applicationName) {
 
         Map<String, Object> result = new HashMap<>();
-        result.put(RESULT, gatewayService.getDubboMeta(igv,applicationName,method));
+        result.put(RESULT, gatewayService.getDubboMeta(igv, applicationName, method));
         return apiReturn(result);
 
     }

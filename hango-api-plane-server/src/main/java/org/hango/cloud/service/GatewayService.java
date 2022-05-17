@@ -1,12 +1,6 @@
 package org.hango.cloud.service;
 
-import org.hango.cloud.meta.dto.DubboMetaDto;
-import org.hango.cloud.meta.dto.PluginOrderDTO;
-import org.hango.cloud.meta.dto.PortalAPIDTO;
-import org.hango.cloud.meta.dto.PortalAPIDeleteDTO;
-import org.hango.cloud.meta.dto.PortalIstioGatewayDTO;
-import org.hango.cloud.meta.dto.PortalServiceDTO;
-import org.hango.cloud.meta.dto.ServiceAndPortDTO;
+import org.hango.cloud.meta.dto.*;
 import org.hango.cloud.util.errorcode.ErrorCode;
 
 import java.util.List;
@@ -14,7 +8,6 @@ import java.util.Map;
 
 import org.hango.cloud.meta.Gateway;
 import org.hango.cloud.meta.ServiceHealth;
-import org.hango.cloud.meta.dto.GatewayPluginDTO;
 
 
 public interface GatewayService {
@@ -67,4 +60,16 @@ public interface GatewayService {
      */
     List<DubboMetaDto> getDubboMeta(String igv, String applicationName, String method);
 
+    /**
+     * 获取 EnvoyFilter
+     * @param grpcEnvoyFilter
+     * @return
+     */
+    EnvoyFilterOrderDTO getEnvoyFilter(EnvoyFilterOrderDTO grpcEnvoyFilter);
+
+    void updateEnvoyFilter(EnvoyFilterOrderDTO grpcEnvoyFilterDTO);
+
+    EnvoyFilterOrderDTO getGrpcEnvoyFilter(GrpcEnvoyFilterDto grpcEnvoyFilterDto);
+
+    void updateGrpcEnvoyFilter(GrpcEnvoyFilterDto grpcEnvoyFilterDto);
 }

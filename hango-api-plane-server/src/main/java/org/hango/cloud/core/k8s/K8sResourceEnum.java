@@ -89,6 +89,11 @@ public enum K8sResourceEnum {
             K8sTypes.PluginManagerList.class,
             ImmutableMap.of(K8sVersion.V1_11_0, "/apis/microservice.slime.io/v1alpha1/namespaces/%s/pluginmanagers")),
     /** DestinationRule resource */
+    EnvoyFilter(
+            K8sTypes.EnvoyFilter.class,
+            K8sTypes.EnvoyFilterList.class,
+            ImmutableMap.of(K8sVersion.V1_11_0, "/apis/networking.istio.io/v1alpha3/namespaces/%s/envoyfilters")),
+    /** DestinationRule resource */
     Deployment(
             Deployment.class,
             DeploymentList.class,

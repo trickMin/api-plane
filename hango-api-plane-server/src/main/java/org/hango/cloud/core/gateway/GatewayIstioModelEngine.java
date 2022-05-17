@@ -3,6 +3,7 @@ package org.hango.cloud.core.gateway;
 import org.hango.cloud.core.GlobalConfig;
 import org.hango.cloud.core.IstioModelEngine;
 import org.hango.cloud.core.editor.EditorContext;
+import org.hango.cloud.core.gateway.handler.*;
 import org.hango.cloud.core.gateway.processor.DefaultModelProcessor;
 import org.hango.cloud.core.gateway.processor.NeverReturnNullModelProcessor;
 import org.hango.cloud.core.gateway.processor.RenderTwiceModelProcessor;
@@ -18,25 +19,13 @@ import org.hango.cloud.core.k8s.subtracter.GatewayVirtualServiceSubtracter;
 import org.hango.cloud.core.plugin.FragmentHolder;
 import org.hango.cloud.core.plugin.FragmentWrapper;
 import org.hango.cloud.core.template.TemplateTranslator;
+import org.hango.cloud.meta.*;
 import org.hango.cloud.service.PluginService;
 import org.hango.cloud.util.Const;
 import org.hango.cloud.util.constant.LogConstant;
 import org.hango.cloud.util.constant.PluginConstant;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import istio.networking.v1alpha3.VirtualServiceOuterClass;
-import org.hango.cloud.core.gateway.handler.GatewayPluginConfigMapDataHandler;
-import org.hango.cloud.core.gateway.handler.GatewayPluginDataHandler;
-import org.hango.cloud.core.gateway.handler.PluginOrderDataHandler;
-import org.hango.cloud.core.gateway.handler.PortalDestinationRuleServiceDataHandler;
-import org.hango.cloud.core.gateway.handler.PortalGatewayDataHandler;
-import org.hango.cloud.core.gateway.handler.PortalServiceEntryServiceDataHandler;
-import org.hango.cloud.core.gateway.handler.PortalVirtualServiceAPIDataHandler;
-import org.hango.cloud.meta.API;
-import org.hango.cloud.meta.GatewayPlugin;
-import org.hango.cloud.meta.IstioGateway;
-import org.hango.cloud.meta.PluginOrder;
-import org.hango.cloud.meta.Service;
-import org.hango.cloud.meta.ServiceInfo;
 import org.hango.cloud.k8s.K8sTypes.VirtualService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,6 +91,7 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
     private static final String pluginManager = "gateway/pluginManager";
     private static final String serviceServiceEntry = "gateway/service/serviceEntry";
     private static final String gatewayPlugin = "gateway/gatewayPlugin";
+    private static final String envoyFilter = "gateway/envoyFilter";
     private static final String VIRTUAL_SERVICE = "VirtualService";
 
     public List<K8sResourcePack> translate(API api) {
@@ -333,5 +323,12 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
             // 非VS资源下不处理
             return rawVs;
         }
+    }
+
+    public List<K8sResourcePack> translate(EnvoyFilterOrder efo) {
+        List<K8sResourcePack> resources = new ArrayList<>();
+        List<String> pluginManagers = defaultModelProcessor.process(envoyFilter, efo, new EnvoyFilterOrderDataHandler());
+        resources.addAll(generateK8sPack(pluginManagers));
+        return resources;
     }
 }

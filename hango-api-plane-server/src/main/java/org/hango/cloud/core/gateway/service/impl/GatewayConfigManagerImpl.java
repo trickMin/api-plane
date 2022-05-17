@@ -12,10 +12,7 @@ import org.hango.cloud.core.k8s.K8sResourceEnum;
 import org.hango.cloud.core.k8s.K8sResourcePack;
 import org.hango.cloud.core.k8s.event.K8sResourceDeleteNotificationEvent;
 import org.hango.cloud.core.k8s.subtracter.ServiceEntryEndpointsSubtracter;
-import org.hango.cloud.meta.API;
-import org.hango.cloud.meta.IstioGateway;
-import org.hango.cloud.meta.PluginOrder;
-import org.hango.cloud.meta.Service;
+import org.hango.cloud.meta.*;
 import org.hango.cloud.k8s.K8sTypes;
 import org.hango.cloud.util.exception.ApiPlaneException;
 import org.hango.cloud.util.function.Subtracter;
@@ -23,7 +20,6 @@ import io.fabric8.kubernetes.api.model.HasMetadata;
 import me.snowdrop.istio.api.IstioResource;
 import me.snowdrop.istio.api.networking.v1alpha3.GatewaySpec;
 import me.snowdrop.istio.api.networking.v1alpha3.ServiceEntry;
-import org.hango.cloud.meta.GatewayPlugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -181,6 +177,21 @@ public class GatewayConfigManagerImpl extends AbstractConfigManagerSupport imple
     @Override
     public void updateConfig(IstioGateway istioGateway) {
         List<K8sResourcePack> resources = modelEngine.translate(istioGateway);
+        update(resources);
+    }
+
+    @Override
+    public HasMetadata getConfig(EnvoyFilterOrder envoyFilterOrder) {
+        List<K8sResourcePack> resources = modelEngine.translate(envoyFilterOrder);
+        if (CollectionUtils.isEmpty(resources) || resources.size() != 1) {
+            throw new ApiPlaneException();
+        }
+        return configStore.get(resources.get(0).getResource());
+    }
+
+    @Override
+    public void updateConfig(EnvoyFilterOrder envoyFilterOrder) {
+        List<K8sResourcePack> resources = modelEngine.translate(envoyFilterOrder);
         update(resources);
     }
 

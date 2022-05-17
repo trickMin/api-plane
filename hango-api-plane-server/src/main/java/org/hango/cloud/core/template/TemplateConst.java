@@ -219,6 +219,13 @@ public interface TemplateConst {
     String PLUGIN_MANAGER_PLUGINS = "t_plugin_manager_plugins";
 
     /**
+     * EnvoyFilter
+     **/
+    String ENVOY_FILTER_NAME = "t_envoy_filter_name";
+    String ENVOY_FILTER_WORKLOAD_LABELS = "t_envoy_filter_workload_labels";
+    String ENVOY_FILTER_FILTERS = "t_envoy_filter_filters";
+
+    /**
      * VersionManager
      **/
     String VERSION_MANAGER_WORKLOADS = "t_version_manager_workloads";

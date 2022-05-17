@@ -18,6 +18,8 @@ public class K8sTypes {
 	public static class VirtualServiceList extends K8sResourceList<VirtualService> {}
 	public static class DestinationRule extends K8sResource<DestinationRuleOuterClass.DestinationRule> {}
 	public static class DestinationRuleList extends K8sResourceList<DestinationRule> {}
+	public static class EnvoyFilter extends K8sResource<istio.networking.v1alpha3.EnvoyFilterOuterClass.EnvoyFilter> {}
+	public static class EnvoyFilterList extends K8sResourceList<EnvoyFilter> {}
 
 	static {
 		K8sResource.addKind("microservice.slime.io/v1alpha1", RichVirtualService.class);
@@ -25,6 +27,7 @@ public class K8sTypes {
 		K8sResource.addKind("microservice.slime.io/v1alpha1", EnvoyPlugin.class);
 		K8sResource.addKind("networking.istio.io/v1alpha3", VirtualService.class);
 		K8sResource.addKind("networking.istio.io/v1alpha3", DestinationRule.class);
+		K8sResource.addKind("networking.istio.io/v1alpha3", EnvoyFilter.class);
 	}
 
 }

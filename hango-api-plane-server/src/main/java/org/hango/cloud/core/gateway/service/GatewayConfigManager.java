@@ -2,11 +2,7 @@ package org.hango.cloud.core.gateway.service;
 
 import org.hango.cloud.core.ConfigManager;
 import io.fabric8.kubernetes.api.model.HasMetadata;
-import org.hango.cloud.meta.API;
-import org.hango.cloud.meta.GatewayPlugin;
-import org.hango.cloud.meta.IstioGateway;
-import org.hango.cloud.meta.PluginOrder;
-import org.hango.cloud.meta.Service;
+import org.hango.cloud.meta.*;
 
 /**
  *  API配置客户端，用于发送配置
@@ -76,4 +72,16 @@ public interface GatewayConfigManager extends ConfigManager {
      */
     void updateConfig(IstioGateway istioGateway);
 
+    /**
+     * 查询EnvoyFilter
+     * @param envoyFilterOrder
+     * @return
+     */
+    HasMetadata getConfig(EnvoyFilterOrder envoyFilterOrder);
+
+    /**
+     * 更新EnvoyFilter
+     * @param envoyFilterOrder
+     */
+    void updateConfig(EnvoyFilterOrder envoyFilterOrder);
 }

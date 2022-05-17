@@ -1,10 +1,26 @@
 package org.hango.cloud.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.protobuf.ListValue;
+import com.google.protobuf.Struct;
+import com.google.protobuf.Value;
+import io.fabric8.kubernetes.api.model.HasMetadata;
+import istio.networking.v1alpha3.EnvoyFilterOuterClass;
+import istio.networking.v1alpha3.SidecarOuterClass;
+import me.snowdrop.istio.api.IstioResource;
+import me.snowdrop.istio.api.networking.v1alpha3.GatewaySpec;
+import me.snowdrop.istio.api.networking.v1alpha3.Server;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.hango.cloud.core.GlobalConfig;
 import org.hango.cloud.core.gateway.service.GatewayConfigManager;
 import org.hango.cloud.core.gateway.service.ResourceManager;
+import org.hango.cloud.k8s.K8sTypes.EnvoyFilter;
 import org.hango.cloud.k8s.K8sTypes.PluginManager;
+import org.hango.cloud.meta.*;
+import org.hango.cloud.meta.dto.*;
 import org.hango.cloud.service.GatewayService;
 import org.hango.cloud.util.Const;
 import org.hango.cloud.util.TelnetUtil;
@@ -13,32 +29,6 @@ import org.hango.cloud.util.errorcode.ApiPlaneErrorCode;
 import org.hango.cloud.util.errorcode.ErrorCode;
 import org.hango.cloud.util.errorcode.ErrorCodeEnum;
 import org.hango.cloud.util.exception.ApiPlaneException;
-import io.fabric8.kubernetes.api.model.HasMetadata;
-import me.snowdrop.istio.api.IstioResource;
-import me.snowdrop.istio.api.networking.v1alpha3.GatewaySpec;
-import me.snowdrop.istio.api.networking.v1alpha3.Server;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.hango.cloud.meta.Endpoint;
-import org.hango.cloud.meta.Gateway;
-import org.hango.cloud.meta.IstioGateway;
-import org.hango.cloud.meta.PluginOrder;
-import org.hango.cloud.meta.ServiceHealth;
-import org.hango.cloud.meta.dto.DubboMetaDto;
-import org.hango.cloud.meta.dto.GatewayPluginDTO;
-import org.hango.cloud.meta.dto.PluginOrderDTO;
-import org.hango.cloud.meta.dto.PluginOrderItemDTO;
-import org.hango.cloud.meta.dto.PortalAPIDTO;
-import org.hango.cloud.meta.dto.PortalAPIDeleteDTO;
-import org.hango.cloud.meta.dto.PortalIstioGatewayDTO;
-import org.hango.cloud.meta.dto.PortalLoadBalancerDTO;
-import org.hango.cloud.meta.dto.PortalServiceConnectionPoolDTO;
-import org.hango.cloud.meta.dto.PortalServiceDTO;
-import org.hango.cloud.meta.dto.PortalTrafficPolicyDTO;
-import org.hango.cloud.meta.dto.ServiceAndPortDTO;
-import org.hango.cloud.meta.dto.ServiceSubsetDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -255,9 +245,111 @@ public class GatewayServiceImpl implements GatewayService {
     }
 
     @Override
+    public EnvoyFilterOrderDTO getEnvoyFilter(EnvoyFilterOrderDTO envoyFilterOrderDTO) {
+        envoyFilterOrderDTO.setConfigPatches(new ArrayList<>());
+        EnvoyFilterOrderDTO dto = new EnvoyFilterOrderDTO();
+        EnvoyFilterOrder envoyFilterOrder = Trans.envoyFilterOrderDTO2EnvoyFilter(envoyFilterOrderDTO);
+        HasMetadata config = configManager.getConfig(envoyFilterOrder);
+        if (Objects.isNull(config)) {
+            throw new ApiPlaneException("envoy filter config can not found.");
+        }
+        EnvoyFilter envoyFilter = (EnvoyFilter) config;
+        dto.setWorkloadSelector(envoyFilter.getSpec().getWorkloadSelector());
+        dto.setConfigPatches(envoyFilter.getSpec().getConfigPatchesList());
+        return dto;
+    }
+
+
+    @Override
     public void updatePluginOrder(PluginOrderDTO pluginOrderDto) {
         PluginOrder pluginOrder = Trans.pluginOrderDTO2PluginOrder(pluginOrderDto);
         configManager.updateConfig(pluginOrder);
+    }
+
+    @Override
+    public void updateEnvoyFilter(EnvoyFilterOrderDTO grpcEnvoyFilterDTO) {
+        EnvoyFilterOrder envoyFilterOrder = Trans.envoyFilterOrderDTO2EnvoyFilter(grpcEnvoyFilterDTO);
+        configManager.updateConfig(envoyFilterOrder);
+    }
+
+    @Override
+    public EnvoyFilterOrderDTO getGrpcEnvoyFilter(GrpcEnvoyFilterDto grpcEnvoyFilterDto) {
+        EnvoyFilterOrderDTO envoyFilterOrderDTO = new EnvoyFilterOrderDTO();
+        envoyFilterOrderDTO.setWorkloadSelector(SidecarOuterClass.WorkloadSelector.newBuilder()
+                .putLabels("gw_cluster", grpcEnvoyFilterDto.getGwCluster())
+                .build());
+        return getEnvoyFilter(envoyFilterOrderDTO);
+    }
+
+    @Override
+    public void updateGrpcEnvoyFilter(GrpcEnvoyFilterDto grpcEnvoyFilterDto) {
+        EnvoyFilterOrderDTO envoyFilterOrderDTO = new EnvoyFilterOrderDTO();
+        envoyFilterOrderDTO.setWorkloadSelector(SidecarOuterClass.WorkloadSelector.newBuilder()
+                .putLabels("gw_cluster", grpcEnvoyFilterDto.getGwCluster())
+                .build());
+        EnvoyFilterOuterClass.EnvoyFilter.EnvoyConfigObjectPatch configPatch = generateConfigPatchByGrpcEnvoyFilterDto(grpcEnvoyFilterDto);
+        envoyFilterOrderDTO.setConfigPatches(Collections.singletonList(configPatch));
+        updateEnvoyFilter(envoyFilterOrderDTO);
+    }
+
+    /**
+     * 根据g-portal传入的grpc-EnvoyFilter要patch的信息生成PatchConfig
+     * @param grpcEnvoyFilterDto grpcEnvoyFilterDto
+     * @return configPatch
+     */
+    private EnvoyFilterOuterClass.EnvoyFilter.EnvoyConfigObjectPatch generateConfigPatchByGrpcEnvoyFilterDto(GrpcEnvoyFilterDto grpcEnvoyFilterDto) {
+        return EnvoyFilterOuterClass.EnvoyFilter.EnvoyConfigObjectPatch.newBuilder()
+                .setApplyTo(EnvoyFilterOuterClass.EnvoyFilter.ApplyTo.HTTP_FILTER)
+                .setMatch(EnvoyFilterOuterClass.EnvoyFilter.EnvoyConfigObjectMatch.newBuilder()
+                        .setContext(EnvoyFilterOuterClass.EnvoyFilter.PatchContext.GATEWAY)
+                        .setListener(EnvoyFilterOuterClass.EnvoyFilter.ListenerMatch.newBuilder()
+                                .setFilterChain(
+                                        EnvoyFilterOuterClass.EnvoyFilter.ListenerMatch.FilterChainMatch.newBuilder()
+                                                .setFilter(
+                                                        EnvoyFilterOuterClass.EnvoyFilter.ListenerMatch.FilterMatch.newBuilder()
+                                                                .setName("envoy.filters.network.http_connection_manager")
+                                                                .setSubFilter(
+                                                                        EnvoyFilterOuterClass.EnvoyFilter.ListenerMatch.SubFilterMatch.newBuilder()
+                                                                                .setName("envoy.filters.http.router")
+                                                                                .build()
+                                                                )
+                                                                .build()
+                                                )
+                                                .build()
+                                )
+                                .setPortNumber(80)
+                                .build())
+                        .build())
+                .setPatch(EnvoyFilterOuterClass.EnvoyFilter.Patch.newBuilder()
+                        .setOperation(EnvoyFilterOuterClass.EnvoyFilter.Patch.Operation.INSERT_BEFORE)
+                        .setValue(Struct.newBuilder()
+                                .putFields("name", Value.newBuilder().setStringValue("envoy.filters.http.grpc_json_transcoder").build())
+                                .putFields("typed_config", Value.newBuilder()
+                                        .setStructValue(Struct.newBuilder()
+                                                .putFields("@type", Value.newBuilder()
+                                                        .setStringValue("type.googleapis.com/envoy.extensions.filters.http.grpc_json_transcoder.v3.GrpcJsonTranscoder")
+                                                        .build())
+                                                .putFields("proto_descriptor_bin", Value.newBuilder()
+                                                        .setStringValue(grpcEnvoyFilterDto.getProtoDescriptorBin())
+                                                        .build())
+                                                .putFields("services", Value.newBuilder()
+                                                        .setListValue(ListValue.newBuilder()
+                                                                .addAllValues(grpcEnvoyFilterDto.getServices().stream().map(svc -> Value.newBuilder().setStringValue(svc).build()).collect(Collectors.toList()))
+                                                                .build())
+                                                        .build())
+                                                .putFields("print_options", Value.newBuilder()
+                                                        .setStructValue(Struct.newBuilder()
+                                                                .putFields("add_whitespace", Value.newBuilder().setBoolValue(true).build())
+                                                                .putFields("always_print_primitive_fields", Value.newBuilder().setBoolValue(true).build())
+                                                                .putFields("always_print_enums_as_ints", Value.newBuilder().setBoolValue(true).build())
+                                                                .putFields("preserve_proto_field_names", Value.newBuilder().setBoolValue(false).build())
+                                                                .build())
+                                                        .build())
+                                                .build())
+                                        .build())
+                                .build())
+                        .build())
+                .build();
     }
 
     @Override
@@ -365,6 +457,7 @@ public class GatewayServiceImpl implements GatewayService {
         return metaList;
     }
 
+
     /**
      * 发起Dubbo Telnet 请求，并组装数据
      *
@@ -380,7 +473,7 @@ public class GatewayServiceImpl implements GatewayService {
         //去除.dubbo 后缀
         String[] igv = splitIgv(StringUtils.removeEnd(endpoint.getHostname(), Const.DUBBO_SERVICE_SUFFIX));
         String info = TelnetUtil
-            .sendCommand(endpoint.getAddress(), NumberUtils.toInt(endpoint.getLabels().get(Const.DUBBO_TCP_PORT)), globalConfig.getTelnetConnectTimeout(), String.format(DUBBO_TELNET_COMMAND_TEMPLATE, igv), DUBBO_TELNET_COMMAND_END_PATTERN);
+                .sendCommand(endpoint.getAddress(), NumberUtils.toInt(endpoint.getLabels().get(Const.DUBBO_TCP_PORT)), globalConfig.getTelnetConnectTimeout(), String.format(DUBBO_TELNET_COMMAND_TEMPLATE, igv), DUBBO_TELNET_COMMAND_END_PATTERN);
         //解析dubbo telnet信息
         String[] methodList = processMessageList(endpoint, info).split("\\r\\n");
         for (String methodInfo : methodList) {
