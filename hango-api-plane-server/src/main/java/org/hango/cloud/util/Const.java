@@ -1,5 +1,8 @@
 package org.hango.cloud.util;
 
+import java.util.Arrays;
+import java.util.List;
+
 public interface Const {
 
     String PROXY_SERVICE_TYPE_STATIC = "STATIC";
@@ -22,6 +25,9 @@ public interface Const {
     String SERVICE_TYPE_CONSUL = "Consul";
     String SERVICE_TYPE_K8S = "Kubernetes";
     String SERVICE_TYPE_DUBBO = "Zookeeper";
+    String SERVICE_TYPE_EUREKA = "Eureka";
+    List<String> VAILD_REGISTRY = Arrays.asList(SERVICE_TYPE_CONSUL, SERVICE_TYPE_K8S, SERVICE_TYPE_DUBBO, SERVICE_TYPE_EUREKA);
+
     String PROTOCOL_DUBBO = "dubbo";
     String DUBBO_APPLICATION = "application";
     String DUBBO_TCP_PORT = "skiff_dubbo_tcp_port";
