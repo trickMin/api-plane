@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +29,8 @@ public class GatewayCommonController extends BaseController {
 
     @Autowired
     private GatewayService gatewayService;
+
+
 
     @RequestMapping(params = "Action=GetServiceList", method = RequestMethod.GET)
     public String getServiceList() {
