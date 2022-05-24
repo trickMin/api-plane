@@ -65,11 +65,11 @@ public interface GatewayService {
      * @param grpcEnvoyFilter
      * @return
      */
-    EnvoyFilterOrderDTO getEnvoyFilter(EnvoyFilterOrderDTO grpcEnvoyFilter);
+    EnvoyFilterDTO getEnvoyFilter(EnvoyFilterDTO grpcEnvoyFilter);
 
-    void updateEnvoyFilter(EnvoyFilterOrderDTO grpcEnvoyFilterDTO);
+    void updateEnvoyFilter(EnvoyFilterDTO grpcEnvoyFilterDTO);
 
-    EnvoyFilterOrderDTO getGrpcEnvoyFilter(GrpcEnvoyFilterDto grpcEnvoyFilterDto);
+    EnvoyFilterDTO getGrpcEnvoyFilter(GrpcEnvoyFilterDto grpcEnvoyFilterDto);
 
     void updateGrpcEnvoyFilter(GrpcEnvoyFilterDto grpcEnvoyFilterDto);
 }

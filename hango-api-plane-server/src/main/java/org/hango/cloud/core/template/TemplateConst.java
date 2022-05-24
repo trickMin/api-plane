@@ -222,6 +222,7 @@ public interface TemplateConst {
      * EnvoyFilter
      **/
     String ENVOY_FILTER_NAME = "t_envoy_filter_name";
+    String ENVOY_FILTER_NAMESPACE = "t_envoy_filter_namespace";
     String ENVOY_FILTER_WORKLOAD_LABELS = "t_envoy_filter_workload_labels";
     String ENVOY_FILTER_FILTERS = "t_envoy_filter_filters";
 

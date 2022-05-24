@@ -2,7 +2,7 @@ apiVersion: networking.istio.io/v1alpha3
 kind: EnvoyFilter
 metadata:
   name: ${t_envoy_filter_name}
-  namespace: gateway-v112
+  namespace: ${t_envoy_filter_namespace}
 spec:
 <#if t_envoy_filter_workload_labels??>
   workloadSelector:

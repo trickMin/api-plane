@@ -248,11 +248,13 @@ public class Trans {
         return po;
     }
 
-    public static EnvoyFilterOrder envoyFilterOrderDTO2EnvoyFilter(EnvoyFilterOrderDTO envoyFilterOrderDTO) {
+    public static EnvoyFilterOrder envoyFilterOrderDTO2EnvoyFilter(EnvoyFilterDTO envoyFilterDTO) {
         EnvoyFilterOrder efo = new EnvoyFilterOrder();
-        efo.setWorkloadSelector(envoyFilterOrderDTO.getWorkloadSelector());
+        efo.setWorkloadSelector(envoyFilterDTO.getWorkloadSelector());
+        efo.setNamespace(envoyFilterDTO.getNamespace());
+        efo.setPortNumber(envoyFilterDTO.getPortNumber());
         List<String> orderItems = new ArrayList<>();
-        for (EnvoyFilterOuterClass.EnvoyFilter.EnvoyConfigObjectPatch dto : envoyFilterOrderDTO.getConfigPatches()) {
+        for (EnvoyFilterOuterClass.EnvoyFilter.EnvoyConfigObjectPatch dto : envoyFilterDTO.getConfigPatches()) {
             if (Objects.nonNull(dto)) {
                 orderItems.add(ResourceGenerator.newInstance(dto, ResourceType.OBJECT).yamlString());
             }

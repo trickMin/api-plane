@@ -17,13 +17,14 @@ import static org.hango.cloud.core.template.TemplateConst.*;
  */
 public class EnvoyFilterOrderDataHandler implements DataHandler<EnvoyFilterOrder> {
 
-    private static final String DEFAULT_ENVOY_FILTER_NAME = "default-envoy-filter";
+    private static final String DEFAULT_ENVOY_FILTER_NAME = "grpc-envoy-filter";
 
     @Override
     public List<TemplateParams> handle(EnvoyFilterOrder envoyFilterOrder) {
         String name = getDefaultEnvoyFilterName(envoyFilterOrder);
         TemplateParams efParams = TemplateParams.instance()
                 .put(ENVOY_FILTER_NAME, name)
+                .put(ENVOY_FILTER_NAMESPACE, envoyFilterOrder.getNamespace())
                 .put(ENVOY_FILTER_WORKLOAD_LABELS, envoyFilterOrder.getWorkloadSelector().getLabelsMap())
                 .put(ENVOY_FILTER_FILTERS, envoyFilterOrder.getConfigPatches());
         return Collections.singletonList(efParams);

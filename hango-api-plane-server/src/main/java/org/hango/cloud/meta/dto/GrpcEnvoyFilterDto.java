@@ -11,11 +11,24 @@ import java.util.List;
  */
 public class GrpcEnvoyFilterDto {
     /**
+     * 网关的名称空间
+     */
+    @JsonProperty(value = "Namespace")
+    @NotNull(message = "Namespace")
+    private String namespace;
+
+    /**
      * 网关
      */
     @JsonProperty(value = "GwCluster")
     @NotNull(message = "GwCluster")
     private String gwCluster;
+    /**
+     * 网关的端口号
+     */
+    @JsonProperty(value = "PortNumber")
+    @NotNull(message = "PortNumber")
+    private int portNumber;
 
     /**
      * pb文件
@@ -30,6 +43,15 @@ public class GrpcEnvoyFilterDto {
     @JsonProperty(value = "Services")
     @NotNull(message = "Services")
     private List<String> services;
+
+
+    public String getNamespace() {
+        return namespace;
+    }
+
+    public void setNamespace(String namespace) {
+        this.namespace = namespace;
+    }
 
     public String getGwCluster() {
         return gwCluster;
@@ -53,5 +75,13 @@ public class GrpcEnvoyFilterDto {
 
     public void setServices(List<String> services) {
         this.services = services;
+    }
+
+    public int getPortNumber() {
+        return portNumber;
+    }
+
+    public void setPortNumber(int portNumber) {
+        this.portNumber = portNumber;
     }
 }

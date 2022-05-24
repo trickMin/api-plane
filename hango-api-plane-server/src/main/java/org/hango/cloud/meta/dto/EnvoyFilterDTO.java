@@ -8,17 +8,39 @@ import java.util.List;
 
 /**
  * EnvoyFilter dto
+ * 同yml格式
  *
  * @author xin li
  * @date 2022/5/13 14:29
  */
-public class EnvoyFilterOrderDTO {
+public class EnvoyFilterDTO {
+
+    @JsonProperty("PortNumber")
+    private int portNumber;
+    @JsonProperty("Namespace")
+    private String namespace;
 
     @JsonProperty("ConfigPatches")
     private List<EnvoyFilterOuterClass.EnvoyFilter.EnvoyConfigObjectPatch> configPatches;
 
     @JsonProperty(value = "WorkloadSelector")
     private SidecarOuterClass.WorkloadSelector workloadSelector;
+
+    public int getPortNumber() {
+        return portNumber;
+    }
+
+    public void setPortNumber(int portNumber) {
+        this.portNumber = portNumber;
+    }
+
+    public String getNamespace() {
+        return namespace;
+    }
+
+    public void setNamespace(String namespace) {
+        this.namespace = namespace;
+    }
 
     public List<EnvoyFilterOuterClass.EnvoyFilter.EnvoyConfigObjectPatch> getConfigPatches() {
         return configPatches;

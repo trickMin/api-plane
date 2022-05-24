@@ -11,9 +11,28 @@ import java.util.List;
  */
 public class EnvoyFilterOrder {
 
+    private int portNumber;
+    private String namespace;
+
     private List<String> configPatches;
 
     private SidecarOuterClass.WorkloadSelector workloadSelector;
+
+    public int getPortNumber() {
+        return portNumber;
+    }
+
+    public void setPortNumber(int portNumber) {
+        this.portNumber = portNumber;
+    }
+
+    public String getNamespace() {
+        return namespace;
+    }
+
+    public void setNamespace(String namespace) {
+        this.namespace = namespace;
+    }
 
     public List<String> getConfigPatches() {
         return configPatches;

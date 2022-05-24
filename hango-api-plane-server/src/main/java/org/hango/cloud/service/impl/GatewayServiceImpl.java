@@ -1,9 +1,6 @@
 package org.hango.cloud.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.protobuf.ListValue;
-import com.google.protobuf.Struct;
-import com.google.protobuf.Value;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import istio.networking.v1alpha3.EnvoyFilterOuterClass;
 import istio.networking.v1alpha3.SidecarOuterClass;
@@ -17,11 +14,13 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.hango.cloud.core.GlobalConfig;
 import org.hango.cloud.core.gateway.service.GatewayConfigManager;
 import org.hango.cloud.core.gateway.service.ResourceManager;
+import org.hango.cloud.core.template.TemplateTranslator;
 import org.hango.cloud.k8s.K8sTypes.EnvoyFilter;
 import org.hango.cloud.k8s.K8sTypes.PluginManager;
 import org.hango.cloud.meta.*;
 import org.hango.cloud.meta.dto.*;
 import org.hango.cloud.service.GatewayService;
+import org.hango.cloud.util.CommonUtil;
 import org.hango.cloud.util.Const;
 import org.hango.cloud.util.TelnetUtil;
 import org.hango.cloud.util.Trans;
@@ -58,6 +57,11 @@ public class GatewayServiceImpl implements GatewayService {
     private static final String DUBBO_TELNET_COMMAND_END_PATTERN = "dubbo>";
     private static final Pattern DUBBO_INFO_PATTRERN = Pattern.compile("^(\\S*) (\\S*)\\((\\S*)\\)$");
     private static final Pattern DUBBO_TELNET_RETURN_PATTERN = Pattern.compile("[\\s\\S]*?\\(as (provider|consumer)\\):");
+    private static final String GRPC_CONFIG_PATCH = "gateway/grpcConfigPatch";
+    private static final String PORT_NUMBER = "portNumber";
+    private static final String PROTO_DESCRIPTOR_BIN = "proto_descriptor_bin";
+    private static final String SERVICES = "services";
+
 
 
     private ResourceManager resourceManager;
@@ -68,6 +72,9 @@ public class GatewayServiceImpl implements GatewayService {
 
     @Autowired
     ObjectMapper objectMapper;
+
+    @Autowired
+    private TemplateTranslator templateTranslator;
 
     public GatewayServiceImpl(ResourceManager resourceManager, GatewayConfigManager configManager, GlobalConfig globalConfig) {
         this.resourceManager = resourceManager;
@@ -245,10 +252,10 @@ public class GatewayServiceImpl implements GatewayService {
     }
 
     @Override
-    public EnvoyFilterOrderDTO getEnvoyFilter(EnvoyFilterOrderDTO envoyFilterOrderDTO) {
-        envoyFilterOrderDTO.setConfigPatches(new ArrayList<>());
-        EnvoyFilterOrderDTO dto = new EnvoyFilterOrderDTO();
-        EnvoyFilterOrder envoyFilterOrder = Trans.envoyFilterOrderDTO2EnvoyFilter(envoyFilterOrderDTO);
+    public EnvoyFilterDTO getEnvoyFilter(EnvoyFilterDTO envoyFilterDTO) {
+        envoyFilterDTO.setConfigPatches(new ArrayList<>());
+        EnvoyFilterDTO dto = new EnvoyFilterDTO();
+        EnvoyFilterOrder envoyFilterOrder = Trans.envoyFilterOrderDTO2EnvoyFilter(envoyFilterDTO);
         HasMetadata config = configManager.getConfig(envoyFilterOrder);
         if (Objects.isNull(config)) {
             throw new ApiPlaneException("envoy filter config can not found.");
@@ -267,89 +274,49 @@ public class GatewayServiceImpl implements GatewayService {
     }
 
     @Override
-    public void updateEnvoyFilter(EnvoyFilterOrderDTO grpcEnvoyFilterDTO) {
+    public void updateEnvoyFilter(EnvoyFilterDTO grpcEnvoyFilterDTO) {
         EnvoyFilterOrder envoyFilterOrder = Trans.envoyFilterOrderDTO2EnvoyFilter(grpcEnvoyFilterDTO);
         configManager.updateConfig(envoyFilterOrder);
     }
 
     @Override
-    public EnvoyFilterOrderDTO getGrpcEnvoyFilter(GrpcEnvoyFilterDto grpcEnvoyFilterDto) {
-        EnvoyFilterOrderDTO envoyFilterOrderDTO = new EnvoyFilterOrderDTO();
-        envoyFilterOrderDTO.setWorkloadSelector(SidecarOuterClass.WorkloadSelector.newBuilder()
+    public EnvoyFilterDTO getGrpcEnvoyFilter(GrpcEnvoyFilterDto grpcEnvoyFilterDto) {
+        EnvoyFilterDTO envoyFilterDTO = new EnvoyFilterDTO();
+        envoyFilterDTO.setNamespace(globalConfig.getResourceNamespace());
+        envoyFilterDTO.setPortNumber(grpcEnvoyFilterDto.getPortNumber());
+        envoyFilterDTO.setWorkloadSelector(SidecarOuterClass.WorkloadSelector.newBuilder()
                 .putLabels("gw_cluster", grpcEnvoyFilterDto.getGwCluster())
                 .build());
-        return getEnvoyFilter(envoyFilterOrderDTO);
+        return getEnvoyFilter(envoyFilterDTO);
     }
 
     @Override
     public void updateGrpcEnvoyFilter(GrpcEnvoyFilterDto grpcEnvoyFilterDto) {
-        EnvoyFilterOrderDTO envoyFilterOrderDTO = new EnvoyFilterOrderDTO();
-        envoyFilterOrderDTO.setWorkloadSelector(SidecarOuterClass.WorkloadSelector.newBuilder()
+        EnvoyFilterDTO envoyFilterDTO = new EnvoyFilterDTO();
+        envoyFilterDTO.setNamespace(globalConfig.getResourceNamespace());
+        envoyFilterDTO.setPortNumber(grpcEnvoyFilterDto.getPortNumber());
+        envoyFilterDTO.setWorkloadSelector(SidecarOuterClass.WorkloadSelector.newBuilder()
                 .putLabels("gw_cluster", grpcEnvoyFilterDto.getGwCluster())
                 .build());
         EnvoyFilterOuterClass.EnvoyFilter.EnvoyConfigObjectPatch configPatch = generateConfigPatchByGrpcEnvoyFilterDto(grpcEnvoyFilterDto);
-        envoyFilterOrderDTO.setConfigPatches(Collections.singletonList(configPatch));
-        updateEnvoyFilter(envoyFilterOrderDTO);
+        envoyFilterDTO.setConfigPatches(Collections.singletonList(configPatch));
+        updateEnvoyFilter(envoyFilterDTO);
     }
 
     /**
      * 根据g-portal传入的grpc-EnvoyFilter要patch的信息生成PatchConfig
+     *
      * @param grpcEnvoyFilterDto grpcEnvoyFilterDto
      * @return configPatch
      */
     private EnvoyFilterOuterClass.EnvoyFilter.EnvoyConfigObjectPatch generateConfigPatchByGrpcEnvoyFilterDto(GrpcEnvoyFilterDto grpcEnvoyFilterDto) {
-        return EnvoyFilterOuterClass.EnvoyFilter.EnvoyConfigObjectPatch.newBuilder()
-                .setApplyTo(EnvoyFilterOuterClass.EnvoyFilter.ApplyTo.HTTP_FILTER)
-                .setMatch(EnvoyFilterOuterClass.EnvoyFilter.EnvoyConfigObjectMatch.newBuilder()
-                        .setContext(EnvoyFilterOuterClass.EnvoyFilter.PatchContext.GATEWAY)
-                        .setListener(EnvoyFilterOuterClass.EnvoyFilter.ListenerMatch.newBuilder()
-                                .setFilterChain(
-                                        EnvoyFilterOuterClass.EnvoyFilter.ListenerMatch.FilterChainMatch.newBuilder()
-                                                .setFilter(
-                                                        EnvoyFilterOuterClass.EnvoyFilter.ListenerMatch.FilterMatch.newBuilder()
-                                                                .setName("envoy.filters.network.http_connection_manager")
-                                                                .setSubFilter(
-                                                                        EnvoyFilterOuterClass.EnvoyFilter.ListenerMatch.SubFilterMatch.newBuilder()
-                                                                                .setName("envoy.filters.http.router")
-                                                                                .build()
-                                                                )
-                                                                .build()
-                                                )
-                                                .build()
-                                )
-                                .setPortNumber(80)
-                                .build())
-                        .build())
-                .setPatch(EnvoyFilterOuterClass.EnvoyFilter.Patch.newBuilder()
-                        .setOperation(EnvoyFilterOuterClass.EnvoyFilter.Patch.Operation.INSERT_BEFORE)
-                        .setValue(Struct.newBuilder()
-                                .putFields("name", Value.newBuilder().setStringValue("envoy.filters.http.grpc_json_transcoder").build())
-                                .putFields("typed_config", Value.newBuilder()
-                                        .setStructValue(Struct.newBuilder()
-                                                .putFields("@type", Value.newBuilder()
-                                                        .setStringValue("type.googleapis.com/envoy.extensions.filters.http.grpc_json_transcoder.v3.GrpcJsonTranscoder")
-                                                        .build())
-                                                .putFields("proto_descriptor_bin", Value.newBuilder()
-                                                        .setStringValue(grpcEnvoyFilterDto.getProtoDescriptorBin())
-                                                        .build())
-                                                .putFields("services", Value.newBuilder()
-                                                        .setListValue(ListValue.newBuilder()
-                                                                .addAllValues(grpcEnvoyFilterDto.getServices().stream().map(svc -> Value.newBuilder().setStringValue(svc).build()).collect(Collectors.toList()))
-                                                                .build())
-                                                        .build())
-                                                .putFields("print_options", Value.newBuilder()
-                                                        .setStructValue(Struct.newBuilder()
-                                                                .putFields("add_whitespace", Value.newBuilder().setBoolValue(true).build())
-                                                                .putFields("always_print_primitive_fields", Value.newBuilder().setBoolValue(true).build())
-                                                                .putFields("always_print_enums_as_ints", Value.newBuilder().setBoolValue(true).build())
-                                                                .putFields("preserve_proto_field_names", Value.newBuilder().setBoolValue(false).build())
-                                                                .build())
-                                                        .build())
-                                                .build())
-                                        .build())
-                                .build())
-                        .build())
-                .build();
+        Map<String, Object> model = new HashMap<>();
+        model.put(PORT_NUMBER, grpcEnvoyFilterDto.getPortNumber());
+        model.put(PROTO_DESCRIPTOR_BIN, grpcEnvoyFilterDto.getProtoDescriptorBin());
+        model.put(SERVICES, grpcEnvoyFilterDto.getServices());
+        String configPatchYaml = templateTranslator.translate(GRPC_CONFIG_PATCH, model);
+        logger.info("[{}] configPatchYaml : {}", "generateConfigPatchByGrpcEnvoyFilterDto", configPatchYaml);
+        return CommonUtil.yaml2Obj(configPatchYaml, EnvoyFilterOuterClass.EnvoyFilter.EnvoyConfigObjectPatch.class);
     }
 
     @Override
