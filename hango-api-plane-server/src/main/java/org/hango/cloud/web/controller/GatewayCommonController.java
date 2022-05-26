@@ -1,6 +1,7 @@
 package org.hango.cloud.web.controller;
 
 import com.google.common.collect.ImmutableMap;
+import org.apache.commons.lang3.StringUtils;
 import org.hango.cloud.meta.Gateway;
 import org.hango.cloud.meta.dto.PluginOrderDTO;
 import org.hango.cloud.service.GatewayService;
@@ -14,6 +15,8 @@ import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.hango.cloud.util.Const.VAILD_REGISTRY;
 
 /**
  * @Author chenjiahan | chenjiahan@corp.netease.com | 2019/9/26
@@ -37,16 +40,17 @@ public class GatewayCommonController extends BaseController {
     @RequestMapping(params = "Action=GetServiceAndPortList", method = RequestMethod.GET)
     public String getServiceAndPortList(@RequestParam(name = "Name", required = false) String name,
                                         @RequestParam(name = "Type", required = false) String type,
-                                        @RequestParam(name = "Registry", required = false) String registry) {
+                                        @RequestParam(name = "Registry", required = false) String registry,
+                                        @RequestParam Map<String, String> filters) {
 
         if (type != null) {
-            if (!type.equals(Const.SERVICE_TYPE_CONSUL) && !type.equals(Const.SERVICE_TYPE_K8S) && !type.equals(Const.SERVICE_TYPE_DUBBO)) {
+            if (!VAILD_REGISTRY.contains(type)) {
                 return apiReturn(ApiPlaneErrorCode.ParameterError("Type"));
             }
         }
         ErrorCode code = ApiPlaneErrorCode.Success;
         return apiReturn(code.getStatusCode(), code.getCode(), null,
-                ImmutableMap.of("ServiceList", gatewayService.getServiceAndPortList(name, type, registry)));
+                ImmutableMap.of("ServiceList", gatewayService.getServiceAndPortList(name, type, registry, filters)));
     }
 
     @RequestMapping(params = "Action=GetGatewayList", method = RequestMethod.GET)

@@ -272,13 +272,14 @@ public class GatewayServiceImpl implements GatewayService {
     }
 
     @Override
-    public List<ServiceAndPortDTO> getServiceAndPortList(String name, String type, String registryId) {
+    public List<ServiceAndPortDTO> getServiceAndPortList(String name, String type, String registryId, Map<String, String> filters) {
+        logger.info("[get service] start getServiceAndPortList, name: {}, type: {}, registryId: {}", name, type, registryId);
         String pattern = ".*";
         if (!StringUtils.isEmpty(name)) {
             pattern = "^" + name + pattern + "$";
         }
         final Pattern fPattern = Pattern.compile(pattern);
-        return resourceManager.getServiceAndPortList().stream()
+        return resourceManager.getServiceAndPortList(filters).stream()
                 .filter(sap -> fPattern.matcher(sap.getName()).find())
                 .filter(sap -> matchType(type, sap.getName(), registryId))
                 .map(sap -> {

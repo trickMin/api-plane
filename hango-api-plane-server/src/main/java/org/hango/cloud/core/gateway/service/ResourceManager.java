@@ -6,6 +6,7 @@ import org.hango.cloud.meta.ServiceAndPort;
 import org.hango.cloud.meta.ServiceHealth;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 获取服务实例、网关实例等资源信息
@@ -18,7 +19,7 @@ public interface ResourceManager {
 
     List<String> getServiceList();
 
-    List<ServiceAndPort> getServiceAndPortList();
+    List<ServiceAndPort> getServiceAndPortList(Map<String, String> filters);
 
     Integer getServicePort(List<Endpoint> endpoints, String targetHost);
 

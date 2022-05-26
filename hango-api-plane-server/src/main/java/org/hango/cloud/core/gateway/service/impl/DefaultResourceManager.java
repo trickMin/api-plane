@@ -9,6 +9,7 @@ import org.hango.cloud.meta.HealthServiceSubset;
 import org.hango.cloud.meta.ServiceAndPort;
 import org.hango.cloud.meta.ServiceHealth;
 import org.hango.cloud.util.CommonUtil;
+import org.hango.cloud.util.Const;
 import org.hango.cloud.util.exception.ApiPlaneException;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -78,17 +79,32 @@ public class DefaultResourceManager implements ResourceManager {
         return istioHttpClient.getServiceList(filter);
     }
 
-
-    public List<ServiceAndPort> getServiceAndPortList() {
+    @Override
+    public List<ServiceAndPort> getServiceAndPortList(Map<String, String> filters) {
+        String projectCode = filters.get(Const.PROJECT_CODE);
+        boolean filterEurekaByProject = StringUtils.isNotEmpty(projectCode);
+        if (filterEurekaByProject) {
+            logger.info("[get service] to filter eureka service by projectCode: {}", projectCode);
+        }
         Map<String, Set<Integer>> servicePortMap = new LinkedHashMap<>();
-        getEndpointList().forEach(endpoint -> {
-                    if (!servicePortMap.containsKey(endpoint.getHostname())) {
-                        servicePortMap.put(endpoint.getHostname(), new LinkedHashSet<>());
-                    }
-                    servicePortMap.get(endpoint.getHostname()).add(endpoint.getPort());
+        List<Endpoint> endpointList = getEndpointList();
+        logger.info("[get service] original endpointList from istio length: {}", endpointList.size());
+        endpointList.forEach(endpoint -> {
+            // projectCode非空代表需要按项目过滤
+            if (filterEurekaByProject
+                    &&endpoint.getHostname().endsWith(Const.EUREKA_SERVICE_SUFFIX)
+                    && !projectCode.equals(endpoint.getLabels().get(Const.PROJECT_CODE))) {
+                // eureka服务过滤指定项目的服务实例
+                return;
+            }
+            if (!servicePortMap.containsKey(endpoint.getHostname())) {
+                servicePortMap.put(endpoint.getHostname(), new LinkedHashSet<>());
+            }
+            servicePortMap.get(endpoint.getHostname()).add(endpoint.getPort());
                 }
         );
-        return servicePortMap.entrySet().stream()
+        logger.info("[get service] after filtering project_isolated_eureka_instance, endpointList length: {}", servicePortMap.size());
+        List<ServiceAndPort> serviceAndPortList = servicePortMap.entrySet().stream()
                 .filter(entry -> !isServiceEntry(entry.getKey()))
                 .map(entry -> {
                     ServiceAndPort sap = new ServiceAndPort();
@@ -96,7 +112,10 @@ public class DefaultResourceManager implements ResourceManager {
                     sap.setPort(new ArrayList<>(entry.getValue()));
                     return sap;
                 }).collect(Collectors.toList());
+        logger.info("[get service] after filtering static service, endpointList length: {}", serviceAndPortList.size());
+        return serviceAndPortList;
     }
+
 
     @Override
     public Integer getServicePort(List<Endpoint> endpoints, String targetHost) {

@@ -32,6 +32,10 @@ public interface Const {
     String DUBBO_APPLICATION = "application";
     String DUBBO_TCP_PORT = "skiff_dubbo_tcp_port";
     String DUBBO_SERVICE_SUFFIX = ".dubbo";
+    /**
+     * eureka服务endpoint的hosts后缀
+     */
+    String EUREKA_SERVICE_SUFFIX = ".eureka";
 
     String SIDECAR_CONTAINER = "istio-proxy";
 
@@ -40,6 +44,11 @@ public interface Const {
     String CONTAINER_STATUS_RUNNING = "Running";
     String CONTAINER_STATUS_WAITING = "Waiting";
     String CONTAINER_STATUS_TERMINATED = "Terminated";
+
+    /**
+     * 项目名称标签
+     */
+    String PROJECT_CODE = "projectCode";
 
     /**
      * envoy outbound prefix

@@ -10,6 +10,8 @@ import org.hango.cloud.meta.dto.ServiceAndPortDTO;
 import org.hango.cloud.util.errorcode.ErrorCode;
 
 import java.util.List;
+import java.util.Map;
+
 import org.hango.cloud.meta.Gateway;
 import org.hango.cloud.meta.ServiceHealth;
 import org.hango.cloud.meta.dto.GatewayPluginDTO;
@@ -45,7 +47,7 @@ public interface GatewayService {
 
     List<String> getServiceList();
 
-    List<ServiceAndPortDTO> getServiceAndPortList(String name, String type, String registryId);
+    List<ServiceAndPortDTO> getServiceAndPortList(String name, String type, String registryId, Map<String, String> filters);
 
     List<Gateway> getGatewayList();
 
