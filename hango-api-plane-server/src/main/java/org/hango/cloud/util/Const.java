@@ -46,9 +46,14 @@ public interface Const {
     String CONTAINER_STATUS_TERMINATED = "Terminated";
 
     /**
-     * 项目名称标签
+     * 查询服务接口的过滤条件前缀字符
      */
-    String PROJECT_CODE = "projectCode";
+    public static final String PREFIX_LABEL = "label_";
+    public static final String PREFIX_HOST = "host_";
+    public static final String PREFIX_ADDRESS = "address_";
+    public static final String PREFIX_PORT = "port_";
+    public static final String PREFIX_PROTOCOL = "protocol_";
+    public static final List<String> PREFIX_LIST = Arrays.asList(PREFIX_LABEL, PREFIX_HOST, PREFIX_ADDRESS, PREFIX_PORT, PREFIX_PROTOCOL);
 
     /**
      * envoy outbound prefix
