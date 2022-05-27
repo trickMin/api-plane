@@ -42,7 +42,6 @@ public interface GatewayService {
 
     List<ServiceAndPortDTO> getServiceAndPortList(String name, String type, String registryId, Map<String, String> filters);
 
-    List<Gateway> getGatewayList();
 
     List<ServiceHealth> getServiceHealthList(String host, List<String> subsets, String gateway);
 
@@ -54,11 +53,9 @@ public interface GatewayService {
      * 获取Dubbo Meta元数据信息
      *
      * @param igv             接口+版本+分组 {interface:group:version}
-     * @param applicationName 应用名称
-     * @param method          dubbo方法
      * @return
      */
-    List<DubboMetaDto> getDubboMeta(String igv, String applicationName, String method);
+    List<DubboMetaDto> getDubboMeta(String igv);
 
     /**
      * 获取 EnvoyFilter

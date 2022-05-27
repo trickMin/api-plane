@@ -36,7 +36,7 @@ public class DefaultResourceManager implements ResourceManager {
     @Autowired
     private EnvoyHttpClient envoyHttpClient;
 
-    @Value("${service.namespace.exclude:gateway-system,kube-system,istio-system}")
+    @Value("${service.namespace.exclude:gateway-system,kube-system,istio-system,gateway-v112}")
     private String excludeNamespace;
 
     private List<String> getExcludeNamespace() {
@@ -48,87 +48,45 @@ public class DefaultResourceManager implements ResourceManager {
 
     @Override
     public List<Endpoint> getEndpointList() {
-        Predicate<Endpoint> filter = endpoint ->
-                endpoint.getHostname() != null &&
-                        endpoint.getHostname() != null &&
-                        endpoint.getPort() != null;
-        for (String ns : getExcludeNamespace()) {
-            filter = filter.and(endpoint -> !inNamespace(endpoint.getHostname(), ns));
-        }
-
-        return istioHttpClient.getEndpointList(filter);
+        return istioHttpClient.getEndpointList().stream()
+                //port为空过滤
+                .filter(e -> e.getPort() != null)
+                //ns过滤
+                .filter(e -> namespaceFilter(e.getHostname()))
+                .collect(Collectors.toList());
     }
 
-    @Override
-    public List<Gateway> getGatewayList() {
-        return istioHttpClient.getGatewayList(gateway ->
-                // 过滤静态服务
-                !isServiceEntry(gateway.getHostname()) &&
-                // 包含gw_cluster label
-                Objects.nonNull(gateway.getLabels()) &&
-                        gateway.getLabels().containsKey("gw_cluster"));
-    }
 
     @Override
     public List<String> getServiceList() {
-        Predicate<Endpoint> filter = endpoint ->
-                endpoint.getHostname() != null &&
-                        !isServiceEntry(endpoint.getHostname());
-        for (String ns : getExcludeNamespace()) {
-            filter = filter.and(endpoint -> !inNamespace(endpoint.getHostname(), ns));
-        }
-        return istioHttpClient.getServiceList(filter);
+        return istioHttpClient.getEndpointList().stream()
+                .map(Endpoint::getHostname)
+                //过滤静态服务
+                .filter(this::notStaticService)
+                //过滤网关ns
+                .filter(this::namespaceFilter)
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<ServiceAndPort> getServiceAndPortList(Map<String, String> filters) {
-        Map<String, Set<Integer>> servicePortMap = new LinkedHashMap<>();
-        List<Endpoint> endpointList = getEndpointList();
-        logger.info("[get service] original endpointList from istio length: {}", endpointList.size());
         Map<String, Map<String, String>> kindFilters = generateKindFilters(filters);
-        endpointList.forEach(endpoint -> {
-            // 通过kindFilters过滤符合指定条件的服务实例(例如通过label或host等方式匹配)
-            if (!isMatchFilter(endpoint, kindFilters)) {
-                // 剔除不满足过滤条件的服务实例
-                return;
-            }
-            if (!servicePortMap.containsKey(endpoint.getHostname())) {
-                servicePortMap.put(endpoint.getHostname(), new LinkedHashSet<>());
-            }
-            servicePortMap.get(endpoint.getHostname()).add(endpoint.getPort());
-                }
-        );
-        logger.info("[get service] after service filtering, servicePortMap length: {}", servicePortMap.size());
-        List<ServiceAndPort> serviceAndPortList = servicePortMap.entrySet().stream()
-                .filter(entry -> !isServiceEntry(entry.getKey()))
+        Map<String, List<Endpoint>> endpointmap = getEndpointList().stream()
+                .filter(e -> notStaticService(e.getHostname()))
+                .filter(e -> isMatchFilter(e, kindFilters))
+                .collect(Collectors.groupingBy(Endpoint::getHostname));
+        logger.info("[get service] after service filtering, servicePortMap length: {}", endpointmap.size());
+
+        return endpointmap.entrySet().stream()
                 .map(entry -> {
                     ServiceAndPort sap = new ServiceAndPort();
+                    List<Integer> ports = entry.getValue().stream().map(Endpoint::getPort).distinct().collect(Collectors.toList());
                     sap.setName(entry.getKey());
-                    sap.setPort(new ArrayList<>(entry.getValue()));
+                    sap.setPort(ports);
                     return sap;
                 }).collect(Collectors.toList());
-        logger.info("[get service] after filtering static service, endpointList length: {}", serviceAndPortList.size());
-        return serviceAndPortList;
     }
 
-
-    @Override
-    public Integer getServicePort(List<Endpoint> endpoints, String targetHost) {
-        if (CollectionUtils.isEmpty(endpoints) || StringUtils.isBlank(targetHost)) {
-            throw new ApiPlaneException("Get port by targetHost fail. param cant be null.");
-        }
-        List<Integer> ports = new ArrayList<>();
-        for (Endpoint endpoint : endpoints) {
-            if (targetHost.equals(endpoint.getHostname())) {
-                ports.add(endpoint.getPort());
-            }
-        }
-        if (ports.size() == 0) {
-            throw new ApiPlaneException(String.format("Target endpoint %s does not exist", targetHost));
-        }
-        //todo: ports.size() > 1
-        return ports.get(0);
-    }
 
     @Override
     public List<ServiceHealth> getServiceHealthList(String host, List<String> subsets, String gateway) {
@@ -153,14 +111,19 @@ public class DefaultResourceManager implements ResourceManager {
         return serviceHealth;
     }
 
-    private boolean inNamespace(String hostName, String namespace) {
-        String[] segments = StringUtils.split(hostName, ".");
-        if (ArrayUtils.getLength(segments) != 5) return false;
-        return Objects.equals(segments[1], namespace);
+    private boolean notStaticService(String hostname) {
+        return !StringUtils.contains(hostname, "com.netease.static");
     }
 
-    private boolean isServiceEntry(String hostname) {
-        return StringUtils.contains(hostname, "com.netease.static");
+    /**
+     * 过滤网关自身服务
+     */
+    private boolean namespaceFilter(String hostName){
+        String[] segments = StringUtils.split(hostName, ".");
+        if (ArrayUtils.getLength(segments) != 5) {
+            return true;
+        }
+        return !getExcludeNamespace().contains(segments[1]);
     }
 
     /**

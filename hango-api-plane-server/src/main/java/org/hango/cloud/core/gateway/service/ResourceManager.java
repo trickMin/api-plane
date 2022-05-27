@@ -15,13 +15,10 @@ public interface ResourceManager {
 
     List<Endpoint> getEndpointList();
 
-    List<Gateway> getGatewayList();
 
     List<String> getServiceList();
 
     List<ServiceAndPort> getServiceAndPortList(Map<String, String> filters);
-
-    Integer getServicePort(List<Endpoint> endpoints, String targetHost);
 
     List<ServiceHealth> getServiceHealthList(String host, List<String> subsets, String gateway);
 }

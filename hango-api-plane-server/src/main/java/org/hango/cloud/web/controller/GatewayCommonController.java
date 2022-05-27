@@ -30,8 +30,6 @@ public class GatewayCommonController extends BaseController {
     @Autowired
     private GatewayService gatewayService;
 
-
-
     @RequestMapping(params = "Action=GetServiceList", method = RequestMethod.GET)
     public String getServiceList() {
 
@@ -57,16 +55,6 @@ public class GatewayCommonController extends BaseController {
                 ImmutableMap.of("ServiceList", gatewayService.getServiceAndPortList(name, type, registry, filters)));
     }
 
-    @RequestMapping(params = "Action=GetGatewayList", method = RequestMethod.GET)
-    public String getGatewayList() {
-
-        Map<String, Object> result = new HashMap<>();
-        List<Gateway> gatewayList = gatewayService.getGatewayList();
-
-        result.put(RESULT_LIST, gatewayList);
-        ErrorCode code = ApiPlaneErrorCode.Success;
-        return apiReturn(code.getStatusCode(), code.getCode(), null, result);
-    }
 
     @RequestMapping(params = "Action=GetPluginOrder", method = RequestMethod.POST)
     public String getPluginOrder(@RequestBody PluginOrderDTO pluginOrderDTO) {
@@ -108,12 +96,10 @@ public class GatewayCommonController extends BaseController {
     }
 
     @RequestMapping(params = "Action=GetDubboMeta", method = RequestMethod.GET)
-    public String getDubboMeta(@RequestParam(name = "Igv", required = false) String igv,
-                               @RequestParam(name = "Method", required = false) String method,
-                               @RequestParam(name = "ApplicationName", required = false) String applicationName) {
+    public String getDubboMeta(@RequestParam(name = "Igv") String igv) {
 
         Map<String, Object> result = new HashMap<>();
-        result.put(RESULT, gatewayService.getDubboMeta(igv, applicationName, method));
+        result.put(RESULT, gatewayService.getDubboMeta(igv));
         return apiReturn(result);
 
     }
