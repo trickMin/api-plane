@@ -14,34 +14,29 @@ public class GrpcEnvoyFilterDto {
      * 网关的名称空间
      */
     @JsonProperty(value = "Namespace")
-    @NotNull(message = "Namespace")
     private String namespace;
 
     /**
      * 网关
      */
     @JsonProperty(value = "GwCluster")
-    @NotNull(message = "GwCluster")
     private String gwCluster;
     /**
      * 网关的端口号
      */
     @JsonProperty(value = "PortNumber")
-    @NotNull(message = "PortNumber")
     private int portNumber;
 
     /**
      * pb文件
      */
     @JsonProperty(value = "ProtoDescriptorBin")
-    @NotNull(message = "ProtoDescriptorBin")
     private String protoDescriptorBin;
 
     /**
      * 要支持协议转换的services
      */
     @JsonProperty(value = "Services")
-    @NotNull(message = "Services")
     private List<String> services;
 
 
