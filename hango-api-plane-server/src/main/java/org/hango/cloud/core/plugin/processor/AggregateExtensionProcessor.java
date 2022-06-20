@@ -103,7 +103,7 @@ public class AggregateExtensionProcessor extends AbstractSchemaProcessor impleme
             case "super-auth":
                 // 兼容21.0.x版本认证插件，22.0.x版本认证插件已拆分为sign-auth、jwt-auth和oauth2-auth
                 holder = getProcessor("PreviousVersionSuperAuth").process(plugin, serviceInfo);
-                coverToExtensionPlugin(holder, "com.netease.superauthz");
+                coverToExtensionPlugin(holder, "proxy.filters.http.super_authz");
                 break;
             case "sign-auth": case "jwt-auth": case "oauth2-auth":
                 holder = getProcessor("SuperAuth").process(plugin, serviceInfo);

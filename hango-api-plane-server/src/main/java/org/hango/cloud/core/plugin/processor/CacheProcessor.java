@@ -126,7 +126,7 @@ public class CacheProcessor extends AbstractSchemaProcessor implements SchemaPro
         }
 
         if (nonNull(localDefaultTtl) && localDefaultTtl != 0) {
-            if (nonNull(redisDefaultTtl) || redisDefaultTtl !=0 ) {
+            if (nonNull(redisDefaultTtl) && redisDefaultTtl !=0 ) {
                 builder.createOrUpdateJson("$.cache_ttls", "LocalHttpCache" ,"{}");
             }else {
                 builder.createOrUpdateJson("$", "cache_ttls", "{\"LocalHttpCache\":{}}");
