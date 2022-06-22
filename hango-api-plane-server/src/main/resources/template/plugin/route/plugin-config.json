@@ -26,7 +26,7 @@
       "updateTime": "1572537600000",
       "pluginScope": "routeRule",
       "pluginPriority": "1500",
-      "instructionForUse": "请求频率限流,例如限制5个请求/s",
+      "instructionForUse": "请求频率限流，例如限制5个请求/s",
       "categoryKey": "trafficPolicy",
       "categoryName": "流量管理"
     },
@@ -94,7 +94,7 @@
       "name": "header-restriction",
       "displayName": "Header黑白名单",
       "schema": "plugin/route/header-restiction.json",
-      "description": "Header黑白名单插件",
+      "description": "根据header过滤请求",
       "processor": "AggregateGatewayPluginProcessor",
       "author": "system",
       "createTime": "1572537600000",
@@ -116,7 +116,7 @@
       "updateTime": "1636943353954",
       "pluginScope": "routeRule,global",
       "pluginPriority": "2500",
-      "instructionForUse": "修改请求响应头部信息",
+      "instructionForUse": "修改请求响应头信息",
       "categoryKey": "dataFormat",
       "categoryName": "数据转换"
     },
@@ -281,7 +281,7 @@
       "updateTime": "1572537600000",
       "pluginScope": "global,routeRule",
       "pluginPriority": "1700",
-      "instructionForUse": "提供ak,sk签名认证",
+      "instructionForUse": "提供AK/SK签名认证",
       "categoryKey": "auth",
       "categoryName": "认证"
     },
@@ -311,7 +311,7 @@
       "updateTime": "1572537600000",
       "pluginScope": "global,routeRule",
       "pluginPriority": "1700",
-      "instructionForUse": "提供Oauth2认证",
+      "instructionForUse": "提供OAuth2认证",
       "categoryKey": "auth",
       "categoryName": "认证"
     },

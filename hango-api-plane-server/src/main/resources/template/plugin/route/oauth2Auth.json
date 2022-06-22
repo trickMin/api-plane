@@ -50,21 +50,22 @@
           "layouts":[
             {
               "key": "ignore_case",
-              "alias": "key忽略大小写",
+              "alias": "忽略大小写",
+              "help": "Key忽略大小写",
               "type": "switch",
               "default": true
             },
             {
               "key": "headers_keys",
               "alias": "自定义请求头",
-              "help": "可选配置，如果不配置则采用默认配置",
+              "help": "自定义请求头参与key计算，如果不配置则采用默认计算方式",
               "type": "multi_input"
             }
           ]
         },
         {
           "key": "result_cache_ttl",
-          "alias": "缓存ttl配置",
+          "alias": "缓存TTL配置",
           "help": "指定缓存时间，单位ms",
           "type": "input",
           "rules": [

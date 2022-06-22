@@ -100,14 +100,15 @@
           "layouts":[
             {
               "key": "ignore_case",
-              "alias": "key忽略大小写",
+              "alias": "忽略大小写",
               "type": "switch",
+              "help": "Key忽略大小写",
               "default": true
             },
             {
               "key": "headers_keys",
-              "alias": "请求头",
-              "help": "可选配置，如果不配置则采用默认配置",
+              "alias": "自定义请求头",
+              "help": "自定义请求头参与key计算，如果不配置则采用默认计算方式",
               "type": "multi_input"
             }
           ]
