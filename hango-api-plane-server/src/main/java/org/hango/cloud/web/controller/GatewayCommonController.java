@@ -1,21 +1,16 @@
 package org.hango.cloud.web.controller;
 
 import com.google.common.collect.ImmutableMap;
-import org.apache.commons.lang3.StringUtils;
-import org.hango.cloud.meta.Gateway;
 import org.hango.cloud.meta.dto.GrpcEnvoyFilterDto;
 import org.hango.cloud.meta.dto.PluginOrderDTO;
 import org.hango.cloud.service.GatewayService;
-import org.hango.cloud.util.Const;
 import org.hango.cloud.util.errorcode.ApiPlaneErrorCode;
 import org.hango.cloud.util.errorcode.ErrorCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static org.hango.cloud.util.Const.VAILD_REGISTRY;
@@ -61,15 +56,6 @@ public class GatewayCommonController extends BaseController {
         Map<String, Object> result = new HashMap<>();
 
         result.put(RESULT, gatewayService.getPluginOrder(pluginOrderDTO));
-        ErrorCode code = ApiPlaneErrorCode.Success;
-        return apiReturn(code.getStatusCode(), code.getCode(), null, result);
-    }
-
-    @RequestMapping(params = "Action=GetGrpcEnvoyFilter", method = RequestMethod.POST)
-    public String getGrpcEnvoyFilter(@RequestBody GrpcEnvoyFilterDto grpcEnvoyFilterDto) {
-        Map<String, Object> result = new HashMap<>();
-
-        result.put(RESULT, gatewayService.getGrpcEnvoyFilter(grpcEnvoyFilterDto));
         ErrorCode code = ApiPlaneErrorCode.Success;
         return apiReturn(code.getStatusCode(), code.getCode(), null, result);
     }

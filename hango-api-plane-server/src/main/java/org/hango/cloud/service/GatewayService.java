@@ -57,16 +57,7 @@ public interface GatewayService {
      */
     List<DubboMetaDto> getDubboMeta(String igv);
 
-    /**
-     * 获取 EnvoyFilter
-     * @param grpcEnvoyFilter
-     * @return
-     */
-    EnvoyFilterDTO getEnvoyFilter(EnvoyFilterDTO grpcEnvoyFilter);
-
     void updateEnvoyFilter(EnvoyFilterDTO grpcEnvoyFilterDTO);
-
-    EnvoyFilterDTO getGrpcEnvoyFilter(GrpcEnvoyFilterDto grpcEnvoyFilterDto);
 
     void updateGrpcEnvoyFilter(GrpcEnvoyFilterDto grpcEnvoyFilterDto);
 }

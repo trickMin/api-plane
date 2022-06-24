@@ -1,7 +1,6 @@
 package org.hango.cloud.util;
 
 import com.google.common.collect.ImmutableList;
-import istio.networking.v1alpha3.EnvoyFilterOuterClass;
 import org.apache.commons.lang3.BooleanUtils;
 import org.hango.cloud.core.editor.ResourceGenerator;
 import org.hango.cloud.core.editor.ResourceType;
@@ -254,9 +253,9 @@ public class Trans {
         efo.setNamespace(envoyFilterDTO.getNamespace());
         efo.setPortNumber(envoyFilterDTO.getPortNumber());
         List<String> orderItems = new ArrayList<>();
-        for (EnvoyFilterOuterClass.EnvoyFilter.EnvoyConfigObjectPatch dto : envoyFilterDTO.getConfigPatches()) {
-            if (Objects.nonNull(dto)) {
-                orderItems.add(ResourceGenerator.newInstance(dto, ResourceType.OBJECT).yamlString());
+        for (String yamlString : envoyFilterDTO.getConfigPatches()) {
+            if (!StringUtils.isEmpty(yamlString)) {
+                orderItems.add(yamlString);
             }
         }
         efo.setConfigPatches(orderItems);

@@ -3,6 +3,7 @@ package org.hango.cloud.core.gateway.service;
 import org.hango.cloud.core.ConfigManager;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import org.hango.cloud.meta.*;
+import org.hango.cloud.meta.dto.GrpcEnvoyFilterDto;
 
 /**
  *  API配置客户端，用于发送配置
@@ -84,4 +85,6 @@ public interface GatewayConfigManager extends ConfigManager {
      * @param envoyFilterOrder
      */
     void updateConfig(EnvoyFilterOrder envoyFilterOrder);
+
+    String generateEnvoyConfigObjectPatch(GrpcEnvoyFilterDto grpcEnvoyFilterDto);
 }

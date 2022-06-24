@@ -226,6 +226,10 @@ public interface TemplateConst {
     String ENVOY_FILTER_WORKLOAD_LABELS = "t_envoy_filter_workload_labels";
     String ENVOY_FILTER_FILTERS = "t_envoy_filter_filters";
 
+    String GRPC_CONFIG_PATCH_PORT_NUMBER = "t_grpc_config_patch_port_number";
+    String GRPC_CONFIG_PATCH_PROTO_DESCRIPTOR_BIN = "t_grpc_config_patch_proto_descriptor_bin";
+    String GRPC_CONFIG_PATCH_SERVICES = "t_grpc_config_patch_services";
+
     /**
      * VersionManager
      **/

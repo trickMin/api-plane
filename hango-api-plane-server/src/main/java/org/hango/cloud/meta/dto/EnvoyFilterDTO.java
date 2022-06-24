@@ -1,7 +1,6 @@
 package org.hango.cloud.meta.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import istio.networking.v1alpha3.EnvoyFilterOuterClass;
 import istio.networking.v1alpha3.SidecarOuterClass;
 
 import java.util.List;
@@ -21,7 +20,7 @@ public class EnvoyFilterDTO {
     private String namespace;
 
     @JsonProperty("ConfigPatches")
-    private List<EnvoyFilterOuterClass.EnvoyFilter.EnvoyConfigObjectPatch> configPatches;
+    private List<String> configPatches;
 
     @JsonProperty(value = "WorkloadSelector")
     private SidecarOuterClass.WorkloadSelector workloadSelector;
@@ -42,11 +41,11 @@ public class EnvoyFilterDTO {
         this.namespace = namespace;
     }
 
-    public List<EnvoyFilterOuterClass.EnvoyFilter.EnvoyConfigObjectPatch> getConfigPatches() {
+    public List<String> getConfigPatches() {
         return configPatches;
     }
 
-    public void setConfigPatches(List<EnvoyFilterOuterClass.EnvoyFilter.EnvoyConfigObjectPatch> configPatches) {
+    public void setConfigPatches(List<String> configPatches) {
         this.configPatches = configPatches;
     }
 

@@ -14,6 +14,7 @@ import org.hango.cloud.core.k8s.event.K8sResourceDeleteNotificationEvent;
 import org.hango.cloud.core.k8s.subtracter.ServiceEntryEndpointsSubtracter;
 import org.hango.cloud.meta.*;
 import org.hango.cloud.k8s.K8sTypes;
+import org.hango.cloud.meta.dto.GrpcEnvoyFilterDto;
 import org.hango.cloud.util.exception.ApiPlaneException;
 import org.hango.cloud.util.function.Subtracter;
 import io.fabric8.kubernetes.api.model.HasMetadata;
@@ -193,6 +194,11 @@ public class GatewayConfigManagerImpl extends AbstractConfigManagerSupport imple
     public void updateConfig(EnvoyFilterOrder envoyFilterOrder) {
         List<K8sResourcePack> resources = modelEngine.translate(envoyFilterOrder);
         update(resources);
+    }
+
+    @Override
+    public String generateEnvoyConfigObjectPatch(GrpcEnvoyFilterDto grpcEnvoyFilterDto) {
+        return modelEngine.generateEnvoyConfigObjectPatch(grpcEnvoyFilterDto);
     }
 
     private void delete(List<K8sResourcePack> resources, Subtracter<HasMetadata> fun) {

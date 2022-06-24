@@ -20,6 +20,7 @@ import org.hango.cloud.core.plugin.FragmentHolder;
 import org.hango.cloud.core.plugin.FragmentWrapper;
 import org.hango.cloud.core.template.TemplateTranslator;
 import org.hango.cloud.meta.*;
+import org.hango.cloud.meta.dto.GrpcEnvoyFilterDto;
 import org.hango.cloud.service.PluginService;
 import org.hango.cloud.util.Const;
 import org.hango.cloud.util.constant.LogConstant;
@@ -92,6 +93,7 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
     private static final String serviceServiceEntry = "gateway/service/serviceEntry";
     private static final String gatewayPlugin = "gateway/gatewayPlugin";
     private static final String envoyFilter = "gateway/envoyFilter";
+    private static final String grpcConfigPatch = "gateway/grpcConfigPatch";
     private static final String VIRTUAL_SERVICE = "VirtualService";
 
     public List<K8sResourcePack> translate(API api) {
@@ -330,5 +332,9 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
         List<String> pluginManagers = defaultModelProcessor.process(envoyFilter, efo, new EnvoyFilterOrderDataHandler());
         resources.addAll(generateK8sPack(pluginManagers));
         return resources;
+    }
+
+    public String generateEnvoyConfigObjectPatch(GrpcEnvoyFilterDto grpcEnvoyFilterDto) {
+        return defaultModelProcessor.process(grpcConfigPatch, new GrpcEnvoyFilterDataHandler().handle(grpcEnvoyFilterDto).get(0));
     }
 }
