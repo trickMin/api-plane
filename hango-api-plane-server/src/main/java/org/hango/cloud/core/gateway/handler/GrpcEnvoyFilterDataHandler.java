@@ -19,6 +19,7 @@ public class GrpcEnvoyFilterDataHandler implements DataHandler<GrpcEnvoyFilterDt
     public List<TemplateParams> handle(GrpcEnvoyFilterDto grpcEnvoyFilterDto) {
         String servicesYml = "";
         if (!CollectionUtils.isEmpty(grpcEnvoyFilterDto.getServices())) {
+            //"\n        - "处理yml填充缩进
             servicesYml = grpcEnvoyFilterDto.getServices().stream().map(a -> "\n        - " + a).reduce((a, b) -> a + b).get();
         }
         TemplateParams efParams = TemplateParams.instance()
