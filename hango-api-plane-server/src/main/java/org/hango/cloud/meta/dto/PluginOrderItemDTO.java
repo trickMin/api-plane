@@ -18,9 +18,6 @@ public class PluginOrderItemDTO {
     @NotNull(message = "port")
     private Integer port;
 
-    @JsonProperty("settings")
-    private Object settings;
-
     @JsonProperty("inline")
     private Object inline;
 
@@ -41,14 +38,6 @@ public class PluginOrderItemDTO {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public Object getSettings() {
-        return settings;
-    }
-
-    public void setSettings(Object settings) {
-        this.settings = settings;
     }
 
     public Integer getPort() {
