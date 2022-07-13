@@ -23,9 +23,11 @@ metadata:
 </#if>
 
 <#if t_virtual_service_stats?has_content>
-  proxy.filters.http.detailed_stats:
-    stats:
-  <#list t_virtual_service_stats as stats_meta>
-      - ${stats_meta}
+  proxy.metadata_stats.detailed_stats:
+    stat_prefix: detailed_route
+    stat_tags:
+  <#list t_virtual_service_stats?keys as tagKey>
+    - key: "${tagKey}"
+      val: "${t_virtual_service_stats[tagKey]}"
   </#list>
 </#if>

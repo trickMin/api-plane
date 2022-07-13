@@ -6,6 +6,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Map;
 
 public class PortalAPIDTO {
 
@@ -139,7 +140,7 @@ public class PortalAPIDTO {
     private PortalMirrorTrafficDto mirrorTrafficDto;
 
     @JsonProperty(value = "StatsMeta")
-    private List<String> statsMeta;
+    private Map<String ,String> statsMeta;
 
     public PortalMirrorTrafficDto getMirrorTrafficDto() {
         return mirrorTrafficDto;
@@ -309,11 +310,11 @@ public class PortalAPIDTO {
         this.virtualClusterDTO = virtualClusterDTO;
     }
 
-    public List<String> getStatsMeta() {
+    public Map<String, String> getStatsMeta() {
         return statsMeta;
     }
 
-    public void setStatsMeta(final List<String> statsMeta) {
+    public void setStatsMeta(Map<String, String> statsMeta) {
         this.statsMeta = statsMeta;
     }
 }
