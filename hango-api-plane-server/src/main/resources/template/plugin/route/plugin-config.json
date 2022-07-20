@@ -359,6 +359,21 @@
       "instructionForUse": "soap转rest",
       "categoryKey": "trafficPolicy",
       "categoryName": "流量管理"
+    },
+    {
+      "name": "waf",
+      "displayName": "waf",
+      "schema": "plugin/route/waf.json",
+      "description": "",
+      "processor": "AggregateGatewayPluginProcessor",
+      "author": "system",
+      "createTime": "1572537600000",
+      "updateTime": "1572537600000",
+      "pluginScope": "routeRule,routeRule",
+      "pluginPriority": "1000",
+      "instructionForUse": "waf插件",
+      "categoryKey": "waf",
+      "categoryName": "安全"
     }
   ]
 }
