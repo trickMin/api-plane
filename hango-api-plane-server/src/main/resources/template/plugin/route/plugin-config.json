@@ -93,7 +93,7 @@
     {
       "name": "header-restriction",
       "displayName": "Header黑白名单",
-      "schema": "plugin/route/header-restiction.json",
+      "schema": "plugin/route/header-restriction.json",
       "description": "根据header过滤请求",
       "processor": "AggregateGatewayPluginProcessor",
       "author": "system",
