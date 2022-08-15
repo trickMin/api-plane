@@ -64,4 +64,14 @@ public interface Const {
      * envoy outbound prefix
      */
     String OUTBOUND = "outbound";
+
+    /**
+     * 认证类型
+     */
+    String AUTH_JWKS = "Jwks";
+
+    /**
+     * 以下是envoy filter全名
+     */
+    String JWT_FILTER = "envoy.filters.http.jwt_authn";
 }

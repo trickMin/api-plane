@@ -109,9 +109,17 @@ public class AggregateExtensionProcessor extends AbstractSchemaProcessor impleme
                 holder = getProcessor("PreviousVersionSuperAuth").process(plugin, serviceInfo);
                 coverToExtensionPlugin(holder, "proxy.filters.http.super_authz");
                 break;
-            case "sign-auth": case "jwt-auth": case "oauth2-auth":
+            case "sign-auth": case "oauth2-auth":
                 holder = getProcessor("SuperAuth").process(plugin, serviceInfo);
                 coverToExtensionPlugin(holder, "proxy.filters.http.super_authz");
+                break;
+            case "jwt-auth":
+                holder = getProcessor("JwtAuth").process(plugin, serviceInfo);
+                coverToExtensionPlugin(holder, "envoy.filters.http.jwt_authn");
+                break;
+            case "basic-rbac":
+                holder = getProcessor("BasicRbac").process(plugin, serviceInfo);
+                coverToExtensionPlugin(holder, "envoy.filters.http.rbac");
                 break;
             case "request-transformer":
                 holder = getProcessor("DefaultProcessor").process(plugin, serviceInfo);

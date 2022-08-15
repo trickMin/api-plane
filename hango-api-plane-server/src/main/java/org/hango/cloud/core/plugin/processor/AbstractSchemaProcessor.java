@@ -50,7 +50,6 @@ public abstract class AbstractSchemaProcessor implements SchemaProcessor<Service
 
     public String present_invert_match = "{\"name\":\"%s\", \"present_match\":true, \"invert_match\":true}";
 
-
     protected SchemaProcessor getProcessor(String name) {
         logger.info("Get processor {}", name);
         if (CollectionUtils.isEmpty(processorList)) throw new ApiPlaneException("The list of processors is empty");
