@@ -8,6 +8,7 @@ import org.hango.cloud.core.plugin.PluginGenerator;
 import org.hango.cloud.meta.ServiceInfo;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +21,8 @@ public class WafProcessor extends AbstractSchemaProcessor implements SchemaProce
 
 
     private static final String WAF_RULE_PATH = "waf_rule_path";
+
+    private static final String WAF_CONFIG_PREFIX = "tx.";
 
     private static final String DOS_WAF_RULE_PATH = "/etc/envoy/waf/REQUEST-912-DOS-PROTECTION.conf";
     private static final String SCANNER_WAF_RULE_PATH = "/etc/envoy/waf/REQUEST-913-SCANNER-DETECTION.conf";
@@ -62,10 +65,13 @@ public class WafProcessor extends AbstractSchemaProcessor implements SchemaProce
     private void generateWafRules(PluginGenerator source, PluginGenerator builder) {
         PluginGenerator elementBuilder;
         if (getWafPluginSwitch(source, "dosSwitch")) {
-            List<Map<String, Object>> dosConfig = source.getValue("$.wafRule..dosConfig");
+            List<Map<String, Object>> dosConfigs = source.getValue("$.wafRule..dosConfig");
             elementBuilder = PluginGenerator.newInstance("{}");
             elementBuilder.createOrUpdateValue("$", WAF_RULE_PATH, DOS_WAF_RULE_PATH);
-            elementBuilder.createOrUpdateValue("$", "config", dosConfig.get(0));
+
+            Map<String, Object> dosConfig = extractedConfig(dosConfigs);
+
+            elementBuilder.createOrUpdateValue("$", "config", dosConfig);
             builder.addJsonElement("$.waf_rule", elementBuilder.jsonString());
         }
 
@@ -152,6 +158,21 @@ public class WafProcessor extends AbstractSchemaProcessor implements SchemaProce
             elementBuilder.createOrUpdateValue("$", WAF_RULE_PATH, IIS_DATA_LEAKAGES_WAF_RULE_PATH);
             builder.addJsonElement("$.waf_rule", elementBuilder.jsonString());
         }
+    }
+
+    /**
+     * 数据面约定的waf配置中key为{tx.xxx}，但若key中含有"."，会导致轻舟schema执行校验时出现层级匹配问题 => please transfer a valid prop path to form item!
+     * 故在后端处理配置key前缀
+     * @param configs
+     * @return
+     */
+    private static Map<String, Object> extractedConfig(List<Map<String, Object>> configs) {
+        Map<String, Object> dosConfig = configs.get(0);
+        Map<String, Object> config = new HashMap<>();
+        for (Map.Entry<String, Object> entry : dosConfig.entrySet()) {
+            config.put(WAF_CONFIG_PREFIX + entry.getKey(), entry.getValue());
+        }
+        return config;
     }
 
     private boolean getWafPluginSwitch(PluginGenerator source, String wafPluginKey) {

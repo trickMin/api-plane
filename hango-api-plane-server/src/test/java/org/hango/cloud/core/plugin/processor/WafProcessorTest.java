@@ -20,9 +20,9 @@ public class WafProcessorTest extends BasePluginTest {
                 "  \"wafRule\": {\n" +
                 "    \"dosSwitch\":true,\n" +
                 "    \"dosConfig\": {\n" +
-                "      \"tx.dos_burst_time_slice\": 2,\n" +
-                "      \"tx.dos_counter_threshold\": 200,\n" +
-                "      \"tx.dos_block_timeout\": 1\n" +
+                "      \"dos_burst_time_slice\": 2,\n" +
+                "      \"dos_counter_threshold\": 200,\n" +
+                "      \"dos_block_timeout\": 1\n" +
                 "    },\n" +
                 "    \"scannerSwitch\":true,\n" +
                 "    \"lfiSwitch\":false,\n" +
@@ -42,12 +42,13 @@ public class WafProcessorTest extends BasePluginTest {
                 "}";
 
         FragmentHolder f = processor.process(p1, new ServiceInfo());
+        //TODO 因为使用Hashmap重新组织的config，生产的yml顺序会乱掉，固定为如下格式暂时先以该方式通过单测，后续待前端优化后需修复此单测。
         String expected = "waf_rule:\n" +
                 "- waf_rule_path: \"/etc/envoy/waf/REQUEST-912-DOS-PROTECTION.conf\"\n" +
                 "  config:\n" +
+                "    tx.dos_block_timeout: 1\n" +
                 "    tx.dos_burst_time_slice: 2\n" +
                 "    tx.dos_counter_threshold: 200\n" +
-                "    tx.dos_block_timeout: 1\n" +
                 "- waf_rule_path: \"/etc/envoy/waf/REQUEST-913-SCANNER-DETECTION.conf\"";
         String actual = f.getVirtualServiceFragment().getContent().trim();
         System.out.println("================================================================================================");

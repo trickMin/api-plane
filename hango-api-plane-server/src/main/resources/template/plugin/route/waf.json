@@ -14,7 +14,6 @@
           "alias": "DOS",
           "type": "switch",
           "default": false
-
         },
         {
           "key": "dosConfig",
@@ -25,19 +24,37 @@
           },
           "layouts": [
             {
-              "key": "tx.dos_burst_time_slice",
+              "key": "dos_burst_time_slice",
               "type": "input",
-              "alias": "统计的时间窗口"
+              "alias": "统计的时间窗口（秒）",
+              "rules": [
+                "Required",
+                "Number",
+                "MinNumber(0)",
+                "MaxNumber(99999999)"
+              ]
             },
             {
-              "key": "tx.dos_counter_threshold",
+              "key": "dos_counter_threshold",
               "type": "input",
-              "alias": "阈值"
+              "alias": "阈值",
+              "rules": [
+                "Required",
+                "Number",
+                "MinNumber(0)",
+                "MaxNumber(99999999)"
+              ]
             },
             {
-              "key": "tx.dos_block_timeout",
+              "key": "dos_block_timeout",
               "type": "input",
-              "alias": "请求拒绝的时间"
+              "alias": "请求拒绝的时间（秒）",
+              "rules": [
+                "Required",
+                "Number",
+                "MinNumber(0)",
+                "MaxNumber(99999999)"
+              ]
             }
           ]
         },
