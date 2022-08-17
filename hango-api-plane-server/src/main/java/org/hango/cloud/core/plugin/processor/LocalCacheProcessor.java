@@ -44,7 +44,7 @@ public class LocalCacheProcessor extends AbstractSchemaProcessor implements
 
         if ("safe_regex_match".equals(matchType)) {
           builder.addJsonElement("$.enable_rqx.headers",
-              String.format(safe_regex, headerKey, headerValue));
+              String.format(safe_regex_string_match, headerKey, headerValue));
         } else if ("present_match".equals(matchType)) {
           builder.addJsonElement("$.enable_rqx.headers",
               String.format(present_match, headerKey));
@@ -53,7 +53,7 @@ public class LocalCacheProcessor extends AbstractSchemaProcessor implements
               String.format(present_invert_match, headerKey));
         } else {
           builder.addJsonElement("$.enable_rqx.headers",
-              String.format(exact, headerKey, headerValue));
+              String.format(exact_string_match, headerKey, headerValue));
         }
       });
     }
@@ -63,10 +63,10 @@ public class LocalCacheProcessor extends AbstractSchemaProcessor implements
       if (nonNull(matchType, host)) {
         if ("safe_regex_match".equals(matchType)) {
           builder.addJsonElement("$.enable_rqx.headers",
-              String.format(safe_regex, ":authority", host));
+              String.format(safe_regex_string_match, ":authority", host));
         } else {
           builder.addJsonElement("$.enable_rqx.headers",
-              String.format(exact, ":authority", host));
+              String.format(exact_string_match, ":authority", host));
         }
       }
     }
@@ -75,10 +75,10 @@ public class LocalCacheProcessor extends AbstractSchemaProcessor implements
       if (nonNull(method)) {
         if (method.size() == 1) {
           builder.addJsonElement("$.enable_rqx.headers",
-              String.format(exact, ":method", method.get(0)));
+              String.format(exact_string_match, ":method", method.get(0)));
         } else if (method.size() > 1) {
           builder.addJsonElement("$.enable_rqx.headers",
-              String.format(safe_regex, ":method", String.join("|", method)));
+              String.format(safe_regex_string_match, ":method", String.join("|", method)));
         }
       }
     }
@@ -88,10 +88,10 @@ public class LocalCacheProcessor extends AbstractSchemaProcessor implements
       if (nonNull(matchType, path)) {
         if ("safe_regex_match".equals(matchType)) {
           builder.addJsonElement("$.enable_rqx.headers",
-              String.format(safe_regex, ":path", path));
+              String.format(safe_regex_string_match, ":path", path));
         } else {
           builder
-              .addJsonElement("$.enable_rqx.headers", String.format(exact, ":path", path));
+              .addJsonElement("$.enable_rqx.headers", String.format(exact_string_match, ":path", path));
         }
       }
     }
@@ -111,7 +111,7 @@ public class LocalCacheProcessor extends AbstractSchemaProcessor implements
         }
         if ("safe_regex_match".equals(matchType)) {
           builder.addJsonElement("$.enable_rpx.headers",
-              String.format(safe_regex, headerKey, headerValue));
+              String.format(safe_regex_string_match, headerKey, headerValue));
         } else if ("present_match".equals(matchType)) {
           builder.addJsonElement("$.enable_rpx.headers",
               String.format(present_match, headerKey));
@@ -120,7 +120,7 @@ public class LocalCacheProcessor extends AbstractSchemaProcessor implements
               String.format(present_invert_match, headerKey));
         } else {
           builder.addJsonElement("$.enable_rpx.headers",
-              String.format(exact, headerKey, headerValue));
+              String.format(exact_string_match, headerKey, headerValue));
         }
       });
     }
@@ -128,7 +128,7 @@ public class LocalCacheProcessor extends AbstractSchemaProcessor implements
       String code = source.getValue("$.condition.response.code.value", String.class);
       if (nonNull(code)) {
         builder.addJsonElement("$.enable_rpx.headers",
-            String.format(safe_regex, ":status", code + "|"));
+            String.format(safe_regex_string_match, ":status", code + "|"));
       }
     }
 
