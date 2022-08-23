@@ -30,6 +30,9 @@
       {"schema": "resty","plugin": "proxy.filters.http.rider","display": true},
       {"schema": "traffic-mark","plugin": "proxy.filters.http.traffic_mark","display": true},
       {"schema": "parameters-validate","plugin": "proxy.filters.http.parameter_validate","display": true},
+      {"schema": "simple-auth","plugin": "proxy.filters.http.super_authz","display": true},
+      {"schema": "request-body-rewrite","plugin": "proxy.filters.http.request_body_transformation","display": true},
+      {"schema": "response-body-rewrite","plugin": "proxy.filters.http.response_body_transformation","display": true},
 
       {"schema": "","plugin": "proxy.filters.http.metadatahub","display": false},
       {"schema": "","plugin": "proxy.filters.http.detailed_stats","display": false},

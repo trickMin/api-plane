@@ -69,6 +69,14 @@
         },
         {
           "enable": "true",
+          "name": "proxy.filters.http.request_body_transformation"
+        },
+        {
+          "enable": "true",
+          "name": "proxy.filters.http.response_body_transformation"
+        },
+        {
+          "enable": "true",
           "inline": {
             "settings": {
               "ip_source_header": "x-real-v112-ip"
