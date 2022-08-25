@@ -29,6 +29,7 @@ import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
+import java.time.Duration;
 import java.util.List;
 
 
@@ -46,7 +47,7 @@ public class ApiPlaneAutoBaseConfiguration {
 
         return restTemplateBuilder
                 .interceptors(interceptors)
-                .requestFactory(new InterceptingClientHttpRequestFactory(
+                .requestFactory(() -> new InterceptingClientHttpRequestFactory(
                         new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory()), interceptors))
                 .build();
     }
@@ -57,9 +58,9 @@ public class ApiPlaneAutoBaseConfiguration {
         List<ClientHttpRequestInterceptor> interceptors = ImmutableList.of(new RestTemplateLogInterceptor());
 
         return restTemplateBuilder
-                .setConnectTimeout(1000)
+                .setConnectTimeout(Duration.ofSeconds(1))
                 .interceptors(interceptors)
-                .requestFactory(new InterceptingClientHttpRequestFactory(
+                .requestFactory(() -> new InterceptingClientHttpRequestFactory(
                         new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory()), interceptors))
                 .build();
     }
@@ -97,7 +98,7 @@ public class ApiPlaneAutoBaseConfiguration {
     }
 
     @Bean
-    MeshConfig meshConfig(){
+    MeshConfig meshConfig() {
         return new MeshConfig();
     }
 }
