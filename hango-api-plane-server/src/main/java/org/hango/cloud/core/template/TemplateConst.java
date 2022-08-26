@@ -24,6 +24,8 @@ public interface TemplateConst {
     String NAMESPACE = "t_namespace";
     String API_GATEWAY = "t_api_gateway";
     String API = "t_api";
+
+    String VERSION = "t_version";
     String API_SERVICE = "t_api_service";
     String API_NAME = "t_api_name";
     String RESOURCE_IDENTITY = "t_resource_identity";

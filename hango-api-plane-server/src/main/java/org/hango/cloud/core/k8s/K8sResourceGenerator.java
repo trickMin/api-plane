@@ -87,6 +87,13 @@ public final class K8sResourceGenerator extends ResourceGenerator {
         updateValue(GET_RESOURCEVERSION.translate(), resourceVersion);
     }
 
+    public void setUid(String uid) {
+        updateValue(GET_UID.translate(), uid);
+    }
+    public String getUid() {
+        return getValue(GET_UID.translate());
+    }
+
     public boolean isList() {
         Pattern pattern = Pattern.compile("(.*)List$");
         return pattern.matcher(getKind()).find();
@@ -99,16 +106,6 @@ public final class K8sResourceGenerator extends ResourceGenerator {
         List<String> ret = new ArrayList<>();
         List objs = getValue(GET_ITEMS.translate());
         objs.forEach(obj -> ret.add(ResourceGenerator.newInstance(obj, ResourceType.OBJECT, editorContext).jsonString()));
-        return ret;
-    }
-
-    public <T> List<T> items(Class<T> itemsType) {
-        if (!isList()) {
-            throw new ApiPlaneException("Cant convert Object to List Type.");
-        }
-        List<T> ret = new ArrayList<>();
-        List<String> jsons = items();
-        jsons.forEach(json -> ret.add(ResourceGenerator.newInstance(json, ResourceType.JSON, editorContext).object(itemsType)));
         return ret;
     }
 }

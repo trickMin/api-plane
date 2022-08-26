@@ -28,6 +28,8 @@ public class GatewayPlugin {
 
     private Integer port;
 
+    private Long version;
+
     public List<String> getPlugins() {
         return plugins;
     }
@@ -120,5 +122,11 @@ public class GatewayPlugin {
         }
     }
 
+    public Long getVersion() {
+        return version;
+    }
 
+    public void setVersion(Long version) {
+        this.version = version;
+    }
 }

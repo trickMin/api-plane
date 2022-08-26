@@ -14,6 +14,7 @@ public class GatewayPluginOperator implements k8sResourceOperator<K8sTypes.Envoy
     public K8sTypes.EnvoyPlugin merge(K8sTypes.EnvoyPlugin old, K8sTypes.EnvoyPlugin fresh) {
 
         K8sTypes.EnvoyPlugin latest = new K8sTypes.EnvoyPlugin();
+        latest.setMetadata(fresh.getMetadata());
         latest.setKind(old.getKind());
         latest.setApiVersion(old.getApiVersion());
         latest.setMetadata(old.getMetadata());

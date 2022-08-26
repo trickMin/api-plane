@@ -46,6 +46,7 @@ public abstract class APIDataHandler implements DataHandler<API> {
         int priority = PriorityUtil.calculate(api);
 
         TemplateParams tp = TemplateParams.instance()
+                .put(VERSION, api.getVersion())
                 .put(NAMESPACE, api.getNamespace())
                 .put(API_SERVICE, api.getService())
                 .put(API_NAME, api.getName())

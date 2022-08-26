@@ -2,6 +2,10 @@ apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
 metadata:
   name: ${t_destination_rule_name}
+<#if t_version?has_content>
+  labels:
+    skiff-nsf-data-version: ${t_version}
+</#if>
 spec:
   host: ${t_destination_rule_host}
   altStatName: ${t_destination_rule_alt_stat_name}

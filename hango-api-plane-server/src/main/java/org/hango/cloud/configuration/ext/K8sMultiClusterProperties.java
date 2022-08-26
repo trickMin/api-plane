@@ -23,7 +23,9 @@ public class K8sMultiClusterProperties {
 		private String k8sApiServer;
 		private String certData;
 		private String keyData;
-		private boolean watchResource = true;
+
+		private String caData;
+		private boolean watchResource = false;
 
 
 		public boolean isWatchResource() {
@@ -56,6 +58,14 @@ public class K8sMultiClusterProperties {
 
 		public void setKeyData(String keyData) {
 			this.keyData = keyData;
+		}
+
+		public String getCaData() {
+			return caData;
+		}
+
+		public void setCaData(String caData) {
+			this.caData = caData;
 		}
 	}
 

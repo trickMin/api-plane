@@ -37,6 +37,8 @@ public class Trans {
         api.setApiName(portalAPI.getRouteName());
         api.setTenantId(portalAPI.getTenantId());
         api.setProjectId(portalAPI.getProjectId());
+        Long version = portalAPI.getVersion();
+        api.setVersion(version == null ? 0 : version);
         //timeout 默认60000ms
         //0512 to cm, remove default timeout
 //        if (api.getTimeout() == null) api.setTimeout(60000L);

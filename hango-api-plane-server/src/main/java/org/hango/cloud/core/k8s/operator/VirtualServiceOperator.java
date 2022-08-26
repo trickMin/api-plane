@@ -28,7 +28,7 @@ public class VirtualServiceOperator implements k8sResourceOperator<K8sTypes.Virt
         K8sTypes.VirtualService latest = new K8sTypes.VirtualService();
         latest.setKind(old.getKind());
         latest.setApiVersion(old.getApiVersion());
-        latest.setMetadata(old.getMetadata());
+        latest.setMetadata(fresh.getMetadata());
         latest.setSpec(oldSpec);
 
         List<VirtualServiceOuterClass.HTTPRoute> latestHttp = mergeList(oldSpec.getHttpList(), freshSpec.getHttpList(), new HttpRouteEquals());

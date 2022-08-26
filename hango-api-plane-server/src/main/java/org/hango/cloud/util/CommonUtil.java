@@ -6,23 +6,20 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import io.fabric8.kubernetes.api.model.HasMetadata;
+import org.apache.commons.lang3.StringUtils;
 import org.hango.cloud.core.editor.ResourceGenerator;
 import org.hango.cloud.core.editor.ResourceType;
 import org.hango.cloud.core.k8s.K8sResourceEnum;
 import org.hango.cloud.core.k8s.K8sResourceGenerator;
 import org.hango.cloud.util.exception.ApiPlaneException;
 import org.hango.cloud.util.function.Equals;
-import io.fabric8.kubernetes.api.model.HasMetadata;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
@@ -239,6 +236,16 @@ public class CommonUtil {
             return origin;
         }
         return removeEnd(remove, origin.substring(0, origin.length() - remove.length()));
+    }
+
+    public static String toJSONString(Object object){
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            return objectMapper.writeValueAsString(object);
+        } catch (JsonProcessingException e) {
+            logger.error("parse json error");
+        }
+        return "";
     }
 
 }

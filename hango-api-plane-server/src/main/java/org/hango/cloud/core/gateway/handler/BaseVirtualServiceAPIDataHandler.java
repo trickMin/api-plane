@@ -79,6 +79,7 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
 
                     TemplateParams tmpParams = TemplateParams.instance()
                             .setParent(vsParams)
+                            .put(VERSION, api.getVersion())
                             .put(GATEWAY_NAME, buildGatewayName(api.getService(), gw))
                             .put(VIRTUAL_SERVICE_NAME, buildVirtualServiceName(api.getService(), api.getName(), gw))
                             .put(VIRTUAL_SERVICE_SUBSET_NAME, subset)

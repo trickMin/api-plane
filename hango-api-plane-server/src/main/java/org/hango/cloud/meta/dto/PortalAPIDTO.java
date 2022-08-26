@@ -196,6 +196,9 @@ public class PortalAPIDTO {
     @JsonProperty(value = "MetaMap")
     private Map<String, String> metaMap;
 
+    @JsonProperty(value = "Version")
+    private Long version;
+
     public PortalMirrorTrafficDto getMirrorTrafficDto() {
         return mirrorTrafficDto;
     }
@@ -370,5 +373,13 @@ public class PortalAPIDTO {
 
     public void setMetaMap(Map<String, String> metaMap) {
         this.metaMap = metaMap;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
     }
 }

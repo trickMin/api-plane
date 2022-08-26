@@ -40,9 +40,11 @@ public class GatewayPluginDataHandler implements DataHandler<GatewayPlugin> {
         List<TemplateParams> params = new ArrayList<>();
         Map<String, List<String>> gatewayPluginMap = HandlerUtil.getGatewayPlugins(fragments);
         TemplateParams gatewayPluginParams = TemplateParams.instance()
+                .put(TemplateConst.VERSION, plugin.getVersion())
                 .put(TemplateConst.GATEWAY_PLUGIN_GATEWAYS, getGatewayName(plugin))
                 .put(TemplateConst.GATEWAY_PLUGIN_NAME, getGatewayPluginName(plugin))
                 .put(TemplateConst.GATEWAY_PLUGIN_PLUGINS, gatewayPluginMap);
+
 
         // 路由和全局插件模板渲染数据区分填充
         if (plugin.isRoutePlugin()) {

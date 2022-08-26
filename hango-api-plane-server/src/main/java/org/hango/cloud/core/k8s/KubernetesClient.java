@@ -13,6 +13,7 @@ import java.util.Map;
 
 public class KubernetesClient extends DefaultK8sHttpClient {
 
+    private String clientName;
     public KubernetesClient(Config config, OkHttpClient httpClient, EditorContext editorContext) {
         super(config, httpClient, editorContext);
     }
@@ -138,6 +139,7 @@ public class KubernetesClient extends DefaultK8sHttpClient {
         if (oldResource != null) {
             K8sResourceGenerator oldGenerator = K8sResourceGenerator.newInstance(oldResource, ResourceType.JSON);
             gen.setResourceVersion(resourceVersionGenerator(oldGenerator.getResourceVersion()));
+            gen.setUid(oldGenerator.getUid());
             put(url, gen.jsonString());
             return;
         }
@@ -160,4 +162,11 @@ public class KubernetesClient extends DefaultK8sHttpClient {
         return oldResourceVersion;
     }
 
+    public String getClientName() {
+        return clientName;
+    }
+
+    public void setClientName(String clientName) {
+        this.clientName = clientName;
+    }
 }

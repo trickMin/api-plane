@@ -83,7 +83,7 @@ public enum ErrorCodeEnum {
     InstanceStillExistError("StillExistError", "Instance is still exist for this service,can not cancell it", "该服务仍有实例运行，无法进行注销操作", 400),
     ConfigAppExistError("ConfigAppExistError", "App in config server is exist", "配置中心中appId已经存在，创建服务失败", 400),
     ServiceNotFound("ServiceNotFound", "Can't found service with Id %s", "找不到对应Id为%s的服务", 404),
-
+    HttpRemoteError("HttpRemoteError", "http remote call faile", "http远程调用失败", 404),
     //负载均衡相关
     InvalidLoadBanlanceType("InvalidLoadBanlanceType", "This load balance type is invalid", "服务负载均衡类型取值为Simple或ConsistentHash", 400),
     InvalidSimpleLoadBanlanceType("InvalidSimpleLoadBanlanceType", "This simple load balance type is invalid", "Simple类型的负载均衡规则，仅包含ROUND_ROUBIN、LEAST_CONN、RANDOM", 400),

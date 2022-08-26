@@ -158,6 +158,11 @@ public class Service extends CommonModel {
      */
     private Integer idleTimeout;
 
+    /**
+     * 版本号，用于数据一致性校验
+     */
+    private Long version;
+
     public String getCode() {
         return code;
     }
@@ -404,6 +409,14 @@ public class Service extends CommonModel {
 
     public void setIdleTimeout(Integer idleTimeout) {
         this.idleTimeout = idleTimeout;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
     }
 
     public static class ServiceLoadBalancer {

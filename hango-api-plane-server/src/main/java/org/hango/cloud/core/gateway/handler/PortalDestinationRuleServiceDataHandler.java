@@ -25,6 +25,7 @@ public class PortalDestinationRuleServiceDataHandler extends ServiceDataHandler 
         TemplateParams params = TemplateParams.instance()
                 .put(DESTINATION_RULE_NAME, service.getCode() + "-" + service.getGateway())
                 .put(DESTINATION_RULE_HOST, service.getBackendService())
+                .put(VERSION, service.getVersion())
                 .put(NAMESPACE, service.getNamespace())
                 .put(API_SERVICE, service.getCode())
                 .put(DESTINATION_RULE_CONSECUTIVE_ERRORS, service.getConsecutiveErrors())

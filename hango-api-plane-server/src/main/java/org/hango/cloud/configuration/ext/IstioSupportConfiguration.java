@@ -9,12 +9,12 @@ public class IstioSupportConfiguration {
 
     @Bean
     public KubernetesClient kubernetesClient(MultiClusterK8sClient mc) {
-    	return mc.k8sClient(MultiClusterK8sClient.DEFAULT_CLUSTER_NAME);
+        return mc.getMasterClient();
     }
 
     @Bean("originalKubernetesClient")
     public io.fabric8.kubernetes.client.KubernetesClient originalKubernetesClient(MultiClusterK8sClient mc) {
-        return mc.originalK8sClient(MultiClusterK8sClient.DEFAULT_CLUSTER_NAME);
+        return mc.getMasterOriginalClient();
     }
 
     @Bean

@@ -1,5 +1,6 @@
 package org.hango.cloud.core.k8s.operator;
 
+import io.fabric8.kubernetes.api.model.ObjectMeta;
 import org.hango.cloud.core.k8s.K8sResourceEnum;
 import org.hango.cloud.k8s.K8sTypes;
 import org.hango.cloud.util.function.Equals;
@@ -19,8 +20,10 @@ public class DestinationRuleOperator implements k8sResourceOperator<K8sTypes.Des
     public K8sTypes.DestinationRule merge(K8sTypes.DestinationRule old, K8sTypes.DestinationRule fresh) {
         DestinationRuleOuterClass.DestinationRule oldSpec = old.getSpec();
         DestinationRuleOuterClass.DestinationRule freshSpec = fresh.getSpec();
+        ObjectMeta freshMetadata = fresh.getMetadata();
 
         K8sTypes.DestinationRule latest = new K8sTypes.DestinationRule();
+        latest.setMetadata(freshMetadata);
         latest.setKind(old.getKind());
         latest.setApiVersion(old.getApiVersion());
         latest.setMetadata(old.getMetadata());
