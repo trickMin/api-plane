@@ -60,9 +60,7 @@ public class Trans {
             mirrorTraffic.setSubset(mirrorTrafficDto.getSubset());
             api.setMirrorTraffic(mirrorTraffic);
         }
-        if (!CollectionUtils.isEmpty(portalAPI.getStatsMeta())){
-            api.setStatsMeta(portalAPI.getStatsMeta());
-        }
+        api.setMetaMap(portalAPI.getMetaMap());
         return api;
     }
 
