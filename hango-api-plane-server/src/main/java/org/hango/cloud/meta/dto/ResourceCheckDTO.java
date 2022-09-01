@@ -1,61 +1,31 @@
 package org.hango.cloud.meta.dto;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * @Author: zhufengwei.sx
- * @Date: 2022/8/26 15:03
+ * @Date: 2022/8/30 16:55
  **/
 public class ResourceCheckDTO {
-    private Long resourceId;
 
-    private String resourceName;
+    Map<String, List<ResourceDTO>> resource;
 
-    private String dbResourceInfo;
+    String Gateway;
 
-    private String crResourceInfo;
-
-    public String getResourceName() {
-        return resourceName;
+    public Map<String, List<ResourceDTO>> getResource() {
+        return resource;
     }
 
-    public void setResourceName(String resourceName) {
-        this.resourceName = resourceName;
+    public void setResource(Map<String, List<ResourceDTO>> resource) {
+        this.resource = resource;
     }
 
-    public String getDbResourceInfo() {
-        return dbResourceInfo;
+    public String getGateway() {
+        return Gateway;
     }
 
-    public void setDbResourceInfo(String dbResourceInfo) {
-        this.dbResourceInfo = dbResourceInfo;
-    }
-
-    public String getCrResourceInfo() {
-        return crResourceInfo;
-    }
-
-    public void setCrResourceInfo(String crResourceInfo) {
-        this.crResourceInfo = crResourceInfo;
-    }
-
-    public ResourceCheckDTO(Long resourceId, String resourceName, String dbResourceInfo, String crResourceInfo) {
-        this.resourceId = resourceId;
-        this.resourceName = resourceName;
-        this.dbResourceInfo = dbResourceInfo;
-        this.crResourceInfo = crResourceInfo;
-    }
-
-    public ResourceCheckDTO() {
-    }
-
-    public static ResourceCheckDTO of(Long resourceId, String resourceName, String dbResourceInfo, String crResourceInfo){
-        return new ResourceCheckDTO(resourceId, resourceName, dbResourceInfo, crResourceInfo);
-    }
-
-    public Long getResourceId() {
-        return resourceId;
-    }
-
-    public void setResourceId(Long resourceId) {
-        this.resourceId = resourceId;
+    public void setGateway(String gateway) {
+        Gateway = gateway;
     }
 }

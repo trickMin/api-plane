@@ -7,6 +7,8 @@ public class ApiPlaneErrorCode {
 
     public static ErrorCode InvalidBodyFormat = new ErrorCode(ErrorCodeEnum.InvalidBodyFormat);
 
+    public static ErrorCode InternalServerError = new ErrorCode(ErrorCodeEnum.InternalServerError);
+
     public static ErrorCode resourceNotFound = resourceNotFoundErrorCode();
     public static ErrorCode workLoadNotFound = workLoadNotFoundErrorCode();
     public static ErrorCode sidecarInjectPolicyError = sidecarInjectPolicyError();
@@ -25,6 +27,10 @@ public class ApiPlaneErrorCode {
     }
 
     public static ErrorCode MissingParamsError(String paramName) {
+        return new ErrorCode(ErrorCodeEnum.MissingParameter, paramName);
+    }
+
+    public static ErrorCode InternalServerError(String paramName) {
         return new ErrorCode(ErrorCodeEnum.MissingParameter, paramName);
     }
 

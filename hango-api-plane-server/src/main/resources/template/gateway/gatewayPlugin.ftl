@@ -4,7 +4,7 @@ metadata:
   name: ${t_gateway_plugin_name}
 <#if t_version?has_content>
   labels:
-    skiff-nsf-data-version: ${t_version}
+    hango-data-version: ${t_version}
 </#if>
 <#if t_gateway_plugin_namespace?has_content>
   namespace: ${t_gateway_plugin_namespace}

@@ -4,7 +4,7 @@ metadata:
   name: ${t_destination_rule_name}
 <#if t_version?has_content>
   labels:
-    skiff-nsf-data-version: ${t_version}
+    hango-data-version: ${t_version}
 </#if>
 spec:
   host: ${t_destination_rule_host}

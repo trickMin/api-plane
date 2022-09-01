@@ -5,7 +5,9 @@ package org.hango.cloud.core.k8s;/**
 public enum K8sResourceApiEnum {
     VirtualService("virtualservices.networking.istio.io"),
     DestinationRule("destinationrules.networking.istio.io"),
-    ServiceEntry("serviceentries.networking.istio.io");
+    ServiceEntry("serviceentries.networking.istio.io"),
+    //todo sx
+    EnvoyPlugin("serviceentries.networking.istio.io");
 
     String api;
     K8sResourceApiEnum(String api){

@@ -5,7 +5,7 @@ metadata:
   labels:
     api_service: ${t_api_service}
 <#if t_version?has_content>
-    skiff-nsf-data-version: ${t_version}
+    hango-data-version: ${t_version}
 </#if>
 spec:
   gateways:

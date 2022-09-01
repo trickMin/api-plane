@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Charsets;
 import org.hango.cloud.util.errorcode.ApiPlaneErrorCode;
 import org.hango.cloud.util.errorcode.ErrorCode;
+import org.hango.cloud.util.errorcode.ErrorCodeEnum;
 import org.hango.cloud.web.holder.LogTraceUUIDHolder;
 import org.hango.cloud.web.holder.RequestContextHolder;
 import org.apache.commons.lang3.StringUtils;
@@ -41,7 +42,7 @@ public class BaseController {
     }
 
     public String apiReturn(ObjectMapper objectMapper, int statusCode, String code, String message, Map<String, Object> params, boolean silent) {
-        Map<String, Object> body = new HashMap<String, Object>();
+        Map<String, Object> body = new HashMap<>();
         body.put("RequestId", LogTraceUUIDHolder.getUUIDId());
 
         if (StringUtils.isNotBlank(code)) {
@@ -71,6 +72,10 @@ public class BaseController {
 
     public String apiReturn(ErrorCode code) {
         return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), null);
+    }
+
+    public String apiReturn(ErrorCodeEnum code, String errormsg) {
+        return apiReturn(code.getStatusCode(), code.getCode(), errormsg, null);
     }
 
     public String apiReturn(Map<String, Object> params) {
