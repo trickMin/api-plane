@@ -16,9 +16,6 @@
           "type": "auth_group",
           "alias": "外部认证",
           "placeholder": "请选择外部认证",
-          "rules": [
-            "Required"
-          ],
           "default": {
             "name": "",
             "auth_type": ""
