@@ -1,16 +1,22 @@
 package org.hango.cloud.cache;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.google.protobuf.ProtocolStringList;
+import com.hubspot.jackson.datatype.protobuf.ProtobufModule;
 import io.fabric8.kubernetes.api.model.HasMetadata;
-import io.fabric8.kubernetes.api.model.apiextensions.CustomResourceDefinition;
+import io.fabric8.kubernetes.api.model.KubernetesResourceList;
+import io.fabric8.kubernetes.api.model.apiextensions.v1beta1.CustomResourceDefinition;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.dsl.base.CustomResourceDefinitionContext;
-import io.fabric8.kubernetes.client.dsl.internal.RawCustomResourceOperationsImpl;
-import org.apache.commons.collections.CollectionUtils;
+import io.fabric8.kubernetes.client.dsl.base.OperationContext;
+import io.fabric8.kubernetes.client.informers.SharedInformerFactory;
+import io.fabric8.kubernetes.client.informers.cache.Indexer;
+import io.fabric8.kubernetes.client.utils.Serialization;
+import org.apache.commons.lang3.StringUtils;
 import org.hango.cloud.core.GlobalConfig;
-import org.hango.cloud.core.gateway.service.impl.K8sConfigStore;
 import org.hango.cloud.core.k8s.K8sResourceApiEnum;
 import org.hango.cloud.core.k8s.MultiClusterK8sClient;
-import org.hango.cloud.util.CommonUtil;
+import org.hango.cloud.k8s.K8sTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +28,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
 * @Author: zhufengwei.sx
@@ -34,25 +41,30 @@ public class K8sResourceCache implements ResourceCache {
     @Autowired
     private MultiClusterK8sClient multiClusterK8sClient;
 
-    @Autowired
-    private K8sConfigStore k8sConfigStore;
 
     @Autowired
     private GlobalConfig globalConfig;
 
-    private Map<String, ResourceStore> storeMap = new HashMap<>();
+    private SharedInformerFactory sharedInformerFactory;
+
+    private Map<String, Indexer<HasMetadata>> storeMap = new HashMap<>();
 
     @EventListener(ApplicationReadyEvent.class)
     public void initInformer() {
         if (!multiClusterK8sClient.watchResource()){
             return;
         }
-        startInformer(K8sResourceApiEnum.DestinationRule);
-        startInformer(K8sResourceApiEnum.VirtualService);
-        startInformer(K8sResourceApiEnum.ServiceEntry);
+        Serialization.jsonMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).registerModule(new ProtobufModule());
+        //注册informer
+        sharedInformerFactory = multiClusterK8sClient.getMasterOriginalClient().informers();
+        registryInformer(K8sResourceApiEnum.VirtualService, K8sTypes.VirtualService.class, K8sTypes.VirtualServiceList.class);
+        registryInformer(K8sResourceApiEnum.DestinationRule, K8sTypes.DestinationRule.class, K8sTypes.DestinationRuleList.class);
+        registryInformer(K8sResourceApiEnum.EnvoyPlugin, K8sTypes.EnvoyPlugin.class, K8sTypes.EnvoyPluginList.class);
+        sharedInformerFactory.startAllRegisteredInformers();
+
     }
 
-    private void startInformer(K8sResourceApiEnum kind){
+    private <T extends HasMetadata, L extends KubernetesResourceList<T>> void registryInformer(K8sResourceApiEnum kind, Class<T> apiTypeClass, Class<L> apiListTypeClass){
         KubernetesClient masterOriginalClient = multiClusterK8sClient.getMasterOriginalClient();
         CustomResourceDefinition crd;
         try {
@@ -61,15 +73,14 @@ public class K8sResourceCache implements ResourceCache {
             log.error("get crd definition error", e);
             return;
         }
-        RawCustomResourceOperationsImpl rawCustomResourceOperations = masterOriginalClient.customResource(CustomResourceDefinitionContext.fromCrd(crd));
-        K8sResourceInformer mupInformer = new K8sResourceInformer
-                .Builder()
-                .addNamespace(globalConfig.getResourceNamespace())
-                .addResourceKind(kind.name())
-                .addResourceStore(storeMap.computeIfAbsent(kind.name(), k -> new ResourceStore()))
-                .addRawCustomResourceOperationsImpl(rawCustomResourceOperations)
-                .build();
-        mupInformer.start();
+        CustomResourceDefinitionContext customResourceDefinitionContext = CustomResourceDefinitionContext.fromCrd(crd);
+        Indexer<T> indexer = sharedInformerFactory.sharedIndexInformerForCustomResource(
+                customResourceDefinitionContext,
+                apiTypeClass,
+                apiListTypeClass,
+                new OperationContext().withNamespace(globalConfig.getResourceNamespace()),
+                60 * 1000L).getIndexer();
+        storeMap.put(kind.name(), (Indexer<HasMetadata>) indexer);
     }
 
 
@@ -79,19 +90,72 @@ public class K8sResourceCache implements ResourceCache {
         if (!storeMap.containsKey(kind)){
             return new ArrayList<>();
         }
-        return storeMap.get(kind).list();
+        return storeMap.get(kind).list().stream().filter(this::inNamespace).collect(Collectors.toList());
     }
 
     @Override
-    public void refresh(String kind, List<String> names) {
-        if (CollectionUtils.isEmpty(names) || !storeMap.containsKey(kind)){
-            log.error("refresh resource failed, kind:{}, name:{}}", kind, CommonUtil.toJSONString(names));
-            return;
+    public List<HasMetadata> getResource(String gateway, String kind) {
+        List<HasMetadata> resource = getResource(kind);
+        return resource.stream().filter(o -> inGateway(o, gateway)).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<String> getResourceName(String kind) {
+        if (!storeMap.containsKey(kind)){
+            return new ArrayList<>();
         }
-        for (String name : names) {
-            HasMetadata resource = k8sConfigStore.get(kind, globalConfig.getResourceNamespace(), name);
-            storeMap.get(kind).update(name, resource, resource.getMetadata().getResourceVersion(), true);
+        return storeMap.get(kind).listKeys();
+    }
+
+    private boolean inNamespace(HasMetadata hasMetadata){
+        return hasMetadata.getMetadata().getNamespace().equals(globalConfig.getResourceNamespace());
+    }
+
+    private boolean inGateway(HasMetadata hasMetadata, String gateway){
+        if (StringUtils.isEmpty(gateway)){
+            return true;
         }
+        switch (K8sResourceApiEnum.getByName(hasMetadata.getKind())){
+            case DestinationRule:
+                return matchDestinationRuleGateway(hasMetadata, gateway);
+            case VirtualService:
+                return matchVirtualServiceGateway(hasMetadata, gateway);
+            case EnvoyPlugin:
+                return matchPluginGateway(hasMetadata, gateway);
+            default:
+                log.error("错误的资源类型：{}", hasMetadata.getKind());
+                return false;
+        }
+    }
+
+
+    private boolean matchDestinationRuleGateway(HasMetadata hasMetadata, String gatewayStr){
+        String name = hasMetadata.getMetadata().getName();
+        int firstIndex = name.indexOf("-");
+        int secondIndex = name.indexOf("-", firstIndex + 1);
+        return StringUtils.equals(name.substring(secondIndex + 1), gatewayStr);
+    }
+
+    private boolean matchPluginGateway(HasMetadata hasMetadata, String gatewayStr){
+        K8sTypes.EnvoyPlugin plugin = (K8sTypes.EnvoyPlugin)hasMetadata;
+        ProtocolStringList gatewayList = plugin.getSpec().getGatewayList();
+        if (gatewayList.size() == 0){
+            return false;
+        }
+        String gateway = gatewayList.get(0);
+        if (gateway.contains("/")){
+            return StringUtils.equals(gateway.split("/")[1], gatewayStr);
+        }
+        return false;
+    }
+
+    private boolean matchVirtualServiceGateway(HasMetadata hasMetadata, String gatewayStr){
+        K8sTypes.VirtualService virtualService = (K8sTypes.VirtualService)hasMetadata;
+        ProtocolStringList gatewayList = virtualService.getSpec().getGatewaysList();
+        if (gatewayList.size() == 0){
+            return false;
+        }
+        return StringUtils.equals(gatewayList.get(0), gatewayStr) ;
     }
 }
 

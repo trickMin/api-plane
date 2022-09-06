@@ -1,5 +1,7 @@
 package org.hango.cloud.meta.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
 import java.util.Map;
 
@@ -9,9 +11,11 @@ import java.util.Map;
  **/
 public class ResourceCheckDTO {
 
+    @JsonProperty(value = "Resource")
     Map<String, List<ResourceDTO>> resource;
 
-    String Gateway;
+    @JsonProperty(value = "Gateway")
+    String gateway;
 
     public Map<String, List<ResourceDTO>> getResource() {
         return resource;
@@ -22,10 +26,10 @@ public class ResourceCheckDTO {
     }
 
     public String getGateway() {
-        return Gateway;
+        return gateway;
     }
 
     public void setGateway(String gateway) {
-        Gateway = gateway;
+        this.gateway = gateway;
     }
 }

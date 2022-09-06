@@ -14,7 +14,7 @@ import ratelimit.config.Config;
  *
  * @date 2020/5/8
  **/
-@SpringBootTest(classes = ApiPlaneApplication.class, properties = {"k8s.clusters.default.k8s-api-server=https://1.1.1.1", "nonK8sMode=true"})
+@SpringBootTest(classes = ApiPlaneApplication.class, properties = {"k8s.clusters.master.k8s-api-server=https://1.1.1.1", "nonK8sMode=true"})
 public class RlsClusterClientTest extends BaseTest {
     @Autowired
     McpMarshaller marshaller;

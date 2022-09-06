@@ -193,6 +193,7 @@ public class Trans {
             }
             serviceLoadBalancer.setConsistentHash(consistentHash);
         }
+        serviceLoadBalancer.setLocalitySetting(loadBalancerDTO.getLocalitySetting());
         return serviceLoadBalancer;
     }
 

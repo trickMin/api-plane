@@ -3,6 +3,7 @@ package org.hango.cloud.core.gateway.handler;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import org.hango.cloud.core.template.TemplateParams;
 import org.hango.cloud.meta.Service;
+import org.hango.cloud.meta.dto.LocalitySettingDTO;
 import org.hango.cloud.meta.dto.PortalServiceConnectionPoolDTO;
 import org.hango.cloud.util.CommonUtil;
 import org.hango.cloud.util.Const;
@@ -57,7 +58,12 @@ public class PortalDestinationRuleServiceDataHandler extends ServiceDataHandler 
             Service.ServiceLoadBalancer serviceLoadBalancer = service.getLoadBalancer();
             params.put(DESTINATION_RULE_LOAD_BALANCER, DESTINATION_RULE_LOAD_BALANCER);
             params.put(DESTINATION_RULE_LOAD_BALANCER_SIMPLE, serviceLoadBalancer.getSimple());
+            LocalitySettingDTO localitySetting = serviceLoadBalancer.getLocalitySetting();
+            if (localitySetting != null && localitySetting.getEnable() != null){
+                params.put(DESTINATION_RULE_LOCALITY_ENABLE, String.valueOf(localitySetting.getEnable()));
+            }
         }
+
 
         if (service.getLoadBalancer() != null && service.getLoadBalancer().getConsistentHash() != null) {
             Service.ServiceLoadBalancer.ConsistentHash consistentHash = service.getLoadBalancer().getConsistentHash();

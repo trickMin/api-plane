@@ -1,6 +1,12 @@
 package org.hango.cloud.configuration.env;
 
+import io.grpc.Server;
 import io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder;
+import istio.mcp.nsf.SnapshotOuterClass;
+import istio.mcp.v1alpha1.Mcp;
+import istio.mcp.v1alpha1.ResourceOuterClass;
+import istio.networking.v1alpha3.*;
+import org.apache.commons.lang3.StringUtils;
 import org.hango.cloud.configuration.ext.K8sMultiClusterProperties;
 import org.hango.cloud.core.GlobalConfig;
 import org.hango.cloud.core.editor.EditorContext;
@@ -8,16 +14,10 @@ import org.hango.cloud.core.gateway.GatewayIstioModelEngine;
 import org.hango.cloud.core.gateway.service.GatewayConfigManager;
 import org.hango.cloud.core.gateway.service.ResourceManager;
 import org.hango.cloud.core.gateway.service.impl.GatewayConfigManagerImpl;
+import org.hango.cloud.core.gateway.service.impl.K8sConfigStore;
 import org.hango.cloud.core.k8s.KubernetesClient;
 import org.hango.cloud.core.k8s.MultiClusterK8sClient;
-import org.hango.cloud.mcp.McpCache;
-import org.hango.cloud.mcp.McpConfigStore;
-import org.hango.cloud.mcp.McpMarshaller;
-import org.hango.cloud.mcp.McpOptions;
-import org.hango.cloud.mcp.McpResourceDistributor;
-import org.hango.cloud.mcp.McpResourceEnum;
-import org.hango.cloud.mcp.McpResourceWatcher;
-import org.hango.cloud.mcp.ResourceSourceImpl;
+import org.hango.cloud.mcp.*;
 import org.hango.cloud.mcp.aop.ConfigStoreAop;
 import org.hango.cloud.mcp.aop.GatewayServiceAop;
 import org.hango.cloud.mcp.dao.ResourceDao;
@@ -27,21 +27,9 @@ import org.hango.cloud.mcp.dao.impl.StatusDaoImpl;
 import org.hango.cloud.mcp.ratelimit.RlsClusterClient;
 import org.hango.cloud.mcp.snapshot.DBSnapshotBuilder;
 import org.hango.cloud.mcp.snapshot.SnapshotBuilder;
-import org.hango.cloud.mcp.status.StatusConst;
-import org.hango.cloud.mcp.status.StatusMonitor;
-import org.hango.cloud.mcp.status.StatusMonitorImpl;
-import org.hango.cloud.mcp.status.StatusNotifier;
-import org.hango.cloud.mcp.status.StatusNotifierImpl;
-import org.hango.cloud.mcp.status.StatusProductor;
-import org.hango.cloud.mcp.status.StatusProductorImpl;
+import org.hango.cloud.mcp.status.*;
 import org.hango.cloud.service.GatewayService;
 import org.hango.cloud.service.impl.GatewayServiceImpl;
-import io.grpc.Server;
-import istio.mcp.nsf.SnapshotOuterClass;
-import istio.mcp.v1alpha1.Mcp;
-import istio.mcp.v1alpha1.ResourceOuterClass;
-import istio.networking.v1alpha3.*;
-import org.apache.commons.lang3.StringUtils;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -286,6 +274,11 @@ public class NonK8sConfiguration {
     @Bean
     public KubernetesClient kubernetesClient() {
         return Mockito.mock(KubernetesClient.class);
+    }
+
+    @Bean
+    public K8sConfigStore K8sConfigStore(){
+        return Mockito.mock(K8sConfigStore.class);
     }
 
     @Bean("originalKubernetesClient")

@@ -18,10 +18,18 @@ public interface ResourceCache {
     List<HasMetadata> getResource(String kind);
 
     /**
-     * 刷新资源
+     * 获取资源类型
+     * @param gateway 网关名称
      * @param kind 资源类型
-     * @param names 资源名称
+     * @return 资源列表
      */
-    void refresh(String kind, List<String> names);
+    List<HasMetadata> getResource(String gateway, String kind);
+
+    /**
+     * 获取资源名称
+     * @param kind 资源类型
+     * @return 资源列表
+     */
+    List<String> getResourceName(String kind);
 
 }

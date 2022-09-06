@@ -93,14 +93,21 @@ public class MultiClusterServiceImpl implements MultiClusterService {
         for (String resourceName : allResourceName) {
             ResourceDTO dbResourceDTO = dbResourceMap.get(resourceName);
             ResourceDTO crResourceDTO = crResourceMap.get(resourceName);
-            String dbData = dbResourceDTO == null ? null : dbResourceDTO.getResourceVersion();
-            String crData = crResourceDTO == null ? null : crResourceDTO.getResourceVersion();
+            String dbData = getResourceVersion(dbResourceDTO);
+            String crData = getResourceVersion(crResourceDTO);
             if (!StringUtils.equals(dbData, crData)){
                 Long resourceId = dbResourceDTO == null ? null : dbResourceDTO.getResourceId();
                 resourceCheckDTOS.add(ResourceCheckResultDTO.of(resourceId, resourceName, dbData, crData));
             }
         }
         return resourceCheckDTOS;
+    }
+
+    private String getResourceVersion(ResourceDTO resourceDTO){
+        if (resourceDTO == null){
+            return null;
+        }
+        return StringUtils.isBlank(resourceDTO.getResourceVersion()) ? "0" : resourceDTO.getResourceVersion();
     }
 
     private Set<String> getAllResourceName(List<ResourceDTO> dbResource, List<ResourceDTO> drResource){
@@ -117,17 +124,17 @@ public class MultiClusterServiceImpl implements MultiClusterService {
     }
 
     public List<ResourceDTO> getResourceDTO(String gwName, String kind){
-        return getCustomResource(kind).stream()
+        return getCustomResource(gwName, kind).stream()
                 .map(this::convert2ResourceDTO)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 
 
-    public List<HasMetadata> getCustomResource(String kind){
+    public List<HasMetadata> getCustomResource(String gateway, String kind){
         //开启informer缓存，优先从cache中获取
         if (multiClusterK8sClient.watchResource()){
-            return k8sResourceCache.getResource(kind);
+            return k8sResourceCache.getResource(gateway, kind);
         }
         return k8sConfigStore.get(kind, globalConfig.getResourceNamespace());
     }

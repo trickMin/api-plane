@@ -13,6 +13,9 @@ public class PortalLoadBalancerDTO {
     @JsonProperty(value = "ConsistentHash")
     private ConsistentHashDTO consistentHashDTO;
 
+    @JsonProperty(value = "LocalitySetting")
+    private LocalitySettingDTO localitySetting;
+
     public String getSimple() {
         return simple;
     }
@@ -27,6 +30,14 @@ public class PortalLoadBalancerDTO {
 
     public void setConsistentHashDTO(ConsistentHashDTO consistentHashDTO) {
         this.consistentHashDTO = consistentHashDTO;
+    }
+
+    public LocalitySettingDTO getLocalitySetting() {
+        return localitySetting;
+    }
+
+    public void setLocalitySetting(LocalitySettingDTO localitySetting) {
+        this.localitySetting = localitySetting;
     }
 
     public static class ConsistentHashDTO {

@@ -1,7 +1,7 @@
 package org.hango.cloud.k8s;
 
-import istio.networking.v1alpha3.VirtualServiceOuterClass;
 import istio.networking.v1alpha3.DestinationRuleOuterClass;
+import istio.networking.v1alpha3.VirtualServiceOuterClass;
 
 /**
  * Created by 张武(zhangwu@corp.netease.com) at 2021/9/10
@@ -12,8 +12,10 @@ public class K8sTypes {
 	public static class RichVirtualServiceList extends K8sResourceList<RichVirtualService> {}
 	public static class PluginManager extends K8sResource<slime.microservice.plugin.v1alpha1.PluginManagerOuterClass.PluginManager> {}
 	public static class PluginManagerList extends K8sResourceList<PluginManager> {}
+
 	public static class EnvoyPlugin extends K8sResource<slime.microservice.plugin.v1alpha1.EnvoyPluginOuterClass.EnvoyPlugin> {}
 	public static class EnvoyPluginList extends K8sResourceList<EnvoyPlugin> {}
+
 	public static class VirtualService extends K8sResource<VirtualServiceOuterClass.VirtualService> {}
 	public static class VirtualServiceList extends K8sResourceList<VirtualService> {}
 	public static class DestinationRule extends K8sResource<DestinationRuleOuterClass.DestinationRule> {}

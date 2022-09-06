@@ -1,5 +1,6 @@
 package org.hango.cloud.meta;
 
+import org.hango.cloud.meta.dto.LocalitySettingDTO;
 import org.hango.cloud.meta.dto.PortalServiceConnectionPoolDTO;
 
 import java.util.List;
@@ -422,6 +423,7 @@ public class Service extends CommonModel {
     public static class ServiceLoadBalancer {
         private String simple;
         private ConsistentHash consistentHash;
+        private LocalitySettingDTO localitySetting;
 
         public String getSimple() {
             return simple;
@@ -437,6 +439,14 @@ public class Service extends CommonModel {
 
         public void setConsistentHash(ConsistentHash consistentHash) {
             this.consistentHash = consistentHash;
+        }
+
+        public LocalitySettingDTO getLocalitySetting() {
+            return localitySetting;
+        }
+
+        public void setLocalitySetting(LocalitySettingDTO localitySetting) {
+            this.localitySetting = localitySetting;
         }
 
         public static class ConsistentHash {
