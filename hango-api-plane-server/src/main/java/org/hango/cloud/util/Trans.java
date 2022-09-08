@@ -124,6 +124,8 @@ public class Trans {
         s.setCode(portalService.getCode().toLowerCase());
         s.setType(portalService.getType());
         s.setWeight(portalService.getWeight());
+        Long version = portalService.getVersion();
+        s.setVersion(version == null ? 0 : version);
         s.setBackendService(portalService.getBackendService());
         if (!StringUtils.isEmpty(portalService.getGateway())) {
             s.setGateway(portalService.getGateway().toLowerCase());
@@ -318,6 +320,8 @@ public class Trans {
         gatewayPlugin.setCode(dto.getCode());
         gatewayPlugin.setPluginType(dto.getPluginType());
         gatewayPlugin.setPort(dto.getPort() == null ? 80 : dto.getPort());
+        Long version = dto.getVersion();
+        gatewayPlugin.setVersion(version == null ? 0 : version);
         return gatewayPlugin;
     }
 

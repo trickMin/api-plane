@@ -60,7 +60,10 @@ public class MultiClusterServiceImpl implements MultiClusterService {
         Map<String, List<ResourceCheckResultDTO>> result = new HashMap<>();
         for (Map.Entry<String, List<ResourceDTO>> entry : resourceMap.entrySet()) {
             List<ResourceCheckResultDTO> checkResultDTOS = checkResourceInfo(entry.getValue(), getResourceDTO(gateway, entry.getKey()));
-            result.put(entry.getKey(), checkResultDTOS);
+            if (CollectionUtils.isNotEmpty(checkResultDTOS)){
+                result.put(entry.getKey(), checkResultDTOS);
+            }
+
         }
         return ApiPlaneResult.ofSuccess(result);
     }

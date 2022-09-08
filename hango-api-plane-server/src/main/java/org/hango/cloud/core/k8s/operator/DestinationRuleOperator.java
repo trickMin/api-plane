@@ -26,7 +26,6 @@ public class DestinationRuleOperator implements k8sResourceOperator<K8sTypes.Des
         latest.setMetadata(freshMetadata);
         latest.setKind(old.getKind());
         latest.setApiVersion(old.getApiVersion());
-        latest.setMetadata(old.getMetadata());
         DestinationRuleOuterClass.DestinationRule.Builder builder = DestinationRuleOuterClass.DestinationRule.newBuilder();
         if (!StringUtils.isEmpty(freshSpec.getAltStatName())){
             builder.setAltStatName(freshSpec.getAltStatName());

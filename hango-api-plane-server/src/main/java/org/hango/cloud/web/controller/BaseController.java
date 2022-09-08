@@ -37,6 +37,10 @@ public class BaseController {
         return apiReturn(this.objectMapper, statusCode, code, message, params);
     }
 
+    public String apiReturn(int statusCode, String code, String message, Map<String, Object> params, boolean silent) {
+        return apiReturn(this.objectMapper, statusCode, code, message, params, true);
+    }
+
     public String apiReturn(ObjectMapper objectMapper, int statusCode, String code, String message, Map<String, Object> params) {
         return apiReturn(objectMapper, statusCode, code, message, params, false);
     }
@@ -84,5 +88,9 @@ public class BaseController {
 
     public String apiReturnInSilent(Map<String, Object> params) {
         return apiReturn(this.objectMapper, ApiPlaneErrorCode.Success.getStatusCode(), ApiPlaneErrorCode.Success.getCode(), null, params, true);
+    }
+
+    public String apiReturnInSilent(ErrorCode code) {
+        return apiReturn(code.getStatusCode(), code.getCode(), code.getMessage(), null, true);
     }
 }

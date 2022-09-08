@@ -36,6 +36,9 @@ public class GatewayPluginDTO {
     @JsonProperty(value = "Port")
     private Integer port;
 
+    @JsonProperty(value = "Version")
+    private Long version;
+
     public List<String> getPlugins() {
         return plugins;
     }
@@ -90,5 +93,13 @@ public class GatewayPluginDTO {
 
     public void setPort(Integer port) {
         this.port = port;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
     }
 }

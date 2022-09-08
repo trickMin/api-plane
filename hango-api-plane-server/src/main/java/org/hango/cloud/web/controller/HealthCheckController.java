@@ -15,7 +15,7 @@ public class HealthCheckController extends BaseController {
 
     @RequestMapping(params = { "Action=Health" }, method = RequestMethod.GET)
     public String heathCheck(HttpServletRequest request, HttpServletResponse response) {
-        return apiReturn(ApiPlaneErrorCode.Success);
+        return apiReturnInSilent(ApiPlaneErrorCode.Success);
     }
 
 

@@ -2,14 +2,16 @@ apiVersion: microservice.slime.io/v1alpha1
 kind: EnvoyPlugin
 metadata:
   name: ${t_gateway_plugin_name}
-<#if t_version?has_content>
   labels:
+<#if t_version?has_content>
     hango-data-version: ${t_version}
+</#if>
+<#if t_resource_identity?has_content>
+    skiff-api-plane-resource-identity: ${t_resource_identity}
 </#if>
 <#if t_gateway_plugin_namespace?has_content>
   namespace: ${t_gateway_plugin_namespace}
 </#if>
-<@indent count=2><#include "../common/identityLabel.ftl"/></@indent>
 spec:
 <#if t_gateway_plugin_gateways?has_content>
   gateway:

@@ -17,10 +17,6 @@ public class GatewayPluginOperator implements k8sResourceOperator<K8sTypes.Envoy
         latest.setMetadata(fresh.getMetadata());
         latest.setKind(old.getKind());
         latest.setApiVersion(old.getApiVersion());
-        latest.setMetadata(old.getMetadata());
-        if (fresh.getMetadata() != null && fresh.getMetadata().getLabels() != null){
-            latest.getMetadata().setLabels(fresh.getMetadata().getLabels());
-        }
         EnvoyPluginOuterClass.EnvoyPlugin.Builder builder = fresh.getSpec().toBuilder();
         latest.setSpec(builder.build());
         return latest;

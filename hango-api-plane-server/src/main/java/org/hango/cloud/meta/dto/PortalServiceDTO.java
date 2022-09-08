@@ -58,6 +58,9 @@ public class PortalServiceDTO {
     @Valid
     private List<ServiceSubsetDTO> subsets;
 
+    @JsonProperty(value = "Version")
+    private Long version;
+
     public String getCode() {
         return code;
     }
@@ -128,5 +131,13 @@ public class PortalServiceDTO {
 
     public void setTrafficPolicy(PortalTrafficPolicyDTO trafficPolicy) {
         this.trafficPolicy = trafficPolicy;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
     }
 }
