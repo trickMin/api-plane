@@ -1,17 +1,17 @@
 package org.hango.cloud.core.k8s.http;
 
-import org.hango.cloud.core.editor.EditorContext;
-import org.hango.cloud.core.editor.ResourceGenerator;
-import org.hango.cloud.core.editor.ResourceType;
-import org.hango.cloud.core.k8s.K8sResourceEnum;
-import org.hango.cloud.util.exception.ApiPlaneException;
-import org.hango.cloud.util.exception.ResourceConflictException;
 import io.fabric8.kubernetes.api.model.Status;
 import io.fabric8.kubernetes.api.model.StatusBuilder;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.utils.URLUtils;
 import okhttp3.*;
 import okio.Buffer;
+import org.hango.cloud.core.editor.EditorContext;
+import org.hango.cloud.core.editor.ResourceGenerator;
+import org.hango.cloud.core.editor.ResourceType;
+import org.hango.cloud.core.k8s.K8sResourceEnum;
+import org.hango.cloud.util.exception.ApiPlaneException;
+import org.hango.cloud.util.exception.ResourceConflictException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -19,7 +19,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -81,7 +80,6 @@ public class DefaultK8sHttpClient implements K8sHttpClient {
         try {
             if (Objects.nonNull(request.body()) && request.body().contentLength() != 0) {
                 request.body().writeTo(buffer);
-                logger.info("Request body: \n{}", ResourceGenerator.prettyJson(buffer.readString(Charset.defaultCharset())));
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -93,11 +91,7 @@ public class DefaultK8sHttpClient implements K8sHttpClient {
             }
             if (Objects.nonNull(responseMapper)) return responseMapper.apply(response);
             if (Objects.nonNull(response.body())) {
-                String responseBody = response.body().string();
-                if (responseBody.length() <= response_body_limit && !silent) {
-                    logger.info("Response body: \n{}", ResourceGenerator.prettyJson(responseBody));
-                }
-                return responseBody;
+                return response.body().string();
             }
             return null;
         } catch (IOException e) {
@@ -203,11 +197,7 @@ public class DefaultK8sHttpClient implements K8sHttpClient {
             try {
                 if (!resp.isSuccessful()) return null;
                 if (Objects.nonNull(resp.body())) {
-                    String responseBody = resp.body().string();
-                    if (responseBody.length() <= response_body_limit) {
-                        logger.info("Response body: \n{}", ResourceGenerator.prettyJson(responseBody));
-                    }
-                    return responseBody;
+                    return resp.body().string();
                 }
                 return null;
             } catch (IOException e) {
