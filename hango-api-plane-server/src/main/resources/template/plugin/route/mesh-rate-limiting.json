@@ -1,7 +1,7 @@
 {
   "inject": {
-    "kind": "ianus-rate-limiting",
-    "name": "ianus-rate-limiting"
+    "kind": "rate-limiting",
+    "name": "rate-limiting"
   },
   "layouts": [
     {

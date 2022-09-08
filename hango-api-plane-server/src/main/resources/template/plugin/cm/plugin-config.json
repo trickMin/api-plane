@@ -16,9 +16,9 @@
       "categoryName": "流量管理"
     },
     {
-      "name": "ianus-rate-limiting",
+      "name": "rate-limiting",
       "displayName": "限流",
-      "schema": "plugin/portal/ianus-rate-limiting.json",
+      "schema": "plugin/portal/rate-limiting.json",
       "description": "频控插件",
       "processor": "AggregateGatewayPluginProcessor",
       "author": "system",

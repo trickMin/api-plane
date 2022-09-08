@@ -56,9 +56,9 @@ public class AggregateExtensionProcessor extends AbstractSchemaProcessor impleme
                 holder = getProcessor("DynamicDowngradeProcessor").process(plugin, serviceInfo);
                 coverToExtensionPlugin(holder, "proxy.filters.http.dynamicdowngrade");
                 break;
-            case "ianus-rate-limiting":
-                holder = getProcessor("RateLimitProcessor").process(plugin, serviceInfo);
-                coverToExtensionPlugin(holder, "envoy.filters.http.ratelimit");
+            case "local-limiting":
+            case "rate-limiting":
+                holder = getProcessor("SmartLimiterProcessor").process(plugin, serviceInfo);
                 break;
             case "ianus-percent-limit":
                 holder = getProcessor("FlowLimitProcessor").process(plugin, serviceInfo);
@@ -133,10 +133,6 @@ public class AggregateExtensionProcessor extends AbstractSchemaProcessor impleme
                 holder = getProcessor("FunctionProcessor").process(plugin, serviceInfo);
                 coverToExtensionPlugin(holder, "envoy.filters.http.lua");
                 break;
-            case "local-limiting":
-                holder = getProcessor("LocalLimitProcessor").process(plugin, serviceInfo);
-                coverToExtensionPlugin(holder, "proxy.filters.http.locallimit");
-                break;
             case "soap-json-transcoder":
                 holder = getProcessor("SoapJsonTranscoderProcessor").process(plugin, serviceInfo);
                 coverToExtensionPlugin(holder, "proxy.filters.http.soapjsontranscoder");
@@ -201,11 +197,11 @@ public class AggregateExtensionProcessor extends AbstractSchemaProcessor impleme
         MultiValueMap<String, FragmentWrapper> xUserMap = new LinkedMultiValueMap<>();
         // 一个租户下最多配置一个限流插件
         Map<String, FragmentWrapper> sharedConfigMap = new LinkedHashMap<>();
-        Map<String, FragmentWrapper> smartLimiterMap = new LinkedHashMap<>();
+        Map<String, List<FragmentWrapper>> smartLimiterMap = new LinkedHashMap<>();
         holders.forEach(holder -> {
             FragmentWrapper wrapper = holder.getVirtualServiceFragment();
             FragmentWrapper sharedConfig = holder.getSharedConfigFragment();
-            FragmentWrapper smartLimiter = holder.getSmartLimiterFragment();
+            List<FragmentWrapper> smartLimiterList = holder.getSmartLimiterFragment();
             if (wrapper == null) return;
             String xUserId = wrapper.getXUserId();
             String xUser;
@@ -218,8 +214,8 @@ public class AggregateExtensionProcessor extends AbstractSchemaProcessor impleme
             if (Objects.nonNull(sharedConfig)) {
                 sharedConfigMap.put(xUser, wrapper);
             }
-            if (Objects.nonNull(smartLimiter)) {
-                smartLimiterMap.put(xUser, wrapper);
+            if (CollectionUtils.isNotEmpty(smartLimiterList)) {
+                smartLimiterMap.put(xUser, smartLimiterList);
             }
 
         });

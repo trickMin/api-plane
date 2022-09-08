@@ -46,9 +46,9 @@
       "categoryName": "认证"
     },
     {
-      "name": "ianus-rate-limiting",
+      "name": "rate-limiting",
       "displayName": "限流",
-      "schema": "plugin/route/ianus-rate-limiting.json",
+      "schema": "plugin/route/rate-limiting.json",
       "description": "频控插件",
       "processor": "AggregateGatewayPluginProcessor",
       "author": "system",
