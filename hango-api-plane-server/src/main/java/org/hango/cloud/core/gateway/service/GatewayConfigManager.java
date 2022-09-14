@@ -85,6 +85,11 @@ public interface GatewayConfigManager extends ConfigManager {
      * @param envoyFilterOrder
      */
     void updateConfig(EnvoyFilterOrder envoyFilterOrder);
+    /**
+     * 删除EnvoyFilter
+     * @param envoyFilterOrder
+     */
+    void deleteConfig(EnvoyFilterOrder envoyFilterOrder);
 
     String generateEnvoyConfigObjectPatch(GrpcEnvoyFilterDto grpcEnvoyFilterDto);
 }

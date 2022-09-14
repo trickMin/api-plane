@@ -197,6 +197,12 @@ public class GatewayConfigManagerImpl extends AbstractConfigManagerSupport imple
     }
 
     @Override
+    public void deleteConfig(EnvoyFilterOrder envoyFilterOrder) {
+        List<K8sResourcePack> resources = modelEngine.translate(envoyFilterOrder);
+        delete(resources);
+    }
+
+    @Override
     public String generateEnvoyConfigObjectPatch(GrpcEnvoyFilterDto grpcEnvoyFilterDto) {
         return modelEngine.generateEnvoyConfigObjectPatch(grpcEnvoyFilterDto);
     }

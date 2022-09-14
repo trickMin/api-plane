@@ -19,6 +19,7 @@ import org.hango.cloud.core.k8s.subtracter.GatewayVirtualServiceSubtracter;
 import org.hango.cloud.core.plugin.FragmentHolder;
 import org.hango.cloud.core.plugin.FragmentWrapper;
 import org.hango.cloud.core.template.TemplateTranslator;
+import org.hango.cloud.k8s.K8sTypes;
 import org.hango.cloud.meta.*;
 import org.hango.cloud.meta.dto.GrpcEnvoyFilterDto;
 import org.hango.cloud.service.PluginService;
@@ -28,6 +29,7 @@ import org.hango.cloud.util.constant.PluginConstant;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import istio.networking.v1alpha3.VirtualServiceOuterClass;
 import org.hango.cloud.k8s.K8sTypes.VirtualService;
+import org.hango.cloud.util.function.Subtracter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -330,8 +332,17 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
     public List<K8sResourcePack> translate(EnvoyFilterOrder efo) {
         List<K8sResourcePack> resources = new ArrayList<>();
         List<String> pluginManagers = defaultModelProcessor.process(envoyFilter, efo, new EnvoyFilterOrderDataHandler());
-        resources.addAll(generateK8sPack(pluginManagers));
+        resources.addAll(generateK8sPack(pluginManagers,subtract()));
         return resources;
+    }
+
+    Subtracter<K8sTypes.EnvoyFilter> subtract() {
+        return envoyFilter -> {
+            envoyFilter.setApiVersion(null);
+            envoyFilter.setSpec(null);
+
+            return envoyFilter;
+        };
     }
 
     public String generateEnvoyConfigObjectPatch(GrpcEnvoyFilterDto grpcEnvoyFilterDto) {

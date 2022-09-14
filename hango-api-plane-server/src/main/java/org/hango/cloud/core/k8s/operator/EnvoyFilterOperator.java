@@ -16,12 +16,16 @@ import org.springframework.util.StringUtils;
 public class EnvoyFilterOperator implements k8sResourceOperator<K8sTypes.EnvoyFilter> {
     @Override
     public K8sTypes.EnvoyFilter merge(K8sTypes.EnvoyFilter old, K8sTypes.EnvoyFilter fresh) {
+        //更新配置无patch，删除最后一条协议转换
+        EnvoyFilterOuterClass.EnvoyFilter freshSpec = fresh.getSpec();
+        if (freshSpec.getConfigPatchesCount() == 0) {
+            return fresh;
+        }
         K8sTypes.EnvoyFilter latest = new K8sTypes.EnvoyFilter();
         latest.setKind(old.getKind());
         latest.setApiVersion(old.getApiVersion());
         latest.setMetadata(old.getMetadata());
         EnvoyFilterOuterClass.EnvoyFilter oldSpec = old.getSpec();
-        EnvoyFilterOuterClass.EnvoyFilter freshSpec = fresh.getSpec();
         EnvoyFilterOuterClass.EnvoyFilter.Builder builder = oldSpec.toBuilder();
         if (freshSpec.getConfigPatchesCount() > 0) {
             builder.clearConfigPatches();

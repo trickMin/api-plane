@@ -1,5 +1,6 @@
 package org.hango.cloud.service;
 
+import org.hango.cloud.meta.EnvoyFilterOrder;
 import org.hango.cloud.meta.dto.*;
 import org.hango.cloud.util.errorcode.ErrorCode;
 
@@ -38,6 +39,8 @@ public interface GatewayService {
 
     void deletePluginOrder(PluginOrderDTO pluginOrderDTO);
 
+    void deleteEnvoyFilter(EnvoyFilterDTO envoyFilterOrder);
+
     List<String> getServiceList();
 
     List<ServiceAndPortDTO> getServiceAndPortList(String name, String type, String registryId, Map<String, String> filters);
@@ -60,4 +63,6 @@ public interface GatewayService {
     void updateEnvoyFilter(EnvoyFilterDTO grpcEnvoyFilterDTO);
 
     void updateGrpcEnvoyFilter(GrpcEnvoyFilterDto grpcEnvoyFilterDto);
+
+    void deleteGrpcEnvoyFilter(GrpcEnvoyFilterDto grpcEnvoyFilterDto);
 }

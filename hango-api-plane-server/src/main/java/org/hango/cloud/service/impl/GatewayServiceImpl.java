@@ -274,6 +274,22 @@ public class GatewayServiceImpl implements GatewayService {
     }
 
     @Override
+    public void deleteGrpcEnvoyFilter(GrpcEnvoyFilterDto grpcEnvoyFilterDto) {
+        EnvoyFilterDTO envoyFilterDTO = new EnvoyFilterDTO();
+        envoyFilterDTO.setNamespace(globalConfig.getResourceNamespace());
+        envoyFilterDTO.setPortNumber(grpcEnvoyFilterDto.getPortNumber());
+        envoyFilterDTO.setWorkloadSelector(SidecarOuterClass.WorkloadSelector.newBuilder()
+                .putLabels("gw_cluster", grpcEnvoyFilterDto.getGwCluster())
+                .build());
+        deleteEnvoyFilter(envoyFilterDTO);
+    }
+
+    public void deleteEnvoyFilter(EnvoyFilterDTO envoyFilterDTO) {
+        EnvoyFilterOrder envoyFilterOrder = Trans.envoyFilterOrderDTO2EnvoyFilter(envoyFilterDTO);
+        configManager.deleteConfig(envoyFilterOrder);
+    }
+
+    @Override
     public void deletePluginOrder(PluginOrderDTO pluginOrderDTO) {
         PluginOrder pluginOrder = Trans.pluginOrderDTO2PluginOrder(pluginOrderDTO);
         configManager.deleteConfig(pluginOrder);

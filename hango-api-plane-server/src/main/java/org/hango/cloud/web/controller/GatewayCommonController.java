@@ -81,6 +81,12 @@ public class GatewayCommonController extends BaseController {
         return apiReturn(ApiPlaneErrorCode.Success);
     }
 
+    @RequestMapping(params = "Action=DeleteGrpcEnvoyFilter", method = RequestMethod.POST)
+    public String deleteGrpcEnvoyFilter(@RequestBody @Valid GrpcEnvoyFilterDto grpcEnvoyFilterDto) {
+        gatewayService.deleteGrpcEnvoyFilter(grpcEnvoyFilterDto);
+        return apiReturn(ApiPlaneErrorCode.Success);
+    }
+
     @RequestMapping(params = "Action=GetDubboMeta", method = RequestMethod.GET)
     public String getDubboMeta(@RequestParam(name = "Igv") String igv) {
 

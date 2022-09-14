@@ -250,13 +250,15 @@ public class Trans {
         efo.setWorkloadSelector(envoyFilterDTO.getWorkloadSelector());
         efo.setNamespace(envoyFilterDTO.getNamespace());
         efo.setPortNumber(envoyFilterDTO.getPortNumber());
-        List<String> orderItems = new ArrayList<>();
-        for (String yamlString : envoyFilterDTO.getConfigPatches()) {
-            if (!StringUtils.isEmpty(yamlString)) {
-                orderItems.add(yamlString);
+        if (!CollectionUtils.isEmpty(envoyFilterDTO.getConfigPatches())) {
+            List<String> orderItems = new ArrayList<>();
+            for (String yamlString : envoyFilterDTO.getConfigPatches()) {
+                if (!StringUtils.isEmpty(yamlString)) {
+                    orderItems.add(yamlString);
+                }
             }
+            efo.setConfigPatches(orderItems);
         }
-        efo.setConfigPatches(orderItems);
         return efo;
     }
     private static List<PairMatch> pairsDTO2Pairs(List<PairMatchDTO> pairMatchDTOS) {

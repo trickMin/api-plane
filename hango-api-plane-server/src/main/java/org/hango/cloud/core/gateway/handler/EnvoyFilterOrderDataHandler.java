@@ -25,8 +25,10 @@ public class EnvoyFilterOrderDataHandler implements DataHandler<EnvoyFilterOrder
         TemplateParams efParams = TemplateParams.instance()
                 .put(ENVOY_FILTER_NAME, name)
                 .put(ENVOY_FILTER_NAMESPACE, envoyFilterOrder.getNamespace())
-                .put(ENVOY_FILTER_WORKLOAD_LABELS, envoyFilterOrder.getWorkloadSelector().getLabelsMap())
-                .put(ENVOY_FILTER_FILTERS, envoyFilterOrder.getConfigPatches());
+                .put(ENVOY_FILTER_WORKLOAD_LABELS, envoyFilterOrder.getWorkloadSelector().getLabelsMap());
+        if (!CollectionUtils.isEmpty(envoyFilterOrder.getConfigPatches())) {
+            efParams.put(ENVOY_FILTER_FILTERS, envoyFilterOrder.getConfigPatches());
+        }
         return Collections.singletonList(efParams);
     }
 
