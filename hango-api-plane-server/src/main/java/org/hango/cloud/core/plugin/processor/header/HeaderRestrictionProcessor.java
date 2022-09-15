@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.hango.cloud.core.editor.ResourceGenerator;
 import org.hango.cloud.core.k8s.K8sResourceEnum;
 import org.hango.cloud.core.plugin.FragmentHolder;
 import org.hango.cloud.core.plugin.FragmentTypeEnum;
@@ -59,9 +60,10 @@ public class HeaderRestrictionProcessor extends AbstractSchemaProcessor {
                 builder.createOrUpdateJson("$", "name", headerType);
                 String matchValueStr = matchValue.getAsString();
                 if ("safe_regex_match".equals(matchType)){
-                    matchValueStr = PluginGenerator.newInstance("{}")
-                            .createOrUpdateJson("$","google_re2", "{}")
-                            .createOrUpdateJson("$","regex", matchValueStr).jsonString();
+                    ResourceGenerator matchValueBuilder = PluginGenerator.newInstance("{}")
+                            .createOrUpdateJson("$", "google_re2", "{}");
+                    matchValueBuilder.createOrUpdateValue("$", "regex", matchValueStr);
+                    matchValueStr = matchValueBuilder.jsonString();
                 }
                 builder.createOrUpdateJson("$", matchType, matchValueStr);
                 ret.addJsonElement("$.list", PluginGenerator.newInstance("{\"headers\":[]}")
