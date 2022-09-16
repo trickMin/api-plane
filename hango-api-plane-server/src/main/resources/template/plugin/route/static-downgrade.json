@@ -144,7 +144,10 @@
                 {
                   "key": "headerKey",
                   "alias": "请求头",
-                  "type": "input"
+                  "type": "input",
+                  "rules": [
+                    "MaxLength(200)"
+                  ]
                 },
                 {
                   "key": "match_type",
@@ -218,7 +221,10 @@
                 {
                   "key": "headerKey",
                   "alias": "响应头名称",
-                  "type": "input"
+                  "type": "input",
+                  "rules": [
+                    "MaxLength(200)"
+                  ]
                 },
                 {
                   "key": "match_type",
@@ -275,7 +281,8 @@
               "type": "input",
               "alias": "响应头名称",
               "rules": [
-                "Required"
+                "Required",
+                "MaxLength(200)"
               ]
             },
             {
@@ -283,7 +290,8 @@
               "type": "input",
               "alias": "响应头值",
               "rules": [
-                "Required"
+                "Required",
+                "MaxLength(200)"
               ]
             }
           ]

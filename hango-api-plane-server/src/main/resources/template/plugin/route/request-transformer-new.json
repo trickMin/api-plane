@@ -22,7 +22,8 @@
           "alias": "请求头名称",
           "type": "input",
           "rules": [
-            "Required"
+            "Required",
+            "MaxLength(200)"
           ]
         },
         {
@@ -63,7 +64,8 @@
             "this.action": "Action_Delete"
           },
           "rules": [
-            "Required"
+            "Required",
+            "MaxLength(200)"
           ]
         }
       ]
@@ -78,7 +80,8 @@
           "alias": "参数名称",
           "type": "input",
           "rules": [
-            "Required"
+            "Required",
+            "MaxLength(200)"
           ]
         },
         {
@@ -119,7 +122,8 @@
             "this.action": "Action_Delete"
           },
           "rules": [
-            "Required"
+            "Required",
+            "MaxLength(200)"
           ]
         }
       ]
@@ -141,7 +145,8 @@
         ]
       },
       "rules": [
-        "Required"
+        "Required",
+        "^/[a-zA-Z0-9-_\\.~]{1,199}$"
       ]
     }
   ]

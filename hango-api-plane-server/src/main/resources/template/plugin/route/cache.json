@@ -119,7 +119,10 @@
                 {
                   "key": "headerKey",
                   "alias": "请求头名称",
-                  "type": "input"
+                  "type": "input",
+                  "rules": [
+                    "MaxLength(200)"
+                  ]
                 },
                 {
                   "key": "match_type",
@@ -214,7 +217,10 @@
                 {
                   "key": "headerKey",
                   "alias": "响应头名称",
-                  "type": "input"
+                  "type": "input",
+                  "rules": [
+                    "MaxLength(200)"
+                  ]
                 },
                 {
                   "key": "match_type",
@@ -247,7 +253,10 @@
                   "invisible": {
                     "present_match": ["this", "match_type"],
                     "present_match_invert": ["this", "match_type"]
-                  }
+                  },
+                  "rules": [
+                    "MaxLength(200)"
+                  ]
                 }
               ]
             }
@@ -274,7 +283,7 @@
                 "Required",
                 "Number",
                 "MinNumber(0)",
-                "MaxNumber(99999999)"
+                "MaxNumber(86400000)"
               ]
             },
             {
@@ -289,7 +298,9 @@
                   "help": "支持输入具体的响应码及X..，如2..代表2XX响应码",
                   "type": "input",
                   "rules": [
-                    "Required"
+                    "Required",
+                    "MinNumber(200)",
+                    "MaxNumber(599)"
                   ]
                 },
                 {
@@ -300,7 +311,7 @@
                     "Required",
                     "Number",
                     "MinNumber(0)",
-                    "MaxNumber(99999999)"
+                    "MaxNumber(86400000)"
                   ]
                 }
               ]
@@ -321,7 +332,7 @@
                 "Required",
                 "Number",
                 "MinNumber(0)",
-                "MaxNumber(99999999)"
+                "MaxNumber(86400000)"
               ]
             },
             {
@@ -336,7 +347,9 @@
                   "help": "支持输入具体的响应码及X..，如2..代表2XX响应码",
                   "type": "input",
                   "rules": [
-                    "Required"
+                    "Required",
+                    "MinNumber(200)",
+                    "MaxNumber(599)"
                   ]
                 },
                 {
@@ -347,7 +360,7 @@
                     "Required",
                     "Number",
                     "MinNumber(0)",
-                    "MaxNumber(99999999)"
+                    "MaxNumber(86400000)"
                   ]
                 }
               ]
@@ -380,13 +393,19 @@
           "key": "queryString",
           "alias": "自定义查询参数",
           "type": "multi_input",
-          "help": "自定义查询参数参与key计算"
+          "help": "自定义查询参数参与key计算",
+          "rules": [
+            "MaxLength(200)"
+          ]
         },
         {
           "key": "headers",
           "alias": "自定义请求头",
           "type": "multi_input",
-          "help": "自定义请求头参与key计算"
+          "help": "自定义请求头参与key计算",
+          "rules": [
+            "MaxLength(200)"
+          ]
         }
       ]
     },

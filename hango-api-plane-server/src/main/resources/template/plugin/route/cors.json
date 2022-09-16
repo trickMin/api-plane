@@ -21,8 +21,7 @@
       "type": "multi_input",
       "rules": [
         "MaxLength(200)",
-        "Required",
-        "[^\\*]"
+        "Required"
       ]
     },
     {
@@ -82,7 +81,8 @@
       "type": "number",
       "rules": [
         "Number",
-        "MinNumber(0)"
+        "MinNumber(0)",
+        "MaxNumber(86400)"
       ]
     }
   ]

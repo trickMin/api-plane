@@ -31,7 +31,7 @@
                 "Required",
                 "Number",
                 "MinNumber(0)",
-                "MaxNumber(99999999)"
+                "MaxNumber(3600)"
               ]
             },
             {
@@ -53,7 +53,7 @@
                 "Required",
                 "Number",
                 "MinNumber(0)",
-                "MaxNumber(99999999)"
+                "MaxNumber(86400)"
               ]
             }
           ]

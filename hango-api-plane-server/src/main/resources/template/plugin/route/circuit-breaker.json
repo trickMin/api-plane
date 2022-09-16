@@ -65,12 +65,12 @@
           "alias": "最小请求次数",
           "help": "与错误百分比阈值搭配生效，仅在统计窗口内，最小请求次数与错误百分比阈值同时满足时触发熔断",
           "type": "input",
-          "placeholder": "范围 [1, 4294967295] 之间",
+          "placeholder": "范围 [1, 1000000] 之间",
           "rules": [
             "Required",
             "Number",
             "MinNumber(1)",
-            "MaxNumber(4294967295)"
+            "MaxNumber(1000000)"
           ]
         }
       ]
@@ -101,13 +101,13 @@
         {
           "key": "consecutiveSlowRequests",
           "alias": "连续慢响应次数",
-          "help": "与响应时间阈值，范围 [1, 4294967295] 之间，与慢响应时间阈值搭配生效，当连续有",
+          "help": "与响应时间阈值，范围 [1, 10000] 之间，与慢响应时间阈值搭配生效，当连续有",
           "type": "input",
           "rules": [
             "Required",
             "Number",
             "MinNumber(1)",
-            "MaxNumber(4294967295)"
+            "MaxNumber(10000)"
           ]
         }
       ]
@@ -117,12 +117,12 @@
       "alias": "统计窗口",
       "help": "统计窗口，单位s，默认10s，最大值为120s",
       "type": "input",
-      "placeholder": "单位s，范围(0.0,120.0)",
+      "placeholder": "单位s，范围[1, 120]",
       "rules": [
         "Required",
-        "FloatNumber(5)",
-        "MaxFloatNumber(119.999)",
-        "MinFloatNumber(0.00001)"
+        "Number",
+        "MinNumber(1)",
+        "MaxNumber(120)"
       ]
     },
     {
@@ -130,12 +130,12 @@
       "alias": "惩罚时间",
       "help": "当触发熔断时的惩罚时间，单位s，在该时间内不再请求后端服务而之间返回熔断后的定制响应",
       "type": "input",
-      "placeholder": "单位s，范围 (0.0, 10000]",
+      "placeholder": "单位s，范围 [1, 7200]",
       "rules": [
         "Required",
-        "FloatNumber(5)",
-        "MaxFloatNumber(10000.0)",
-        "MinFloatNumber(0.00001)"
+        "Number",
+        "MinNumber(1)",
+        "MaxNumber(7200)"
       ]
     },
     {
@@ -166,7 +166,8 @@
               "type": "input",
               "alias": "响应头名称",
               "rules": [
-                "Required"
+                "Required",
+                "MaxLength(200)"
               ]
             },
             {
@@ -174,7 +175,8 @@
               "type": "input",
               "alias": "响应头值",
               "rules": [
-                "Required"
+                "Required",
+                "MaxLength(200)"
               ]
             }
           ]

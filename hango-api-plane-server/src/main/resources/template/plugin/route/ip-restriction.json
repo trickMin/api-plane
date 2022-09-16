@@ -26,7 +26,10 @@
       "key": "list",
       "alias": "IP列表",
       "default": [],
-      "type": "multi_input"
+      "type": "multi_input",
+      "rules": [
+        "^((25[0-5]|2[0-4]\\d|[01]?\\d\\d?)\\.){3}(25[0-5]|2[0-4]\\d|[01]?\\d\\d?)$"
+      ]
     }
   ]
 }

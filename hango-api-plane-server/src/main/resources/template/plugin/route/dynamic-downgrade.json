@@ -121,7 +121,10 @@
                 {
                   "key": "headerKey",
                   "alias": "请求头名称",
-                  "type": "input"
+                  "type": "input",
+                  "rules": [
+                    "MaxLength(200)"
+                  ]
                 },
                 {
                   "key": "match_type",
@@ -210,7 +213,10 @@
                 {
                   "key": "headerKey",
                   "alias": "响应头",
-                  "type": "input"
+                  "type": "input",
+                  "rules": [
+                    "MaxLength(200)"
+                  ]
                 },
                 {
                   "key": "match_type",
@@ -332,7 +338,10 @@
                     {
                       "key": "headerKey",
                       "alias": "响应头名称",
-                      "type": "input"
+                      "type": "input",
+                      "rules": [
+                        "MaxLength(200)"
+                      ]
                     },
                     {
                       "key": "match_type",
@@ -385,7 +394,7 @@
                 "Required",
                 "Number",
                 "MinNumber(0)",
-                "MaxNumber(99999999)"
+                "MaxNumber(86400000)"
               ]
             }
           ]
@@ -407,13 +416,19 @@
               "key": "query_params",
               "alias": "自定义查询参数",
               "help": "自定义查询参数参与key计算",
-              "type": "multi_input"
+              "type": "multi_input",
+              "rules": [
+                "MaxLength(200)"
+              ]
             },
             {
               "key": "headers",
               "alias": "自定义请求头",
               "type": "multi_input",
-              "help": "自定义请求头参与key计算"
+              "help": "自定义请求头参与key计算",
+              "rules": [
+                "MaxLength(200)"
+              ]
             }
           ]
         }
@@ -431,7 +446,10 @@
           "key": "uri",
           "alias": "接口降级uri",
           "type": "input",
-          "help": "uri为空，默认采用原接口"
+          "help": "uri为空，默认采用原接口",
+          "rules": [
+            "^http://([\\w-]+\\.)+[\\w-]+(/[\\w-./?%&=]*)?$"
+          ]
         },
         {
           "key": "remote",
@@ -470,7 +488,7 @@
                 "Required",
                 "Number",
                 "MinNumber(0)",
-                "MaxNumber(99999999)"
+                "MaxNumber(600000)"
               ]
             }
           ]
