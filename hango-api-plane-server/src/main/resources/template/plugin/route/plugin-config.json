@@ -399,10 +399,10 @@
       "author": "system",
       "createTime": "1572537600000",
       "updateTime": "1572537600000",
-      "pluginScope": "routeRule,routeRule",
+      "pluginScope": "routeRule,global",
       "pluginPriority": "1000",
       "instructionForUse": "waf插件",
-      "categoryKey": "waf",
+      "categoryKey": "security",
       "categoryName": "安全"
     }
   ]
