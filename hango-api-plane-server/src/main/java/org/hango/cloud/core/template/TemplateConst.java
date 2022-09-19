@@ -145,6 +145,7 @@ public interface TemplateConst {
     String DESTINATION_RULE_UNHEALTHY_THRESHOLD = "t_destination_rule_unhealthy_threshold";
     String DESTINATION_RULE_HEALTHY_CHECKER_TYPE = "t_destination_rule_healthy_checker_type";
     String DESTINATION_RULE_ALT_STAT_NAME = "t_destination_rule_alt_stat_name";
+    //是否开启区域路由优先
     String DESTINATION_RULE_LOCALITY_ENABLE = "t_destination_rule_locality_enable";
 
     /**

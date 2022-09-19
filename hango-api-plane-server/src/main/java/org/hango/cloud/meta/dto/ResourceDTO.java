@@ -3,17 +3,25 @@ package org.hango.cloud.meta.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * @Author: zhufengwei.sx
- * @Date: 2022/8/26 15:03
- **/
+ * 资源详情
+ */
 public class ResourceDTO {
 
+    /**
+     * 资源Id，例如serviceId,routeID等
+     */
     @JsonProperty("ResourceId")
     private Long resourceId;
 
+    /**
+     * 资源名称，例如dynamic-116-prod-gateway
+     */
     @JsonProperty("ResourceName")
     private String resourceName;
 
+    /**
+     * 资源版本号，通过version校验配置是否下发
+     */
     @JsonProperty("ResourceVersion")
     private String resourceVersion;
 

@@ -1,6 +1,4 @@
-package org.hango.cloud.core.k8s;
-
-import java.util.stream.Stream;
+package org.hango.cloud.k8s;
 
 /**
 * @Author: zhufengwei.sx
@@ -25,7 +23,12 @@ public enum K8sResourceApiEnum {
     }
 
     public static K8sResourceApiEnum getByName(String name){
-        return Stream.of(values()).filter(o -> o.name().equals(name)).findFirst().orElse(null);
+        for (K8sResourceApiEnum value : values()) {
+            if (value.name().equals(name)){
+                return value;
+            }
+        }
+        return null;
     }
 
 }

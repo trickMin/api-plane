@@ -11,9 +11,15 @@ import java.util.Map;
  **/
 public class ResourceCheckDTO {
 
+    /**
+     * 需要校验的网关资源
+     */
     @JsonProperty(value = "Resource")
     Map<String, List<ResourceDTO>> resource;
 
+    /**
+     * 需要校验的网关名称（gw_cluster_name）
+     */
     @JsonProperty(value = "Gateway")
     String gateway;
 

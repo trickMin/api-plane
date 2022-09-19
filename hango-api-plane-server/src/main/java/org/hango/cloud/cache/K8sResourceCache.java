@@ -14,7 +14,7 @@ import io.fabric8.kubernetes.client.informers.cache.Indexer;
 import io.fabric8.kubernetes.client.utils.Serialization;
 import org.apache.commons.lang3.StringUtils;
 import org.hango.cloud.core.GlobalConfig;
-import org.hango.cloud.core.k8s.K8sResourceApiEnum;
+import org.hango.cloud.k8s.K8sResourceApiEnum;
 import org.hango.cloud.core.k8s.MultiClusterK8sClient;
 import org.hango.cloud.k8s.K8sTypes;
 import org.slf4j.Logger;
