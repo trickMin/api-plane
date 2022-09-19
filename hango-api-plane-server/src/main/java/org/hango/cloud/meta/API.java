@@ -227,6 +227,9 @@ public class API extends CommonModel {
 
     private Long version;
 
+
+    private int customDefaultRespCode;
+
     public Service getMirrorTraffic() {
         return mirrorTraffic;
     }
@@ -538,5 +541,13 @@ public class API extends CommonModel {
 
     public void setVersion(Long version) {
         this.version = version;
+    }
+
+    public int getCustomDefaultRespCode() {
+        return customDefaultRespCode;
+    }
+
+    public void setCustomDefaultRespCode(int customDefaultRespCode) {
+        this.customDefaultRespCode = customDefaultRespCode;
     }
 }

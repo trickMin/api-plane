@@ -1,5 +1,6 @@
 package org.hango.cloud.core.gateway;
 
+import org.apache.commons.lang3.math.NumberUtils;
 import org.hango.cloud.core.GlobalConfig;
 import org.hango.cloud.core.IstioModelEngine;
 import org.hango.cloud.core.editor.EditorContext;
@@ -119,6 +120,9 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
             vsFragments = renderPlugins(api.getPlugins()).stream()
                     .map(FragmentHolder::getVirtualServiceFragment)
                     .collect(Collectors.toList());
+        }
+        if (NumberUtils.INTEGER_ZERO.equals(api.getCustomDefaultRespCode())){
+            api.setCustomDefaultRespCode(globalConfig.getCustomDefaultRespCode());
         }
         List<String> rawVirtualServices = renderTwiceModelProcessor
                 .process(apiVirtualService, api,
