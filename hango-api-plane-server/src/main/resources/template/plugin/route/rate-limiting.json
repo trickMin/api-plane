@@ -100,7 +100,7 @@
           "type": "number",
           "rules": [
             "Number",
-            "MinNumber(0)"
+            "MinNumber(1)"
           ]
         },
         {
@@ -109,7 +109,7 @@
           "type": "number",
           "rules": [
             "Number",
-            "MinNumber(0)"
+            "MinNumber(1)"
           ]
         },
         {
@@ -118,7 +118,7 @@
           "type": "number",
           "rules": [
             "Number",
-            "MinNumber(0)"
+            "MinNumber(1)"
           ]
         },
         {
@@ -127,7 +127,7 @@
           "type": "number",
           "rules": [
             "Number",
-            "MinNumber(0)"
+            "MinNumber(1)"
           ]
         }
       ]
