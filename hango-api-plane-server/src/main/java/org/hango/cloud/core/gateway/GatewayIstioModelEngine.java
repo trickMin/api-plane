@@ -117,6 +117,7 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
         if (!StringUtils.isEmpty(api.getPlugins())) {
             vsFragments = renderPlugins(api.getPlugins()).stream()
                     .map(FragmentHolder::getVirtualServiceFragment)
+                    .filter(Objects::nonNull)
                     .collect(Collectors.toList());
         }
         if (NumberUtils.INTEGER_ZERO.equals(api.getCustomDefaultRespCode())){
