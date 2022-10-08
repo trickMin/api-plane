@@ -28,6 +28,8 @@
       "default": [],
       "type": "multi_input",
       "rules": [
+        "ArrayMaxLength(100)",
+        "Unique",
         "^((25[0-5]|2[0-4]\\d|[01]?\\d\\d?)\\.){3}(25[0-5]|2[0-4]\\d|[01]?\\d\\d?)$"
       ]
     }

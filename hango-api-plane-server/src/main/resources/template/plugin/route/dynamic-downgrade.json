@@ -197,7 +197,10 @@
                   "alias": "取值",
                   "type": "input",
                   "rules": [
-                    "Required"
+                    "Required",
+                    "Number",
+                    "MinNumber(200)",
+                    "MaxNumber(599)"
                     ]
                 }
               ]
@@ -488,7 +491,7 @@
                 "Required",
                 "Number",
                 "MinNumber(0)",
-                "MaxNumber(600000)"
+                "MaxNumber(600)"
               ]
             }
           ]
