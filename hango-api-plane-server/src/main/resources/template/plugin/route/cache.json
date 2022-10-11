@@ -299,6 +299,7 @@
                   "type": "input",
                   "rules": [
                     "Required",
+                    "Number",
                     "MinNumber(200)",
                     "MaxNumber(599)"
                   ]
@@ -348,6 +349,7 @@
                   "type": "input",
                   "rules": [
                     "Required",
+                    "Number",
                     "MinNumber(200)",
                     "MaxNumber(599)"
                   ]
