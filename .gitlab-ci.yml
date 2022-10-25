@@ -31,6 +31,7 @@ job_unit_test:
   artifacts:
     paths:
       - /builds/qingzhou/yx-gateway-api-plane/hango-api-plane-server
+    expire_in: 1 day
   tags:
     - qz-gitlab-runner    
 
