@@ -1,5 +1,7 @@
 package org.hango.cloud.core.gateway;
 
+import io.fabric8.kubernetes.api.model.HasMetadata;
+import istio.networking.v1alpha3.VirtualServiceOuterClass;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.hango.cloud.core.GlobalConfig;
 import org.hango.cloud.core.IstioModelEngine;
@@ -11,24 +13,19 @@ import org.hango.cloud.core.gateway.processor.RenderTwiceModelProcessor;
 import org.hango.cloud.core.gateway.service.ResourceManager;
 import org.hango.cloud.core.k8s.K8sResourcePack;
 import org.hango.cloud.core.k8s.empty.DynamicGatewayPluginSupplier;
-import org.hango.cloud.core.k8s.empty.EmptyConfigMap;
-import org.hango.cloud.core.k8s.merger.GatewayRateLimitConfigMapMerger;
 import org.hango.cloud.core.k8s.operator.IntegratedResourceOperator;
 import org.hango.cloud.core.k8s.subtracter.GatewayPluginNormalSubtracter;
-import org.hango.cloud.core.k8s.subtracter.GatewayRateLimitConfigMapSubtracter;
 import org.hango.cloud.core.k8s.subtracter.GatewayVirtualServiceSubtracter;
 import org.hango.cloud.core.plugin.FragmentHolder;
 import org.hango.cloud.core.plugin.FragmentWrapper;
 import org.hango.cloud.core.template.TemplateTranslator;
 import org.hango.cloud.k8s.K8sTypes;
+import org.hango.cloud.k8s.K8sTypes.VirtualService;
 import org.hango.cloud.meta.*;
 import org.hango.cloud.meta.dto.GrpcEnvoyFilterDto;
 import org.hango.cloud.service.PluginService;
 import org.hango.cloud.util.Const;
 import org.hango.cloud.util.constant.LogConstant;
-import io.fabric8.kubernetes.api.model.HasMetadata;
-import istio.networking.v1alpha3.VirtualServiceOuterClass;
-import org.hango.cloud.k8s.K8sTypes.VirtualService;
 import org.hango.cloud.util.function.Subtracter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,6 +93,7 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
     private static final String envoyFilter = "gateway/envoyFilter";
     private static final String grpcConfigPatch = "gateway/grpcConfigPatch";
     private static final String VIRTUAL_SERVICE = "VirtualService";
+    private static final String SECRET = "gateway/secret";
 
     public List<K8sResourcePack> translate(API api) {
         return translate(api, false);
@@ -259,6 +257,13 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
         List<K8sResourcePack> resources = new ArrayList<>();
         List<String> pluginManagers = defaultModelProcessor.process(pluginManager, po, new PluginOrderDataHandler());
         resources.addAll(generateK8sPack(pluginManagers));
+        return resources;
+    }
+
+    public List<K8sResourcePack> translate(Secret secret) {
+        List<K8sResourcePack> resources = new ArrayList<>();
+        List<String> secrets = defaultModelProcessor.process(SECRET, secret, new SecretDataHandler());
+        resources.addAll(generateK8sPack(secrets));
         return resources;
     }
 

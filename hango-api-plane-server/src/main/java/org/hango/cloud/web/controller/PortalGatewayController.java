@@ -1,15 +1,11 @@
 package org.hango.cloud.web.controller;
 
 import org.hango.cloud.meta.ServiceHealth;
-import org.hango.cloud.meta.dto.PortalAPIDTO;
-import org.hango.cloud.meta.dto.PortalAPIDeleteDTO;
-import org.hango.cloud.meta.dto.PortalIstioGatewayDTO;
-import org.hango.cloud.meta.dto.PortalServiceDTO;
+import org.hango.cloud.meta.dto.*;
 import org.hango.cloud.service.GatewayService;
 import org.hango.cloud.util.errorcode.ApiPlaneErrorCode;
 import org.hango.cloud.util.errorcode.ErrorCode;
 import org.hango.cloud.util.errorcode.ErrorCodeEnum;
-import org.hango.cloud.meta.dto.GatewayPluginDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -111,5 +107,18 @@ public class PortalGatewayController extends BaseController {
         result.put(RESULT, istioGateway);
 
         return apiReturn(result);
+    }
+
+
+    @RequestMapping(value = "/portal", params = "Action=PublishSecret", method = RequestMethod.POST)
+    public String updateSecret(@RequestBody @Valid PortalSecretDTO portalSecretDTO) {
+        gatewayService.updateSecret(portalSecretDTO);
+        return apiReturn(ApiPlaneErrorCode.Success);
+    }
+
+    @RequestMapping(value = "/portal", params = "Action=DeleteSecret", method = RequestMethod.POST)
+    public String deleteSecret(@RequestBody @Valid PortalSecretDTO portalSecretDTO) {
+        gatewayService.deleteSecret(portalSecretDTO);
+        return apiReturn(ApiPlaneErrorCode.Success);
     }
 }

@@ -1,14 +1,11 @@
 package org.hango.cloud.service;
 
-import org.hango.cloud.meta.EnvoyFilterOrder;
+import org.hango.cloud.meta.ServiceHealth;
 import org.hango.cloud.meta.dto.*;
 import org.hango.cloud.util.errorcode.ErrorCode;
 
 import java.util.List;
 import java.util.Map;
-
-import org.hango.cloud.meta.Gateway;
-import org.hango.cloud.meta.ServiceHealth;
 
 
 public interface GatewayService {
@@ -65,4 +62,8 @@ public interface GatewayService {
     void updateGrpcEnvoyFilter(GrpcEnvoyFilterDto grpcEnvoyFilterDto);
 
     void deleteGrpcEnvoyFilter(GrpcEnvoyFilterDto grpcEnvoyFilterDto);
+
+    void updateSecret(PortalSecretDTO portalSecretDTO);
+
+    void deleteSecret(PortalSecretDTO portalSecretDTO);
 }

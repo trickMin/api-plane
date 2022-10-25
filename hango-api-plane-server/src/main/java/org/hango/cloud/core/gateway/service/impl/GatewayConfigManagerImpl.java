@@ -207,6 +207,18 @@ public class GatewayConfigManagerImpl extends AbstractConfigManagerSupport imple
         return modelEngine.generateEnvoyConfigObjectPatch(grpcEnvoyFilterDto);
     }
 
+    @Override
+    public void updateConfig(Secret secret) {
+        List<K8sResourcePack> resources = modelEngine.translate(secret);
+        update(resources);
+    }
+
+    @Override
+    public void deleteConfig(Secret secret) {
+        List<K8sResourcePack> resources = modelEngine.translate(secret);
+        delete(resources);
+    }
+
     private void delete(List<K8sResourcePack> resources, Subtracter<HasMetadata> fun) {
         delete(resources, (i1, i2) -> 0, fun, configStore, modelEngine);
     }

@@ -10,6 +10,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 public abstract class AbstractConfigManagerSupport implements ConfigManager{
 
@@ -67,7 +68,7 @@ public abstract class AbstractConfigManagerSupport implements ConfigManager{
                     }
                     return resource;
                 })
-                .filter(i -> i != null)
+                .filter(Objects::nonNull)
                 .forEach(r -> handle(r, configStore, modelEngine));
     }
 

@@ -264,6 +264,14 @@ public interface TemplateConst {
     String SMART_LIMITER_NAME = "t_smart_limiter_name";
     String SMART_LIMITER_CONFIG = "t_smart_limiter_config";
 
+    /**
+     * Gateway
+     **/
+    String SECRET_NAME = "t_secret_name";
+    String SECRET_TLS_CRT = "t_secret_tls_crt";
+    String SECRET_TLS_KEY = "t_secret_tls_key";
+    String SECRET_CA_CRT = "t_secret_ca_crt";
+
 
     /**
      * Sidecar

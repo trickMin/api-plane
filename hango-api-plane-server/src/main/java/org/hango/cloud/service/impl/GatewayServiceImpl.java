@@ -254,6 +254,18 @@ public class GatewayServiceImpl implements GatewayService {
     }
 
     @Override
+    public void updateSecret(PortalSecretDTO portalSecretDTO) {
+        Secret secret = Trans.secretDTO2Secret(portalSecretDTO);
+        configManager.updateConfig(secret);
+    }
+
+    @Override
+    public void deleteSecret(PortalSecretDTO portalSecretDTO) {
+        Secret secret = Trans.secretDTO2Secret(portalSecretDTO);
+        configManager.deleteConfig(secret);
+    }
+
+    @Override
     public void updateEnvoyFilter(EnvoyFilterDTO grpcEnvoyFilterDTO) {
         EnvoyFilterOrder envoyFilterOrder = Trans.envoyFilterOrderDTO2EnvoyFilter(grpcEnvoyFilterDTO);
         configManager.updateConfig(envoyFilterOrder);

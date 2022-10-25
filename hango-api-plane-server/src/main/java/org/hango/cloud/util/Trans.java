@@ -250,6 +250,15 @@ public class Trans {
         return po;
     }
 
+    public static Secret secretDTO2Secret(PortalSecretDTO portalSecretDTO) {
+        Secret secret = new Secret();
+        secret.setName(portalSecretDTO.getName());
+        secret.setCaCrt(portalSecretDTO.getCaCrt());
+        secret.setServerCrt(portalSecretDTO.getServerCrt());
+        secret.setServerKey(portalSecretDTO.getServerKey());
+        return secret;
+    }
+
     public static EnvoyFilterOrder envoyFilterOrderDTO2EnvoyFilter(EnvoyFilterDTO envoyFilterDTO) {
         EnvoyFilterOrder efo = new EnvoyFilterOrder();
         efo.setWorkloadSelector(envoyFilterDTO.getWorkloadSelector());

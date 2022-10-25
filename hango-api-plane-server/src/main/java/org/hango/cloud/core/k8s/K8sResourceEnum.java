@@ -1,9 +1,6 @@
 package org.hango.cloud.core.k8s;
 
 import com.google.common.collect.ImmutableMap;
-import org.hango.cloud.k8s.K8sTypes;
-import org.hango.cloud.util.exception.ApiPlaneException;
-import com.netease.slime.api.microservice.v1alpha1.SmartLimiterList;
 import io.fabric8.kubernetes.api.model.*;
 import io.fabric8.kubernetes.api.model.apps.*;
 import io.fabric8.kubernetes.client.utils.URLUtils;
@@ -12,6 +9,8 @@ import me.snowdrop.istio.api.authentication.v1alpha1.PolicyList;
 import me.snowdrop.istio.api.networking.v1alpha3.*;
 import me.snowdrop.istio.api.rbac.v1alpha1.*;
 import org.apache.commons.lang3.StringUtils;
+import org.hango.cloud.k8s.K8sTypes;
+import org.hango.cloud.util.exception.ApiPlaneException;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -173,6 +172,10 @@ public enum K8sResourceEnum {
             me.snowdrop.istio.api.networking.v1alpha3.Sidecar.class,
             SidecarList.class,
             ImmutableMap.of(K8sVersion.V1_11_0, "/apis/networking.istio.io/v1alpha3/namespaces/%s/sidecars")),
+    Secret(
+            Secret.class,
+            SecretList.class,
+            ImmutableMap.of(K8sVersion.V1_11_0, "/api/v1/namespaces/%s/secrets")),
     ;
 
     private Class<? extends HasMetadata> mappingType;

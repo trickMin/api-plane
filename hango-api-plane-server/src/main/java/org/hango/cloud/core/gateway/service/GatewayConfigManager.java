@@ -92,4 +92,15 @@ public interface GatewayConfigManager extends ConfigManager {
     void deleteConfig(EnvoyFilterOrder envoyFilterOrder);
 
     String generateEnvoyConfigObjectPatch(GrpcEnvoyFilterDto grpcEnvoyFilterDto);
+
+
+    /**
+     * 更新证书
+     */
+    void updateConfig(Secret secret);
+
+    /**
+     * 删除证书
+     */
+    void deleteConfig(Secret secret);
 }
