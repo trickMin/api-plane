@@ -37,7 +37,7 @@ trafficPolicy:
     <#if t_destination_rule_load_balancer_consistentHash?has_content>
     consistentHash:
       <#if t_destination_rule_load_balancer_consistentHash_header?has_content>
-      httpHeaderName: ${t_destination_rule_load_balancer_consistentHash_header}
+      httpHeaderName: "${t_destination_rule_load_balancer_consistentHash_header}"
       </#if>
       <#if t_destination_rule_load_balancer_consistentHash_useSourceIp??>
       useSourceIp: ${t_destination_rule_load_balancer_consistentHash_useSourceIp?string}
