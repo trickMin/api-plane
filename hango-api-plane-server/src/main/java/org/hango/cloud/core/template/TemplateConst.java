@@ -208,6 +208,7 @@ public interface TemplateConst {
     String GATEWAY_CUSTOM_IP_HEADER = "t_custom_ip_header";
     String GATEWAY_XFF_NUM_TRUSTED_HOPS = "t_xff_num_trusted_hops";
     String GATEWAY_USE_REMOTE_ADDRESS = "t_use_remote_address";
+    String GATEWAY_SERVERS = "t_gateway_servers";
 
 
 

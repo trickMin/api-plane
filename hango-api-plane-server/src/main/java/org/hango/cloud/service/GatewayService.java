@@ -47,6 +47,8 @@ public interface GatewayService {
 
     void updateIstioGateway(PortalIstioGatewayDTO portalGateway);
 
+    void deleteIstioGateway(PortalIstioGatewayDTO portalGateway);
+
     PortalIstioGatewayDTO getIstioGateway(String clusterName);
 
     /**

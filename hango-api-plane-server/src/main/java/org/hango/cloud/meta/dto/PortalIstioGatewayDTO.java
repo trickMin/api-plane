@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.Min;
+import java.util.List;
 
 public class PortalIstioGatewayDTO {
 
@@ -39,6 +40,13 @@ public class PortalIstioGatewayDTO {
      */
     @JsonProperty(value = "UseRemoteAddress")
     private Boolean useRemoteAddress;
+
+
+    /**
+     * server配置
+     */
+    @JsonProperty(value = "Servers")
+    private List<PortalIstioGatewayServerDTO> servers;
 
     public String getName() {
         return name;
@@ -80,4 +88,11 @@ public class PortalIstioGatewayDTO {
         this.useRemoteAddress = useRemoteAddress;
     }
 
+    public List<PortalIstioGatewayServerDTO> getServers() {
+        return servers;
+    }
+
+    public void setServers(List<PortalIstioGatewayServerDTO> servers) {
+        this.servers = servers;
+    }
 }

@@ -74,6 +74,13 @@ public interface GatewayConfigManager extends ConfigManager {
     void updateConfig(IstioGateway istioGateway);
 
     /**
+     * 删除网关
+     * @param istioGateway
+     * @return
+     */
+    void deleteConfig(IstioGateway istioGateway);
+
+    /**
      * 查询EnvoyFilter
      * @param envoyFilterOrder
      * @return

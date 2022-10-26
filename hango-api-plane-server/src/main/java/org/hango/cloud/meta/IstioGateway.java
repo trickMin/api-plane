@@ -3,6 +3,8 @@ package org.hango.cloud.meta;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import java.util.List;
+
 /**
  *
  * @version 1.0
@@ -36,6 +38,11 @@ public class IstioGateway {
      * 配置是否记录上一代理的地址(默认false)
      */
     private String useRemoteAddress;
+
+    /**
+     * server配置
+     */
+    private List<IstioGatewayServer> servers;
 
 
     public String getName() {
@@ -76,6 +83,14 @@ public class IstioGateway {
 
     public void setUseRemoteAddress(String useRemoteAddress) {
         this.useRemoteAddress = useRemoteAddress;
+    }
+
+    public List<IstioGatewayServer> getServers() {
+        return servers;
+    }
+
+    public void setServers(List<IstioGatewayServer> servers) {
+        this.servers = servers;
     }
 
     @Override

@@ -10,18 +10,27 @@ spec:
   selector:
     gw_cluster: ${t_api_gateway}
   servers:
-  - port:
-      name: http
-      number: 80
-      protocol: HTTP
-    hosts:
-      - "*"
-   <#if t_custom_ip_header ??>
-    customIpAddressHeader: ${t_custom_ip_header}
-   </#if>
-   <#if t_xff_num_trusted_hops ??>
-    xffNumTrustedHops: ${t_xff_num_trusted_hops}
-   </#if>
-   <#if t_use_remote_address ??>
-    useRemoteAddress: ${t_use_remote_address}
-   </#if>
+<#list t_gateway_servers as ss>
+    - hosts:
+     <#list ss.hosts as h>
+      - "${h?j_string}"
+     </#list>
+      port:
+        name: ${ss.name}
+        number: ${ss.number}
+        protocol: ${ss.protocol}
+<#if ss.istioGatewayTLS?has_content>
+      tls:
+        credentialName: "${ss.istioGatewayTLS.credentialName?j_string}"
+        mode: ${ss.istioGatewayTLS.mode}
+</#if>
+</#list>
+<#if t_custom_ip_header ??>
+  customIpAddressHeader: ${t_custom_ip_header}
+</#if>
+<#if t_xff_num_trusted_hops ??>
+  xffNumTrustedHops: ${t_xff_num_trusted_hops}
+</#if>
+<#if t_use_remote_address ??>
+  useRemoteAddress: ${t_use_remote_address}
+</#if>

@@ -22,7 +22,8 @@ public class PortalGatewayDataHandler extends GatewayDataHandler {
                 .put(TemplateConst.GATEWAY_GW_CLUSTER, istioGateway.getGwCluster())
                 .put(TemplateConst.GATEWAY_CUSTOM_IP_HEADER, istioGateway.getCustomIpAddressHeader())
                 .put(TemplateConst.GATEWAY_XFF_NUM_TRUSTED_HOPS, istioGateway.getXffNumTrustedHops())
-                .put(TemplateConst.GATEWAY_USE_REMOTE_ADDRESS, istioGateway.getUseRemoteAddress());
+                .put(TemplateConst.GATEWAY_USE_REMOTE_ADDRESS, istioGateway.getUseRemoteAddress())
+                .put(TemplateConst.GATEWAY_SERVERS, istioGateway.getServers());
         return Arrays.asList(params);
     }
 }

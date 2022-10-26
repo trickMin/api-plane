@@ -100,6 +100,12 @@ public class PortalGatewayController extends BaseController {
         return apiReturn(ApiPlaneErrorCode.Success);
     }
 
+    @RequestMapping(value = "/portal", params = "Action=DeleteIstioGateway", method = RequestMethod.POST)
+    public String deletePortalGateway(@RequestBody @Valid PortalIstioGatewayDTO portalIstioGateway) {
+        gatewayService.deleteIstioGateway(portalIstioGateway);
+        return apiReturn(ApiPlaneErrorCode.Success);
+    }
+
     @RequestMapping(value = "/portal", params = "Action=GetIstioGateway", method = RequestMethod.GET)
     public String getPortalGateway(@RequestParam(name = "GwClusterName") String clusterName) {
         Map<String, Object> result = new HashMap<>();

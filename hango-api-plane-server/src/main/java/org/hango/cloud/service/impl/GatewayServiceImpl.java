@@ -355,6 +355,10 @@ public class GatewayServiceImpl implements GatewayService {
         configManager.updateConfig(Trans.portalGW2GW(portalGateway));
     }
 
+    @Override
+    public void deleteIstioGateway(PortalIstioGatewayDTO portalGateway) {
+        configManager.deleteConfig(Trans.portalGW2GW(portalGateway));
+    }
 
     @Override
     public PortalIstioGatewayDTO getIstioGateway(String clusterName) {

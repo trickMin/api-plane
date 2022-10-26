@@ -9,7 +9,8 @@ public abstract class GatewayDataHandler implements  DataHandler<IstioGateway>{
 
     @Override
     public List<TemplateParams> handle(IstioGateway istioGateway) {
-        return doHandle(TemplateParams.instance(), istioGateway);    }
+        return doHandle(TemplateParams.instance(), istioGateway);
+    }
 
     abstract List<TemplateParams> doHandle(TemplateParams tp, IstioGateway istioGateway);
 
