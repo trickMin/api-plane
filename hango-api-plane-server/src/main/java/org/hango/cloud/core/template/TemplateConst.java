@@ -156,6 +156,7 @@ public interface TemplateConst {
      */
     String DESTINATION_RULE_LOAD_BALANCER = "t_destination_rule_load_balancer";
     String DESTINATION_RULE_LOAD_BALANCER_SIMPLE = "t_destination_rule_load_balancer_simple";
+    String DESTINATION_RULE_LOAD_BALANCER_SLOW_START_WINDOW = "t_destination_rule_load_balancer_slow_start_window";
     String DESTINATION_RULE_LOAD_BALANCER_CONSISTENT_HASH = "t_destination_rule_load_balancer_consistentHash";
     String DESTINATION_RULE_LOAD_BALANCER_CONSISTENT_HASH_COOKIE = "t_destination_rule_load_balancer_consistentHash_cookie";
     String DESTINATION_RULE_LOAD_BALANCER_CONSISTENT_HASH_COOKIE_NAME = "t_destination_rule_load_balancer_consistentHash_cookie_name";

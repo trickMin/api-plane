@@ -224,6 +224,7 @@ public class Trans {
             }
             serviceLoadBalancer.setConsistentHash(consistentHash);
         }
+        serviceLoadBalancer.setSlowStartWindow(loadBalancerDTO.getSlowStartWindow());
         serviceLoadBalancer.setLocalitySetting(loadBalancerDTO.getLocalitySetting());
         return serviceLoadBalancer;
     }

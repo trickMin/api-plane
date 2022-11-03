@@ -422,6 +422,7 @@ public class Service extends CommonModel {
 
     public static class ServiceLoadBalancer {
         private String simple;
+        private Integer slowStartWindow;
         private ConsistentHash consistentHash;
         private LocalitySettingDTO localitySetting;
 
@@ -447,6 +448,14 @@ public class Service extends CommonModel {
 
         public void setLocalitySetting(LocalitySettingDTO localitySetting) {
             this.localitySetting = localitySetting;
+        }
+
+        public Integer getSlowStartWindow() {
+            return slowStartWindow;
+        }
+
+        public void setSlowStartWindow(Integer slowStartWindow) {
+            this.slowStartWindow = slowStartWindow;
         }
 
         public static class ConsistentHash {

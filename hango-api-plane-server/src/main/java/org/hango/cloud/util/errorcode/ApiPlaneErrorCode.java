@@ -70,6 +70,7 @@ public class ApiPlaneErrorCode {
     /**
      * 负载均衡相关
      */
+    public static ErrorCode InvalidSlowStartWindow = new ErrorCode(ErrorCodeEnum.InvalidSlowStartWindow);
     public static ErrorCode InvalidLoadBanlanceType = new ErrorCode(ErrorCodeEnum.InvalidLoadBanlanceType);
     public static ErrorCode InvalidSimpleLoadBanlanceType = new ErrorCode(ErrorCodeEnum.InvalidSimpleLoadBanlanceType);
     public static ErrorCode InvalidConsistentHashObject = new ErrorCode(ErrorCodeEnum.InvalidConsistentHashObject);

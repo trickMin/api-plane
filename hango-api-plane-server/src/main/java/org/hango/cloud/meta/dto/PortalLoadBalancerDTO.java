@@ -10,6 +10,9 @@ public class PortalLoadBalancerDTO {
     @JsonProperty(value = "Simple")
     private String simple;
 
+    @JsonProperty(value = "SlowStartWindow")
+    private Integer slowStartWindow;
+
     @JsonProperty(value = "ConsistentHash")
     private ConsistentHashDTO consistentHashDTO;
 
@@ -38,6 +41,14 @@ public class PortalLoadBalancerDTO {
 
     public void setLocalitySetting(LocalitySettingDTO localitySetting) {
         this.localitySetting = localitySetting;
+    }
+
+    public Integer getSlowStartWindow() {
+        return slowStartWindow;
+    }
+
+    public void setSlowStartWindow(Integer slowStartWindow) {
+        this.slowStartWindow = slowStartWindow;
     }
 
     public static class ConsistentHashDTO {

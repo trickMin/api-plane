@@ -85,6 +85,7 @@ public enum ErrorCodeEnum {
     ServiceNotFound("ServiceNotFound", "Can't found service with Id %s", "找不到对应Id为%s的服务", 404),
     HttpRemoteError("HttpRemoteError", "http remote call faile", "http远程调用失败", 404),
     //负载均衡相关
+    InvalidSlowStartWindow("InvalidSlowStartWindow", "The service warm-up time can be configured in the range [1s-3600s] only", "服务预热时间窗仅支持配置[1s-3600s]区间", 400),
     InvalidLoadBanlanceType("InvalidLoadBanlanceType", "This load balance type is invalid", "服务负载均衡类型取值为Simple或ConsistentHash", 400),
     InvalidSimpleLoadBanlanceType("InvalidSimpleLoadBanlanceType", "This simple load balance type is invalid", "Simple类型的负载均衡规则，仅包含ROUND_ROUBIN、LEAST_CONN、RANDOM", 400),
     InvalidConsistentHashObject("InvalidConsistentHashObject", "Consistent hash object is invalid", "一致性哈希对象格式非法", 400),

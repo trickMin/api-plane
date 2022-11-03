@@ -107,6 +107,24 @@ public class IstioModelEngineTest extends BaseTest {
         return s;
     }
 
+    private Service getService(String type, String backend, int weight, String code, String gateway, String protocol, String serviceTag, Integer slowStartWindow) {
+        Service s = new Service();
+        s.setType(type);
+        s.setBackendService(backend);
+        s.setWeight(weight);
+        s.setCode(code);
+        s.setGateway(gateway);
+        s.setProtocol(protocol);
+        s.setServiceTag(serviceTag);
+
+        Service.ServiceLoadBalancer loadBalancer = new Service.ServiceLoadBalancer();
+
+        loadBalancer.setSimple("ROUND_ROBIN");
+        loadBalancer.setSlowStartWindow(slowStartWindow);
+        s.setLoadBalancer(loadBalancer);
+        return s;
+    }
+
     @Test
     public void plugin() {
         // 集群限流插件case
@@ -271,6 +289,43 @@ public class IstioModelEngineTest extends BaseTest {
     public void testTranslateService() {
 
         Service service = getService(Const.PROXY_SERVICE_TYPE_DYNAMIC, "a.svc.cluster", 100, "a", "gw1", "http", "asvc");
+
+        List<K8sResourcePack> istioResources = gatewayIstioModelEngine.translate(service);
+
+        Assert.assertTrue(istioResources.size() == 1);
+        K8sTypes.DestinationRule ds = (K8sTypes.DestinationRule) istioResources.get(0).getResource();
+        DestinationRuleOuterClass.DestinationRule spec = ds.getSpec();
+        Assert.assertTrue(spec.getHost().equals(service.getBackendService()));
+
+        Service service1 = getService(Const.PROXY_SERVICE_TYPE_STATIC, "10.10.10.10:1024,10.10.10.9:1025", 100, "b", "gw2", "https", "static-1");
+
+        List<K8sResourcePack> istioResources1 = gatewayIstioModelEngine.translate(service1);
+        Assert.assertTrue(istioResources1.size() == 2);
+        istioResources1.stream()
+                .map(r -> r.getResource())
+                .forEach(ir -> {
+                    if (ir.getKind().equals(K8sResourceEnum.DestinationRule.name())) {
+                        K8sTypes.DestinationRule ds1 = (K8sTypes.DestinationRule) istioResources.get(0).getResource();
+                        Assert.assertTrue(ds1.getSpec().getHost().equals(service.getBackendService()));
+                        Assert.assertTrue(ds1.getSpec().getAltStatName().equals(service.getServiceTag()));
+                    } else if (ir.getKind().equals(K8sResourceEnum.ServiceEntry.name())) {
+                        ServiceEntry se = (ServiceEntry) ir;
+                        Assert.assertTrue(se.getSpec().getEndpoints().size() == 2);
+                        Assert.assertTrue(se.getSpec().getHosts().get(0).equals(decorateHost(service1.getCode())));
+                    } else {
+                        Assert.fail();
+                    }
+                });
+
+    }
+
+    /**
+     * 服务预热用例
+     */
+    @Test
+    public void testTranslateWarmUpService() {
+
+        Service service = getService(Const.PROXY_SERVICE_TYPE_DYNAMIC, "a.svc.cluster", 100, "a", "gw1", "http", "asvc", 300);
 
         List<K8sResourcePack> istioResources = gatewayIstioModelEngine.translate(service);
 

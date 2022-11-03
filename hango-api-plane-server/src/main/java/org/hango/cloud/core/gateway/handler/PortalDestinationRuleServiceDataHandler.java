@@ -58,6 +58,9 @@ public class PortalDestinationRuleServiceDataHandler extends ServiceDataHandler 
             Service.ServiceLoadBalancer serviceLoadBalancer = service.getLoadBalancer();
             params.put(DESTINATION_RULE_LOAD_BALANCER, DESTINATION_RULE_LOAD_BALANCER);
             params.put(DESTINATION_RULE_LOAD_BALANCER_SIMPLE, serviceLoadBalancer.getSimple());
+            if (serviceLoadBalancer.getSlowStartWindow() != null) {
+                params.put(DESTINATION_RULE_LOAD_BALANCER_SLOW_START_WINDOW, serviceLoadBalancer.getSlowStartWindow());
+            }
             LocalitySettingDTO localitySetting = serviceLoadBalancer.getLocalitySetting();
             if (localitySetting != null && localitySetting.getEnable() != null){
                 params.put(DESTINATION_RULE_LOCALITY_ENABLE, String.valueOf(localitySetting.getEnable()));

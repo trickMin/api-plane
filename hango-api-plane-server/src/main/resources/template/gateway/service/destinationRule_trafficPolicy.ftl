@@ -31,6 +31,9 @@ trafficPolicy:
     <#if t_destination_rule_load_balancer_simple?has_content>
     simple: ${t_destination_rule_load_balancer_simple}
     </#if>
+    <#if t_destination_rule_load_balancer_slow_start_window?has_content>
+    warmupDurationSecs: ${t_destination_rule_load_balancer_slow_start_window}s
+    </#if>
     <#if t_destination_rule_load_balancer_consistentHash?has_content>
     consistentHash:
       <#if t_destination_rule_load_balancer_consistentHash_header?has_content>

@@ -378,6 +378,9 @@ message LoadBalancerSettings {
     // Locality load balancer settings, this will override mesh wide settings in entirety, meaning no merging would be performed
     // between this object and the object one in MeshConfig
     LocalityLoadBalancerSetting locality_lb_setting = 3;
+
+    // 服务预热时间窗
+    google.protobuf.Duration warmup_duration_secs = 4;
 }
 // Locality-weighted load balancing allows administrators to control the
 // distribution of traffic to endpoints based on the localities of where the

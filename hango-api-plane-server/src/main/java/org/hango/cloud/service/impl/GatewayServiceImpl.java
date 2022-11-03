@@ -225,6 +225,11 @@ public class GatewayServiceImpl implements GatewayService {
                     }
                 }
             }
+            // 服务预热时间窗校验，为空则代表不开启功能；时间窗仅支持[1, 3600]区间配置
+            if (envoyServiceLoadBalancerDto.getSlowStartWindow() != null &&
+                    (envoyServiceLoadBalancerDto.getSlowStartWindow() > 3600 || envoyServiceLoadBalancerDto.getSlowStartWindow() < 1)) {
+                return ApiPlaneErrorCode.InvalidSlowStartWindow;
+            }
         }
         PortalServiceConnectionPoolDTO envoyServiceConnectionPoolDto = portalTrafficPolicyDTO.getConnectionPool();
         if (envoyServiceConnectionPoolDto != null) {
