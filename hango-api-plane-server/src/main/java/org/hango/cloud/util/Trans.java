@@ -20,7 +20,7 @@ public class Trans {
     public static final String HTTP = "HTTP";
     public static final String HTTPS = "HTTPS";
     public static final int DEFAULT_PORT = 80;
-    public static final String CREDENTIAL_NAME_PREFIX = "kubernetes-gateway://";
+
 
     public static API portalAPI2API(PortalAPIDTO portalAPI) {
 
@@ -99,8 +99,7 @@ public class Trans {
             if (HTTPS.equals(server.getProtocol()) && portalIstioGatewayTLSDTO != null){
                 IstioGatewayTLS istioGatewayTLS = new IstioGatewayTLS();
                 istioGatewayTLS.setMode(portalIstioGatewayTLSDTO.getMode());
-                String credentialName = CREDENTIAL_NAME_PREFIX + portalIstioGatewayTLSDTO.getCredentialName();
-                istioGatewayTLS.setCredentialName(credentialName);
+                istioGatewayTLS.setCredentialName(portalIstioGatewayTLSDTO.getCredentialName());
                 istioGatewayServer.setIstioGatewayTLS(istioGatewayTLS);
             }
             istioGatewayServers.add(istioGatewayServer);

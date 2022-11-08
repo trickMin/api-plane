@@ -9,6 +9,7 @@ spec:
 </#if>
   selector:
     gw_cluster: ${t_api_gateway}
+<#if t_gateway_servers?has_content>
   servers:
 <#list t_gateway_servers as ss>
     - hosts:
@@ -25,6 +26,7 @@ spec:
         mode: ${ss.istioGatewayTLS.mode}
 </#if>
 </#list>
+</#if>
 <#if t_custom_ip_header ??>
   customIpAddressHeader: ${t_custom_ip_header}
 </#if>
