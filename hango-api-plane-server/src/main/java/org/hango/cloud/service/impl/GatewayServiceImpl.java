@@ -262,7 +262,7 @@ public class GatewayServiceImpl implements GatewayService {
     @Override
     public void deleteSecret(PortalSecretDTO portalSecretDTO) {
         Secret secret = Trans.secretDTO2Secret(portalSecretDTO);
-        configManager.deleteConfig(secret);
+        configManager.updateConfig(secret);
     }
 
     @Override

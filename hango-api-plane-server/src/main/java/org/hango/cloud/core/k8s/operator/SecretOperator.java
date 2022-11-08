@@ -25,7 +25,7 @@ public class SecretOperator implements k8sResourceOperator<Secret> {
 
     @Override
     public boolean adapt(String name) {
-        return K8sResourceEnum.Gateway.name().equals(name);
+        return K8sResourceEnum.Secret.name().equals(name);
     }
 
     @Override

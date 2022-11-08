@@ -19,14 +19,12 @@ public class PortalSecretDTO {
      * 服务端证书
      */
     @JsonProperty(value = "ServerCrt")
-    @NotEmpty
     private String serverCrt;
 
     /**
      * 服务端私钥
      */
     @JsonProperty(value = "ServerKey")
-    @NotEmpty
     private String serverKey;
 
     /**
