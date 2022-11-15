@@ -88,10 +88,14 @@ public class Trans {
         istioGateway.setCustomIpAddressHeader(portalGateway.getCustomIpAddressHeader());
         istioGateway.setUseRemoteAddress(portalGateway.getUseRemoteAddress() == null ? null : String.valueOf(portalGateway.getUseRemoteAddress()));
         istioGateway.setXffNumTrustedHops(portalGateway.getXffNumTrustedHops() == null ? null : (portalGateway.getXffNumTrustedHops() - 1));
+        if (CollectionUtils.isEmpty(portalGateway.getServers())){
+            return istioGateway;
+        }
         List<IstioGatewayServer> istioGatewayServers = new ArrayList<>();
         for (PortalIstioGatewayServerDTO server : portalGateway.getServers()) {
             IstioGatewayServer istioGatewayServer = new IstioGatewayServer();
-            istioGatewayServer.setName(server.getProtocol().toLowerCase());
+            String name = server.getProtocol().toLowerCase();
+
             istioGatewayServer.setProtocol(server.getProtocol());
             istioGatewayServer.setNumber(server.getNumber());
             istioGatewayServer.setHosts(server.getHosts());
@@ -100,8 +104,12 @@ public class Trans {
                 IstioGatewayTLS istioGatewayTLS = new IstioGatewayTLS();
                 istioGatewayTLS.setMode(portalIstioGatewayTLSDTO.getMode());
                 istioGatewayTLS.setCredentialName(portalIstioGatewayTLSDTO.getCredentialName());
+                if (!StringUtils.isEmpty(portalIstioGatewayTLSDTO.getCredentialName())){
+                    name = portalIstioGatewayTLSDTO.getCredentialName();
+                }
                 istioGatewayServer.setIstioGatewayTLS(istioGatewayTLS);
             }
+            istioGatewayServer.setName(name);
             istioGatewayServers.add(istioGatewayServer);
         }
         istioGateway.setServers(istioGatewayServers);

@@ -96,4 +96,11 @@ public class GatewayCommonController extends BaseController {
 
     }
 
+    @RequestMapping(params = "Action=GetRegistryList", method = RequestMethod.GET)
+    public String getRegistryList() {
+        Map<String, Object> result = new HashMap<>();
+        result.put(RESULT, gatewayService.getRegistryList());
+        return apiReturn(result);
+    }
+
 }

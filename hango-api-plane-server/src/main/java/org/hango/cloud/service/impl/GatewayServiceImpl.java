@@ -1,6 +1,5 @@
 package org.hango.cloud.service.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import istio.networking.v1alpha3.SidecarOuterClass;
 import me.snowdrop.istio.api.IstioResource;
@@ -66,9 +65,6 @@ public class GatewayServiceImpl implements GatewayService {
     private GatewayConfigManager configManager;
 
     private GlobalConfig globalConfig;
-
-    @Autowired
-    ObjectMapper objectMapper;
 
     @Autowired
     private PilotHttpClient pilotHttpClient;
@@ -310,6 +306,11 @@ public class GatewayServiceImpl implements GatewayService {
     @Override
     public List<String> getServiceList() {
         return resourceManager.getServiceList();
+    }
+
+    @Override
+    public List<String> getRegistryList() {
+        return globalConfig.getRegistryList();
     }
 
     @Override
