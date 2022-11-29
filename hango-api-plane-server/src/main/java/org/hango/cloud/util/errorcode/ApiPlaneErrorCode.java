@@ -11,7 +11,7 @@ public class ApiPlaneErrorCode {
 
     public static ErrorCode resourceNotFound = resourceNotFoundErrorCode();
     public static ErrorCode workLoadNotFound = workLoadNotFoundErrorCode();
-    public static ErrorCode sidecarInjectPolicyError = sidecarInjectPolicyError();
+    public static ErrorCode sidecarInjectPolicyError = genSidecarInjectPolicyError();
     public static ErrorCode workLoadNotInMesh = workLoadNotInMesh();
 
     public static ErrorCode InvalidFormat(String param) {
@@ -30,11 +30,7 @@ public class ApiPlaneErrorCode {
         return new ErrorCode(ErrorCodeEnum.MissingParameter, paramName);
     }
 
-    public static ErrorCode InternalServerError(String paramName) {
-        return new ErrorCode(ErrorCodeEnum.MissingParameter, paramName);
-    }
-
-    public static ErrorCode sidecarInjectPolicyError(){
+    public static ErrorCode genSidecarInjectPolicyError(){
         ErrorCode errorCode = new ErrorCode();
         errorCode.setStatusCode(400);
         errorCode.setCode("PolicyError");

@@ -146,7 +146,7 @@ public class EnvoyHttpClient {
         boolean active = failedActive == null ? false : true;
         boolean outlier = failedOutlier == null ? false : true;
 
-        return !(active|outlier) ? HEALTHY : UNHEALTHY;
+        return !(active || outlier) ? HEALTHY : UNHEALTHY;
     }
 
     private boolean isSubset(String name) {

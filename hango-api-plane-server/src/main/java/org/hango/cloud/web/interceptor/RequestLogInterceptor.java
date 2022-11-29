@@ -11,6 +11,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 
 public class RequestLogInterceptor implements HandlerInterceptor {
@@ -24,7 +25,7 @@ public class RequestLogInterceptor implements HandlerInterceptor {
         if (uri.endsWith("api/health")) return true;
         String method = request.getMethod();
         String queryString = request.getQueryString();
-        String body = StreamUtils.copyToString(request.getInputStream(), Charset.forName("UTF-8"));
+        String body = StreamUtils.copyToString(request.getInputStream(), StandardCharsets.UTF_8);
         logger.info("----- Request Id: {}, Request Method: {}, Uri: {}?{} -----", LogTraceUUIDHolder
             .getUUIDId(), method, uri, queryString);
         if (!StringUtils.isEmpty(body)) {
