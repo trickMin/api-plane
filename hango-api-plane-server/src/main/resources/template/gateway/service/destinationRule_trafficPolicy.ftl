@@ -65,7 +65,7 @@ trafficPolicy:
     consecutiveGatewayErrors: ${t_destination_rule_consecutive_errors}
 </#if>
 <#if t_destination_rule_base_ejection_time?has_content>
-    baseEjectionTime: ${t_destination_rule_base_ejection_time}ms
+    baseEjectionTime: ${t_destination_rule_base_ejection_time}s
 </#if>
 <#if t_destination_rule_max_ejection_percent?has_content>
     maxEjectionPercent: ${t_destination_rule_max_ejection_percent}
@@ -97,13 +97,13 @@ trafficPolicy:
     timeout: ${t_destination_rule_timeout}ms
 </#if>
 <#if t_destination_rule_healthy_interval?has_content>
-    interval: ${t_destination_rule_healthy_interval}ms
+    interval: ${t_destination_rule_healthy_interval}s
 </#if>
 <#if t_destination_rule_healthy_threshold?has_content>
     healthyThreshold: ${t_destination_rule_healthy_threshold}
 </#if>
 <#if t_destination_rule_unhealthy_interval?has_content>
-    unhealthyInterval: ${t_destination_rule_unhealthy_interval}ms
+    unhealthyInterval: ${t_destination_rule_unhealthy_interval}s
 </#if>
 <#if t_destination_rule_unhealthy_threshold?has_content>
     unhealthyThreshold: ${t_destination_rule_unhealthy_threshold}
