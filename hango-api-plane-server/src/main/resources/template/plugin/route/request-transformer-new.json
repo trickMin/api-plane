@@ -146,7 +146,8 @@
       },
       "rules": [
         "Required",
-        "^/[a-zA-Z0-9-_\\.~]{1,199}$"
+        "^/(\\{\\{(querystrings|headers|path|url)\\[.+\\]\\}\\}|[a-zA-Z0-9-_\\.~]+)(/?(\\{\\{(querystrings|headers|path|url)\\[.+\\]\\}\\}|[a-zA-Z0-9-_\\.~]+))*$",
+        "MaxLength(200)"
       ]
     }
   ]

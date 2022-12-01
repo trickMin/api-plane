@@ -209,7 +209,17 @@
                     "Number",
                     "MinNumber(200)",
                     "MaxNumber(599)"
-                  ]
+                  ],
+                  "customRules": {
+                    "keys": [
+                      "this",
+                      "match_type"
+                    ],
+                    "safe_regex_match": [
+                      "Required",
+                      "RegExp"
+                    ]
+                  }
                 }
               ]
             },
