@@ -671,6 +671,9 @@ message OutlierDetection {
     // threshold, outlier detection will be disabled and the proxy will load balance
     // across all hosts in the pool (healthy and unhealthy).  The default is 50%.
     int32 min_health_percent = 5;
+
+    // 连续5xx错误数
+    int32 consecutive_5xx_errors = 6;
 }
 
 message HealthCheck {

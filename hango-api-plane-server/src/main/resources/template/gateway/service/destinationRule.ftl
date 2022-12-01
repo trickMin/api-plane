@@ -97,7 +97,7 @@ spec:
       <#if ss.trafficPolicy.outlierDetection?has_content>
       outlierDetection:
         <#if ss.trafficPolicy.outlierDetection.consecutiveErrors?has_content>
-        consecutiveGatewayErrors: ${ss.trafficPolicy.outlierDetection.consecutiveErrors}
+        consecutive5xxErrors: ${ss.trafficPolicy.outlierDetection.consecutiveErrors}
         </#if>
         <#if ss.trafficPolicy.outlierDetection.baseEjectionTime?has_content>
         baseEjectionTime: ${ss.trafficPolicy.outlierDetection.baseEjectionTime}ms

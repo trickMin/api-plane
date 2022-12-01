@@ -62,7 +62,7 @@ trafficPolicy:
 <#--</#if>-->
   outlierDetection:
 <#if t_destination_rule_consecutive_errors?has_content>
-    consecutiveGatewayErrors: ${t_destination_rule_consecutive_errors}
+    consecutive5xxErrors: ${t_destination_rule_consecutive_errors}
 </#if>
 <#if t_destination_rule_base_ejection_time?has_content>
     baseEjectionTime: ${t_destination_rule_base_ejection_time}s
