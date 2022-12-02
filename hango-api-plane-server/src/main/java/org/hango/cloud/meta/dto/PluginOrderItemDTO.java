@@ -2,6 +2,7 @@ package org.hango.cloud.meta.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.hango.cloud.util.Const;
 
 import javax.validation.constraints.NotNull;
 
@@ -24,7 +25,7 @@ public class PluginOrderItemDTO {
     private Object inline;
 
     @JsonProperty("listenerType")
-    private Integer listenerType;
+    private String listenerType = Const.GATEWAY;
 
     public Boolean getEnable() {
         return enable;
@@ -58,11 +59,11 @@ public class PluginOrderItemDTO {
         this.inline = inline;
     }
 
-    public Integer getListenerType() {
+    public String getListenerType() {
         return listenerType;
     }
 
-    public void setListenerType(Integer listenerType) {
+    public void setListenerType(String listenerType) {
         this.listenerType = listenerType;
     }
 }

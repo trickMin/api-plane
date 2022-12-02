@@ -1,5 +1,7 @@
 package org.hango.cloud.core.gateway.service.impl;
 
+import io.fabric8.kubernetes.api.model.ObjectMeta;
+import me.snowdrop.istio.api.networking.v1alpha3.PluginManager;
 import org.hango.cloud.core.AbstractConfigManagerSupport;
 import org.hango.cloud.core.ConfigStore;
 import org.hango.cloud.core.GlobalConfig;
@@ -11,6 +13,7 @@ import org.hango.cloud.core.gateway.service.GatewayConfigManager;
 import org.hango.cloud.core.k8s.K8sResourceEnum;
 import org.hango.cloud.core.k8s.K8sResourcePack;
 import org.hango.cloud.core.k8s.event.K8sResourceDeleteNotificationEvent;
+import org.hango.cloud.core.k8s.operator.PluginManagerOperator;
 import org.hango.cloud.core.k8s.subtracter.ServiceEntryEndpointsSubtracter;
 import org.hango.cloud.meta.*;
 import org.hango.cloud.k8s.K8sTypes;
@@ -145,7 +148,7 @@ public class GatewayConfigManagerImpl extends AbstractConfigManagerSupport imple
     @Override
     public void deleteConfig(PluginOrder pluginOrder) {
         List<K8sResourcePack> resources = modelEngine.translate(pluginOrder);
-        delete(resources, clearResource());
+        delete(resources,(p)->{((K8sTypes.PluginManager) p).setSpec(null);return p;});
     }
 
     @Override

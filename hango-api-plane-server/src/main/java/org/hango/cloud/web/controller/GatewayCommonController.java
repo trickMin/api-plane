@@ -1,6 +1,7 @@
 package org.hango.cloud.web.controller;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 import org.hango.cloud.meta.dto.GrpcEnvoyFilterDto;
 import org.hango.cloud.meta.dto.PluginOrderDTO;
 import org.hango.cloud.service.GatewayService;
@@ -75,7 +76,7 @@ public class GatewayCommonController extends BaseController {
     }
 
     @RequestMapping(params = "Action=DeletePluginOrder", method = RequestMethod.POST)
-    public String deletePluginOrder(@RequestBody @Valid PluginOrderDTO pluginOrderDTO) {
+    public String deletePluginOrder(@RequestBody PluginOrderDTO pluginOrderDTO) {
 
         gatewayService.deletePluginOrder(pluginOrderDTO);
         return apiReturn(ApiPlaneErrorCode.Success);
@@ -101,6 +102,14 @@ public class GatewayCommonController extends BaseController {
         Map<String, Object> result = new HashMap<>();
         result.put(RESULT, gatewayService.getRegistryList());
         return apiReturn(result);
+    }
+
+    @RequestMapping(params = "Action=GetPluginOrderTemplate", method = RequestMethod.GET)
+    public String getPluginOrderTemplate(@RequestParam(name = "GatewayKind") String gatewayKind) {
+        Map<String, Object> result = Maps.newHashMap();
+        result.put(RESULT, gatewayService.getPluginOrderTemplate(gatewayKind));
+        ErrorCode code = ApiPlaneErrorCode.Success;
+        return apiReturn(code.getStatusCode(), code.getCode(), null, result);
     }
 
 }

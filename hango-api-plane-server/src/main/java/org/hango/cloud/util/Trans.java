@@ -266,8 +266,13 @@ public class Trans {
 
         PluginOrder po = new PluginOrder();
         po.setGatewayLabels(pluginOrderDTO.getGatewayLabels());
+        po.setName(pluginOrderDTO.getName());
         List<String> orderItems = new ArrayList<>();
-        for (PluginOrderItemDTO dto : pluginOrderDTO.getPlugins()) {
+        List<PluginOrderItemDTO> plugins = pluginOrderDTO.getPlugins();
+        if (CollectionUtils.isEmpty(plugins)){
+            return po;
+        }
+        for (PluginOrderItemDTO dto : plugins) {
             if (Objects.nonNull(dto)) {
                 if (dto.getPort() == null){
                     dto.setPort(80);

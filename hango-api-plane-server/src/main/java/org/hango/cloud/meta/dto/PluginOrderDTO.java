@@ -8,10 +8,21 @@ import java.util.Map;
 
 public class PluginOrderDTO {
 
+    /**
+     * plugin manager 名称
+     */
+    @JsonProperty(value = "Name")
+    private String name;
+
+    /**
+     * plugin manager 名称
+     */
+    @JsonProperty(value = "GatewayKind")
+    private String gatewayKind;
+
     @JsonProperty(value = "GatewayLabels")
     private Map<String, String> gatewayLabels;
 
-    @NotEmpty(message = "plugins")
     @JsonProperty(value = "Plugins")
     private List<PluginOrderItemDTO> plugins;
 
@@ -29,5 +40,21 @@ public class PluginOrderDTO {
 
     public void setPlugins(List<PluginOrderItemDTO> plugins) {
         this.plugins = plugins;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getGatewayKind() {
+        return gatewayKind;
+    }
+
+    public void setGatewayKind(String gatewayKind) {
+        this.gatewayKind = gatewayKind;
     }
 }

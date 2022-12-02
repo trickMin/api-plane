@@ -14,6 +14,8 @@ public interface Const {
 
     String LABEL_NSF_ENV = "nsf-env";
 
+    String GATEWAY = "Gateway";
+
 
     //http 方法
     String GET_METHOD = "GET";

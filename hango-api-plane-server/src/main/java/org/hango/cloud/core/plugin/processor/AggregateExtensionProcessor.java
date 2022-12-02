@@ -7,6 +7,7 @@ import org.hango.cloud.core.plugin.FragmentHolder;
 import org.hango.cloud.core.plugin.FragmentTypeEnum;
 import org.hango.cloud.core.plugin.FragmentWrapper;
 import org.hango.cloud.core.plugin.PluginGenerator;
+import org.hango.cloud.meta.PluginMapping;
 import org.hango.cloud.meta.ServiceInfo;
 import org.hango.cloud.util.CommonUtil;
 import org.apache.commons.collections.CollectionUtils;
@@ -34,122 +35,11 @@ public class AggregateExtensionProcessor extends AbstractSchemaProcessor impleme
     public FragmentHolder process(String plugin, ServiceInfo serviceInfo) {
         PluginGenerator rg = PluginGenerator.newInstance(plugin);
         FragmentHolder holder;
-        switch (rg.getValue("$.kind", String.class)) {
-            case "rewrite":
-                holder = getProcessor("RewriteProcessor").process(plugin, serviceInfo);
-                coverToExtensionPlugin(holder, "proxy.filters.http.rewrite");
-                break;
-            case "jsonp":
-                holder = getProcessor("JsonpProcessor").process(plugin, serviceInfo);
-                coverToExtensionPlugin(holder, "proxy.filters.http.jsonp");
-                break;
-            case "ianus-request-transformer":
-            case "transformer":
-                holder = getProcessor("TransformProcessor").process(plugin, serviceInfo);
-                coverToExtensionPlugin(holder, "proxy.filters.http.transformation");
-                break;
-            case "static-downgrade":
-                holder = getProcessor("StaticDowngradeProcessor").process(plugin, serviceInfo);
-                coverToExtensionPlugin(holder, "proxy.filters.http.staticdowngrade");
-                break;
-            case "dynamic-downgrade":
-                holder = getProcessor("DynamicDowngradeProcessor").process(plugin, serviceInfo);
-                coverToExtensionPlugin(holder, "proxy.filters.http.dynamicdowngrade");
-                break;
-            case "local-limiting":
-            case "rate-limiting":
-                holder = getProcessor("SmartLimiterProcessor").process(plugin, serviceInfo);
-                break;
-            case "ianus-percent-limit":
-                holder = getProcessor("FlowLimitProcessor").process(plugin, serviceInfo);
-                coverToExtensionPlugin(holder, "envoy.filters.http.fault");
-                break;
-            case "ip-restriction":
-                holder = getProcessor("IpRestrictionProcessor").process(plugin, serviceInfo);
-                coverToExtensionPlugin(holder, "proxy.filters.http.iprestriction");
-                break;
-            case "ua-restriction":
-                holder = getProcessor("UaRestrictionProcessor").process(plugin, serviceInfo);
-                coverToExtensionPlugin(holder, "proxy.filters.http.ua_restriction");
-                break;
-            case "referer-restriction":
-                holder = getProcessor("RefererRestrictionProcessor").process(plugin, serviceInfo);
-                coverToExtensionPlugin(holder, "proxy.filters.http.referer_restriction");
-                break;
-            case "header-restriction":
-                holder = getProcessor("HeaderRestrictionProcessor").process(plugin, serviceInfo);
-                coverToExtensionPlugin(holder, "proxy.filters.http.header_restriction");
-                break;
-            case "traffic-mark":
-                holder = getProcessor("TrafficMarkProcessor").process(plugin, serviceInfo);
-                coverToExtensionPlugin(holder, "proxy.filters.http.header_rewrite");
-                break;
-            case "response-header-rewrite":
-                holder = getProcessor("ResponseHeaderRewriteProcessor").process(plugin, serviceInfo);
-                coverToExtensionPlugin(holder, "proxy.filters.http.header_rewrite");
-                break;
-            case "cors":
-                holder = getProcessor("CorsProcessor").process(plugin, serviceInfo);
-                coverToExtensionPlugin(holder, "envoy.filters.http.cors");
-                break;
-            case "cache":
-                holder = getProcessor("Cache").process(plugin, serviceInfo);
-                coverToExtensionPlugin(holder, "proxy.filters.http.super_cache");
-                break;
-            case "local-cache":
-                holder = getProcessor("LocalCache").process(plugin, serviceInfo);
-                coverToExtensionPlugin(holder, "proxy.filters.http.local_cache");
-                break;
-            case "redis-cache":
-                holder = getProcessor("RedisCache").process(plugin, serviceInfo);
-                coverToExtensionPlugin(holder, "proxy.filters.http.redis_cache");
-                break;
-            case "super-auth":
-                // 兼容21.0.x版本认证插件，22.0.x版本认证插件已拆分为sign-auth、jwt-auth和oauth2-auth
-                holder = getProcessor("PreviousVersionSuperAuth").process(plugin, serviceInfo);
-                coverToExtensionPlugin(holder, "proxy.filters.http.super_authz");
-                break;
-            case "sign-auth": case "oauth2-auth":
-                holder = getProcessor("SuperAuth").process(plugin, serviceInfo);
-                coverToExtensionPlugin(holder, "proxy.filters.http.super_authz");
-                break;
-            case "jwt-auth":
-                holder = getProcessor("JwtAuth").process(plugin, serviceInfo);
-                coverToExtensionPlugin(holder, "envoy.filters.http.jwt_authn");
-                break;
-            case "basic-rbac":
-                holder = getProcessor("BasicRbac").process(plugin, serviceInfo);
-                coverToExtensionPlugin(holder, "envoy.filters.http.rbac");
-                break;
-            case "request-transformer":
-                holder = getProcessor("DefaultProcessor").process(plugin, serviceInfo);
-                coverToExtensionPlugin(holder, "proxy.filters.http.transformation");
-                break;
-            case "circuit-breaker":
-                holder = getProcessor("CircuitBreakerProcessor").process(plugin, serviceInfo);
-                coverToExtensionPlugin(holder, "proxy.filters.http.circuitbreaker");
-                break;
-            case "function":
-                holder = getProcessor("FunctionProcessor").process(plugin, serviceInfo);
-                coverToExtensionPlugin(holder, "envoy.filters.http.lua");
-                break;
-            case "soap-json-transcoder":
-                holder = getProcessor("SoapJsonTranscoderProcessor").process(plugin, serviceInfo);
-                coverToExtensionPlugin(holder, "proxy.filters.http.soapjsontranscoder");
-                break;
-            case "ianus-router":
-                holder = getProcessor("RouteProcessor").process(plugin, serviceInfo);
-                coverToExtensionPlugin(holder, "envoy.filters.http.fault", true, "ROOT");
-                break;
-            case "waf":
-                holder = getProcessor("WafProcessor").process(plugin, serviceInfo);
-                coverToExtensionPlugin(holder, "proxy.filters.http.waf");
-                break;
-            case "trace":
-            default:
-                holder = getProcessor("RestyProcessor").process(plugin, serviceInfo);
-                coverToExtensionPlugin(holder, "proxy.filters.http.rider");
-                break;
+        String kind = rg.getValue("$.kind", String.class);
+        PluginMapping mapping = PluginMapping.getBymappingName(kind);
+        holder = getProcessor(mapping.getProcessorClass()).process(plugin,serviceInfo);
+        if (StringUtils.hasText(mapping.getName())){
+            coverToExtensionPlugin(holder, mapping.getName());
         }
         return holder;
     }

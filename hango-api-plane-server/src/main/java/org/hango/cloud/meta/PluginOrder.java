@@ -10,6 +10,16 @@ public class PluginOrder extends CommonModel {
 
     private List<String> plugins;
 
+    private String name;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public Map<String, String> getGatewayLabels() {
         return gatewayLabels;
     }

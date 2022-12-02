@@ -1,5 +1,7 @@
 package org.hango.cloud.service.impl;
 
+import org.assertj.core.util.Lists;
+import org.hango.cloud.core.GlobalConfig;
 import org.hango.cloud.core.editor.EditorContext;
 import org.hango.cloud.core.editor.ResourceGenerator;
 import org.hango.cloud.core.editor.ResourceType;
@@ -8,7 +10,10 @@ import org.hango.cloud.core.plugin.PluginInstance;
 import org.hango.cloud.core.plugin.processor.SchemaProcessor;
 import org.hango.cloud.core.template.TemplateUtils;
 import org.hango.cloud.meta.Plugin;
+import org.hango.cloud.meta.PluginSupportConfig;
+import org.hango.cloud.meta.PluginSupportDetail;
 import org.hango.cloud.meta.ServiceInfo;
+import org.hango.cloud.service.GatewayService;
 import org.hango.cloud.service.PluginService;
 import org.hango.cloud.util.exception.ApiPlaneException;
 import freemarker.template.Configuration;
@@ -17,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;

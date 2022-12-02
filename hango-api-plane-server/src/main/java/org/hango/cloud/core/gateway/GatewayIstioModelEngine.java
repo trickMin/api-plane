@@ -331,7 +331,6 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
         return envoyFilter -> {
             envoyFilter.setApiVersion(null);
             envoyFilter.setSpec(null);
-
             return envoyFilter;
         };
     }

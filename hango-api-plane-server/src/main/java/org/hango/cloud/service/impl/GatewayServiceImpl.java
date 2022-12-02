@@ -1,5 +1,10 @@
 package org.hango.cloud.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import freemarker.template.Configuration;
+import freemarker.template.Template;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import istio.networking.v1alpha3.SidecarOuterClass;
 import me.snowdrop.istio.api.IstioResource;
@@ -13,9 +18,33 @@ import org.hango.cloud.core.GlobalConfig;
 import org.hango.cloud.core.gateway.service.GatewayConfigManager;
 import org.hango.cloud.core.gateway.service.ResourceManager;
 import org.hango.cloud.core.istio.PilotHttpClient;
+import org.hango.cloud.core.template.TemplateUtils;
 import org.hango.cloud.k8s.K8sTypes.PluginManager;
-import org.hango.cloud.meta.*;
-import org.hango.cloud.meta.dto.*;
+import org.hango.cloud.meta.Endpoint;
+import org.hango.cloud.meta.EnvoyFilterOrder;
+import org.hango.cloud.meta.IstioGateway;
+import org.hango.cloud.meta.PluginListenType;
+import org.hango.cloud.meta.PluginOrder;
+import org.hango.cloud.meta.PluginSupportConfig;
+import org.hango.cloud.meta.PluginSupportDetail;
+import org.hango.cloud.meta.Secret;
+import org.hango.cloud.meta.ServiceHealth;
+import org.hango.cloud.meta.dto.DubboMetaDto;
+import org.hango.cloud.meta.dto.EnvoyFilterDTO;
+import org.hango.cloud.meta.dto.GatewayPluginDTO;
+import org.hango.cloud.meta.dto.GrpcEnvoyFilterDto;
+import org.hango.cloud.meta.dto.PluginOrderDTO;
+import org.hango.cloud.meta.dto.PluginOrderItemDTO;
+import org.hango.cloud.meta.dto.PortalAPIDTO;
+import org.hango.cloud.meta.dto.PortalAPIDeleteDTO;
+import org.hango.cloud.meta.dto.PortalIstioGatewayDTO;
+import org.hango.cloud.meta.dto.PortalLoadBalancerDTO;
+import org.hango.cloud.meta.dto.PortalSecretDTO;
+import org.hango.cloud.meta.dto.PortalServiceConnectionPoolDTO;
+import org.hango.cloud.meta.dto.PortalServiceDTO;
+import org.hango.cloud.meta.dto.PortalTrafficPolicyDTO;
+import org.hango.cloud.meta.dto.ServiceAndPortDTO;
+import org.hango.cloud.meta.dto.ServiceSubsetDTO;
 import org.hango.cloud.service.GatewayService;
 import org.hango.cloud.util.Const;
 import org.hango.cloud.util.TelnetUtil;
@@ -30,7 +59,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import slime.microservice.plugin.v1alpha1.PluginManagerOuterClass;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Random;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -57,6 +94,11 @@ public class GatewayServiceImpl implements GatewayService {
     private static final String PORT_NUMBER = "portNumber";
     private static final String PROTO_DESCRIPTOR_BIN = "proto_descriptor_bin";
     private static final String SERVICES = "services";
+    private static final String PLUGIN_MANAGER_TEMPLATE = "plugin/manager/plugin-manager-template.json";
+    private static final String PLUGIN_SUPPORT_CONFIG = "plugin/manager/plugin-support-config.json";
+    private static final String PLUGIN_SUPPORT_KIND = "kind";
+    private static final String PLUGIN_SUPPORT_PLUGINS = "plugins";
+
 
 
 
@@ -67,7 +109,13 @@ public class GatewayServiceImpl implements GatewayService {
     private GlobalConfig globalConfig;
 
     @Autowired
+    private Configuration configuration;
+
+    @Autowired
     private PilotHttpClient pilotHttpClient;
+
+    @Autowired
+    ObjectMapper objectMapper;
 
     public GatewayServiceImpl(ResourceManager resourceManager, GatewayConfigManager configManager, GlobalConfig globalConfig) {
         this.resourceManager = resourceManager;
@@ -236,7 +284,7 @@ public class GatewayServiceImpl implements GatewayService {
             itemDTO.setEnable(p.getEnable());
             itemDTO.setName(p.getName());
             itemDTO.setInline(p.getInline());
-            itemDTO.setListenerType(p.getListenerTypeValue());
+            itemDTO.setListenerType(PluginListenType.getListenType(p.getListenerTypeValue()));
             itemDTO.setPort(p.getPort());
             dto.getPlugins().add(itemDTO);
         });
@@ -245,6 +293,12 @@ public class GatewayServiceImpl implements GatewayService {
 
     @Override
     public void updatePluginOrder(PluginOrderDTO pluginOrderDto) {
+        PluginOrderDTO hiddenTemplate = getPluginOrderTemplate(pluginOrderDto.getGatewayKind(),false);
+        if (!CollectionUtils.isEmpty(hiddenTemplate.getPlugins())){
+            Integer listenPort = pluginOrderDto.getPlugins().get(0).getPort();
+            hiddenTemplate.getPlugins().forEach(p->p.setPort(listenPort));
+            pluginOrderDto.getPlugins().addAll(hiddenTemplate.getPlugins());
+        }
         PluginOrder pluginOrder = Trans.pluginOrderDTO2PluginOrder(pluginOrderDto);
         configManager.updateConfig(pluginOrder);
     }
@@ -292,6 +346,7 @@ public class GatewayServiceImpl implements GatewayService {
         deleteEnvoyFilter(envoyFilterDTO);
     }
 
+    @Override
     public void deleteEnvoyFilter(EnvoyFilterDTO envoyFilterDTO) {
         EnvoyFilterOrder envoyFilterOrder = Trans.envoyFilterOrderDTO2EnvoyFilter(envoyFilterDTO);
         configManager.deleteConfig(envoyFilterOrder);
@@ -546,5 +601,57 @@ public class GatewayServiceImpl implements GatewayService {
             result[i] = split.length > i ? split[i] : StringUtils.EMPTY;
         }
         return result;
+    }
+
+    @Override
+    public PluginSupportConfig getPluginSupportConfig(String gatewayKind) {
+        try {
+            Template support = TemplateUtils.getTemplate(PLUGIN_SUPPORT_CONFIG, configuration);
+            List<PluginSupportConfig> supportList = objectMapper.readValue(String.valueOf(support), new TypeReference<List<PluginSupportConfig>>() {
+            });
+            Optional<PluginSupportConfig> gatewaySupport = supportList.stream().filter(s -> s.getGatewayKind().equals(gatewayKind)).findFirst();
+            if (!gatewaySupport.isPresent()) {
+                logger.info("error gateway kind , {}", gatewayKind);
+                return null;
+            }
+            return gatewaySupport.get();
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public PluginOrderDTO getPluginOrderTemplate(String gatewayKind) {
+        return getPluginOrderTemplate(gatewayKind,true);
+    }
+
+
+    private PluginOrderDTO getPluginOrderTemplate(String gatewayKind , boolean display){
+        if (StringUtils.isBlank(gatewayKind)) {
+            throw new ApiPlaneException(String.format("the gatewayKind:[%s] of plugin manger template can not be null.", gatewayKind));
+        }
+        Template manager = TemplateUtils.getTemplate(PLUGIN_MANAGER_TEMPLATE, configuration);
+        try {
+            PluginOrderDTO pluginOrderDTO = objectMapper.readValue(manager.toString(), PluginOrderDTO.class);
+            PluginSupportConfig pluginSupportConfig = getPluginSupportConfig(gatewayKind);
+            if (pluginSupportConfig == null) {
+                logger.info("error gateway kind , {}", gatewayKind);
+                return new PluginOrderDTO();
+            }
+            Set<String> pluginSupports = CollectionUtils.isEmpty(pluginSupportConfig.getPlugins()) ?
+                    Collections.emptySet() : pluginSupportConfig.getPlugins().stream().filter(p -> display == p.getDisplay())
+                    .map(PluginSupportDetail::getPlugin).collect(Collectors.toSet());
+
+            List<PluginOrderItemDTO> plugins = pluginOrderDTO.getPlugins();
+            if (CollectionUtils.isEmpty(plugins)) {
+                return pluginOrderDTO;
+            }
+            List<PluginOrderItemDTO> filtered = plugins.stream().filter(p -> pluginSupports.contains(p.getName()))
+                    .collect(Collectors.toList());
+            pluginOrderDTO.setPlugins(filtered);
+            return pluginOrderDTO;
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

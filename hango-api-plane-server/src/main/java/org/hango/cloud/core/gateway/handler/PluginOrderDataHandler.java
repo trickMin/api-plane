@@ -1,5 +1,6 @@
 package org.hango.cloud.core.gateway.handler;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hango.cloud.core.template.TemplateParams;
 import org.hango.cloud.meta.PluginOrder;
 import org.springframework.util.CollectionUtils;
@@ -18,7 +19,7 @@ public class PluginOrderDataHandler implements DataHandler<PluginOrder> {
     @Override
     public List<TemplateParams> handle(PluginOrder po) {
 
-        String name = getDefaultPluginManagerName(po.getGatewayLabels());
+        String name = getDefaultPluginManagerName(po);
 
         TemplateParams pmParams = TemplateParams.instance()
                 .put(PLUGIN_MANAGER_NAME, name)
@@ -28,10 +29,14 @@ public class PluginOrderDataHandler implements DataHandler<PluginOrder> {
         return Arrays.asList(pmParams);
     }
 
-    private String getDefaultPluginManagerName(Map<String, String> label) {
-        String name = CollectionUtils.isEmpty(label) ? DEFAULT_PLUGIN_MANAGER_NAME : joinLabelMap(label);
-        name = name.replaceAll("_", "-");
-        return name;
+    private String getDefaultPluginManagerName(PluginOrder po) {
+        String name;
+        if (StringUtils.isNotBlank(po.getName())){
+            name = po.getName();
+        }else {
+            name = CollectionUtils.isEmpty(po.getGatewayLabels()) ? DEFAULT_PLUGIN_MANAGER_NAME : joinLabelMap(po.getGatewayLabels());
+        }
+        return  name.replaceAll("_", "-");
     }
 
     /**

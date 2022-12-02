@@ -1,10 +1,19 @@
 package org.hango.cloud.core;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.Arrays;
 import java.util.List;
+
+import static org.hango.cloud.util.Const.VAILD_REGISTRY;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static org.hango.cloud.util.Const.VAILD_REGISTRY;
 
@@ -33,6 +42,17 @@ public class GlobalConfig {
     private String registry;
 
     private final String ALL = "all";
+
+    @Value("${ignorePlugins:#{null}}")
+    private String ignorePlugins;
+
+    public String getIgnorePlugins() {
+        return ignorePlugins;
+    }
+
+    public Set<String> getIgnorePluginSet() {
+        return StringUtils.isEmpty(ignorePlugins) ? Collections.emptySet() : new HashSet<>(Arrays.asList(ignorePlugins.split(",")));
+    }
 
 
     public String getResourceNamespace() {
