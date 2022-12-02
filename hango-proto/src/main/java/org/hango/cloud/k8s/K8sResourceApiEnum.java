@@ -7,7 +7,9 @@ package org.hango.cloud.k8s;
 public enum K8sResourceApiEnum {
     VirtualService("virtualservices.networking.istio.io"),
     DestinationRule("destinationrules.networking.istio.io"),
-    EnvoyPlugin("envoyplugins.microservice.slime.io");
+    EnvoyPlugin("envoyplugins.microservice.slime.io"),
+    KubernetesGateway("gateways.gateway.networking.k8s.io"),
+    HTTPRoute("httproutes.gateway.networking.k8s.io");
 
     String api;
     K8sResourceApiEnum(String api){

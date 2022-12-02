@@ -176,6 +176,23 @@ public enum K8sResourceEnum {
             Secret.class,
             SecretList.class,
             ImmutableMap.of(K8sVersion.V1_11_0, "/api/v1/namespaces/%s/secrets")),
+
+    /** Ingress resource */
+    Ingress(
+            io.fabric8.kubernetes.api.model.extensions.Ingress.class,
+            io.fabric8.kubernetes.api.model.extensions.IngressList.class,
+            ImmutableMap.of(K8sVersion.V1_11_0, "/api/extensions/v1beta1/namespaces/%s/ingresses")),
+    //#######  Gateway API resource ###########
+    KubernetesGateway(
+            io.fabric8.kubernetes.api.model.gatewayapi.v1beta1.Gateway.class,
+            io.fabric8.kubernetes.api.model.gatewayapi.v1beta1.GatewayList.class,
+            ImmutableMap.of(K8sVersion.V1_11_0, "/api/gateway.networking.k8s.io/v1beta1/namespaces/%s/gateways")),
+
+    HTTPRoute(
+            io.fabric8.kubernetes.api.model.gatewayapi.v1beta1.HTTPRoute.class,
+            io.fabric8.kubernetes.api.model.gatewayapi.v1beta1.HTTPRouteList.class,
+            ImmutableMap.of(K8sVersion.V1_11_0, "/api/gateway.networking.k8s.io/v1beta1/namespaces/%s/httproutes"))
+
     ;
 
     private Class<? extends HasMetadata> mappingType;

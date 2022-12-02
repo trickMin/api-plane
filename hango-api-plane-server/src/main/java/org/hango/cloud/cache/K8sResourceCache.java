@@ -6,6 +6,10 @@ import com.hubspot.jackson.datatype.protobuf.ProtobufModule;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.KubernetesResourceList;
 import io.fabric8.kubernetes.api.model.apiextensions.v1beta1.CustomResourceDefinition;
+import io.fabric8.kubernetes.api.model.gatewayapi.v1beta1.Gateway;
+import io.fabric8.kubernetes.api.model.gatewayapi.v1beta1.GatewayList;
+import io.fabric8.kubernetes.api.model.gatewayapi.v1beta1.HTTPRoute;
+import io.fabric8.kubernetes.api.model.gatewayapi.v1beta1.HTTPRouteList;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.dsl.base.CustomResourceDefinitionContext;
 import io.fabric8.kubernetes.client.dsl.base.OperationContext;
@@ -60,6 +64,8 @@ public class K8sResourceCache implements ResourceCache {
         registryInformer(K8sResourceApiEnum.VirtualService, K8sTypes.VirtualService.class, K8sTypes.VirtualServiceList.class);
         registryInformer(K8sResourceApiEnum.DestinationRule, K8sTypes.DestinationRule.class, K8sTypes.DestinationRuleList.class);
         registryInformer(K8sResourceApiEnum.EnvoyPlugin, K8sTypes.EnvoyPlugin.class, K8sTypes.EnvoyPluginList.class);
+        registryInformer(K8sResourceApiEnum.KubernetesGateway, Gateway.class, GatewayList.class);
+        registryInformer(K8sResourceApiEnum.HTTPRoute, HTTPRoute.class, HTTPRouteList.class);
         sharedInformerFactory.startAllRegisteredInformers();
 
     }
@@ -91,6 +97,15 @@ public class K8sResourceCache implements ResourceCache {
             return new ArrayList<>();
         }
         return storeMap.get(kind).list().stream().filter(this::inNamespace).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<HasMetadata> getResourceByName(String kind, String name) {
+        List<HasMetadata> resource = getResource(kind);
+        if (StringUtils.isNotEmpty(name)){
+            resource = resource.stream().filter(o -> name.equals(o.getMetadata().getName())).collect(Collectors.toList());
+        }
+        return resource;
     }
 
     @Override
