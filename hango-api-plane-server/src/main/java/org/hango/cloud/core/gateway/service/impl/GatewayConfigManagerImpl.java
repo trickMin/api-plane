@@ -183,6 +183,7 @@ public class GatewayConfigManagerImpl extends AbstractConfigManagerSupport imple
 
     @Override
     public void deleteConfig(IstioGateway istioGateway) {
+        istioGateway.setServers(null);
         List<K8sResourcePack> resources = modelEngine.translate(istioGateway);
         update(resources);
     }

@@ -40,6 +40,8 @@ public interface GatewayService {
 
     List<String> getServiceList();
 
+    List<String> getRegistryList();
+
     List<ServiceAndPortDTO> getServiceAndPortList(String name, String type, String registryId, Map<String, String> filters);
 
 

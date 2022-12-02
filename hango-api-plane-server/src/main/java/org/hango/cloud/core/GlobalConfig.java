@@ -3,6 +3,11 @@ package org.hango.cloud.core;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.Arrays;
+import java.util.List;
+
+import static org.hango.cloud.util.Const.VAILD_REGISTRY;
+
 @Configuration
 public class GlobalConfig {
 
@@ -23,6 +28,12 @@ public class GlobalConfig {
 
     @Value("${customDefaultRespCode:500}")
     private int customDefaultRespCode;
+
+    @Value("${registry:all}")
+    private String registry;
+
+    private final String ALL = "all";
+
 
     public String getResourceNamespace() {
         return resourceNamespace;
@@ -46,5 +57,12 @@ public class GlobalConfig {
 
     public int getCustomDefaultRespCode() {
         return customDefaultRespCode;
+    }
+
+    public List<String> getRegistryList() {
+        if (ALL.equals(registry)){
+            return VAILD_REGISTRY;
+        }
+        return Arrays.asList(registry.split(","));
     }
 }
