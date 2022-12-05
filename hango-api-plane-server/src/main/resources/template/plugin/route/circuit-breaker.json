@@ -89,13 +89,13 @@
           "key": "rtThreshold",
           "alias": "慢响应时间阈值",
           "help": "慢响应时间阈值，与连续慢响应次数搭配生效，当连续",
-          "placeholder": "单位s，范围 (0, 1000.0]",
+          "placeholder": "单位s，范围 [0.001, 1000.0]",
           "type": "input",
           "rules": [
             "Required",
             "FloatNumber(5)",
             "MaxFloatNumber(1000.0)",
-            "MinFloatNumber(0.00001)"
+            "MinFloatNumber(0.001)"
           ]
         },
         {
