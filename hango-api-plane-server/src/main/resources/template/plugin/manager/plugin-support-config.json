@@ -90,7 +90,7 @@
     "name": "Kubernetes Ingress",
     "plugins": [
       {"schema": "resty","plugin": "proxy.filters.http.rider","display": true},
-
+      {"schema": "ua-restriction","plugin": "proxy.filters.http.ua_restriction","display": true},
       {"schema": "","plugin": "proxy.filters.http.metadatahub","display": false},
       {"schema": "","plugin": "proxy.filters.http.detailed_stats","display": false},
       {"schema": "","plugin": "proxy.filters.http.soapjsontranscoder","display": false},
@@ -102,7 +102,7 @@
     "name": "Gateway",
     "plugins": [
       {"schema": "resty","plugin": "proxy.filters.http.rider","display": true},
-
+      {"schema": "ua-restriction","plugin": "proxy.filters.http.ua_restriction","display": true},
       {"schema": "","plugin": "proxy.filters.http.metadatahub","display": false},
       {"schema": "","plugin": "proxy.filters.http.detailed_stats","display": false},
       {"schema": "","plugin": "proxy.filters.http.soapjsontranscoder","display": false},

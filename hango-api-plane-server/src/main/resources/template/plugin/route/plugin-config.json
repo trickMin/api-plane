@@ -99,7 +99,7 @@
       "author": "system",
       "createTime": "1572537600000",
       "updateTime": "1572537600000",
-      "pluginScope": "routeRule,global",
+      "pluginScope": "routeRule,global,host",
       "pluginPriority": "1100",
       "instructionForUse": "根据user-agent过滤请求",
       "categoryKey": "security",
