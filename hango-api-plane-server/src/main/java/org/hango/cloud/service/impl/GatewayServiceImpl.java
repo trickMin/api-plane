@@ -14,6 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.assertj.core.util.Lists;
 import org.hango.cloud.core.GlobalConfig;
 import org.hango.cloud.core.gateway.service.GatewayConfigManager;
 import org.hango.cloud.core.gateway.service.ResourceManager;
@@ -279,7 +280,13 @@ public class GatewayServiceImpl implements GatewayService {
         List<PluginManagerOuterClass.Plugin> plugins = pm.getSpec().getPluginList();
         dto.setPlugins(new ArrayList<>());
         if (CollectionUtils.isEmpty(plugins)) return dto;
+        PluginOrderDTO hiddenTemplate = getPluginOrderTemplate(pluginOrderDto.getGatewayKind(),false);
+        List<String> hiddenItem = CollectionUtils.isEmpty(hiddenTemplate.getPlugins()) ? Lists.emptyList() :
+                hiddenTemplate.getPlugins().stream().map(PluginOrderItemDTO::getName).collect(Collectors.toList());
         plugins.forEach(p -> {
+            if (hiddenItem.contains(p.getName())){
+                return;
+            }
             PluginOrderItemDTO itemDTO = new PluginOrderItemDTO();
             itemDTO.setEnable(p.getEnable());
             itemDTO.setName(p.getName());
