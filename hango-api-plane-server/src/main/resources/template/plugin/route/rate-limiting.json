@@ -25,7 +25,7 @@
             },
             {
               "key": "pre_condition",
-              "help": "满足前置条件的请求才会进入频控流程",
+              "help": "满足匹配条件的请求会进行流量控制",
               "alias": "请求头值匹配",
               "type": "array",
               "rules": [

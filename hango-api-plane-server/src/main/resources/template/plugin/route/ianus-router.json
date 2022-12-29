@@ -21,7 +21,7 @@
       "layouts": [
         {
           "key": "code",
-          "alias": "响应状态码",
+          "alias": "状态码",
           "type": "input",
           "rules": [
             "Required",
@@ -32,7 +32,7 @@
         },
         {
           "key": "body",
-          "alias": "响应内容",
+          "alias": "响应体",
           "type": "input",
           "rules":[
             "Required"

@@ -13,6 +13,7 @@
           "key": "headers",
           "alias": "请求头匹配",
           "type": "array",
+          "help": "满足匹配条件的请求会进行流量控制",
           "layouts": [
             {
               "key": "headerKey",

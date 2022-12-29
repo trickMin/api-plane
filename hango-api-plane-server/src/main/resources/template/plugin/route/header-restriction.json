@@ -5,7 +5,7 @@
   "layouts": [
     {
       "key": "type",
-      "alias": "类型",
+      "alias": "名单类型",
       "type": "select",
       "options": [
         {
@@ -24,12 +24,12 @@
     },
     {
       "key": "list",
-      "alias": "过滤列表",
+      "alias": "匹配规则",
       "type": "array",
       "layouts": [
         {
           "key": "header",
-          "alias": "header名称",
+          "alias": "请求头名称",
           "type": "input",
           "rules": [
             "MaxLength(200)",

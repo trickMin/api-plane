@@ -10,9 +10,8 @@
       "layouts": [
         {
           "key": "headerKey",
-          "alias": "Header名称",
+          "alias": "响应头名称",
           "type": "input",
-          "help": "在响应中header字段的key值",
           "rules": [
             "MaxLength(200)",
             "Required"
@@ -45,7 +44,6 @@
           "key": "headerValue",
           "alias": "取值",
           "type": "input",
-          "help": "在响应中header字段的value值",
           "invisible": {
             "this.operation": "delete"
           },

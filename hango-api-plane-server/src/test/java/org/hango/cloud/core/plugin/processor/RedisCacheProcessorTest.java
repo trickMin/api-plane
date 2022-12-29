@@ -24,7 +24,7 @@ public class RedisCacheProcessorTest extends BasePluginTest {
                     + "                \"match_type\":\"exact_match\",\n" + "                \"value\":\"200\"\n"
                     + "            },\n" + "            \"headers\":[\n" + "\n" + "            ]\n" + "        }\n"
                     + "    },\n" + "    \"ttl\":{\n" + "        \"redis\":{\n" + "            \"custom\":[\n" + "\n"
-                    + "            ],\n" + "            \"default\":\"2000\"\n" + "        }\n" + "    },\n"
+                    + "            ],\n" + "            \"default\":\"2\"\n" + "        }\n" + "    },\n"
                     + "    \"kind\":\"redis-cache\",\n" + "    \"keyMaker\":{\n" + "        \"excludeHost\":true,\n"
                     + "        \"ignoreCase\":true,\n" + "        \"queryString\":[\n" + "            \"query1\"\n"
                     + "        ],\n" + "        \"headers\":[\n" + "            \"header1\"\n" + "        ]\n"

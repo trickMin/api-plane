@@ -15,8 +15,8 @@
   "layouts": [
     {
       "key": "allowOrigin",
-      "alias": "Allow Origin",
-      "help": "指示请求的资源能共享给哪些域",
+      "alias": "允许的来源",
+      "help": "Access-Control-Allow-Origin，指示请求的资源能共享给哪些域",
       "placeholder":"请输入正则表达式",
       "type": "multi_input",
       "rules": [
@@ -26,8 +26,8 @@
     },
     {
       "key": "allowMethods",
-      "alias": "Allow Methods",
-      "help": "指定对预请求的响应中，哪些HTTP方法允许访问请求的资源",
+      "alias": "允许的方法",
+      "help": "Access-Control-Allow-Methods，指定对预请求的响应中，哪些HTTP方法允许访问请求的资源",
       "type": "multi_select",
       "default": [],
       "rules": [
@@ -46,8 +46,8 @@
     },
     {
       "key": "allowHeaders",
-      "alias": "Allow Headers",
-      "help": "用在对预请求的响应中，指示实际的请求中可以使用哪些HTTP头",
+      "alias": "允许的头部",
+      "help": "Access-Control-Allow-Headers，用在对预请求的响应中，指示实际的请求中可以使用哪些HTTP头",
       "type": "multi_input",
       "rules": [
         "Unique",
@@ -56,8 +56,8 @@
     },
     {
       "key": "exposeHeaders",
-      "alias": "Expose Headers",
-      "help": "指示哪些 HTTP 头的名称能在响应中列出",
+      "alias": "暴露的头部",
+      "help": "Access-Control-Expose-Headers，指示哪些 HTTP 头的名称能在响应中列出",
       "type": "multi_input",
       "rules": [
         "Unique",
@@ -66,8 +66,8 @@
     },
     {
       "key": "allowCredentials",
-      "alias": "Allow Credentials",
-      "help": "表示请求中是否允许发送Credentials，包含cookies, authorization headers 或 TLS client certificates",
+      "alias": "允许Cookie",
+      "help": "Access-Control-Allow-Credentials，表示请求中是否允许发送Credentials，包含cookies, authorization headers 或 TLS client certificates",
       "type": "radio",
       "options": [
         "true",
@@ -76,8 +76,8 @@
     },
     {
       "key": "maxAge",
-      "alias": "Max Age",
-      "help": "指示预请求的结果能被缓存多久，单位秒",
+      "alias": "缓存时长(秒)",
+      "help": "Access-Control-Max-Age，指示预请求的结果能被缓存多久，单位秒",
       "type": "number",
       "rules": [
         "Number",

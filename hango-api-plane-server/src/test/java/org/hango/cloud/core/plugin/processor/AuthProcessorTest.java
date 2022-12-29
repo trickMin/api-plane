@@ -16,7 +16,7 @@ public class AuthProcessorTest extends BasePluginTest {
 
         String plugin = "{\"useAuthz\":true,\"kind\":\"jwt-auth\",\"authnType\":\"jwt_authn_type\","
                     + "\"cacheSwitch\":true,\"authz_result_cache\":{\"result_cache_key\":{\"ignore_case\":true},"
-                    + "\"result_cache_ttl\":\"50000\"}}";
+                    + "\"result_cache_ttl\":\"50\"}}";
 
         FragmentHolder f = authProcessor.process(plugin, serviceInfo);
         Assert.assertEquals("need_authorization: true\n" +

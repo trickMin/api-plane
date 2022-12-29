@@ -135,7 +135,7 @@ public class RedisCacheProcessor extends AbstractSchemaProcessor implements
     Integer redisDefaultTtl = source.getValue("$.ttl.redis.default", Integer.class);
     if (nonNull(redisDefaultTtl) && redisDefaultTtl != 0) {
       builder.createOrUpdateJson("$", "cache_ttls", "{\"RedisHttpCache\":{}}");
-      builder.createOrUpdateValue("$.cache_ttls.RedisHttpCache", "default", redisDefaultTtl);
+      builder.createOrUpdateValue("$.cache_ttls.RedisHttpCache", "default", redisDefaultTtl * 1000);
     }
     if (source.contain("$.ttl.redis.custom")) {
       List<Map<String, String>> customTtl = source.getValue("$.ttl.redis.custom", List.class);
@@ -149,7 +149,7 @@ public class RedisCacheProcessor extends AbstractSchemaProcessor implements
               return;
           }
         builder.createOrUpdateValue("$.cache_ttls.RedisHttpCache.customs", code,
-            Integer.parseInt(value));
+                Integer.parseInt(value) * 1000);
       });
     }
 

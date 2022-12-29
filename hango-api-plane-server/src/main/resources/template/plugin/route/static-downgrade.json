@@ -271,9 +271,8 @@
         {
           "key": "code",
           "type": "input",
-          "help": "默认200",
           "default": "200",
-          "alias": "响应状态码",
+          "alias": "状态码",
           "rules": [
             "Required",
             "Number",
@@ -309,7 +308,7 @@
         {
           "key": "body",
           "type": "input",
-          "alias": "响应内容"
+          "alias": "响应体"
         }
       ]
     }

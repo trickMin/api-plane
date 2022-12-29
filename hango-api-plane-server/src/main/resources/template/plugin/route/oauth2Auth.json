@@ -50,8 +50,8 @@
             },
             {
               "key": "headers_keys",
-              "alias": "自定义请求头",
-              "help": "自定义请求头参与key计算，如果不配置则采用默认计算方式",
+              "alias": "请求头名称",
+              "help": "自定义请求头参与key计算",
               "type": "multi_input",
               "rules": [
                 "MaxLength(200)"
@@ -61,14 +61,14 @@
         },
         {
           "key": "result_cache_ttl",
-          "alias": "缓存TTL配置",
-          "help": "指定缓存时间，单位ms",
+          "alias": "TTL(秒)",
+          "help": "指定缓存时间",
           "type": "input",
           "rules": [
             "Required",
             "Number",
             "MinNumber(0)",
-            "MaxNumber(86400000)"
+            "MaxNumber(86400)"
           ]
         }
       ]

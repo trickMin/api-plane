@@ -149,8 +149,8 @@ public class DynamicDowngradeProcessor extends AbstractSchemaProcessor implement
         Integer redisDefaultTtl = source.getValue("$.cache.ttl.default", Integer.class);
         //redis ttl
         if (source.contain("$.cache.ttl.default")) {
-            builder.createOrUpdateValue("$.cache_ttls.RedisHttpCache", "default", redisDefaultTtl);
-            builder.createOrUpdateValue("$.cache_ttls.LocalHttpCache", "default", redisDefaultTtl);
+            builder.createOrUpdateValue("$.cache_ttls.RedisHttpCache", "default", redisDefaultTtl * 1000);
+            builder.createOrUpdateValue("$.cache_ttls.LocalHttpCache", "default", redisDefaultTtl * 1000);
         }
         if (source.contain("$.cache.ttl.custom")) {
             List<Map<String, Object>> customs = source.getValue("$.cache.ttl.custom", List.class);

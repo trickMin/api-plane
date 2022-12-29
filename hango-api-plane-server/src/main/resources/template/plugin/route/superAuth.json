@@ -47,7 +47,7 @@
     },
     {
       "key": "bufferSetting",
-      "alias": "请求体设置",
+      "alias": "请求体配置",
       "type": "layouts",
       "visible": {
         "this.authnType": "aksk_authn_type"
@@ -55,8 +55,8 @@
       "layouts": [
         {
           "key": "maxRequestBytes",
-          "alias": "最大请求体字节数",
-          "help": "当有请求体时，请求体的hash会参与签名计算。当请求体大小大于该值后，根据 是否允许部分消息 配置截取部分请求体进行签名计算或者拒绝客户端请求",
+          "alias": "最大字节数",
+          "help": "请求体参与签名计算，当请求体字节数超过该值，而且允许部分消息开关打开，会截取部分请求体进行签名计算",
           "type": "input",
           "default": "4096",
           "rules": [
@@ -68,9 +68,9 @@
         },
         {
           "key": "allowPartialMessage",
-          "alias": "是否允许部分消息",
+          "alias": "允许部分消息",
           "type": "switch",
-          "help": "该开关打开时，若请求体大于 最大请求字节数 时会截取 最大请求体字节数进行签名计算；否则会拒绝客户端请求",
+          "help": "该开关打开时，若请求体字节数超过最大请求体，会截取最大请求体长度的消息进行签名计算；否则会拒绝客户端请求",
           "default": true
         }
       ]
@@ -107,8 +107,8 @@
             },
             {
               "key": "headers_keys",
-              "alias": "自定义请求头",
-              "help": "自定义请求头参与key计算，如果不配置则采用默认计算方式",
+              "alias": "请求头名称",
+              "help": "自定义请求头参与key计算",
               "type": "multi_input",
               "rules": [
                 "MaxLength(200)"
@@ -118,14 +118,14 @@
         },
         {
           "key": "result_cache_ttl",
-          "alias": "缓存TTL配置",
-          "help": "指定缓存时间，单位ms",
+          "alias": "TTL(秒)",
+          "help": "指定缓存时间",
           "type": "input",
           "rules": [
             "Required",
             "Number",
             "MinNumber(0)",
-            "MaxNumber(86400000)"
+            "MaxNumber(86400)"
           ]
         }
       ]

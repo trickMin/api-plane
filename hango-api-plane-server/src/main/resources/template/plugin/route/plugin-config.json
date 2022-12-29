@@ -11,7 +11,7 @@
       "updateTime": "1572537600000",
       "pluginScope": "routeRule",
       "pluginPriority": "500",
-      "instructionForUse": "按百分比限流，例如允许50%通过",
+      "instructionForUse": "按百分比限流，例如允许50%流量通过",
       "categoryKey": "trafficPolicy",
       "categoryName": "流量管理"
     },
@@ -28,7 +28,7 @@
       "pluginPriority": "500",
       "instructionForUse": "JWT认证",
       "categoryKey": "auth",
-      "categoryName": "认证"
+      "categoryName": "认证鉴权"
     },
     {
       "name": "basic-rbac",
@@ -43,11 +43,11 @@
       "pluginPriority": "500",
       "instructionForUse": "提供基于外部认证鉴权",
       "categoryKey": "auth",
-      "categoryName": "认证"
+      "categoryName": "认证鉴权"
     },
     {
       "name": "rate-limiting",
-      "displayName": "限流",
+      "displayName": "集群限流",
       "schema": "plugin/route/rate-limiting.json",
       "description": "频控插件",
       "processor": "AggregateGatewayPluginProcessor",
@@ -56,7 +56,7 @@
       "updateTime": "1572537600000",
       "pluginScope": "routeRule",
       "pluginPriority": "1500",
-      "instructionForUse": "请求频率限流，例如限制5个请求/s",
+      "instructionForUse": "请求频率限流，限制服务请求流量",
       "categoryKey": "trafficPolicy",
       "categoryName": "流量管理"
     },
@@ -131,13 +131,13 @@
       "updateTime": "1572537600000",
       "pluginScope": "routeRule,global",
       "pluginPriority": "1100",
-      "instructionForUse": "header字段进行过滤",
+      "instructionForUse": "根据header过滤请求",
       "categoryKey": "security",
       "categoryName": "安全"
     },
     {
       "name": "response-header-rewrite",
-      "displayName": "响应头部重写",
+      "displayName": "响应头重写",
       "schema": "plugin/route/response-header-rewrite.json",
       "description": "",
       "processor": "AggregateGatewayPluginProcessor",
@@ -146,7 +146,7 @@
       "updateTime": "1636943353954",
       "pluginScope": "routeRule,global",
       "pluginPriority": "2500",
-      "instructionForUse": "修改请求响应头信息",
+      "instructionForUse": "修改请求的响应头信息",
       "categoryKey": "dataFormat",
       "categoryName": "数据转换"
     },
@@ -206,7 +206,7 @@
       "updateTime": "1572537600000",
       "pluginScope": "routeRule",
       "pluginPriority": "2500",
-      "instructionForUse": "替换请求Path前缀",
+      "instructionForUse": "修改请求Path前缀",
       "categoryKey": "dataFormat",
       "categoryName": "数据转换"
     },
@@ -242,7 +242,7 @@
     },
     {
       "name": "transformer",
-      "displayName": "请求转换",
+      "displayName": "请求重写",
       "schema": "plugin/route/request-transformer-new.json",
       "description": "",
       "processor": "AggregateGatewayPluginProcessor",
@@ -251,7 +251,7 @@
       "updateTime": "1572537600000",
       "pluginScope": "routeRule",
       "pluginPriority": "2300",
-      "instructionForUse": "修改请求Header、QueryString以及Path",
+      "instructionForUse": "修改请求Header、Query String以及Path",
       "categoryKey": "dataFormat",
       "categoryName": "数据转换"
     },
@@ -266,7 +266,7 @@
       "updateTime": "1572537600000",
       "pluginScope": "routeRule,global",
       "pluginPriority": "2200",
-      "instructionForUse": "当后端响应结果符合条件时，对返回结果进行静态响应降级",
+      "instructionForUse": "当后端响应异常时，返回固定响应给客户端",
       "categoryKey": "trafficPolicy",
       "categoryName": "流量管理"
     },
@@ -281,7 +281,7 @@
       "updateTime": "1572537600000",
       "pluginScope": "routeRule,global",
       "pluginPriority": "2100",
-      "instructionForUse": "当后端响应结果符合条件时，对返回结果进行缓存降级或接口降级",
+      "instructionForUse": "当后端响应异常时，返回缓存响应给客户端，或者转发请求给降级接口进行处理",
       "categoryKey": "trafficPolicy",
       "categoryName": "流量管理"
     },
@@ -298,7 +298,7 @@
       "pluginPriority": "1700",
       "instructionForUse": "提供AK/SK签名认证",
       "categoryKey": "auth",
-      "categoryName": "认证"
+      "categoryName": "认证鉴权"
     },
     {
       "name": "oauth2-auth",
@@ -313,7 +313,7 @@
       "pluginPriority": "1700",
       "instructionForUse": "提供OAuth2认证",
       "categoryKey": "auth",
-      "categoryName": "认证"
+      "categoryName": "认证鉴权"
     },
     {
       "name": "circuit-breaker",
@@ -326,7 +326,7 @@
       "updateTime": "1572537600000",
       "pluginScope": "routeRule,global",
       "pluginPriority": "3400",
-      "instructionForUse": "提供错误率和时延触发的熔断",
+      "instructionForUse": "当后端服务错误率和时延超过阈值时，拦截客户端请求，保护后端服务",
       "categoryKey": "trafficPolicy",
       "categoryName": "流量管理"
     },
@@ -362,7 +362,7 @@
     },
     {
       "name": "waf",
-      "displayName": "waf",
+      "displayName": "WAF",
       "schema": "plugin/route/waf.json",
       "description": "",
       "processor": "AggregateGatewayPluginProcessor",
@@ -371,7 +371,7 @@
       "updateTime": "1572537600000",
       "pluginScope": "routeRule,global",
       "pluginPriority": "1000",
-      "instructionForUse": "waf插件",
+      "instructionForUse": "提供应用级安全防护",
       "categoryKey": "security",
       "categoryName": "安全"
     }

@@ -58,10 +58,10 @@ public class DynamicDowngradeProcessorTest extends BasePluginTest {
                 "\t\t\t}\n" +
                 "\t\t},\n" +
                 "\t\t\"ttls\": {\n" +
-                "\t\t\t\"default\": 30000,\n" +
+                "\t\t\t\"default\": 30,\n" +
                 "\t\t\t\"custom\": [{\n" +
                 "\t\t\t\t\"code\": \"200\",\n" +
-                "\t\t\t\t\"ttl\": 50000\n" +
+                "\t\t\t\t\"ttl\": 50\n" +
                 "\t\t\t}]\n" +
                 "\t\t},\n" +
                 "\t\t\"cache_key\": {\n" +
@@ -128,11 +128,11 @@ public class DynamicDowngradeProcessorTest extends BasePluginTest {
                 "    },\n" +
                 "    \"local\": false,\n" +
                 "    \"ttl\": {\n" +
-                "      \"default\": 30000,\n" +
+                "      \"default\": 30,\n" +
                 "      \"custom\": [\n" +
                 "        {\n" +
                 "          \"code\": \"200\",\n" +
-                "          \"ttl\": 50000\n" +
+                "          \"ttl\": 50\n" +
                 "        }\n" +
                 "      ]\n" +
                 "    }\n" +
@@ -175,11 +175,11 @@ public class DynamicDowngradeProcessorTest extends BasePluginTest {
             + "  RedisHttpCache:\n"
             + "    default: 30000\n"
             + "    customs:\n"
-            + "      \"200\": 50000\n"
+            + "      \"200\": 50\n"
             + "  LocalHttpCache:\n"
             + "    default: 30000\n"
             + "    customs:\n"
-            + "      \"200\": 50000\n"
+            + "      \"200\": 50\n"
             + "key_maker:\n"
             + "  query_params: []\n"
             + "  headers_keys: []", f3.getVirtualServiceFragment().getContent().trim());

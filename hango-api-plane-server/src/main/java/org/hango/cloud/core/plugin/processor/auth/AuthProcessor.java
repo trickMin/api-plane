@@ -71,7 +71,7 @@ public class AuthProcessor extends AbstractSchemaProcessor implements SchemaProc
     private void buildCache(ResourceGenerator source, ResourceGenerator builder){
         builder.createOrUpdateJson("$", result_cache, "{}");
         if (source.contain(cacheTtl)) {
-            builder.createOrUpdateValue("$." + result_cache, result_cache_ttl, source.getValue(cacheTtl, Integer.class));
+            builder.createOrUpdateValue("$." + result_cache, result_cache_ttl, source.getValue(cacheTtl, Integer.class) * 1000);
         }
         if (source.contain(cacheKey)){
             createCacheKey(source,builder);

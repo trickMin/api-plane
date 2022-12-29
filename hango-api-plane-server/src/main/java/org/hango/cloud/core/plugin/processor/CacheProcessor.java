@@ -112,7 +112,7 @@ public class CacheProcessor extends AbstractSchemaProcessor implements SchemaPro
         Integer localDefaultTtl = source.getValue("$.ttl.local.default", Integer.class);
         if (nonNull(redisDefaultTtl) && redisDefaultTtl != 0) {
             builder.createOrUpdateJson("$", "cache_ttls", "{\"RedisHttpCache\":{}}");
-            builder.createOrUpdateValue("$.cache_ttls.RedisHttpCache", "default", redisDefaultTtl);
+            builder.createOrUpdateValue("$.cache_ttls.RedisHttpCache", "default", redisDefaultTtl * 1000);
         }
         if (source.contain("$.ttl.redis.custom")) {
             List<Map<String, String>> customTtl = source.getValue("$.ttl.redis.custom", List.class);
@@ -121,7 +121,7 @@ public class CacheProcessor extends AbstractSchemaProcessor implements SchemaPro
                 String code = item.get("code");
                 String value = item.get("value");
                 if (haveNull(code, value)) return;
-                builder.createOrUpdateValue("$.cache_ttls.RedisHttpCache.customs", code, Integer.parseInt(value));
+                builder.createOrUpdateValue("$.cache_ttls.RedisHttpCache.customs", code, Integer.parseInt(value) * 1000);
             });
         }
 
@@ -131,7 +131,7 @@ public class CacheProcessor extends AbstractSchemaProcessor implements SchemaPro
             }else {
                 builder.createOrUpdateJson("$", "cache_ttls", "{\"LocalHttpCache\":{}}");
             }
-            builder.createOrUpdateValue("$.cache_ttls.LocalHttpCache", "default", localDefaultTtl);
+            builder.createOrUpdateValue("$.cache_ttls.LocalHttpCache", "default", localDefaultTtl * 1000);
         }
         if (source.contain("$.ttl.local.custom")) {
             List<Map<String, String>> customTtl = source.getValue("$.ttl.local.custom", List.class);
@@ -140,7 +140,7 @@ public class CacheProcessor extends AbstractSchemaProcessor implements SchemaPro
                 String code = item.get("code");
                 String value = item.get("value");
                 if (haveNull(code, value)) return;
-                builder.createOrUpdateValue("$.cache_ttls.LocalHttpCache.customs", code, Integer.parseInt(value));
+                builder.createOrUpdateValue("$.cache_ttls.LocalHttpCache.customs", code, Integer.parseInt(value) * 1000);
             });
         }
 

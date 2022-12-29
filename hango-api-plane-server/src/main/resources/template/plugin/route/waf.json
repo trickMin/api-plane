@@ -26,7 +26,7 @@
             {
               "key": "dos_burst_time_slice",
               "type": "input",
-              "alias": "统计的时间窗口（秒）",
+              "alias": "时间窗口(秒)",
               "rules": [
                 "Required",
                 "Number",
@@ -48,7 +48,7 @@
             {
               "key": "dos_block_timeout",
               "type": "input",
-              "alias": "请求拒绝的时间（秒）",
+              "alias": "惩罚时间(秒)",
               "rules": [
                 "Required",
                 "Number",
@@ -61,35 +61,35 @@
         {
           "key": "scannerSwitch",
           "help": "防止扫描攻击，检查某些开源或商业的扫描攻击的默认 User-Agent 和 Headers",
-          "alias": "Scanner",
+          "alias": "扫描攻击",
           "type": "switch",
           "default": false
         },
         {
           "key": "lfiSwitch",
-          "help": "防止利用本地文件包含漏洞进行攻击，检查headers、cookie或者 uri 中是否包含目录遍历、系统文件等",
+          "help": "防止利用本地文件包含漏洞进行攻击，检查headers、cookie或者 URI 中是否包含目录遍历、系统文件等",
           "alias": "LFI",
           "type": "switch",
           "default": false
         },
         {
           "key": "rfiSwitch",
-          "help": "防止利用远程文件包含漏洞进行攻击，检查 url 参数中是否包含 ip 地址、body 中是否包含 include关键字等",
+          "help": "防止利用远程文件包含漏洞进行攻击，检查 URL 参数中是否包含 IP 地址、body 中是否包含 include关键字等",
           "alias": "RFI",
           "type": "switch",
           "default": false
         },
         {
           "key": "rceSwitch",
-          "help": "防止利用远程命令执行漏洞进行攻击，检查 cookie、url 参数等是否包含Unix Command、Windows Command、Windows PowerShell Command 等",
+          "help": "防止利用远程命令执行漏洞进行攻击，检查 cookie、URL 参数等是否包含Unix Command、Windows Command、Windows PowerShell Command 等",
           "alias": "RCE",
           "type": "switch",
           "default": false
         },
         {
           "key": "phpInjectionSwitch",
-          "help": "防止 PHP 代码注入 ，检查 headers、cookie、rl 参数等是否包含可能的 php 文件、关键字之类",
-          "alias": "PHP Injection",
+          "help": "防止 PHP 代码注入 ，检查 headers、cookie、rl 参数等是否包含可能的 PHP 文件、关键字之类",
+          "alias": "PHP代码注入",
           "type": "switch",
           "default": false
         },
@@ -102,7 +102,7 @@
         },
         {
           "key": "sqliSwitch",
-          "help": "防止 SQL 注入，检查 headers、cookie、rl 参数等是否包含可能的 sql 语句等",
+          "help": "防止 SQL 注入，检查 headers、cookie、rl 参数等是否包含可能的 SQL 语句等",
           "alias": "SQLi",
           "type": "switch",
           "default": false
@@ -110,49 +110,49 @@
         {
           "key": "sessionFixationSwitch",
           "help": "阻止利用Session会话ID不变的漏洞进行攻击",
-          "alias": "Session Fixation",
+          "alias": "会话固定",
           "type": "switch",
           "default": false
         },
         {
           "key": "javaInjectionSwitch",
           "help": "防止 Java 代码注入，检查 headers、cookie、rl 参数等是否包含可能的 java 文件、关键字之类",
-          "alias": "Java Injection",
+          "alias": "Java代码注入",
           "type": "switch",
           "default": false
         },
         {
           "key": "cgiDataLeakagesSwitch",
           "help": "防止【CGI】数据泄露，检查 response body 中是否包含相应语言的关键字或者错误输出等",
-          "alias": "CGI Data Leakages",
+          "alias": "CGI数据泄露",
           "type": "switch",
           "default": false
         },
         {
           "key": "sqlDataLeakagesSwitch",
           "help": "防止【SQL】数据泄露，检查 response body 中是否包含相应语言的关键字或者错误输出等",
-          "alias": "SQL Data Leakages",
+          "alias": "SQL数据泄露",
           "type": "switch",
           "default": false
         },
         {
           "key": "javaDataLeakagesSwitch",
           "help": "防止【JAVA】数据泄露，检查 response body 中是否包含相应语言的关键字或者错误输出等",
-          "alias": "Java Data Leakages",
+          "alias": "Java数据泄露",
           "type": "switch",
           "default": false
         },
         {
           "key": "phpDataLeakagesSwitch",
           "help": "防止【PHP】数据泄露，检查 response body 中是否包含相应语言的关键字或者错误输出等",
-          "alias": "PHP Data Leakages",
+          "alias": "PHP数据泄露",
           "type": "switch",
           "default": false
         },
         {
           "key": "iisDataLeakagesSwitch",
           "help": "防止【IIS】数据泄露，检查 response body 中是否包含相应语言的关键字或者错误输出等",
-          "alias": "IIS Data Leakages",
+          "alias": "IIS数据泄露",
           "type": "switch",
           "default": false
         }

@@ -6,14 +6,14 @@
     {
       "key": "forward",
       "alias": "透传JWT",
-      "help": "开关关闭后，认证成功的JWT将不会被请求携带到网关之后的服务",
+      "help": "开关打开后，认证成功的JWT将会被传递到后端服务",
       "type": "switch",
       "default": false
     },
     {
       "key": "allow-missing",
       "alias": "允许匿名访问",
-      "help": "开关打开后，可以允许请求不携带JWT访问网关",
+      "help": "开关打开后，可以允许请求不携带JWT访问服务",
       "type": "switch",
       "default": false
     }

@@ -276,26 +276,26 @@
           "layouts": [
             {
               "key": "default",
-              "alias": "默认TTL",
-              "help": "默认TTL设置，填写0即不使用缓存，单位ms",
+              "alias": "默认TTL(秒)",
+              "help": "默认TTL设置，填写0即不使用缓存",
               "type": "input",
               "rules": [
                 "Required",
                 "Number",
                 "MinNumber(0)",
-                "MaxNumber(86400000)"
+                "MaxNumber(86400)"
               ]
             },
             {
               "key": "custom",
               "alias": "定制TTL",
-              "help": "当响应状态码满足如下条件时则使用单独的缓存TTL设置，否则使用默认TTL设置",
+              "help": "当状态码满足如下条件时则使用单独的缓存TTL设置，否则使用默认TTL设置",
               "type": "array",
               "layouts": [
                 {
                   "key": "code",
-                  "alias": "响应状态码",
-                  "help": "支持输入具体的响应码及X..，如2..代表2XX响应码",
+                  "alias": "状态码",
+                  "help": "支持输入具体的状态码及X..，如2..代表2XX状态码",
                   "type": "input",
                   "rules": [
                     "Required",
@@ -306,13 +306,13 @@
                 },
                 {
                   "key": "value",
-                  "alias": "TTL",
+                  "alias": "TTL(秒)",
                   "type": "input",
                   "rules": [
                     "Required",
                     "Number",
                     "MinNumber(0)",
-                    "MaxNumber(86400000)"
+                    "MaxNumber(86400)"
                   ]
                 }
               ]
@@ -326,26 +326,26 @@
           "layouts": [
             {
               "key": "default",
-              "alias": "默认TTL",
-              "help": "默认TTL设置，填写0即不使用缓存，单位ms",
+              "alias": "默认TTL(秒)",
+              "help": "默认TTL设置，填写0即不使用缓存",
               "type": "input",
               "rules": [
                 "Required",
                 "Number",
                 "MinNumber(0)",
-                "MaxNumber(86400000)"
+                "MaxNumber(86400)"
               ]
             },
             {
               "key": "custom",
               "alias": "定制TTL",
-              "help": "当响应状态码满足如下条件时则使用单独的缓存TTL设置，否则使用默认TTL设置",
+              "help": "当状态码满足如下条件时则使用单独的缓存TTL设置，否则使用默认TTL设置",
               "type": "array",
               "layouts": [
                 {
                   "key": "code",
-                  "alias": "响应状态码",
-                  "help": "支持输入具体的响应码及X..，如2..代表2XX响应码",
+                  "alias": "状态码",
+                  "help": "支持输入具体的状态码及X..，如2..代表2XX状态码",
                   "type": "input",
                   "rules": [
                     "Required",
@@ -356,13 +356,13 @@
                 },
                 {
                   "key": "value",
-                  "alias": "TTL",
+                  "alias": "TTL(秒)",
                   "type": "input",
                   "rules": [
                     "Required",
                     "Number",
                     "MinNumber(0)",
-                    "MaxNumber(86400000)"
+                    "MaxNumber(86400)"
                   ]
                 }
               ]
@@ -393,7 +393,7 @@
         },
         {
           "key": "queryString",
-          "alias": "自定义查询参数",
+          "alias": "查询参数名称",
           "type": "multi_input",
           "help": "自定义查询参数参与key计算",
           "rules": [
@@ -402,7 +402,7 @@
         },
         {
           "key": "headers",
-          "alias": "自定义请求头",
+          "alias": "请求头名称",
           "type": "multi_input",
           "help": "自定义请求头参与key计算",
           "rules": [
@@ -414,7 +414,7 @@
     {
       "key": "lowLevelFill",
       "alias": "次级缓存填充",
-      "help": "当在高级别缓存中命中时，将数据写入到低级别缓存中",
+      "help": "当在Redis缓存中命中时，将数据写入到本地缓存中",
       "type": "switch",
       "default": true
     }
