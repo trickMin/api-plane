@@ -78,8 +78,8 @@ public abstract class AbstractConfigManagerSupport implements ConfigManager{
                 configStore.delete(i);
                 deleteNotification(i);
             } catch (Exception e) {
-                //ignore error
-                logger.warn("", e);
+                // 忽略删除失败，继续删除其他CR资源
+                logger.warn("{} {} not exists, failed to delete", i.getKind(), i.getMetadata().getName());
             }
         } else {
             configStore.update(i);
