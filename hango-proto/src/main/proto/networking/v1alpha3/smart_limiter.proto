@@ -75,8 +75,6 @@ message SmartLimiterSpec {
   map<string, SmartLimitDescriptors> sets = 1;
   // rls service
   string rls = 2; // rls 服务地址
-  // workload selector , it should not be nil in Gateway Scenarios
-  map<string, string> workload_selector = 4;
   // is gateway
   bool gateway = 5;
   // hostname specify svc host

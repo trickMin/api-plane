@@ -36,8 +36,7 @@ public class SmartLimiterDataHandler implements DataHandler<GatewayPlugin> {
         TemplateParams gatewayPluginParams = TemplateParams.instance()
                 .put(TemplateConst.GATEWAY_PLUGIN_NAME, HandlerUtil.getGatewayPluginName(plugin))
                 .put(TemplateConst.GATEWAY_PLUGIN_PLUGINS, smartLimiters)
-                .put(TemplateConst.GATEWAY_PLUGIN_NAMESPACE, gatewayNamespace)
-                .put(TemplateConst.GATEWAY_CLUSTER_NAME, plugin.getGateway());
+                .put(TemplateConst.GATEWAY_PLUGIN_NAMESPACE, gatewayNamespace);
 
         // 路由和全局插件模板渲染数据区分填充
         if (plugin.isRoutePlugin()) {

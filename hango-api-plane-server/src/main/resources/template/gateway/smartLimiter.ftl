@@ -11,8 +11,6 @@ metadata:
 </#if>
 spec:
   gateway: true
-  workloadSelector:
-    gw_cluster: ${t_gateway_cluster_name}
   target:
     direction: outbound
 <#if t_gateway_plugin_hosts?has_content>
