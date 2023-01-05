@@ -76,4 +76,9 @@ public interface Const {
      * 以下是envoy filter全名
      */
     String JWT_FILTER = "envoy.filters.http.jwt_authn";
+
+    /**
+     * RBAC插件身份信息存储 filter
+     */
+    String RBAC_IDENTITY_FILTER = "envoy.filters.http.rbac_identity";
 }

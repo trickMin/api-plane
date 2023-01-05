@@ -1,6 +1,5 @@
 package org.hango.cloud.core.plugin.processor.auth;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hango.cloud.core.k8s.K8sResourceEnum;
 import org.hango.cloud.core.plugin.FragmentHolder;
 import org.hango.cloud.core.plugin.FragmentTypeEnum;
@@ -9,17 +8,14 @@ import org.hango.cloud.core.plugin.PluginGenerator;
 import org.hango.cloud.core.plugin.processor.AbstractSchemaProcessor;
 import org.hango.cloud.core.plugin.processor.SchemaProcessor;
 import org.hango.cloud.meta.ServiceInfo;
-import org.json.JSONObject;
+
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.hango.cloud.util.Const.AUTH_JWKS;
-import static org.hango.cloud.util.Const.JWT_FILTER;
+import static org.hango.cloud.util.Const.*;
 
 /**
  * 基础鉴权插件处理器
@@ -41,7 +37,7 @@ public class BasicRbacProcessor extends AbstractSchemaProcessor implements Schem
         // 默认支持ALLOW策略
         String action = "ALLOW";
         // 默认支持JWT类型鉴权，其他类型鉴权适配见方法 convertToEnvoyFilter(String authType)
-        String filter = JWT_FILTER;
+        String filter = RBAC_IDENTITY_FILTER;
         PluginGenerator resultBuilder = PluginGenerator.newInstance("{\"rbac\":{\"rules\":{\"action\":\"" + action + "\",\"policies\":{\"gw-strategy\":{\"permissions\":[{\"any\":true}],\"principals\":[{\"or_ids\":{\"ids\":[]}}]}}}}}");
 
         Map<String, List<Map<String, String>>> principalList;
@@ -53,7 +49,7 @@ public class BasicRbacProcessor extends AbstractSchemaProcessor implements Schem
         List<Map<String, String>> authGroupList = principalList.get("auth_group");
         for (Map<String, String> authGroup : authGroupList) {
             // 后续根据authGroup中的auth_type来确认此身份对应的凭证类型
-            if (!StringUtils.isEmpty(authGroup.get("auth_type"))) {
+            if (StringUtils.hasText(authGroup.get("auth_type"))) {
                 filter = convertToEnvoyFilter(authGroup.get("auth_type"));
             }
             PluginGenerator metadataBuilder = PluginGenerator.newInstance("{\"metadata\":{\"filter\":\"" + filter + "\",\"path\":[{\"key\":\"payload\"},{\"key\":\"name\"}],\"value\":{\"string_match\":{\"exact\":\"" + authGroup.get("name") + "\"}}}}");

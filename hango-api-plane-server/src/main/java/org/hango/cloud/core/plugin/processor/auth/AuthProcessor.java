@@ -28,11 +28,15 @@ public class AuthProcessor extends AbstractSchemaProcessor implements SchemaProc
     @Override
     public FragmentHolder process(String plugin, ServiceInfo serviceInfo) {
         ResourceGenerator source = ResourceGenerator.newInstance(plugin);
-        ResourceGenerator builder = ResourceGenerator.newInstance("{\"need_authorization\":\"false\", \"failure_auth_allow\":\"false\"}");
+        ResourceGenerator builder = ResourceGenerator.newInstance("{\"need_authorization\":false, \"failure_auth_allow\":\"false\"}");
         String kind = source.getValue("$.kind", String.class);
         builder.createOrUpdateJson("$", AuthTypeEnum.getAuthTypeEnum(kind).getAuth_type(), "{}");
 
-        builder.updateValue("$.need_authorization", source.getValue("$.useAuthz", Boolean.class));
+        // 旧版本super_auth插件有鉴权开关功能，保留鉴权配置开关
+        Boolean useAuthz = source.getValue("$.useAuthz", Boolean.class);
+        if (useAuthz != null) {
+            builder.updateValue("$.need_authorization", useAuthz);
+        }
         Boolean failureAuthAllow = source.getValue("$.failureAuthAllow", Boolean.class);
         failureAuthAllow = null == failureAuthAllow ? false : failureAuthAllow;
         builder.updateValue("$.failure_auth_allow", failureAuthAllow);
