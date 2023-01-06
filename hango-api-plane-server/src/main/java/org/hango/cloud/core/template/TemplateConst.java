@@ -76,6 +76,8 @@ public interface TemplateConst {
     String VIRTUAL_SERVICE_MIRROR_SUBSET = "t_virtual_service_mirror_subset";
     String VIRTUAL_SERVICE_MIRROR_YAML = "t_virtual_service_mirror_yaml";
     String VIRTUAL_SERVICE_STATS = "t_virtual_service_stats";
+
+    String VIRTUAL_SERVICE_METADATA_HUB = "t_virtual_service_metadata_hub";
     String VIRTUAL_SERVICE_DUBBO = "t_virtual_service_dubbo";
 
     String VIRTUAL_SERVICE_RESP_EXCEPTION_CODE ="t_virtual_service_resp_exception_code";
@@ -202,6 +204,8 @@ public interface TemplateConst {
      * Gateway
      **/
     String GATEWAY_NAME = "t_gateway_name";
+
+    String VIRTUAL_GATEWAY_CODE = "t_virtual_gateway_code";
     String GATEWAY_NS = "t_gateway_ns";
     String GATEWAY_HOSTS = "t_gateway_hosts";
     String GATEWAY_HTTP_10 = "t_gateway_http_10";

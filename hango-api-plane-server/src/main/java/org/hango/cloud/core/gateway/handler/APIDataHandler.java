@@ -5,6 +5,8 @@ import me.snowdrop.istio.api.networking.v1alpha3.VirtualService;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.hango.cloud.core.gateway.handler.meta.UriMatchMeta;
 import org.hango.cloud.core.template.TemplateParams;
+import org.hango.cloud.k8s.K8sResource;
+import org.hango.cloud.k8s.K8sTypes;
 import org.hango.cloud.meta.API;
 import org.hango.cloud.meta.CRDMetaEnum;
 import org.hango.cloud.meta.PairMatch;
@@ -120,7 +122,7 @@ public abstract class APIDataHandler implements DataHandler<API> {
      * @return TemplateParams
      */
     private TemplateParams handleApiMeta(String name, String value, TemplateParams tp) {
-        CRDMetaEnum metaEnum = CRDMetaEnum.get(VirtualService.class, name);
+        CRDMetaEnum metaEnum = CRDMetaEnum.get(K8sTypes.VirtualService.class, name);
         if (metaEnum == null) {
             logger.warn("find null meta enum ，please check input content , target class is {} , name is {} ", VirtualService.class, name);
             return tp;
@@ -128,6 +130,7 @@ public abstract class APIDataHandler implements DataHandler<API> {
         try {
             switch (metaEnum) {
                 case VIRTUAL_SERVICE_STATS_META:
+                case VIRTUAL_SERVICE_META_DATA_HUB:
                     tp.put(metaEnum.getTemplateName(), metaEnum.getTransData(value));
                     break;
                 case VIRTUAL_SERVICE_DUBBO_META:

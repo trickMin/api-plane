@@ -5,12 +5,10 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.fabric8.kubernetes.api.model.KubernetesResource;
-import me.snowdrop.istio.api.networking.v1alpha3.VirtualService;
 import org.hango.cloud.core.template.TemplateConst;
+import org.hango.cloud.k8s.K8sTypes;
 import org.hango.cloud.meta.dto.DubboInfoDto;
-import org.hango.cloud.meta.dto.DubboMetaDto;
 
-import java.util.List;
 import java.util.Map;
 
 
@@ -23,9 +21,11 @@ import java.util.Map;
  */
 public enum CRDMetaEnum {
 
-    VIRTUAL_SERVICE_STATS_META(VirtualService.class, "StatsMeta", TemplateConst.VIRTUAL_SERVICE_STATS, new TypeReference<Map<String,String>>() {
+    VIRTUAL_SERVICE_STATS_META(K8sTypes.VirtualService.class, "StatsMeta", TemplateConst.VIRTUAL_SERVICE_STATS, new TypeReference<Map<String,String>>() {
     }),
-    VIRTUAL_SERVICE_DUBBO_META(VirtualService.class, "DubboMeta", TemplateConst.VIRTUAL_SERVICE_DUBBO, new TypeReference<DubboInfoDto>() {
+    VIRTUAL_SERVICE_META_DATA_HUB(K8sTypes.VirtualService.class, "MetadataHub", TemplateConst.VIRTUAL_SERVICE_METADATA_HUB, new TypeReference<Map<String,String>>() {
+    }),
+    VIRTUAL_SERVICE_DUBBO_META(K8sTypes.VirtualService.class, "DubboMeta", TemplateConst.VIRTUAL_SERVICE_DUBBO, new TypeReference<DubboInfoDto>() {
     }),
     ;
 
