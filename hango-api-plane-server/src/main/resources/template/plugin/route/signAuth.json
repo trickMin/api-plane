@@ -28,13 +28,13 @@
     },
     {
       "key": "bufferSetting",
-      "alias": "请求体设置",
+      "alias": "请求体配置",
       "type": "layouts",
       "layouts": [
         {
           "key": "maxRequestBytes",
-          "alias": "最大请求体字节数",
-          "help": "当有请求体时，请求体的hash会参与签名计算。当请求体大小大于该值后，根据 是否允许部分消息 配置截取部分请求体进行签名计算或者拒绝客户端请求",
+          "alias": "最大请求体",
+          "help": "请求体参与签名计算，当请求体字节数超过该值，而且允许部分消息开关打开，会截取部分请求体进行签名计算",
           "type": "input",
           "default": "4096",
           "rules": [
@@ -46,9 +46,9 @@
         },
         {
           "key": "allowPartialMessage",
-          "alias": "是否允许部分消息",
+          "alias": "允许部分消息",
           "type": "switch",
-          "help": "该开关打开时，若请求体大于 最大请求字节数 时会截取 最大请求体字节数进行签名计算；否则会拒绝客户端请求",
+          "help": "该开关打开时，若请求体字节数超过最大请求体，会截取最大请求体长度的消息进行签名计算；否则会拒绝客户端请求",
           "default": true
         }
       ]
@@ -62,7 +62,7 @@
       "key": "authz_result_cache",
       "alias": "认证缓存配置",
       "type": "layouts",
-      "help": "配置认证缓存相关信息，包括缓存key以及缓存ttl",
+      "help": "配置认证缓存相关信息，包括缓存key以及缓存TTL",
       "visible": {
         "true": [
           "this",

@@ -27,7 +27,7 @@
       "key": "authz_result_cache",
       "alias": "认证缓存配置",
       "type": "layouts",
-      "help": "配置认证缓存相关信息，包括缓存key以及缓存ttl",
+      "help": "配置认证缓存相关信息，包括缓存key以及缓存TTL",
       "visible": {
         "true": [
           "this",

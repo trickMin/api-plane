@@ -12,6 +12,7 @@
         {
           "key": "headers",
           "alias": "请求头匹配",
+          "help": "满足匹配条件的请求会进行流量控制",
           "type": "array",
           "layouts": [
             {
@@ -25,7 +26,6 @@
             },
             {
               "key": "pre_condition",
-              "help": "满足匹配条件的请求会进行流量控制",
               "alias": "请求头值匹配",
               "type": "array",
               "rules": [
