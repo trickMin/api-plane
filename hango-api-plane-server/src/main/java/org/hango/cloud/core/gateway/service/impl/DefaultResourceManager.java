@@ -4,12 +4,10 @@ import org.hango.cloud.core.envoy.EnvoyHttpClient;
 import org.hango.cloud.core.gateway.service.ResourceManager;
 import org.hango.cloud.core.istio.PilotHttpClient;
 import org.hango.cloud.meta.Endpoint;
-import org.hango.cloud.meta.Gateway;
 import org.hango.cloud.meta.HealthServiceSubset;
 import org.hango.cloud.meta.ServiceAndPort;
 import org.hango.cloud.meta.ServiceHealth;
 import org.hango.cloud.util.CommonUtil;
-import org.hango.cloud.util.exception.ApiPlaneException;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -20,7 +18,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import java.util.*;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static org.hango.cloud.util.Const.*;
@@ -137,6 +134,9 @@ public class DefaultResourceManager implements ResourceManager {
         if (!isMatchFilter(endpoint, kindFilters, PREFIX_LABEL)) {
             return false;
         }
+        if (!isMatchFilter(endpoint, kindFilters, PROJECT_LABEL)) {
+            return false;
+        }
         if (!isMatchFilter(endpoint, kindFilters, PREFIX_HOST)) {
             return false;
         }
@@ -157,6 +157,14 @@ public class DefaultResourceManager implements ResourceManager {
     private boolean isMatchFilter(Endpoint endpoint, Map<String, Map<String, String>> kindFilters, String filterPrefix) {
         if (!CollectionUtils.isEmpty(kindFilters.get(filterPrefix))) {
             Map<String, String> filters = kindFilters.get(filterPrefix);
+
+            if (PROJECT_LABEL.equals(filterPrefix)) {
+                // 项目隔离过滤器，用于对开启项目隔离的endpoint进行基于projectCode过滤
+                if (!passProjectCodeMatch(endpoint, kindFilters)) {
+                    return false;
+                }
+            }
+
             if (PREFIX_LABEL.equals(filterPrefix)) {
                 // label匹配逻辑
                 for (Map.Entry<String, String> entry : filters.entrySet()) {
@@ -164,13 +172,31 @@ public class DefaultResourceManager implements ResourceManager {
                         return false;
                     }
                 }
-            } else {
+            }
+
+            // 除了projectCode和label外的其他类型过滤标签
+            if (!PROJECT_LABEL.equals(filterPrefix) && !PREFIX_LABEL.equals(filterPrefix)) {
                 for (Map.Entry<String, String> entry : filters.entrySet()) {
                     if (!entry.getValue().equals(getEndpointAttrByPrefix(filterPrefix, endpoint))) {
                         return false;
                     }
                 }
             }
+        }
+        return true;
+    }
+
+    private boolean passProjectCodeMatch(Endpoint endpoint, Map<String, Map<String, String>> kindFilters) {
+        Map<String, String> labelFilters = kindFilters.get(PROJECT_LABEL);
+        String hostname = endpoint.getHostname();
+        if (StringUtils.isEmpty(hostname)) {
+            logger.warn("[isMatchFilter] exist empty hostname, endpoint: {}", endpoint);
+            return false;
+        }
+        if (hostname.matches(SERVICE_PROJECT_ISOLATION_FORMAT)) {
+            // 开启项目隔离功能的服务endpoint校验是否匹配projectCode
+            String hostRegex = "^.+\\.nsf\\." + labelFilters.get(PROJECT_CODE) + "\\.(eureka|nacos)$";
+            return hostname.matches(hostRegex);
         }
         return true;
     }
@@ -233,7 +259,9 @@ public class DefaultResourceManager implements ResourceManager {
         Map<String, Map<String, String>> kindFilters = new HashMap<>(8);
         Set<String> keys = filters.keySet();
         for (String key : keys) {
-            if (key.startsWith(PREFIX_LABEL)) {
+            if (key.equals(PROJECT_LABEL)) {
+                fillKindFilters(kindFilters, PROJECT_LABEL, key, filters.get(key));
+            } else if (key.startsWith(PREFIX_LABEL)) {
                 fillKindFilters(kindFilters, PREFIX_LABEL, key, filters.get(key));
             } else if (key.startsWith(PREFIX_HOST)) {
                 fillKindFilters(kindFilters, PREFIX_HOST, key, filters.get(key));
@@ -253,15 +281,19 @@ public class DefaultResourceManager implements ResourceManager {
      * @param value        匹配条件对应的匹配值
      */
     private void fillKindFilters(Map<String, Map<String, String>> kindFilters, String filterPrefix, String key, String value) {
-        String filterKey = key.substring(filterPrefix.length());
         // 创建对应匹配规则的过滤器
         if (!kindFilters.containsKey(filterPrefix)) {
             Map<String, String> filters = new HashMap<>(2);
             kindFilters.put(filterPrefix, filters);
         }
         if (PREFIX_LABEL.equals(filterPrefix)) {
+            String filterKey = key.substring(PREFIX_LABEL.length());
             // label匹配规则直接以kv形式填充
             kindFilters.get(filterPrefix).put(filterKey, value);
+        } else if (PROJECT_LABEL.equals(filterPrefix)) {
+            // 项目隔离过滤器
+            String filterKey = key.substring(PREFIX_LABEL.length());
+            kindFilters.get(PROJECT_LABEL).put(filterKey, value);
         } else {
             // 其他匹配规则将key以序号形式填充
             Map<String, String> filters = kindFilters.get(filterPrefix);

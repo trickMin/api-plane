@@ -1,10 +1,7 @@
 package org.hango.cloud.util;
 
-import com.google.common.collect.Maps;
-
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 public interface Const {
 
@@ -60,7 +57,9 @@ public interface Const {
     public static final String PREFIX_ADDRESS = "address_";
     public static final String PREFIX_PORT = "port_";
     public static final String PREFIX_PROTOCOL = "protocol_";
-    public static final List<String> PREFIX_LIST = Arrays.asList(PREFIX_LABEL, PREFIX_HOST, PREFIX_ADDRESS, PREFIX_PORT, PREFIX_PROTOCOL);
+    String PROJECT_LABEL = "label_projectCode";
+
+    String PROJECT_CODE = "projectCode";
 
     /**
      * envoy outbound prefix
@@ -81,4 +80,9 @@ public interface Const {
      * RBAC插件身份信息存储 filter
      */
     String RBAC_IDENTITY_FILTER = "envoy.filters.http.rbac_identity";
+
+    /**
+     * 项目隔离服务host正则表达式
+     */
+    String SERVICE_PROJECT_ISOLATION_FORMAT = "^.+\\.nsf\\..+\\.(eureka|nacos)$";
 }

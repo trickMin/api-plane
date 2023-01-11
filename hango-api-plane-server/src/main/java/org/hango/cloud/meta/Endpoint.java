@@ -3,6 +3,8 @@ package org.hango.cloud.meta;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 import java.util.Map;
 import java.util.Objects;
@@ -88,5 +90,10 @@ public class Endpoint {
     @Override
     public int hashCode() {
         return Objects.hash(hostname, address, port, protocol, labels);
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
     }
 }
