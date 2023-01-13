@@ -20,7 +20,7 @@ public class AuthProcessorTest extends BasePluginTest {
 
         FragmentHolder f = authProcessor.process(plugin, serviceInfo);
         Assert.assertEquals("need_authorization: true\n" +
-                            "failure_auth_allow: false\n" +
+                            "missing_auth_allow: false\n" +
                             "jwt_authn_type: {}\n" +
                             "authz_result_cache:\n" +
                             "  result_cache_ttl: 50000\n" +
