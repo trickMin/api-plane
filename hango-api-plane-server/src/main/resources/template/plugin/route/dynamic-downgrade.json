@@ -174,7 +174,7 @@
             },
             {
               "key": "code",
-              "alias": "响应状态码",
+              "alias": "状态码",
               "visible": {
                 "this.responseSwitch": true
               },
@@ -201,7 +201,7 @@
                     "Number",
                     "MinNumber(200)",
                     "MaxNumber(599)"
-                    ]
+                  ]
                 }
               ]
             },
@@ -215,7 +215,7 @@
               "layouts": [
                 {
                   "key": "headerKey",
-                  "alias": "响应头",
+                  "alias": "响应头名称",
                   "type": "input",
                   "rules": [
                     "MaxLength(200)"
@@ -417,7 +417,7 @@
             },
             {
               "key": "query_params",
-              "alias": "查询参数",
+              "alias": "查询参数名称",
               "help": "自定义查询参数参与key计算",
               "type": "multi_input",
               "rules": [
@@ -426,7 +426,7 @@
             },
             {
               "key": "headers",
-              "alias": "请求头",
+              "alias": "请求头名称",
               "type": "multi_input",
               "help": "自定义请求头参与key计算",
               "rules": [

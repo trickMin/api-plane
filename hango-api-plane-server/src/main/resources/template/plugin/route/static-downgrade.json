@@ -143,7 +143,7 @@
               "layouts": [
                 {
                   "key": "headerKey",
-                  "alias": "请求头",
+                  "alias": "请求头名称",
                   "type": "input",
                   "rules": [
                     "MaxLength(200)"

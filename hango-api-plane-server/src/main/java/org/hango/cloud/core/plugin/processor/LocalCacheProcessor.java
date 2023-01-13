@@ -136,7 +136,7 @@ public class LocalCacheProcessor extends AbstractSchemaProcessor implements
     Integer localDefaultTtl = source.getValue("$.ttl.local.default", Integer.class);
     if (nonNull(localDefaultTtl) && localDefaultTtl != 0) {
       builder.createOrUpdateJson("$", "cache_ttls", "{\"LocalHttpCache\":{}}");
-      builder.createOrUpdateValue("$.cache_ttls.LocalHttpCache", "default", localDefaultTtl);
+      builder.createOrUpdateValue("$.cache_ttls.LocalHttpCache", "default", localDefaultTtl * 1000);
     }
     if (source.contain("$.ttl.local.custom")) {
       List<Map<String, String>> customTtl = source.getValue("$.ttl.local.custom", List.class);
@@ -150,7 +150,7 @@ public class LocalCacheProcessor extends AbstractSchemaProcessor implements
           return;
         }
         builder.createOrUpdateValue("$.cache_ttls.LocalHttpCache.customs", code,
-            Integer.parseInt(value));
+            Integer.parseInt(value) * 1000);
       });
     }
 

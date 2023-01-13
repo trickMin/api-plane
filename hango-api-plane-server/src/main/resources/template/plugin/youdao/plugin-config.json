@@ -10,7 +10,8 @@
       "updateTime": "1572537600000",
       "pluginScope": "routeRule",
       "pluginPriority": "500",
-      "instructionForUse": "按百分比限流，例如允许50%通"
+      "instructionForUse": "按百分比限流，例如允许50%通",
+      "pluginGuidance": ""
     },
     {
       "name": "rate-limiting",
@@ -22,7 +23,8 @@
       "updateTime": "1572537600000",
       "pluginScope": "routeRule",
       "pluginPriority": "1500",
-      "instructionForUse": "按频率限流,例如限制5个请求/s"
+      "instructionForUse": "按频率限流,例如限制5个请求/s",
+      "pluginGuidance": ""
     },
     {
       "name": "ianus-router",
@@ -34,7 +36,8 @@
       "updateTime": "1572537600000",
       "pluginScope": "routeRule",
       "pluginPriority": "3500",
-      "instructionForUse": "实现请求中断功能，配置该插件后根据配置响应信息直接返回给客户端"
+      "instructionForUse": "实现请求中断功能，配置该插件后根据配置响应信息直接返回给客户端",
+      "pluginGuidance": ""
     },
     {
       "name": "ip-restriction",
@@ -46,7 +49,8 @@
       "updateTime": "1572537600000",
       "pluginScope": "routeRule,global",
       "pluginPriority": "1000",
-      "instructionForUse": "根据ip过滤请求"
+      "instructionForUse": "根据ip过滤请求",
+      "pluginGuidance": ""
     },
     {
       "name": "cors",
@@ -58,7 +62,8 @@
       "updateTime": "1572537600000",
       "pluginScope": "routeRule,global",
       "pluginPriority": "2000",
-      "instructionForUse": "跨域资源共享插件cors"
+      "instructionForUse": "跨域资源共享插件cors",
+      "pluginGuidance": ""
     },
     {
       "name": "jsonp",
@@ -70,7 +75,8 @@
       "updateTime": "1572537600000",
       "pluginScope": "routeRule",
       "pluginPriority": "2700",
-      "instructionForUse": "跨域资源共享插件jsonp"
+      "instructionForUse": "跨域资源共享插件jsonp",
+      "pluginGuidance": ""
     },
     {
       "name": "rewrite",
@@ -82,7 +88,8 @@
       "updateTime": "1572537600000",
       "pluginScope": "routeRule",
       "pluginPriority": "2500",
-      "instructionForUse": "前缀替换插件"
+      "instructionForUse": "前缀替换插件",
+      "pluginGuidance": ""
     },
     {
       "name": "cache",
@@ -94,7 +101,8 @@
       "updateTime": "1572537600000",
       "pluginScope": "routeRule,global",
       "pluginPriority": "3000",
-      "instructionForUse": "缓存插件，仅对GET、HEAD方法生效，若配置了cache插件，则在响应头中可以看到"
+      "instructionForUse": "缓存插件，仅对GET、HEAD方法生效，若配置了cache插件，则在响应头中可以看到",
+      "pluginGuidance": ""
     },
     {
       "name": "transformer",
@@ -106,7 +114,8 @@
       "updateTime": "1572537600000",
       "pluginScope": "routeRule",
       "pluginPriority": "2300",
-      "instructionForUse": "请求转换插件，允许对header、queryString参数的增加、删除、修改"
+      "instructionForUse": "请求转换插件，允许对header、queryString参数的增加、删除、修改",
+      "pluginGuidance": ""
     },
     {
       "name": "static-downgrade",
@@ -118,7 +127,8 @@
       "updateTime": "1572537600000",
       "pluginScope": "routeRule,global",
       "pluginPriority": "2200",
-      "instructionForUse": "静态降级插件，当返回结果符合条时件对返回结果进行降级"
+      "instructionForUse": "静态降级插件，当返回结果符合条时件对返回结果进行降级",
+      "pluginGuidance": "当请求和响应匹配降级条件时，网关返回自定义的响应返回给客户端"
     },
     {
       "name": "trace",
@@ -130,7 +140,8 @@
       "updateTime": "1572537600000",
       "pluginScope": "global",
       "pluginPriority": "4000",
-      "instructionForUse": "trace插件"
+      "instructionForUse": "trace插件",
+      "pluginGuidance": ""
     },
     {
       "name": "super-auth",
@@ -142,7 +153,8 @@
       "updateTime": "1572537600000",
       "pluginScope": "global,routeRule",
       "pluginPriority": "1700",
-      "instructionForUse": "认证鉴权插件"
+      "instructionForUse": "认证鉴权插件",
+      "pluginGuidance": ""
     },
     {
       "name": "youdaoMathAuthentication",
@@ -154,7 +166,8 @@
       "updateTime": "1572537600000",
       "pluginScope": "routeRule",
       "pluginPriority": "1000",
-      "instructionForUse": "有道数学鉴权插件"
+      "instructionForUse": "有道数学鉴权插件",
+      "pluginGuidance": ""
     }
   ]
 }

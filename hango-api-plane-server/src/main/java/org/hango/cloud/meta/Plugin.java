@@ -1,6 +1,8 @@
 package org.hango.cloud.meta;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 
 public class Plugin {
@@ -44,6 +46,8 @@ public class Plugin {
     @JsonProperty("categoryName")
     private String categoryName;
 
+    @JsonProperty("pluginGuidance")
+    private String pluginGuidance;
 
     public String getName() {
         return name;
@@ -149,19 +153,16 @@ public class Plugin {
         this.categoryName = categoryName;
     }
 
+    public String getPluginGuidance() {
+        return pluginGuidance;
+    }
+
+    public void setPluginGuidance(String pluginGuidance) {
+        this.pluginGuidance = pluginGuidance;
+    }
+
     @Override
     public String toString() {
-        return "Plugin{" +
-                "name='" + name + '\'' +
-                ", processor='" + processor + '\'' +
-                ", description='" + description + '\'' +
-                ", author='" + author + '\'' +
-                ", createTime='" + createTime + '\'' +
-                ", updateTime='" + updateTime + '\'' +
-                ", pluginScope='" + pluginScope + '\'' +
-                ", pluginPriority='" + pluginPriority + '\'' +
-                ", instructionForUse='" + instructionForUse + '\'' +
-                ", schema='" + schema + '\'' +
-                '}';
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
     }
 }
