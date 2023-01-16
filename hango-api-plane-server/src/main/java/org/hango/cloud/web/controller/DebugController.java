@@ -24,7 +24,7 @@ public class DebugController extends BaseController{
 
     @RequestMapping(params = "Action=GetResourceInfo", method = RequestMethod.GET)
     public String getResourceInfo(@RequestParam(name = "Kind") String kind, @RequestParam(name = "Gateway", required = false) String gateway) {
-        List<HasMetadata> resource = resourceCache.getResource(gateway, kind);
+        List<HasMetadata> resource = resourceCache.getResource(gateway,kind);
         Map<String, Object> result = new HashMap<>();
         result.put("Resource", resource);
         return apiReturn(result);

@@ -64,6 +64,7 @@ public class K8sResourceCache implements ResourceCache {
         registryInformer(K8sResourceApiEnum.VirtualService, K8sTypes.VirtualService.class, K8sTypes.VirtualServiceList.class);
         registryInformer(K8sResourceApiEnum.DestinationRule, K8sTypes.DestinationRule.class, K8sTypes.DestinationRuleList.class);
         registryInformer(K8sResourceApiEnum.EnvoyPlugin, K8sTypes.EnvoyPlugin.class, K8sTypes.EnvoyPluginList.class);
+        registryInformer(K8sResourceApiEnum.SmartLimiter, K8sTypes.SmartLimiter.class, K8sTypes.SmartLimiterList.class);
         registryInformer(K8sResourceApiEnum.KubernetesGateway, Gateway.class, GatewayList.class);
         registryInformer(K8sResourceApiEnum.HTTPRoute, HTTPRoute.class, HTTPRouteList.class);
         sharedInformerFactory.startAllRegisteredInformers();

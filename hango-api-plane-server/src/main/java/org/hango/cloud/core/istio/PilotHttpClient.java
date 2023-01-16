@@ -125,7 +125,7 @@ public class PilotHttpClient {
         try {
             return parseDubboInfo(body, igv);
         } catch (Exception e) {
-            logger.error("解析dubbo信息失败，body：{}， igv:{}", body, igv);
+            logger.error("解析dubbo信息失败，body：{}， igv:{}", body, igv, e);
         }
         return new ArrayList<>();
     }

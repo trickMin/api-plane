@@ -12,6 +12,7 @@ import org.hango.cloud.cache.K8sResourceCache;
 import org.hango.cloud.core.GlobalConfig;
 import org.hango.cloud.core.gateway.service.impl.K8sConfigStore;
 import org.hango.cloud.core.k8s.MultiClusterK8sClient;
+import org.hango.cloud.k8s.K8sResourceApiEnum;
 import org.hango.cloud.meta.dto.ApiPlaneResult;
 import org.hango.cloud.meta.dto.ResourceCheckDTO;
 import org.hango.cloud.meta.dto.ResourceCheckResultDTO;
@@ -133,13 +134,27 @@ public class MultiClusterServiceImpl implements MultiClusterService {
                 .collect(Collectors.toList());
     }
 
-
     public List<HasMetadata> getCustomResource(String gateway, String kind){
         //开启informer缓存，优先从cache中获取
         if (multiClusterK8sClient.watchResource()){
-            return k8sResourceCache.getResource(gateway, kind);
+            List<HasMetadata> resource = k8sResourceCache.getResource(gateway, kind);
+            if (K8sResourceApiEnum.EnvoyPlugin.name().equals(kind)){
+                List<HasMetadata> smartLimit = k8sResourceCache.getResource(gateway, K8sResourceApiEnum.SmartLimiter.name());
+                if (CollectionUtils.isNotEmpty(smartLimit)){
+                    resource.addAll(smartLimit);
+                }
+            }
+            return resource;
+        }else {
+            List<HasMetadata> resource = k8sConfigStore.get(kind, globalConfig.getResourceNamespace());
+            if (K8sResourceApiEnum.EnvoyPlugin.name().equals(kind)){
+                List<HasMetadata> smartLimit = k8sConfigStore.get(K8sResourceApiEnum.SmartLimiter.name(), globalConfig.getResourceNamespace());
+                if (CollectionUtils.isNotEmpty(smartLimit)){
+                    resource.addAll(smartLimit);
+                }
+            }
+            return resource;
         }
-        return k8sConfigStore.get(kind, globalConfig.getResourceNamespace());
     }
 
 

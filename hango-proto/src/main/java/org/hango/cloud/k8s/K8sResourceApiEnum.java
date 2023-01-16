@@ -9,6 +9,7 @@ public enum K8sResourceApiEnum {
     DestinationRule("destinationrules.networking.istio.io"),
     EnvoyPlugin("envoyplugins.microservice.slime.io"),
     KubernetesGateway("gateways.gateway.networking.k8s.io"),
+    SmartLimiter("smartlimiters.microservice.slime.io"),
     HTTPRoute("httproutes.gateway.networking.k8s.io");
 
     String api;

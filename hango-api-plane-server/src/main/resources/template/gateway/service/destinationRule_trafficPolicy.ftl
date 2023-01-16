@@ -28,6 +28,10 @@ trafficPolicy:
 </#if>
 <#if t_destination_rule_load_balancer?has_content>
   loadBalancer:
+    <#if t_destination_rule_locality_enable?has_content>
+    localityLbSetting:
+      enabled: ${t_destination_rule_locality_enable}
+    </#if>
     <#if t_destination_rule_load_balancer_simple?has_content>
     simple: ${t_destination_rule_load_balancer_simple}
     </#if>
