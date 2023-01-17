@@ -30,7 +30,7 @@ public class RewriteProcessor extends AbstractSchemaProcessor implements SchemaP
                 "            \"rewriters\": [\n" +
                 "                {\n" +
                 "                    \"path\": {},\n" +
-                "                    \"update\": \"%s{{_1}}\"\n" +
+                "                    \"update\": \"%s{{1}}\"\n" +
                 "                }\n" +
                 "            ]\n" +
                 "        }\n" +
