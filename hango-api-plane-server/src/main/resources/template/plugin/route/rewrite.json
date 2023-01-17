@@ -1,17 +1,6 @@
 {
   "inject": {
-    "kind": "rewrite",
-    "regex": "(.*)",
-    "variable": "$1"
-  },
-  "formatter": {
-    "kind": "rewrite",
-    "action": {
-      "rewrite_regex": "&rewrite_regex+&regex",
-      "target": "&target+&variable"
-    },
-    "rewrite_regex":"&rewrite_regex",
-    "target":"&target"
+    "kind": "rewrite"
   },
   "layouts": [
     {
