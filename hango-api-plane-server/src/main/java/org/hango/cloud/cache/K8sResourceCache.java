@@ -133,9 +133,8 @@ public class K8sResourceCache implements ResourceCache {
         }
         switch (K8sResourceApiEnum.getByName(hasMetadata.getKind())){
             case DestinationRule:
-                return matchDestinationRuleGateway(hasMetadata, gateway);
             case VirtualService:
-                return matchVirtualServiceGateway(hasMetadata, gateway);
+                return hasMetadata.getMetadata().getName().endsWith(gateway);
             case EnvoyPlugin:
                 return matchPluginGateway(hasMetadata, gateway);
             default:
@@ -144,15 +143,7 @@ public class K8sResourceCache implements ResourceCache {
         }
     }
 
-
-    private boolean matchDestinationRuleGateway(HasMetadata hasMetadata, String gatewayStr){
-        String name = hasMetadata.getMetadata().getName();
-        int firstIndex = name.indexOf("-");
-        int secondIndex = name.indexOf("-", firstIndex + 1);
-        return StringUtils.equals(name.substring(secondIndex + 1), gatewayStr);
-    }
-
-    private boolean matchPluginGateway(HasMetadata hasMetadata, String gatewayStr){
+    private boolean matchPluginGateway(HasMetadata hasMetadata, String code){
         K8sTypes.EnvoyPlugin plugin = (K8sTypes.EnvoyPlugin)hasMetadata;
         ProtocolStringList gatewayList = plugin.getSpec().getGatewayList();
         if (gatewayList.size() == 0){
@@ -160,18 +151,9 @@ public class K8sResourceCache implements ResourceCache {
         }
         String gateway = gatewayList.get(0);
         if (gateway.contains("/")){
-            return StringUtils.equals(gateway.split("/")[1], gatewayStr);
+            return StringUtils.equals(gateway.split("/")[1], code);
         }
         return false;
-    }
-
-    private boolean matchVirtualServiceGateway(HasMetadata hasMetadata, String gatewayStr){
-        K8sTypes.VirtualService virtualService = (K8sTypes.VirtualService)hasMetadata;
-        ProtocolStringList gatewayList = virtualService.getSpec().getGatewaysList();
-        if (gatewayList.size() == 0){
-            return false;
-        }
-        return StringUtils.equals(gatewayList.get(0), gatewayStr) ;
     }
 }
 

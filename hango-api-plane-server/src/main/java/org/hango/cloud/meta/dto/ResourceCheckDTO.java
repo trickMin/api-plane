@@ -18,7 +18,7 @@ public class ResourceCheckDTO {
     Map<String, List<ResourceDTO>> resource;
 
     /**
-     * 需要校验的网关名称（gw_cluster_name）
+     * 需要校验的网关code(gwClusterName + "-" + virtualGatewayName)
      */
     @JsonProperty(value = "Gateway")
     String gateway;
