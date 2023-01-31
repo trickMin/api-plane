@@ -28,7 +28,7 @@ public class AuthProcessor extends AbstractSchemaProcessor implements SchemaProc
     @Override
     public FragmentHolder process(String plugin, ServiceInfo serviceInfo) {
         ResourceGenerator source = ResourceGenerator.newInstance(plugin);
-        ResourceGenerator builder = ResourceGenerator.newInstance("{\"need_authorization\":false, \"failure_auth_allow\":\"false\"}");
+        ResourceGenerator builder = ResourceGenerator.newInstance("{\"need_authorization\":false, \"missing_auth_allow\":\"false\"}");
         String kind = source.getValue("$.kind", String.class);
         builder.createOrUpdateJson("$", AuthTypeEnum.getAuthTypeEnum(kind).getAuth_type(), "{}");
 
@@ -39,7 +39,8 @@ public class AuthProcessor extends AbstractSchemaProcessor implements SchemaProc
         }
         Boolean failureAuthAllow = source.getValue("$.failureAuthAllow", Boolean.class);
         failureAuthAllow = null == failureAuthAllow ? false : failureAuthAllow;
-        builder.updateValue("$.failure_auth_allow", failureAuthAllow);
+        // 允许携带正确token或不携带token，携带错误token认证不通过
+        builder.updateValue("$.missing_auth_allow", failureAuthAllow);
 
         if (source.contain("$.bufferSetting.maxRequestBytes")) {
             String maxRequestBody = source.getValue("$.bufferSetting.maxRequestBytes", String.class);

@@ -53,7 +53,7 @@
         },
         {
           "enable": "true",
-          "name": "proxy.filters.http.rewrite"
+          "name": "proxy.filters.http.path_rewrite"
         },
         {
           "enable": "true",
@@ -186,7 +186,7 @@
         },
         {
           "enable": "true",
-          "name": "proxy.filters.http.jsonp"
+          "name": "proxy.filters.http.jsonpfilter"
         },
         {
           "enable": "true",

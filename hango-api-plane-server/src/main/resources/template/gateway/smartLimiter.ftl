@@ -5,8 +5,11 @@ metadata:
 <#if t_gateway_plugin_namespace?has_content>
   namespace: ${t_gateway_plugin_namespace}
 </#if>
-<#if t_resource_identity?has_content>
   labels:
+<#if t_version?has_content>
+    hango-data-version: ${t_version}
+</#if>
+<#if t_resource_identity?has_content>
     skiff-api-plane-resource-identity: ${t_resource_identity}
 </#if>
 spec:

@@ -5,10 +5,11 @@ import org.hango.cloud.core.template.TemplateConst;
 import org.hango.cloud.core.template.TemplateParams;
 import org.hango.cloud.meta.GatewayPlugin;
 import org.hango.cloud.util.HandlerUtil;
-import org.springframework.util.CollectionUtils;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * SmartLimiter资源处理器
@@ -34,6 +35,7 @@ public class SmartLimiterDataHandler implements DataHandler<GatewayPlugin> {
         List<TemplateParams> params = new ArrayList<>();
         List<String> smartLimiters = HandlerUtil.getSmartLimiters(fragments);
         TemplateParams gatewayPluginParams = TemplateParams.instance()
+                .put(TemplateConst.VERSION, plugin.getVersion())
                 .put(TemplateConst.GATEWAY_PLUGIN_NAME, HandlerUtil.getGatewayPluginName(plugin))
                 .put(TemplateConst.GATEWAY_PLUGIN_PLUGINS, smartLimiters)
                 .put(TemplateConst.GATEWAY_PLUGIN_NAMESPACE, gatewayNamespace);

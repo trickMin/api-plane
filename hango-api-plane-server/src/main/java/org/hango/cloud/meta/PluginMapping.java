@@ -9,8 +9,8 @@ package org.hango.cloud.meta;
  */
 public enum PluginMapping {
 
-    rewrite("rewrite","proxy.filters.http.rewrite","RewriteProcessor"),
-    jsonp("jsonp","proxy.filters.http.jsonp","JsonpProcessor"),
+    rewrite("rewrite","proxy.filters.http.path_rewrite","RewriteProcessor"),
+    jsonp("jsonp","proxy.filters.http.jsonpfilter","JsonpProcessor"),
     ianus_request_transformer("ianus-request-transformer","proxy.filters.http.transformation","TransformProcessor"),
     transformer("transformer","proxy.filters.http.transformation","TransformProcessor"),
     static_downgrade("static-downgrade","proxy.filters.http.staticdowngrade","StaticDowngradeProcessor"),

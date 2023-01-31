@@ -10,12 +10,6 @@ spec:
   host: ${t_destination_rule_host}
   altStatName: ${t_destination_rule_alt_stat_name}
 <#--- 默认所有subset都继承同一份trafficPolicy --->
-<#if t_destination_rule_locality_enable?has_content>
-  trafficPolicy:
-    loadBalancer:
-      localityLbSetting:
-        enabled: ${t_destination_rule_locality_enable}
-</#if>
   subsets:
 <#--- 默认生成的subset --->
   - name: ${t_api_service}-${t_api_gateway}
