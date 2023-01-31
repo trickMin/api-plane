@@ -385,7 +385,7 @@ public class GatewayServiceImpl implements GatewayService {
         logger.info("[get service] start getServiceAndPortList, name: {}, type: {}, registryId: {}", name, type, registryId);
         String pattern = ".*";
         if (!StringUtils.isEmpty(name)) {
-            pattern = "^" + name + pattern + "$";
+            pattern = "^" + pattern + name + pattern + "$";
         }
         final Pattern fPattern = Pattern.compile(pattern);
         return resourceManager.getServiceAndPortList(filters).stream()
