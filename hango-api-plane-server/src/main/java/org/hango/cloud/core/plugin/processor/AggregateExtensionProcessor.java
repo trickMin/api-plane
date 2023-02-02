@@ -39,7 +39,7 @@ public class AggregateExtensionProcessor extends AbstractSchemaProcessor impleme
         PluginMapping mapping = PluginMapping.getBymappingName(kind);
         holder = getProcessor(mapping.getProcessorClass()).process(plugin,serviceInfo);
         if (StringUtils.hasText(mapping.getName())){
-            if (PluginMapping.ianus_router.getMappingName().equals(kind)) {
+            if (PluginMapping.IANUS_ROUTER.getMappingName().equals(kind)) {
                 coverToExtensionPlugin(holder, mapping.getName(), true, "ROOT");
             } else {
                 coverToExtensionPlugin(holder, mapping.getName());

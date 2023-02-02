@@ -81,17 +81,16 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
     String rateLimitNamespace;
 
 
-    private static final String apiGateway = "gateway/api/gateway";
-    private static final String apiVirtualService = "gateway/api/virtualService";
-    private static final String rateLimitConfigMap = "gateway/api/rateLimitConfigMap";
+    private static final String API_GATEWAY = "gateway/api/gateway";
+    private static final String API_VIRTUAL_SERVICE = "gateway/api/virtualService";
 
-    private static final String serviceDestinationRule = "gateway/service/destinationRule";
-    private static final String pluginManager = "gateway/pluginManager";
-    private static final String serviceServiceEntry = "gateway/service/serviceEntry";
-    private static final String gatewayPlugin = "gateway/gatewayPlugin";
-    private static final String smartLimiter = "gateway/smartLimiter";
-    private static final String envoyFilter = "gateway/envoyFilter";
-    private static final String grpcConfigPatch = "gateway/grpcConfigPatch";
+    private static final String SERVICE_DESTINATION_RULE = "gateway/service/destinationRule";
+    private static final String PLUGIN_MANAGER = "gateway/pluginManager";
+    private static final String SERVICE_SERVICE_ENTRY = "gateway/service/serviceEntry";
+    private static final String GATEWAY_PLUGIN = "gateway/gatewayPlugin";
+    private static final String SMART_LIMITER = "gateway/smartLimiter";
+    private static final String ENVOY_FILTER = "gateway/envoyFilter";
+    private static final String GRPC_CONFIG_PATCH = "gateway/grpcConfigPatch";
     private static final String VIRTUAL_SERVICE = "VirtualService";
     private static final String SECRET = "gateway/secret";
 
@@ -122,7 +121,7 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
             api.setCustomDefaultRespCode(globalConfig.getCustomDefaultRespCode());
         }
         List<String> rawVirtualServices = renderTwiceModelProcessor
-                .process(apiVirtualService, api,
+                .process(API_VIRTUAL_SERVICE, api,
                         new PortalVirtualServiceAPIDataHandler(
                                 defaultModelProcessor, vsFragments, simple));
 
@@ -190,7 +189,7 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
                                                         GatewayPlugin plugin) {
         List<K8sResourcePack> resourcePacks = new ArrayList<>();
         // 将插件配置转换为SmartLimiters
-        List<String> rawSmartLimiters = defaultModelProcessor.process(smartLimiter, plugin,
+        List<String> rawSmartLimiters = defaultModelProcessor.process(SMART_LIMITER, plugin,
                 new SmartLimiterDataHandler(rawResourceContainer.getSmartLimiters(), globalConfig.getResourceNamespace()));
 
         resourcePacks.addAll(generateK8sPack(rawSmartLimiters));
@@ -211,7 +210,7 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
                                                        GatewayPlugin plugin) {
         List<K8sResourcePack> resourcePacks = new ArrayList<>();
         // 插件配置放在GatewayPlugin的CRD上
-        List<String> rawGatewayPlugins = renderTwiceModelProcessor.process(gatewayPlugin, plugin,
+        List<String> rawGatewayPlugins = renderTwiceModelProcessor.process(GATEWAY_PLUGIN, plugin,
                 new GatewayPluginDataHandler(
                         rawResourceContainer.getVirtualServices(), globalConfig.getResourceNamespace()));
 
@@ -231,10 +230,10 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
 
     public List<K8sResourcePack> translate(Service service) {
         List<K8sResourcePack> resources = new ArrayList<>();
-        List<String> destinations = defaultModelProcessor.process(serviceDestinationRule, service, new PortalDestinationRuleServiceDataHandler());
+        List<String> destinations = defaultModelProcessor.process(SERVICE_DESTINATION_RULE, service, new PortalDestinationRuleServiceDataHandler());
         resources.addAll(generateK8sPack(destinations));
         if (Const.PROXY_SERVICE_TYPE_STATIC.equals(service.getType())) {
-            List<String> serviceEntries = defaultModelProcessor.process(serviceServiceEntry, service, new PortalServiceEntryServiceDataHandler());
+            List<String> serviceEntries = defaultModelProcessor.process(SERVICE_SERVICE_ENTRY, service, new PortalServiceEntryServiceDataHandler());
             resources.addAll(generateK8sPack(serviceEntries));
         }
         return resources;
@@ -248,14 +247,14 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
      */
     public List<K8sResourcePack> translate(IstioGateway istioGateway) {
         List<K8sResourcePack> resources = new ArrayList<>();
-        List<String> rawGateways = defaultModelProcessor.process(apiGateway, istioGateway, new PortalGatewayDataHandler(enableHttp10, globalConfig.getResourceNamespace()));
+        List<String> rawGateways = defaultModelProcessor.process(API_GATEWAY, istioGateway, new PortalGatewayDataHandler(enableHttp10, globalConfig.getResourceNamespace()));
         resources.addAll(generateK8sPack(rawGateways));
         return resources;
     }
 
     public List<K8sResourcePack> translate(PluginOrder po) {
         List<K8sResourcePack> resources = new ArrayList<>();
-        List<String> pluginManagers = defaultModelProcessor.process(pluginManager, po, new PluginOrderDataHandler());
+        List<String> pluginManagers = defaultModelProcessor.process(PLUGIN_MANAGER, po, new PluginOrderDataHandler());
         resources.addAll(generateK8sPack(pluginManagers));
         return resources;
     }
@@ -322,7 +321,7 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
 
     public List<K8sResourcePack> translate(EnvoyFilterOrder efo) {
         List<K8sResourcePack> resources = new ArrayList<>();
-        List<String> pluginManagers = defaultModelProcessor.process(envoyFilter, efo, new EnvoyFilterOrderDataHandler());
+        List<String> pluginManagers = defaultModelProcessor.process(ENVOY_FILTER, efo, new EnvoyFilterOrderDataHandler());
         resources.addAll(generateK8sPack(pluginManagers,subtract()));
         return resources;
     }
@@ -336,6 +335,6 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
     }
 
     public String generateEnvoyConfigObjectPatch(GrpcEnvoyFilterDto grpcEnvoyFilterDto) {
-        return defaultModelProcessor.process(grpcConfigPatch, new GrpcEnvoyFilterDataHandler().handle(grpcEnvoyFilterDto).get(0));
+        return defaultModelProcessor.process(GRPC_CONFIG_PATCH, new GrpcEnvoyFilterDataHandler().handle(grpcEnvoyFilterDto).get(0));
     }
 }

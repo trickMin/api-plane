@@ -71,7 +71,7 @@ public class MultiClusterServiceImpl implements MultiClusterService {
 
     private ApiPlaneResult<ResourceCheckDTO> parseResourceStr(String resource){
         if (StringUtils.isEmpty(resource)){
-            return ApiPlaneResult.ofFailed(ErrorCodeEnum.InvalidParameters, "校验数据为空");
+            return ApiPlaneResult.ofFailed(ErrorCodeEnum.INVALID_PARAMETERS, "校验数据为空");
         }
         ObjectMapper objectMapper = new ObjectMapper();
         try {
@@ -80,7 +80,7 @@ public class MultiClusterServiceImpl implements MultiClusterService {
             return ApiPlaneResult.ofSuccess(resourceCheckDTO);
         } catch (JsonProcessingException e) {
             logger.error("解析请求体异常, response:{}", resource, e);
-            return ApiPlaneResult.ofFailed(ErrorCodeEnum.InvalidParameters, "校验数据异常");
+            return ApiPlaneResult.ofFailed(ErrorCodeEnum.INVALID_PARAMETERS, "校验数据异常");
         }
     }
 
@@ -138,8 +138,8 @@ public class MultiClusterServiceImpl implements MultiClusterService {
         //开启informer缓存，优先从cache中获取
         if (multiClusterK8sClient.watchResource()){
             List<HasMetadata> resource = k8sResourceCache.getResource(gateway, kind);
-            if (K8sResourceApiEnum.EnvoyPlugin.name().equals(kind)){
-                List<HasMetadata> smartLimit = k8sResourceCache.getResource(gateway, K8sResourceApiEnum.SmartLimiter.name());
+            if (K8sResourceApiEnum.ENVOY_PLUGIN.name().equals(kind)){
+                List<HasMetadata> smartLimit = k8sResourceCache.getResource(gateway, K8sResourceApiEnum.SMART_LIMITER.name());
                 if (CollectionUtils.isNotEmpty(smartLimit)){
                     resource.addAll(smartLimit);
                 }
@@ -147,8 +147,8 @@ public class MultiClusterServiceImpl implements MultiClusterService {
             return resource;
         }else {
             List<HasMetadata> resource = k8sConfigStore.get(kind, globalConfig.getResourceNamespace());
-            if (K8sResourceApiEnum.EnvoyPlugin.name().equals(kind)){
-                List<HasMetadata> smartLimit = k8sConfigStore.get(K8sResourceApiEnum.SmartLimiter.name(), globalConfig.getResourceNamespace());
+            if (K8sResourceApiEnum.ENVOY_PLUGIN.name().equals(kind)){
+                List<HasMetadata> smartLimit = k8sConfigStore.get(K8sResourceApiEnum.SMART_LIMITER.name(), globalConfig.getResourceNamespace());
                 if (CollectionUtils.isNotEmpty(smartLimit)){
                     resource.addAll(smartLimit);
                 }

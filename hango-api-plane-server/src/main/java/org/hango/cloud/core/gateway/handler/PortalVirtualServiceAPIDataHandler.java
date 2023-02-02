@@ -58,7 +58,7 @@ public class PortalVirtualServiceAPIDataHandler extends BaseVirtualServiceAPIDat
             destinations.add(param);
         }
 
-        String destinationStr = subModelProcessor.process(apiVirtualServiceRoute, TemplateParams.instance().put(VIRTUAL_SERVICE_DESTINATIONS, destinations));
+        String destinationStr = subModelProcessor.process(API_VIRTUAL_SERVICE_ROUTE, TemplateParams.instance().put(VIRTUAL_SERVICE_DESTINATIONS, destinations));
         return destinationStr;
     }
 

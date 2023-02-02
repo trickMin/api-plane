@@ -61,12 +61,12 @@ public class K8sResourceCache implements ResourceCache {
         Serialization.jsonMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).registerModule(new ProtobufModule());
         //注册informer
         sharedInformerFactory = multiClusterK8sClient.getMasterOriginalClient().informers();
-        registryInformer(K8sResourceApiEnum.VirtualService, K8sTypes.VirtualService.class, K8sTypes.VirtualServiceList.class);
-        registryInformer(K8sResourceApiEnum.DestinationRule, K8sTypes.DestinationRule.class, K8sTypes.DestinationRuleList.class);
-        registryInformer(K8sResourceApiEnum.EnvoyPlugin, K8sTypes.EnvoyPlugin.class, K8sTypes.EnvoyPluginList.class);
-        registryInformer(K8sResourceApiEnum.SmartLimiter, K8sTypes.SmartLimiter.class, K8sTypes.SmartLimiterList.class);
-        registryInformer(K8sResourceApiEnum.KubernetesGateway, Gateway.class, GatewayList.class);
-        registryInformer(K8sResourceApiEnum.HTTPRoute, HTTPRoute.class, HTTPRouteList.class);
+        registryInformer(K8sResourceApiEnum.VIRTUAL_SERVICE, K8sTypes.VirtualService.class, K8sTypes.VirtualServiceList.class);
+        registryInformer(K8sResourceApiEnum.DESTINATION_RULE, K8sTypes.DestinationRule.class, K8sTypes.DestinationRuleList.class);
+        registryInformer(K8sResourceApiEnum.ENVOY_PLUGIN, K8sTypes.EnvoyPlugin.class, K8sTypes.EnvoyPluginList.class);
+        registryInformer(K8sResourceApiEnum.SMART_LIMITER, K8sTypes.SmartLimiter.class, K8sTypes.SmartLimiterList.class);
+        registryInformer(K8sResourceApiEnum.KUBERNETES_GATEWAY, Gateway.class, GatewayList.class);
+        registryInformer(K8sResourceApiEnum.HTTP_ROUTE, HTTPRoute.class, HTTPRouteList.class);
         sharedInformerFactory.startAllRegisteredInformers();
 
     }
@@ -132,10 +132,10 @@ public class K8sResourceCache implements ResourceCache {
             return true;
         }
         switch (K8sResourceApiEnum.getByName(hasMetadata.getKind())){
-            case DestinationRule:
-            case VirtualService:
+            case DESTINATION_RULE:
+            case VIRTUAL_SERVICE:
                 return hasMetadata.getMetadata().getName().endsWith(gateway);
-            case EnvoyPlugin:
+            case ENVOY_PLUGIN:
                 return matchPluginGateway(hasMetadata, gateway);
             default:
                 log.error("错误的资源类型：{}", hasMetadata.getKind());

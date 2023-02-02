@@ -9,11 +9,11 @@ package org.hango.cloud.meta;
  */
 public enum PluginListenType {
 
-    Outbound("Outbound",0),
+    OUTBOUND("Outbound",0),
 
-    Inbound("Inbound",1),
+    INBOUND("Inbound",1),
 
-    Gateway("Gateway",2);
+    GATEWAY("Gateway",2);
     private String listenType;
 
     private Integer listenTypeValue;

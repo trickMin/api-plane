@@ -169,7 +169,7 @@ public class GatewayServiceImpl implements GatewayService {
     public ErrorCode checkUpdateService(PortalServiceDTO service) {
         PortalTrafficPolicyDTO envoyServiceTrafficPolicyDto = service.getTrafficPolicy();
         ErrorCode errorCode = checkTrafficPolicy(envoyServiceTrafficPolicyDto);
-        if (!ErrorCodeEnum.Success.getCode().equals(errorCode.getCode())) {
+        if (!ErrorCodeEnum.SUCCESS.getCode().equals(errorCode.getCode())) {
             return errorCode;
         }
 
@@ -177,7 +177,7 @@ public class GatewayServiceImpl implements GatewayService {
         if (envoySubsetDtoList != null) {
             for (ServiceSubsetDTO envoySubsetDto : envoySubsetDtoList) {
                 errorCode = checkTrafficPolicy(envoySubsetDto.getTrafficPolicy());
-                if (!ErrorCodeEnum.Success.getCode().equals(errorCode.getCode())) {
+                if (!ErrorCodeEnum.SUCCESS.getCode().equals(errorCode.getCode())) {
                     return errorCode;
                 }
             }

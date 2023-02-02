@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.hango.cloud.core.template.TemplateConst.LABLE_ISTIO_REV;
-import static org.hango.cloud.k8s.K8sResourceApiEnum.KubernetesGateway;
+import static org.hango.cloud.k8s.K8sResourceApiEnum.KUBERNETES_GATEWAY;
 
 /**
  * @Author zhufengwei
@@ -49,7 +49,7 @@ public class KubernetesGatewayServiceImpl implements KubernetesGatewayService {
 
     @Override
     public List<KubernetesGatewayDTO> getKubernetesGateway(String gateway) {
-        List<HasMetadata> resource = k8sResourceCache.getResourceByName(KubernetesGateway.name(), gateway);
+        List<HasMetadata> resource = k8sResourceCache.getResourceByName(KUBERNETES_GATEWAY.name(), gateway);
         if (CollectionUtils.isEmpty(resource)){
             return new ArrayList<>();
         }
@@ -59,7 +59,7 @@ public class KubernetesGatewayServiceImpl implements KubernetesGatewayService {
 
     @Override
     public List<HTTPRoute> getHTTPRoute(String gateway) {
-        List<HasMetadata> resource = k8sResourceCache.getResource(K8sResourceApiEnum.HTTPRoute.name());
+        List<HasMetadata> resource = k8sResourceCache.getResource(K8sResourceApiEnum.HTTP_ROUTE.name());
         if (CollectionUtils.isEmpty(resource)){
             return new ArrayList<>();
         }

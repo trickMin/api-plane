@@ -3,7 +3,6 @@ package org.hango.cloud.core.k8s.operator;
 import org.hango.cloud.core.k8s.K8sResourceEnum;
 import org.hango.cloud.k8s.K8sTypes;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 import slime.microservice.limiter.v1alpha2.SmartLimiter;
 
 /**

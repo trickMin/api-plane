@@ -9,41 +9,41 @@ package org.hango.cloud.meta;
  */
 public enum PluginMapping {
 
-    rewrite("rewrite","proxy.filters.http.path_rewrite","RewriteProcessor"),
-    jsonp("jsonp","proxy.filters.http.jsonpfilter","JsonpProcessor"),
-    ianus_request_transformer("ianus-request-transformer","proxy.filters.http.transformation","TransformProcessor"),
-    transformer("transformer","proxy.filters.http.transformation","TransformProcessor"),
-    static_downgrade("static-downgrade","proxy.filters.http.staticdowngrade","StaticDowngradeProcessor"),
-    dynamic_downgrade("dynamic-downgrade","proxy.filters.http.dynamicdowngrade","DynamicDowngradeProcessor"),
-    local_limiting("local-limiting","","SmartLimiterProcessor"),
-    rate_limiting("rate-limiting","","SmartLimiterProcessor"),
-    ianus_percent_limit("ianus-percent-limit","envoy.filters.http.fault","FlowLimitProcessor"),
-    ip_restriction("ip-restriction","proxy.filters.http.iprestriction","IpRestrictionProcessor"),
-    ua_restriction("ua-restriction","proxy.filters.http.ua_restriction","UaRestrictionProcessor"),
-    referer_restriction("referer-restriction","proxy.filters.http.referer_restriction","RefererRestrictionProcessor"),
-    header_restriction("header-restriction","proxy.filters.http.header_restriction","HeaderRestrictionProcessor"),
-    traffic_mark("traffic-mark","proxy.filters.http.header_rewrite","TrafficMarkProcessor"),
-    response_header_rewrite("response-header-rewrite","proxy.filters.http.header_rewrite","ResponseHeaderRewriteProcessor"),
-    cors("cors","envoy.filters.http.cors","CorsProcessor"),
-    cache("cache","proxy.filters.http.super_cache","Cache"),
-    local_cache("local-cache","proxy.filters.http.local_cache","LocalCache"),
-    redis_cache("redis-cache","proxy.filters.http.redis_cache","RedisCache"),
+    REWRITE("rewrite","proxy.filters.http.path_rewrite","RewriteProcessor"),
+    JSONP("jsonp","proxy.filters.http.jsonpfilter","JsonpProcessor"),
+    IANUS_REQUEST_TRANSFORMER("ianus-request-transformer","proxy.filters.http.transformation","TransformProcessor"),
+    TRANSFORMER("transformer","proxy.filters.http.transformation","TransformProcessor"),
+    STATIC_DOWNGRADE("static-downgrade","proxy.filters.http.staticdowngrade","StaticDowngradeProcessor"),
+    DYNAMIC_DOWNGRADE("dynamic-downgrade","proxy.filters.http.dynamicdowngrade","DynamicDowngradeProcessor"),
+    LOCAL_LIMITING("local-limiting","","SmartLimiterProcessor"),
+    RATE_LIMITING("rate-limiting","","SmartLimiterProcessor"),
+    IANUS_PERCENT_LIMIT("ianus-percent-limit","envoy.filters.http.fault","FlowLimitProcessor"),
+    IP_RESTRICTION("ip-restriction","proxy.filters.http.iprestriction","IpRestrictionProcessor"),
+    UA_RESTRICTION("ua-restriction","proxy.filters.http.ua_restriction","UaRestrictionProcessor"),
+    REFERER_RESTRICTION("referer-restriction","proxy.filters.http.referer_restriction","RefererRestrictionProcessor"),
+    HEADER_RESTRICTION("header-restriction","proxy.filters.http.header_restriction","HeaderRestrictionProcessor"),
+    TRAFFIC_MARK("traffic-mark","proxy.filters.http.header_rewrite","TrafficMarkProcessor"),
+    RESPONSE_HEADER_REWRITE("response-header-rewrite","proxy.filters.http.header_rewrite","ResponseHeaderRewriteProcessor"),
+    CORS("cors","envoy.filters.http.cors","CorsProcessor"),
+    CACHE("cache","proxy.filters.http.super_cache","Cache"),
+    LOCAL_CACHE("local-cache","proxy.filters.http.local_cache","LocalCache"),
+    REDIS_CACHE("redis-cache","proxy.filters.http.redis_cache","RedisCache"),
     // 兼容21.0.x版本认证插件，22.0.x版本认证插件已拆分为sign-auth、jwt-auth和oauth2-auth
-    super_auth("super-auth","proxy.filters.http.super_authz","PreviousVersionSuperAuth"),
-    sign_auth("sign-auth","proxy.filters.http.super_authz","SuperAuth"),
-    oauth2_auth("oauth2-auth","proxy.filters.http.super_authz","SuperAuth"),
-    jwt_auth("jwt-auth","envoy.filters.http.jwt_authn","JwtAuth"),
-    basic_rbac("basic-rbac","envoy.filters.http.rbac","BasicRbac"),
-    request_transformer("request-transformer","proxy.filters.http.transformation","DefaultProcessor"),
-    circuit_breaker("circuit-breaker","proxy.filters.http.circuitbreaker","CircuitBreakerProcessor"),
-    function("function","envoy.filters.http.lua","FunctionProcessor"),
-    soap_json_transcoder("soap-json-transcoder","proxy.filters.http.soapjsontranscoder","SoapJsonTranscoderProcessor"),
-    ianus_router("ianus-router","envoy.filters.http.fault","RouteProcessor"),
-    waf("waf","proxy.filters.http.waf","WafProcessor"),
-    trace("trace","proxy.filters.http.rider","RestyProcessor"),
+    SUPER_AUTH("super-auth","proxy.filters.http.super_authz","PreviousVersionSuperAuth"),
+    SIGN_AUTH("sign-auth","proxy.filters.http.super_authz","SuperAuth"),
+    OAUTH2_AUTH("oauth2-auth","proxy.filters.http.super_authz","SuperAuth"),
+    JWT_AUTH("jwt-auth","envoy.filters.http.jwt_authn","JwtAuth"),
+    BASIC_RBAC("basic-rbac","envoy.filters.http.rbac","BasicRbac"),
+    REQUEST_TRANSFORMER("request-transformer","proxy.filters.http.transformation","DefaultProcessor"),
+    CIRCUIT_BREAKER("circuit-breaker","proxy.filters.http.circuitbreaker","CircuitBreakerProcessor"),
+    FUNCTION("function","envoy.filters.http.lua","FunctionProcessor"),
+    SOAP_JSON_TRANSCODER("soap-json-transcoder","proxy.filters.http.soapjsontranscoder","SoapJsonTranscoderProcessor"),
+    IANUS_ROUTER("ianus-router","envoy.filters.http.fault","RouteProcessor"),
+    WAF("waf","proxy.filters.http.waf","WafProcessor"),
+    TRACE("trace","proxy.filters.http.rider","RestyProcessor"),
 
     //默认处理
-    resty("resty","proxy.filters.http.rider","RestyProcessor"),
+    RESTY("resty","proxy.filters.http.rider","RestyProcessor"),
     ;
 
     /**
@@ -85,6 +85,6 @@ public enum PluginMapping {
                 return value;
             }
         }
-        return PluginMapping.resty;
+        return PluginMapping.RESTY;
     }
 }

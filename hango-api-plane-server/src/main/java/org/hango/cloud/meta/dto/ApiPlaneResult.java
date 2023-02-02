@@ -58,11 +58,11 @@ public class ApiPlaneResult<T> {
 
 
     public static <T> ApiPlaneResult<T> ofHttpRemoteError(String errorMsg){
-        return new ApiPlaneResult<>(ErrorCodeEnum.HttpRemoteError, errorMsg, null, false);
+        return new ApiPlaneResult<>(ErrorCodeEnum.HTTP_REMOTE_ERROR, errorMsg, null, false);
     }
 
     public static <T> ApiPlaneResult<T> ofInvaildParam(String errorMsg){
-        return new ApiPlaneResult<>(ErrorCodeEnum.InvalidParameters, errorMsg, null, false);
+        return new ApiPlaneResult<>(ErrorCodeEnum.INVALID_PARAMETERS, errorMsg, null, false);
     }
 
     public ErrorCodeEnum getErrorCode() {

@@ -11,10 +11,10 @@ import java.util.Map;
 import java.util.Objects;
 
 public class McpUtils {
-    private static final String triggerCollection = "$triggerCollection";
+    private static final String TRIGGER_COLLECTION = "$triggerCollection";
 
     public static boolean isTriggerResponse(Mcp.RequestResources msg) {
-        return triggerCollection.equals(msg.getCollection()) && msg.getErrorDetail() != null && msg.getErrorDetail().getCode() == 12;
+        return TRIGGER_COLLECTION.equals(msg.getCollection()) && msg.getErrorDetail() != null && msg.getErrorDetail().getCode() == 12;
     }
 
     public static boolean isSupportedCollection(Collection<String> supportedCollection, String collection) {

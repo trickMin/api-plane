@@ -65,7 +65,7 @@ public class PortalGatewayController extends BaseController {
     public String publishPortalService(@RequestBody @Valid PortalServiceDTO service) {
         //新增参数校验逻辑
         ErrorCode errorCode = gatewayService.checkUpdateService(service);
-        if (!ErrorCodeEnum.Success.getCode().equals(errorCode.getCode())) {
+        if (!ErrorCodeEnum.SUCCESS.getCode().equals(errorCode.getCode())) {
             return apiReturn(errorCode);
         }
         gatewayService.updateService(service);

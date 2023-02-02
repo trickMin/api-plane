@@ -20,13 +20,13 @@ import static org.hango.cloud.core.template.TemplateConst.*;
 
 public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
 
-    static final String apiVirtualServiceMatch = "gateway/api/virtualServiceMatch";
-    static final String apiVirtualServiceExtra = "gateway/api/virtualServiceExtra";
-    static final String apiVirtualServiceRoute = "gateway/api/virtualServiceRoute";
-    static final String apiVirtualServiceHttpRetry = "gateway/api/virtualServiceHttpRetry";
-    static final String apiVirtualServiceMeta = "gateway/api/virtualServiceMeta";
-    static final String apiVirtualServiceMatchPriority = "gateway/api/virtualServiceMatchPriority";
-    static final String apiVirtualServiceMirror = "gateway/api/virtualServiceMirror";
+    static final String API_VIRTUAL_SERVICE_MATCH = "gateway/api/virtualServiceMatch";
+    static final String API_VIRTUAL_SERVICE_EXTRA = "gateway/api/virtualServiceExtra";
+    static final String API_VIRTUAL_SERVICE_ROUTE = "gateway/api/virtualServiceRoute";
+    static final String API_VIRTUAL_SERVICE_HTTP_RETRY = "gateway/api/virtualServiceHttpRetry";
+    static final String API_VIRTUAL_SERVICE_META = "gateway/api/virtualServiceMeta";
+    static final String API_VIRTUAL_SERVICE_MATCH_PRIORITY = "gateway/api/virtualServiceMatchPriority";
+    static final String API_VIRTUAL_SERVICE_MIRROR = "gateway/api/virtualServiceMirror";
 
     ModelProcessor subModelProcessor;
     List<FragmentWrapper> fragments;
@@ -101,23 +101,23 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
     }
 
     String productExtra(TemplateParams params) {
-        return subModelProcessor.process(apiVirtualServiceExtra, params);
+        return subModelProcessor.process(API_VIRTUAL_SERVICE_EXTRA, params);
     }
 
     public String produceMatch(TemplateParams params) {
-        return subModelProcessor.process(apiVirtualServiceMatch, params);
+        return subModelProcessor.process(API_VIRTUAL_SERVICE_MATCH, params);
     }
 
     String produceHttpRetry(TemplateParams params) {
-        return subModelProcessor.process(apiVirtualServiceHttpRetry, params);
+        return subModelProcessor.process(API_VIRTUAL_SERVICE_HTTP_RETRY, params);
     }
 
     String produceMatchPriority(TemplateParams params) {
-        return subModelProcessor.process(apiVirtualServiceMatchPriority, params);
+        return subModelProcessor.process(API_VIRTUAL_SERVICE_MATCH_PRIORITY, params);
     }
 
     String produceMeta(TemplateParams params) {
-        return subModelProcessor.process(apiVirtualServiceMeta, params);
+        return subModelProcessor.process(API_VIRTUAL_SERVICE_META, params);
     }
 
     String buildVirtualServiceSubsetName(String serviceName, String apiName, String gw) {
@@ -156,7 +156,7 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
                 throw new ApiPlaneException(String.format("%s:%s", ExceptionConst.TARGET_SERVICE_NON_EXIST, proxies.get(i)));
         }
 
-        String destinationStr = subModelProcessor.process(apiVirtualServiceRoute, TemplateParams.instance().put(VIRTUAL_SERVICE_DESTINATIONS, destinations));
+        String destinationStr = subModelProcessor.process(API_VIRTUAL_SERVICE_ROUTE, TemplateParams.instance().put(VIRTUAL_SERVICE_DESTINATIONS, destinations));
         return destinationStr;
     }
 
@@ -171,7 +171,7 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
                 params.put(VIRTUAL_SERVICE_MIRROR_SUBSET,mirrorTraffic.getSubset());
             }
         }
-        return subModelProcessor.process(apiVirtualServiceMirror, params);
+        return subModelProcessor.process(API_VIRTUAL_SERVICE_MIRROR, params);
     }
 
     String decorateHost(String code) {

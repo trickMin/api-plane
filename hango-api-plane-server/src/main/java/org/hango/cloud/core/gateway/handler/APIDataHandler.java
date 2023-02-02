@@ -5,7 +5,6 @@ import me.snowdrop.istio.api.networking.v1alpha3.VirtualService;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.hango.cloud.core.gateway.handler.meta.UriMatchMeta;
 import org.hango.cloud.core.template.TemplateParams;
-import org.hango.cloud.k8s.K8sResource;
 import org.hango.cloud.k8s.K8sTypes;
 import org.hango.cloud.meta.API;
 import org.hango.cloud.meta.CRDMetaEnum;
