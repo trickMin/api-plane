@@ -14,6 +14,7 @@ patch:
     name: envoy.filters.http.grpc_json_transcoder
     typed_config:
       "@type": type.googleapis.com/envoy.extensions.filters.http.grpc_json_transcoder.v3.GrpcJsonTranscoder
+      match_incoming_request_route: true
       proto_descriptor_bin: ${t_grpc_config_patch_proto_descriptor_bin}
       services: ${t_grpc_config_patch_services}
       print_options:
