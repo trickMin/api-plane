@@ -7,13 +7,14 @@ package org.hango.cloud.meta;
  * @Desc
  * @date 2022/11/18
  */
+@SuppressWarnings("java:S115")
 public enum PluginListenType {
 
-    OUTBOUND("Outbound",0),
+    Outbound("Outbound",0),
 
-    INBOUND("Inbound",1),
+    Inbound("Inbound",1),
 
-    GATEWAY("Gateway",2);
+    Gateway("Gateway",2);
     private String listenType;
 
     private Integer listenTypeValue;

@@ -1,9 +1,10 @@
 package org.hango.cloud.core.plugin.processor.auth;
 
+@SuppressWarnings("java:S115")
 public enum AuthTypeEnum {
-	JWT_AUTH("jwt-auth", "jwt_authn_type", "authority"),
-	SIGN_AUTH("sign-auth", "aksk_authn_type", "x-nsf-accesske"),
-	OAUTH2_AUTH("oauth2-auth", "oauth2_authn_type", "authority"),
+	JwtAuth("jwt-auth", "jwt_authn_type", "authority"),
+	SignAuth("sign-auth", "aksk_authn_type", "x-nsf-accesske"),
+	Oauth2Auth("oauth2-auth", "oauth2_authn_type", "authority"),
 	;
 
 	private String kind;

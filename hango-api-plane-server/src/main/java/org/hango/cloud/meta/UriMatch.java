@@ -2,7 +2,7 @@ package org.hango.cloud.meta;
 
 import org.apache.commons.lang3.StringUtils;
 
-
+@SuppressWarnings("java:S115")
 public enum UriMatch {
 
     exact,

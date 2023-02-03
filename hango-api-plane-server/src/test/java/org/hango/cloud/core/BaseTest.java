@@ -9,7 +9,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = ApiPlaneApplication.class, properties = {"k8s.clusters.master.k8s-api-server=https://1.1.1.1"})
+@SpringBootTest(classes = ApiPlaneApplication.class)
 @Import(BaseConfiguration.class)
 public class BaseTest {
 

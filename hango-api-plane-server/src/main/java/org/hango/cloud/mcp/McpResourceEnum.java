@@ -10,6 +10,7 @@ import istio.networking.v1alpha3.VirtualServiceOuterClass;
 import slime.microservice.plugin.v1alpha1.EnvoyPluginOuterClass;
 import slime.microservice.plugin.v1alpha1.PluginManagerOuterClass;
 
+@SuppressWarnings("java:S115")
 public enum McpResourceEnum {
     VirtualService("istio/networking/v1alpha3/virtualservices", VirtualServiceOuterClass.VirtualService.getDefaultInstance()),
     Gateway("istio/networking/v1alpha3/gateways", GatewayOuterClass.Gateway.getDefaultInstance()),

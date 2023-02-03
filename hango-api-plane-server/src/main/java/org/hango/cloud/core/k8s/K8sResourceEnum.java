@@ -21,6 +21,7 @@ import java.util.regex.Pattern;
 /**
  * Declare CRD definition
  */
+@SuppressWarnings("java:S115")
 public enum K8sResourceEnum {
     /** VirtualService resource */
     VirtualService(
