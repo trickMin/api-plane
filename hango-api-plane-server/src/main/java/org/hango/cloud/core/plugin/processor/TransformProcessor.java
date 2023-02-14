@@ -16,6 +16,7 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@SuppressWarnings({"java:S1192"})
 @Component
 public class TransformProcessor extends AbstractSchemaProcessor implements SchemaProcessor<ServiceInfo> {
     @Override

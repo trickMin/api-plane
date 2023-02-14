@@ -15,6 +15,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+@SuppressWarnings({"java:S1192"})
 public class ResourceDaoImpl implements ResourceDao {
 
     private static final Logger logger = LoggerFactory.getLogger(ResourceDaoImpl.class);

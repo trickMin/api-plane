@@ -76,88 +76,70 @@ public class WafProcessor extends AbstractSchemaProcessor implements SchemaProce
         }
 
         if (getWafPluginSwitch(source, "scannerSwitch")) {
-            elementBuilder = PluginGenerator.newInstance("{}");
-            elementBuilder.createOrUpdateValue("$", WAF_RULE_PATH, SCANNER_WAF_RULE_PATH);
-            builder.addJsonElement("$.waf_rule", elementBuilder.jsonString());
+            buildPlugin(builder, SCANNER_WAF_RULE_PATH);
         }
 
         if (getWafPluginSwitch(source, "lfiSwitch")) {
-            elementBuilder = PluginGenerator.newInstance("{}");
-            elementBuilder.createOrUpdateValue("$", WAF_RULE_PATH, LFI_WAF_RULE_PATH);
-            builder.addJsonElement("$.waf_rule", elementBuilder.jsonString());
+            buildPlugin(builder, LFI_WAF_RULE_PATH);
         }
 
         if (getWafPluginSwitch(source, "rfiSwitch")) {
-            elementBuilder = PluginGenerator.newInstance("{}");
-            elementBuilder.createOrUpdateValue("$", WAF_RULE_PATH, RFI_WAF_RULE_PATH);
-            builder.addJsonElement("$.waf_rule", elementBuilder.jsonString());
+            buildPlugin(builder, RFI_WAF_RULE_PATH);
         }
 
         if (getWafPluginSwitch(source, "rceSwitch")) {
-            elementBuilder = PluginGenerator.newInstance("{}");
-            elementBuilder.createOrUpdateValue("$", WAF_RULE_PATH, RCE_WAF_RULE_PATH);
-            builder.addJsonElement("$.waf_rule", elementBuilder.jsonString());
+            buildPlugin(builder, RCE_WAF_RULE_PATH);
         }
 
         if (getWafPluginSwitch(source, "phpInjectionSwitch")) {
-            elementBuilder = PluginGenerator.newInstance("{}");
-            elementBuilder.createOrUpdateValue("$", WAF_RULE_PATH, PHP_INJECTION_WAF_RULE_PATH);
-            builder.addJsonElement("$.waf_rule", elementBuilder.jsonString());
+            buildPlugin(builder, PHP_INJECTION_WAF_RULE_PATH);
         }
 
         if (getWafPluginSwitch(source, "xssSwitch")) {
-            elementBuilder = PluginGenerator.newInstance("{}");
-            elementBuilder.createOrUpdateValue("$", WAF_RULE_PATH, XSS_WAF_RULE_PATH);
-            builder.addJsonElement("$.waf_rule", elementBuilder.jsonString());
+            buildPlugin(builder, XSS_WAF_RULE_PATH);
         }
 
         if (getWafPluginSwitch(source, "sqliSwitch")) {
-            elementBuilder = PluginGenerator.newInstance("{}");
-            elementBuilder.createOrUpdateValue("$", WAF_RULE_PATH, SQLI_WAF_RULE_PATH);
-            builder.addJsonElement("$.waf_rule", elementBuilder.jsonString());
+            buildPlugin(builder, SQLI_WAF_RULE_PATH);
         }
 
         if (getWafPluginSwitch(source, "sessionFixationSwitch")) {
-            elementBuilder = PluginGenerator.newInstance("{}");
-            elementBuilder.createOrUpdateValue("$", WAF_RULE_PATH, SESSION_FIXATION_WAF_RULE_PATH);
-            builder.addJsonElement("$.waf_rule", elementBuilder.jsonString());
+
+            buildPlugin(builder, SESSION_FIXATION_WAF_RULE_PATH);
         }
 
         if (getWafPluginSwitch(source, "javaInjectionSwitch")) {
-            elementBuilder = PluginGenerator.newInstance("{}");
-            elementBuilder.createOrUpdateValue("$", WAF_RULE_PATH, JAVA_INJECTION_WAF_RULE_PATH);
-            builder.addJsonElement("$.waf_rule", elementBuilder.jsonString());
+            buildPlugin(builder, JAVA_INJECTION_WAF_RULE_PATH);
         }
 
         if (getWafPluginSwitch(source, "cgiDataLeakagesSwitch")) {
-            elementBuilder = PluginGenerator.newInstance("{}");
-            elementBuilder.createOrUpdateValue("$", WAF_RULE_PATH, CGI_DATA_LEAKAGES_WAF_RULE_PATH);
-            builder.addJsonElement("$.waf_rule", elementBuilder.jsonString());
+            buildPlugin(builder, CGI_DATA_LEAKAGES_WAF_RULE_PATH);
+
         }
 
         if (getWafPluginSwitch(source, "sqlDataLeakagesSwitch")) {
-            elementBuilder = PluginGenerator.newInstance("{}");
-            elementBuilder.createOrUpdateValue("$", WAF_RULE_PATH, SQL_DATA_LEAKAGES_WAF_RULE_PATH);
-            builder.addJsonElement("$.waf_rule", elementBuilder.jsonString());
+            buildPlugin(builder, SQL_DATA_LEAKAGES_WAF_RULE_PATH);
+
         }
 
         if (getWafPluginSwitch(source, "javaDataLeakagesSwitch")) {
-            elementBuilder = PluginGenerator.newInstance("{}");
-            elementBuilder.createOrUpdateValue("$", WAF_RULE_PATH, JAVA_DATA_LEAKAGES_WAF_RULE_PATH);
-            builder.addJsonElement("$.waf_rule", elementBuilder.jsonString());
+            buildPlugin(builder, JAVA_DATA_LEAKAGES_WAF_RULE_PATH);
+
         }
 
         if (getWafPluginSwitch(source, "phpDataLeakagesSwitch")) {
-            elementBuilder = PluginGenerator.newInstance("{}");
-            elementBuilder.createOrUpdateValue("$", WAF_RULE_PATH, PHP_DATA_LEAKAGES_WAF_RULE_PATH);
-            builder.addJsonElement("$.waf_rule", elementBuilder.jsonString());
+            buildPlugin(builder, PHP_DATA_LEAKAGES_WAF_RULE_PATH);
         }
 
         if (getWafPluginSwitch(source, "iisDataLeakagesSwitch")) {
-            elementBuilder = PluginGenerator.newInstance("{}");
-            elementBuilder.createOrUpdateValue("$", WAF_RULE_PATH, IIS_DATA_LEAKAGES_WAF_RULE_PATH);
-            builder.addJsonElement("$.waf_rule", elementBuilder.jsonString());
+            buildPlugin(builder, IIS_DATA_LEAKAGES_WAF_RULE_PATH);
         }
+    }
+
+    private void buildPlugin(PluginGenerator builder, String key){
+        PluginGenerator elementBuilder  = PluginGenerator.newInstance("{}");
+        elementBuilder.createOrUpdateValue("$", WAF_RULE_PATH, key);
+        builder.addJsonElement("$.waf_rule", elementBuilder.jsonString());
     }
 
     /**

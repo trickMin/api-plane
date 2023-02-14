@@ -7,7 +7,7 @@ package org.hango.cloud.meta;
  * @Desc
  * @date 2022/11/21
  */
-@SuppressWarnings("java:S115")
+@SuppressWarnings({"java:S115","java:S1192"})
 public enum PluginMapping {
 
     rewrite("rewrite","proxy.filters.http.path_rewrite","RewriteProcessor"),

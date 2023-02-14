@@ -22,6 +22,7 @@ import java.util.Map;
  * @author yutao04
  * @date 2022.3.22
  */
+@SuppressWarnings({"java:S1192"})
 @Component
 public class TrafficMarkProcessor extends AbstractSchemaProcessor {
     private final Logger logger = LoggerFactory.getLogger(TrafficMarkProcessor.class);

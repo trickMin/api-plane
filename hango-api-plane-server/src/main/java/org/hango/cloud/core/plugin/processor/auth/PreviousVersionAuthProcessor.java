@@ -35,11 +35,14 @@ public class PreviousVersionAuthProcessor extends AbstractSchemaProcessor implem
     private String result_cache_ttl = "result_cache_ttl";
     private String cacheKey = "$." + result_cache + "." + result_cache_key;
     private String cacheTtl = "$." + result_cache + "." + result_cache_ttl;
+    public static final String AKSK_AUTHN_TYPE = "aksk_authn_type";
+    public static final String JWT_AUTHN_TYPE = "jwt_authn_type";
+    public static final String OUTH2_AUTH_TYPE = "oauth2_authn_type";
 
     Map<String,String> authnType_to_cacheKey = new HashMap<String, String>(){{
-        put("aksk_authn_type", "x-nsf-accesskey");
-        put("jwt_authn_type", "authority");
-        put("oauth2_authn_type", "authority");
+        put(AKSK_AUTHN_TYPE, "x-nsf-accesskey");
+        put(JWT_AUTHN_TYPE, "authority");
+        put(OUTH2_AUTH_TYPE, "authority");
     }};
 
     @Override
@@ -47,12 +50,12 @@ public class PreviousVersionAuthProcessor extends AbstractSchemaProcessor implem
         ResourceGenerator source = ResourceGenerator.newInstance(plugin);
         ResourceGenerator builder = ResourceGenerator.newInstance("{\"need_authorization\":\"false\", \"failure_auth_allow\":\"false\"}");
         String authType = source.getValue("$.authnType", String.class);
-        if ("aksk_authn_type".equals(authType)) {
-            builder.createOrUpdateJson("$", "aksk_authn_type", "{}");
-        } else if ("jwt_authn_type".equals(authType)){
-            builder.createOrUpdateJson("$", "jwt_authn_type", "{}");
+        if (AKSK_AUTHN_TYPE.equals(authType)) {
+            builder.createOrUpdateJson("$", AKSK_AUTHN_TYPE, "{}");
+        } else if (JWT_AUTHN_TYPE.equals(authType)){
+            builder.createOrUpdateJson("$", JWT_AUTHN_TYPE, "{}");
         }else {
-            builder.createOrUpdateJson("$", "oauth2_authn_type", "{}");
+            builder.createOrUpdateJson("$", OUTH2_AUTH_TYPE, "{}");
         }
 
         builder.updateValue("$.need_authorization", source.getValue("$.useAuthz", Boolean.class));

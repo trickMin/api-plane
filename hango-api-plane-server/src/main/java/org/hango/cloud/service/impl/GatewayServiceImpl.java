@@ -99,6 +99,7 @@ public class GatewayServiceImpl implements GatewayService {
     private static final String PLUGIN_SUPPORT_CONFIG = "plugin/manager/plugin-support-config.json";
     private static final String PLUGIN_SUPPORT_KIND = "kind";
     private static final String PLUGIN_SUPPORT_PLUGINS = "plugins";
+    public static final String GW_CLUSTER = "gw_cluster";
 
 
 
@@ -339,7 +340,7 @@ public class GatewayServiceImpl implements GatewayService {
         envoyFilterDTO.setNamespace(globalConfig.getResourceNamespace());
         envoyFilterDTO.setPortNumber(grpcEnvoyFilterDto.getPortNumber());
         envoyFilterDTO.setWorkloadSelector(SidecarOuterClass.WorkloadSelector.newBuilder()
-                .putLabels("gw_cluster", grpcEnvoyFilterDto.getGwCluster())
+                .putLabels(GW_CLUSTER, grpcEnvoyFilterDto.getGwCluster())
                 .build());
         String grpcEnvoyFilter = configManager.generateEnvoyConfigObjectPatch(grpcEnvoyFilterDto);
         logger.info("generateEnvoyConfigObjectPatch result : {}", grpcEnvoyFilter);
@@ -353,7 +354,7 @@ public class GatewayServiceImpl implements GatewayService {
         envoyFilterDTO.setNamespace(globalConfig.getResourceNamespace());
         envoyFilterDTO.setPortNumber(grpcEnvoyFilterDto.getPortNumber());
         envoyFilterDTO.setWorkloadSelector(SidecarOuterClass.WorkloadSelector.newBuilder()
-                .putLabels("gw_cluster", grpcEnvoyFilterDto.getGwCluster())
+                .putLabels(GW_CLUSTER, grpcEnvoyFilterDto.getGwCluster())
                 .build());
         deleteEnvoyFilter(envoyFilterDTO);
     }
@@ -437,10 +438,9 @@ public class GatewayServiceImpl implements GatewayService {
             return null;
         }
         GatewaySpec spec = (GatewaySpec) config.getSpec();
-        final String gwCluster = "gw_cluster";
         Map<String, String> selector = spec.getSelector();
         if (CollectionUtils.isEmpty(selector)) {
-            selector.get(gwCluster);
+            selector.get(GW_CLUSTER);
         }
         istioGateway.setName(config.getMetadata().getName());
         if (CollectionUtils.isEmpty(spec.getServers()) || spec.getServers().get(0) == null) {

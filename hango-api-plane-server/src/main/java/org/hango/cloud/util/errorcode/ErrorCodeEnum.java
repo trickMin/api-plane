@@ -9,7 +9,7 @@ package org.hango.cloud.util.errorcode;
  * <p>
  * After 2017.09.20
  */
-@SuppressWarnings("java:S115")
+@SuppressWarnings({"java:S115", "java:S1192"})
 public enum ErrorCodeEnum {
     Success("Success", "Success", "处理成功", 200),
 

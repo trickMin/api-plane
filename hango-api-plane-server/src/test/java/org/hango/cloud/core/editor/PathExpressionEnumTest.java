@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import java.util.List;
 
+@SuppressWarnings({"java:S1192"})
 public class PathExpressionEnumTest {
 
     @Test

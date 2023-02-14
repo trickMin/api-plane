@@ -3,6 +3,11 @@ package org.hango.cloud.core.gateway;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.protobuf.Value;
+import istio.networking.v1alpha3.DestinationRuleOuterClass;
+import istio.networking.v1alpha3.VirtualServiceOuterClass;
+import me.snowdrop.istio.api.networking.v1alpha3.ServiceEntry;
+import me.snowdrop.istio.api.networking.v1alpha3.VirtualService;
+import org.assertj.core.util.Lists;
 import org.hango.cloud.core.BaseTest;
 import org.hango.cloud.core.editor.EditorContext;
 import org.hango.cloud.core.editor.ResourceType;
@@ -11,22 +16,12 @@ import org.hango.cloud.core.k8s.K8sResourceEnum;
 import org.hango.cloud.core.k8s.K8sResourceGenerator;
 import org.hango.cloud.core.k8s.K8sResourcePack;
 import org.hango.cloud.core.k8s.KubernetesClient;
-import org.hango.cloud.meta.API;
-import org.hango.cloud.meta.Endpoint;
-import org.hango.cloud.meta.PairMatch;
-import org.hango.cloud.meta.Service;
-import org.hango.cloud.meta.UriMatch;
+import org.hango.cloud.k8s.K8sTypes;
+import org.hango.cloud.meta.*;
 import org.hango.cloud.meta.dto.PluginOrderDTO;
 import org.hango.cloud.meta.dto.PluginOrderItemDTO;
-import org.hango.cloud.k8s.K8sTypes;
 import org.hango.cloud.util.Const;
 import org.hango.cloud.util.Trans;
-import istio.networking.v1alpha3.DestinationRuleOuterClass;
-import istio.networking.v1alpha3.VirtualServiceOuterClass;
-import me.snowdrop.istio.api.networking.v1alpha3.ServiceEntry;
-import me.snowdrop.istio.api.networking.v1alpha3.VirtualService;
-import org.assertj.core.util.Lists;
-import org.hango.cloud.meta.GatewayPlugin;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,9 +33,9 @@ import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
+@SuppressWarnings({"java:S1192"})
 public class IstioModelEngineTest extends BaseTest {
 
     @Autowired
