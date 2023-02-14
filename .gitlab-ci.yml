@@ -19,6 +19,16 @@ before_script:
 #  - git submodule sync
 #  - git submodule update --init
 
+commit-check:
+  stage: test
+  script:
+    - scripts/check_mr_messages.sh
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+  tags:
+    - qz-gitlab-runner
+
+
 job_unit_test:
   stage: test
   script:
