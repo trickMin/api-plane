@@ -11,7 +11,9 @@ variables:
 
 
 stages:
+  - commit-check
   - test
+  - sonar-check
   - buildImage
 
 before_script:
@@ -20,14 +22,14 @@ before_script:
 #  - git submodule update --init
 
 commit-check:
-  stage: test
+  stage: commit-check
   script:
+    - chmod +x scripts/check_mr_message.sh
     - scripts/check_mr_messages.sh
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
   tags:
     - qz-gitlab-runner
-
 
 job_unit_test:
   stage: test
@@ -43,7 +45,18 @@ job_unit_test:
       - /builds/qingzhou/yx-gateway-api-plane/hango-api-plane-server
     expire_in: 1 day
   tags:
-    - qz-gitlab-runner    
+    - qz-gitlab-runner
+
+sonar-check:
+  stage: sonar-check
+  script:
+    - chmod +x scripts/check_sonar.sh
+    - scripts/check_sonar.sh
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+  tags:
+    - qz-gitlab-runner
+
 
 job_buildImage:
     stage: buildImage
