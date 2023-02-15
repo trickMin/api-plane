@@ -19,6 +19,7 @@
               "key": "headerKey",
               "alias": "请求头名称",
               "type": "input",
+              "help":"请求头名称设置格式为header[name]，其中name为请求头名称",
               "rules": [
                 "Required",
                 "MaxLength(200)"
