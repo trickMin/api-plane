@@ -24,7 +24,7 @@ before_script:
 commit-check:
   stage: commit-check
   script:
-    - chmod +x scripts/check_mr_message.sh
+    - chmod +x scripts/check_mr_messages.sh
     - scripts/check_mr_messages.sh
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
