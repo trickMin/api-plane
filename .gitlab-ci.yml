@@ -40,6 +40,8 @@ job_unit_test:
     - $MAVEN_HOME/bin/mvn clean package
     - git status
     - echo "now unit_test finished."
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
   artifacts:
     paths:
       - /builds/qingzhou/yx-gateway-api-plane/hango-api-plane-server
