@@ -67,12 +67,9 @@ public class GatewayPluginController extends BaseController {
         Iterator<Map.Entry<String, Plugin>> iterator = pluginMap.entrySet().iterator();
         while (iterator.hasNext()) {
             Map.Entry<String, Plugin> next = iterator.next();
-            if (pluginSupports.contains(next.getKey())){
+            if (pluginSupports.contains(next.getKey()) && !globalConfig.getIgnorePluginSet().contains(next.getKey())){
                 plugins.add(next.getValue());
             }
-        }
-        for (String pluginName : globalConfig.getIgnorePluginSet()) {
-            plugins.remove(pluginName);
         }
         return apiReturn(ImmutableMap.of("Plugins", plugins));
     }
