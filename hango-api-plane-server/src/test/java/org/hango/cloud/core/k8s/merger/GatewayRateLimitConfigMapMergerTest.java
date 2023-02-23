@@ -9,6 +9,7 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 
+@SuppressWarnings("java:S1192")
 public class GatewayRateLimitConfigMapMergerTest {
 
     @Test

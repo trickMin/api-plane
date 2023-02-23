@@ -21,6 +21,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
+@SuppressWarnings("java:S1192")
 public class DefaultResourceManagerTest extends BaseTest {
 
     @Autowired

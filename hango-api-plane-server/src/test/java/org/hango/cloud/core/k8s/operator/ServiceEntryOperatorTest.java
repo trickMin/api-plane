@@ -10,6 +10,7 @@ import org.junit.Test;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("java:S1192")
 public class ServiceEntryOperatorTest {
 
     @Test

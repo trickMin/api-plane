@@ -6,6 +6,7 @@ import com.netease.slime.api.microservice.v1alpha1.SmartLimiterBuilder;
 import org.junit.Assert;
 import org.junit.Test;
 
+@SuppressWarnings("java:S1192")
 public class SmartLimiterMergerTest {
 
     @Test

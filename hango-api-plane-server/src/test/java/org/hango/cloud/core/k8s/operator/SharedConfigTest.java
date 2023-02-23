@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.List;
 
 
+@SuppressWarnings("java:S1192")
 public class SharedConfigTest {
 
     SharedConfigOperator operator;

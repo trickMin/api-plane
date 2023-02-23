@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+@SuppressWarnings("java:S1192")
 public class DestinationRuleOperatorTest {
 
     DestinationRuleOperator operator;
