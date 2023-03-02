@@ -189,6 +189,10 @@
                     {
                       "text": "精确匹配",
                       "value": "exact_match"
+                    },
+                    {
+                      "text": "正则表达式",
+                      "value": "safe_regex_match"
                     }
                   ]
                 },
@@ -201,7 +205,17 @@
                     "Number",
                     "MinNumber(200)",
                     "MaxNumber(599)"
-                  ]
+                  ],
+                  "customRules": {
+                    "keys": [
+                      "this",
+                      "match_type"
+                    ],
+                    "safe_regex_match": [
+                      "Required",
+                      "RegExp"
+                    ]
+                  }
                 }
               ]
             },
