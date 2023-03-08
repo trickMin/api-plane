@@ -1,5 +1,6 @@
 package org.hango.cloud.core.plugin.processor;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hango.cloud.core.k8s.K8sResourceEnum;
 import org.hango.cloud.core.plugin.FragmentHolder;
 import org.hango.cloud.core.plugin.FragmentTypeEnum;
@@ -30,7 +31,7 @@ public class RewriteProcessor extends AbstractSchemaProcessor implements SchemaP
                 "            \"rewriters\": [\n" +
                 "                {\n" +
                 "                    \"path\": {},\n" +
-                "                    \"update\": \"%s{{1}}\"\n" +
+                "                    \"update\": \"%s{{sub-path}}\"\n" +
                 "                }\n" +
                 "            ]\n" +
                 "        }\n" +
@@ -39,6 +40,9 @@ public class RewriteProcessor extends AbstractSchemaProcessor implements SchemaP
         PluginGenerator source = PluginGenerator.newInstance(plugin);
         String rewriteRegex = source.getValue("rewrite_regex");
         String target = source.getValue("target");
+        if (StringUtils.isEmpty(target)){
+            target = "";
+        }
         PluginGenerator builder = PluginGenerator.newInstance(String.format(formatter, rewriteRegex, target));
         FragmentHolder holder = new FragmentHolder();
         FragmentWrapper wrapper = new FragmentWrapper.Builder()
