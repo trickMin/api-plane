@@ -36,6 +36,10 @@
         },
         {
           "enable": "true",
+          "name": "proxy.filters.http.parameter_validate"
+        },
+        {
+          "enable": "true",
           "inline": {
             "settings": {
               "domain": "qingzhou",

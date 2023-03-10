@@ -321,6 +321,22 @@
       "pluginGuidance": ""
     },
     {
+      "name": "parameters-validate",
+      "displayName": "参数校验",
+      "schema": "plugin/route/parameter-validate-rule.json",
+      "description": "",
+      "processor": "AggregateGatewayPluginProcessor",
+      "author": "system",
+      "createTime": "1669886179",
+      "updateTime": "1669886179",
+      "pluginScope": "routeRule,global",
+      "pluginPriority": "1100",
+      "instructionForUse": "检查请求的header和query参数值",
+      "categoryKey": "security",
+      "categoryName": "安全",
+      "pluginGuidance": "校验请求的请求头和查询参数值，包括数值类型、大小、长度和枚举值。网关会拦截不符合参数校验规则的请求。"
+    },
+    {
       "name": "rewrite",
       "displayName": "请求Path重写",
       "schema": "plugin/route/rewrite.json",

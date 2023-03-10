@@ -45,7 +45,7 @@ public enum PluginMapping {
 
     //默认处理
     resty("resty","proxy.filters.http.rider","RestyProcessor"),
-
+    parameter_validate("parameters-validate","proxy.filters.http.parameter_validate","ParameterValidateProcessor")
     ;
 
     /**
