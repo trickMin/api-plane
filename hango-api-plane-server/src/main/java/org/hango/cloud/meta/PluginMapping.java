@@ -18,6 +18,7 @@ public enum PluginMapping {
     dynamic_downgrade("dynamic-downgrade","proxy.filters.http.dynamicdowngrade","DynamicDowngradeProcessor"),
     local_limiting("local-limiting","","SmartLimiterProcessor"),
     rate_limiting("rate-limiting","","SmartLimiterProcessor"),
+    cluster_group_limiting("cluster-group-limiting","","SmartLimiterProcessor"),
     ianus_percent_limit("ianus-percent-limit","envoy.filters.http.fault","FlowLimitProcessor"),
     ip_restriction("ip-restriction","proxy.filters.http.iprestriction","IpRestrictionProcessor"),
     ua_restriction("ua-restriction","proxy.filters.http.ua_restriction","UaRestrictionProcessor"),

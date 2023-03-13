@@ -30,4 +30,9 @@ public class PluginConstant {
      * 本地限流插件名
      */
     public static final String LOCAL_LIMITER = "local-limiting";
+
+    /**
+     * 集群分组限流插件名
+     */
+    public static final String CLUSTER_GROUP_LIMITER = "cluster-group-limiting";
 }

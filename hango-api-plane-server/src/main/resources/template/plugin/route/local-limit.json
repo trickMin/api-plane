@@ -35,9 +35,34 @@
                   "value": "exact_match"
                 },
                 {
+                  "text": "前缀匹配",
+                  "value": "prefix_match"
+                },
+                {
                   "text": "正则表达式",
                   "value": "safe_regex_match"
+                },
+                {
+                  "text": "存在",
+                  "value": "present"
                 }
+              ],
+              "rules": [
+                "Required"
+              ]
+            },
+            {
+              "key": "invert",
+              "alias": "invert",
+              "type": "radio",
+              "default": "false",
+              "help": "true: 对于满足该匹配条件的请求进行限流; false: 对于不满足该匹配条件的请求进行限流",
+              "visible": {
+                "this.match_type": "present"
+              },
+              "options": [
+                "true",
+                "false"
               ],
               "rules": [
                 "Required"
@@ -47,6 +72,9 @@
               "key": "value",
               "type": "input",
               "alias": "取值",
+              "invisible": {
+                "this.match_type": "present"
+              },
               "rules": [
                 "Required"
               ]

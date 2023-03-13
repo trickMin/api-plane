@@ -123,7 +123,9 @@ public class IstioModelEngineTest extends BaseTest {
     @Test
     public void plugin() {
         // 集群限流插件case
-        String clusterPlugin = "{\"kind\":\"rate-limiting\",\"name\":\"rate-limiting\",\"limit_by_list\":[{\"headers\":[{\"header_key\":\"header1\",\"pre_condition\":[{\"match_type\":\"=\",\"value\":\"value1\"}]}],\"hour\":111,\"day\":1111,\"second\":1},{\"headers\":[{\"header_key\":\"header2\",\"pre_condition\":[]}],\"hour\":222,\"day\":2222,\"minute\":22,\"second\":2}]}";
+        String clusterPlugin = "{\"limit_by_list\":[{\"headers\":[{\"headerKey\":\"header1\",\"match_type\":\"prefix_match\",\"value\":\"value1\"}],\"day\":2222,\"hour\":333,\"minute\":44,\"second\":5}],\"kind\":\"rate-limiting\",\"name\":\"rate-limiting\"}";
+        // 集群分组限流插件case
+        String clusterGroupPlugin = "{\"limit_by_list\":[{\"headers\":[{\"header_key\":\"group_header\"}],\"minute\":555}],\"kind\":\"cluster-group-limiting\",\"name\":\"cluster-group-limiting\"}";
         // 本地限流插件case
         String localPlugin = "{\"kind\":\"local-limiting\",\"name\":\"local-limiting\",\"limit_by_list\":[{\"headers\":[{\"match_type\":\"=\",\"headerKey\":\"header1\",\"value\":\"value1\"}],\"hour\":111,\"day\":1111,\"minute\":11,\"second\":1}]}";
         // 请求中断插件case
@@ -131,6 +133,7 @@ public class IstioModelEngineTest extends BaseTest {
 
         List<String> plugins = new ArrayList<>();
         plugins.add(clusterPlugin);
+        plugins.add(clusterGroupPlugin);
         plugins.add(localPlugin);
         plugins.add(routerPlugin);
 

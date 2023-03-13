@@ -46,6 +46,8 @@ public abstract class AbstractSchemaProcessor implements SchemaProcessor<Service
 
     public String prefix_string_match = "{\"name\":\"%s\",\"string_match\":{\"prefix\": \"%s\"}}";
 
+    public static final String PREFIX_MATCH = "{\"name\":\"%s\",\"prefix_match\":\"%s\"}";
+
     public String present_match = "{\"name\":\"%s\", \"present_match\":true}";
 
     public String present_invert_match = "{\"name\":\"%s\", \"present_match\":true, \"invert_match\":true}";

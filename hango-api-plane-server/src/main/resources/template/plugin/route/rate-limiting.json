@@ -12,11 +12,11 @@
         {
           "key": "headers",
           "alias": "请求头匹配",
-          "help": "满足匹配条件的请求会进行流量控制",
           "type": "array",
+          "help": "满足匹配条件的请求会进行流量控制",
           "layouts": [
             {
-              "key": "header_key",
+              "key": "headerKey",
               "alias": "请求头名称",
               "type": "input",
               "rules": [
@@ -25,71 +25,58 @@
               ]
             },
             {
-              "key": "pre_condition",
-              "alias": "请求头值匹配",
-              "type": "array",
-              "rules": [
-                "ArrayMaxLength(1)"
-              ],
-              "layouts": [
+              "key": "match_type",
+              "alias": "匹配方式",
+              "type": "select",
+              "default": "exact_match",
+              "options": [
                 {
-                  "key": "match_type",
-                  "alias": "匹配方式",
-                  "type": "select",
-                  "options": [
-                    {
-                      "value": "=",
-                      "text": "等于"
-                    },
-                    {
-                      "value": "!=",
-                      "text": "不等于"
-                    },
-                    {
-                      "value": "≈",
-                      "text": "正则匹配"
-                    },
-                    {
-                      "value": "!≈",
-                      "text": "正则不匹配"
-                    },
-                    {
-                      "value": "present",
-                      "text": "存在"
-                    }
-                  ],
-                  "rules": [
-                    "Required"
-                  ]
+                  "text": "精确匹配",
+                  "value": "exact_match"
                 },
                 {
-                  "key": "invert",
-                  "alias": "invert",
-                  "type": "radio",
-                  "default": "false",
-                  "help": "invert 为false,对于满足该匹配条件的请求进行限流; invert 为 true,对于不满足该匹配条件的请求进行限流",
-                  "visible": {
-                    "this.match_type": "present"
-                  },
-                  "options": [
-                    "true",
-                    "false"
-                  ],
-                  "rules": [
-                    "Required"
-                  ]
+                  "text": "前缀匹配",
+                  "value": "prefix_match"
                 },
                 {
-                  "key": "value",
-                  "alias": "取值",
-                  "type": "string",
-                  "invisible": {
-                    "this.match_type": "present"
-                  },
-                  "rules": [
-                    "Required"
-                  ]
+                  "text": "正则表达式",
+                  "value": "safe_regex_match"
+                },
+                {
+                  "text": "存在",
+                  "value": "present"
                 }
+              ],
+              "rules": [
+                "Required"
+              ]
+            },
+            {
+              "key": "invert",
+              "alias": "invert",
+              "type": "radio",
+              "default": "false",
+              "help": "true: 对于满足该匹配条件的请求进行限流; false: 对于不满足该匹配条件的请求进行限流",
+              "visible": {
+                "this.match_type": "present"
+              },
+              "options": [
+                "true",
+                "false"
+              ],
+              "rules": [
+                "Required"
+              ]
+            },
+            {
+              "key": "value",
+              "type": "input",
+              "alias": "取值",
+              "invisible": {
+                "this.match_type": "present"
+              },
+              "rules": [
+                "Required"
               ]
             }
           ]

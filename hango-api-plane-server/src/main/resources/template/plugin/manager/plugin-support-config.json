@@ -6,6 +6,7 @@
       {"schema": "ianus-percent-limit","plugin": "envoy.filters.http.fault","display": false},
       {"schema": "local-limiting","plugin": "envoy.filters.http.local_ratelimit","display": true},
       {"schema": "rate-limiting","plugin": "envoy.filters.http.ratelimit","display": true},
+      {"schema": "cluster-group-limiting","plugin": "envoy.filters.http.ratelimit","display": true},
       {"schema": "ianus-router","plugin": "envoy.filters.http.fault","display": false},
       {"schema": "ip-restriction","plugin": "proxy.filters.http.iprestriction","display": true},
       {"schema": "ua-restriction","plugin": "proxy.filters.http.ua_restriction","display": true},
@@ -42,6 +43,7 @@
       {"schema": "ianus-percent-limit","plugin": "envoy.filters.http.fault","display": false},
       {"schema": "local-limiting","plugin": "envoy.filters.http.local_ratelimit","display": true},
       {"schema": "rate-limiting","plugin": "envoy.filters.http.ratelimit","display": true},
+      {"schema": "cluster-group-limiting","plugin": "envoy.filters.http.ratelimit","display": true},
       {"schema": "ianus-router","plugin": "envoy.filters.http.fault","display": false},
       {"schema": "ip-restriction","plugin": "proxy.filters.http.iprestriction","display": true},
       {"schema": "ua-restriction","plugin": "proxy.filters.http.ua_restriction","display": true},
@@ -77,6 +79,7 @@
     "plugins": [
       {"schema": "local-limiting","plugin": "envoy.filters.http.local_ratelimit","display": true},
       {"schema": "rate-limiting","plugin": "envoy.filters.http.ratelimit","display": true},
+      {"schema": "cluster-group-limiting","plugin": "envoy.filters.http.ratelimit","display": true},
       {"schema": "ianus-router","plugin": "envoy.filters.http.fault","display": false},
       {"schema": "ip-restriction","plugin": "proxy.filters.http.iprestriction","display": true},
       {"schema": "cors","plugin": "envoy.filters.http.cors","display": true},
@@ -109,6 +112,7 @@
     "plugins": [
       {"schema": "local-limiting","plugin": "envoy.filters.http.local_ratelimit","display": true},
       {"schema": "rate-limiting","plugin": "envoy.filters.http.ratelimit","display": true},
+      {"schema": "cluster-group-limiting","plugin": "envoy.filters.http.ratelimit","display": true},
       {"schema": "ianus-router","plugin": "envoy.filters.http.fault","display": false},
       {"schema": "static-downgrade","plugin": "proxy.filters.http.staticdowngrade","display": true},
       {"schema": "dynamic-downgrade","plugin": "proxy.filters.http.dynamicdowngrade","display": true},

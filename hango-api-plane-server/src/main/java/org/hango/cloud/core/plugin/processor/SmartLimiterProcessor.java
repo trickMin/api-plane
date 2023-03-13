@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import static org.hango.cloud.util.constant.PluginConstant.CLUSTER_GROUP_LIMITER;
 import static org.hango.cloud.util.constant.PluginConstant.CLUSTER_LIMITER;
 import static org.hango.cloud.util.constant.PluginConstant.LOCAL_LIMITER;
 
@@ -57,19 +58,7 @@ public class SmartLimiterProcessor extends AbstractSchemaProcessor implements Sc
         List<Map<String, Object>> limitList = source.getValue("$.limit_by_list", List.class);
         for (Map<String, Object> limitStrategy : limitList) {
             // 构建限流header匹配条件
-            PluginGenerator headerMatch = null;
-            List<Object> headerMatchList = (List) limitStrategy.get("headers");
-            if (!CollectionUtils.isEmpty(headerMatchList)) {
-                if (CLUSTER_LIMITER.equals(limitPluginType)) {
-                    // 集群限流header匹配规则处理
-                    headerMatch = translateHeadersOfClusterLimiter(headerMatchList);
-                } else if (LOCAL_LIMITER.equals(limitPluginType)) {
-                    // 本地限流header匹配规则处理
-                    headerMatch = translateHeadersOfLocalLimiter(headerMatchList);
-                } else {
-                    throw new RuntimeException("[smartLimiter plugin] 错误的插件类型");
-                }
-            }
+            PluginGenerator headerMatch = generateHeaderMatch(limitPluginType, limitStrategy);
 
             // 构建限流action策略集合
             for (String timeUnit : TIME_UNIT_LIST) {
@@ -94,6 +83,23 @@ public class SmartLimiterProcessor extends AbstractSchemaProcessor implements Sc
         FragmentHolder fragmentHolder = new FragmentHolder();
         fragmentHolder.setSmartLimiterFragment(smartLimiterActionList);
         return fragmentHolder;
+    }
+
+    private PluginGenerator generateHeaderMatch(String limitPluginType, Map<String, Object> limitStrategy) {
+        PluginGenerator headerMatch = null;
+        List<Object> headerMatchList = (List) limitStrategy.get("headers");
+        if (!CollectionUtils.isEmpty(headerMatchList)) {
+            if (CLUSTER_GROUP_LIMITER.equals(limitPluginType)) {
+                // 集群分组限流header匹配规则处理
+                headerMatch = translateHeadersOfClusterLimiter(headerMatchList);
+            } else if (LOCAL_LIMITER.equals(limitPluginType) || CLUSTER_LIMITER.equals(limitPluginType)) {
+                // 本地和集群限流header匹配规则处理
+                headerMatch = translateHeadersOfLimiter(headerMatchList);
+            } else {
+                throw new RuntimeException("[smartLimiter plugin] 错误的插件类型");
+            }
+        }
+        return headerMatch;
     }
 
     /**
@@ -141,10 +147,16 @@ public class SmartLimiterProcessor extends AbstractSchemaProcessor implements Sc
 
         // 判断是集群限流还是本地限流策略
         String strategy = "";
-        if (CLUSTER_LIMITER.equals(limitPluginType)) {
-            strategy = STRATEGY_CLUSTER;
-        } else if (LOCAL_LIMITER.equals(limitPluginType)) {
-            strategy = STRATEGY_LOCAL;
+        switch (limitPluginType) {
+            case CLUSTER_LIMITER:
+            case CLUSTER_GROUP_LIMITER:
+                strategy = STRATEGY_CLUSTER;
+                break;
+            case LOCAL_LIMITER:
+                strategy = STRATEGY_LOCAL;
+                break;
+            default:
+                break;
         }
 
         // 构造action CR结构
@@ -157,7 +169,7 @@ public class SmartLimiterProcessor extends AbstractSchemaProcessor implements Sc
     }
 
     /**
-     * 构建集群限流插件header组匹配规则
+     * 构建集群分组限流插件header组匹配规则
      *
      * @param headerMatchList 请求头匹配规则集合
      * @return 插件转换的CR内容
@@ -168,23 +180,8 @@ public class SmartLimiterProcessor extends AbstractSchemaProcessor implements Sc
         for (Object headerMatchObj : headerMatchList) {
             PluginGenerator headerMatchSource = PluginGenerator.newInstance(headerMatchObj, ResourceType.OBJECT);
             String headerKey = headerMatchSource.getValue("$.header_key", String.class);
-
-            // 根据value是否有值来判断是否启用key匹配模式：value无值则启用集群限流特有的headerKey匹配模式
-            List<Map<String, String>> headerValueMatchList = headerMatchSource.getValue("$.pre_condition", List.class);
-            if (CollectionUtils.isEmpty(headerValueMatchList)) {
-                // key匹配模式
-                headerMatch.addJsonElement("$", String.format(present_match_separate, headerKey));
-            } else {
-                // key + value匹配模式；一个headerKey仅支持一组value匹配，"仅限一组"的规则在插件schema中存在约束
-                Map<String, String> headerValueMatchGroup = headerValueMatchList.get(0);
-                String matchType = headerValueMatchGroup.get("match_type");
-                String headerValue = headerValueMatchGroup.get("value");
-                boolean presentInvert = Boolean.parseBoolean(headerValueMatchGroup.get("invert"));
-
-                String matchTypeFormatter = translateMatchType(matchType, presentInvert);
-
-                headerMatch.addJsonElement("$", String.format(matchTypeFormatter, headerKey, headerValue));
-            }
+            // key匹配模式
+            headerMatch.addJsonElement("$", String.format(present_match_separate, headerKey));
         }
 
         if (CollectionUtils.isEmpty(headerMatchList)) {
@@ -195,12 +192,12 @@ public class SmartLimiterProcessor extends AbstractSchemaProcessor implements Sc
     }
 
     /**
-     * 构建本地限流插件header组匹配规则
+     * 构建本地限流和集群限流插件header组匹配规则
      *
      * @param headerMatchList 请求头匹配规则集合
      * @return 插件转换的CR内容
      */
-    private PluginGenerator translateHeadersOfLocalLimiter(List<Object> headerMatchList) {
+    private PluginGenerator translateHeadersOfLimiter(List<Object> headerMatchList) {
         PluginGenerator headerMatch = PluginGenerator.newInstance("[]");
 
         for (Object headerMatchObj : headerMatchList) {
@@ -208,8 +205,9 @@ public class SmartLimiterProcessor extends AbstractSchemaProcessor implements Sc
             String headerKey = headerMatchSource.getValue("$.headerKey", String.class);
             String matchType = headerMatchSource.getValue("match_type", String.class);
             String headerValue = headerMatchSource.getValue("value", String.class);
+            boolean presentInvert = Boolean.parseBoolean(headerMatchSource.getValue("invert"));
 
-            String matchTypeFormatter = translateMatchType(matchType, false);
+            String matchTypeFormatter = translateMatchType(matchType, presentInvert);
             headerMatch.addJsonElement("$", String.format(matchTypeFormatter, headerKey, headerValue));
         }
 
@@ -232,6 +230,9 @@ public class SmartLimiterProcessor extends AbstractSchemaProcessor implements Sc
             case "exact_match":
             case "=":
                 matchFormat = exact_match;
+                break;
+            case "prefix_match":
+                matchFormat = PREFIX_MATCH;
                 break;
             case "!=":
                 matchFormat = exact_invert_match;
