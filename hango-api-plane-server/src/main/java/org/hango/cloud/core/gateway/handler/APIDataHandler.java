@@ -70,7 +70,7 @@ public abstract class APIDataHandler implements DataHandler<API> {
                 .put(VIRTUAL_SERVICE_SERVICE_TAG, api.getServiceTag())
                 .put(GATEWAY_NS, api.getNamespace())
                 .put(VIRTUAL_SERVICE_API_ID, api.getApiId())
-                .put(VIRTUAL_SERVICE_API_NAME, api.getApiName())
+                .put(VIRTUAL_SERVICE_API_NAME, api.getName())
                 .put(VIRTUAL_SERVICE_TENANT_ID, api.getTenantId())
                 .put(VIRTUAL_SERVICE_PROJECT_ID, api.getProjectId())
                 .put(VIRTUAL_SERVICE_HOST_HEADERS, hostHeaders)

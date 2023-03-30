@@ -36,8 +36,6 @@ public class Trans {
         api.setHeaders(pairsDTO2Pairs(portalAPI.getHeaders()));
         api.setQueryParams(pairsDTO2Pairs(portalAPI.getQueryParams()));
         api.setPriority(portalAPI.getPriority());
-        api.setServiceTag(portalAPI.getServiceTag());
-        api.setApiId(portalAPI.getRouteId());
         api.setApiName(portalAPI.getRouteName());
         api.setTenantId(portalAPI.getTenantId());
         api.setProjectId(portalAPI.getProjectId());
@@ -337,6 +335,7 @@ public class Trans {
         api.setHosts(Collections.EMPTY_LIST);
         api.setProxyServices(ImmutableList.of(new Service()));
         api.setPlugins(portalAPI.getPlugins());
+        api.setProjectId(portalAPI.getProjectId());
         return api;
     }
 

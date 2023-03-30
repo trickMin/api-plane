@@ -78,20 +78,6 @@ public class PortalAPIDTO {
     private List<PairMatchDTO> queryParams;
 
     /**
-     * 服务标志
-     */
-    @JsonProperty(value = "ServiceTag")
-    @NotNull(message = "ServiceTag")
-    private String serviceTag;
-
-    /**
-     * 路由id
-     */
-    @JsonProperty(value = "RouteId")
-    @NotNull(message = "RouteId")
-    private Long routeId;
-
-    /**
      * 路由名字
      */
     @JsonProperty(value = "RouteName")
@@ -293,22 +279,6 @@ public class PortalAPIDTO {
 
     public void setPriority(Integer priority) {
         this.priority = priority;
-    }
-
-    public String getServiceTag() {
-        return serviceTag;
-    }
-
-    public void setServiceTag(String serviceTag) {
-        this.serviceTag = serviceTag;
-    }
-
-    public Long getRouteId() {
-        return routeId;
-    }
-
-    public void setRouteId(Long routeId) {
-        this.routeId = routeId;
     }
 
     public String getRouteName() {
