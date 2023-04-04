@@ -17,12 +17,6 @@ public interface ResourceCache {
      */
     List<HasMetadata> getResource(String kind);
 
-    /**
-     * 获取资源类型
-     * @param kind 资源类型
-     * @return 资源列表
-     */
-    List<HasMetadata> getResourceByName(String kind, String name);
 
     /**
      * 获取资源类型

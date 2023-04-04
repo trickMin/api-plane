@@ -6,10 +6,6 @@ import com.hubspot.jackson.datatype.protobuf.ProtobufModule;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.KubernetesResourceList;
 import io.fabric8.kubernetes.api.model.apiextensions.v1beta1.CustomResourceDefinition;
-import io.fabric8.kubernetes.api.model.gatewayapi.v1beta1.Gateway;
-import io.fabric8.kubernetes.api.model.gatewayapi.v1beta1.GatewayList;
-import io.fabric8.kubernetes.api.model.gatewayapi.v1beta1.HTTPRoute;
-import io.fabric8.kubernetes.api.model.gatewayapi.v1beta1.HTTPRouteList;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.dsl.base.CustomResourceDefinitionContext;
 import io.fabric8.kubernetes.client.dsl.base.OperationContext;
@@ -18,8 +14,8 @@ import io.fabric8.kubernetes.client.informers.cache.Indexer;
 import io.fabric8.kubernetes.client.utils.Serialization;
 import org.apache.commons.lang3.StringUtils;
 import org.hango.cloud.core.GlobalConfig;
-import org.hango.cloud.k8s.K8sResourceApiEnum;
 import org.hango.cloud.core.k8s.MultiClusterK8sClient;
+import org.hango.cloud.k8s.K8sResourceApiEnum;
 import org.hango.cloud.k8s.K8sTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,8 +61,6 @@ public class K8sResourceCache implements ResourceCache {
         registryInformer(K8sResourceApiEnum.DestinationRule, K8sTypes.DestinationRule.class, K8sTypes.DestinationRuleList.class);
         registryInformer(K8sResourceApiEnum.EnvoyPlugin, K8sTypes.EnvoyPlugin.class, K8sTypes.EnvoyPluginList.class);
         registryInformer(K8sResourceApiEnum.SmartLimiter, K8sTypes.SmartLimiter.class, K8sTypes.SmartLimiterList.class);
-        registryInformer(K8sResourceApiEnum.KubernetesGateway, Gateway.class, GatewayList.class);
-        registryInformer(K8sResourceApiEnum.HTTPRoute, HTTPRoute.class, HTTPRouteList.class);
         sharedInformerFactory.startAllRegisteredInformers();
 
     }
@@ -77,8 +71,12 @@ public class K8sResourceCache implements ResourceCache {
         try {
             crd = masterOriginalClient.customResourceDefinitions().withName(kind.getApi()).get();
         } catch (Exception e) {
-            log.error("get crd definition error", e);
+            log.error("get crd {}  error",kind.getApi(), e);
             return;
+        }
+        if (crd == null){
+            log.error("get crd {} null", kind.getApi());
+
         }
         CustomResourceDefinitionContext customResourceDefinitionContext = CustomResourceDefinitionContext.fromCrd(crd);
         Indexer<T> indexer = sharedInformerFactory.sharedIndexInformerForCustomResource(
@@ -98,15 +96,6 @@ public class K8sResourceCache implements ResourceCache {
             return new ArrayList<>();
         }
         return storeMap.get(kind).list().stream().filter(this::inNamespace).collect(Collectors.toList());
-    }
-
-    @Override
-    public List<HasMetadata> getResourceByName(String kind, String name) {
-        List<HasMetadata> resource = getResource(kind);
-        if (StringUtils.isNotEmpty(name)){
-            resource = resource.stream().filter(o -> name.equals(o.getMetadata().getName())).collect(Collectors.toList());
-        }
-        return resource;
     }
 
     @Override

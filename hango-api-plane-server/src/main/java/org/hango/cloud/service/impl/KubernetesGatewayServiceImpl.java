@@ -2,15 +2,14 @@ package org.hango.cloud.service.impl;
 
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import io.fabric8.kubernetes.api.model.HasMetadata;
+import io.fabric8.kubernetes.api.model.KubernetesResourceList;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
-import io.fabric8.kubernetes.api.model.gatewayapi.v1beta1.Gateway;
-import io.fabric8.kubernetes.api.model.gatewayapi.v1beta1.HTTPRoute;
-import io.fabric8.kubernetes.api.model.gatewayapi.v1beta1.Listener;
-import io.fabric8.kubernetes.api.model.gatewayapi.v1beta1.ParentReference;
+import io.fabric8.kubernetes.api.model.gatewayapi.v1beta1.*;
 import org.apache.logging.log4j.util.Strings;
-import org.hango.cloud.cache.K8sResourceCache;
 import org.hango.cloud.core.GlobalConfig;
+import org.hango.cloud.core.k8s.K8sClient;
 import org.hango.cloud.k8s.K8sResourceApiEnum;
+import org.hango.cloud.meta.CustomResource;
 import org.hango.cloud.meta.dto.KubernetesGatewayDTO;
 import org.hango.cloud.service.KubernetesGatewayService;
 import org.slf4j.Logger;
@@ -18,11 +17,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.hango.cloud.core.template.TemplateConst.LABLE_ISTIO_REV;
@@ -42,57 +39,65 @@ public class KubernetesGatewayServiceImpl implements KubernetesGatewayService {
     public static final String PROJECT_KEY = "hango.io/gateway.project";
 
     @Autowired
-    private K8sResourceCache k8sResourceCache;
+    private K8sClient k8sClient;
 
     @Autowired
     private GlobalConfig globalConfig;
 
     @Override
-    public List<KubernetesGatewayDTO> getKubernetesGateway(String gateway) {
-        List<HasMetadata> resource = k8sResourceCache.getResourceByName(KubernetesGateway.name(), gateway);
-        if (CollectionUtils.isEmpty(resource)){
-            return new ArrayList<>();
+    public List<KubernetesGatewayDTO> getKubernetesGateway(String name) {
+        CustomResource<Gateway, GatewayList> customResource = buildCustomResource(KubernetesGateway, Gateway.class, GatewayList.class);
+        if (StringUtils.hasText(name)){
+            //基于资源名称查询
+            Gateway gateway = k8sClient.getCustomResource(customResource, globalConfig.getResourceNamespace(), name);
+            if (gateway == null){
+                return new ArrayList<>();
+            }
+            return Collections.singletonList(convertGateway(gateway));
+        }else {
+            //查询命名空间下所以资源
+            List<Gateway> gateways = k8sClient.getCustomResources(customResource, globalConfig.getResourceNamespace(), getLabel());
+            return gateways.stream().map(this::convertGateway).collect(Collectors.toList());
         }
-        return resource.stream().filter(this::revFilter).map(this::convertGateway).collect(Collectors.toList());
 
+    }
+
+    private <T extends HasMetadata, L extends KubernetesResourceList<T>>  CustomResource<T, L> buildCustomResource(K8sResourceApiEnum apiEnum, Class<T> resourceType, Class<L> listClass){
+        CustomResource<T, L> customResource = new CustomResource<>();
+        customResource.setKind(apiEnum);
+        customResource.setApiTypeClass(resourceType);
+        customResource.setApiListTypeClass(listClass);
+        return customResource;
     }
 
     @Override
     public List<HTTPRoute> getHTTPRoute(String gateway) {
-        List<HasMetadata> resource = k8sResourceCache.getResource(K8sResourceApiEnum.HTTPRoute.name());
-        if (CollectionUtils.isEmpty(resource)){
-            return new ArrayList<>();
+        CustomResource<HTTPRoute, HTTPRouteList> customResource = buildCustomResource(K8sResourceApiEnum.HTTPRoute, HTTPRoute.class, HTTPRouteList.class);
+        List<HTTPRoute> httpRoutes = k8sClient.getCustomResources(customResource, globalConfig.getResourceNamespace(), getLabel());
+        return httpRoutes.stream().filter(o -> gatewayFilter(o, gateway)).map(this::convertHTTPRoute).collect(Collectors.toList());
+    }
+
+    private Map<String, String> getLabel(){
+        Map<String, String> label = new HashMap<>();
+        label.put(LABLE_ISTIO_REV, globalConfig.getIstioRev());
+        return label;
+    }
+
+    private boolean gatewayFilter(HTTPRoute httpRoute, String gatewayName){
+        List<ParentReference> parentRefs = httpRoute.getSpec().getParentRefs();
+        if (CollectionUtils.isEmpty(parentRefs)){
+            return false;
         }
-        return resource.stream().filter(this::revFilter).filter(o -> gatewayFilter(o, gateway)).map(this::convertHTTPRoute).collect(Collectors.toList());
-    }
-
-    private boolean revFilter(HasMetadata hasMetadata){
-        Map<String, String> labels = hasMetadata.getMetadata().getLabels();
-        return globalConfig.getIstioRev().equals(labels.get(LABLE_ISTIO_REV));
-    }
-
-    private boolean gatewayFilter(HasMetadata hasMetadata, String gatewayName){
-        if (hasMetadata instanceof HTTPRoute){
-            HTTPRoute httpRoute = (HTTPRoute)hasMetadata;
-            List<ParentReference> parentRefs = httpRoute.getSpec().getParentRefs();
-            if (CollectionUtils.isEmpty(parentRefs)){
-                return false;
-            }
-            for (ParentReference parentRef : parentRefs) {
-                if (GATEWAY.equals(parentRef.getKind()) && gatewayName.equals(parentRef.getName())){
-                    return true;
-                }
+        for (ParentReference parentRef : parentRefs) {
+            if (GATEWAY.equals(parentRef.getKind()) && gatewayName.equals(parentRef.getName())){
+                return true;
             }
         }
         return false;
     }
 
 
-    private KubernetesGatewayDTO convertGateway(HasMetadata hasMetadata){
-        if (!(hasMetadata instanceof Gateway)){
-            return null;
-        }
-        Gateway gateway = (Gateway) hasMetadata;
+    private KubernetesGatewayDTO convertGateway(Gateway gateway){
         ObjectMeta metadata = gateway.getMetadata();
         KubernetesGatewayDTO gatewayDTO = new KubernetesGatewayDTO();
         gatewayDTO.setName(metadata.getName());
