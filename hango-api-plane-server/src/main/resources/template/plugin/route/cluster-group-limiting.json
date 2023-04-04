@@ -14,6 +14,9 @@
           "alias": "分组请求头信息",
           "help": "分组请求头名称，请求头与不同的值形成唯一限流组进行限流，例如填写header为key1，则key1: value1与key1: value2为独立的2组",
           "type": "array",
+          "rules": [
+            "ArrayMaxLength(1)"
+          ],
           "layouts": [
             {
               "key": "header_key",
