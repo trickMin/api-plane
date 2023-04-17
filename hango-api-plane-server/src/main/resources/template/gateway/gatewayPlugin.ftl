@@ -25,11 +25,9 @@ spec:
   - "${h?j_string}"
 </#list>
 </#if>
-<#if t_gateway_plugin_routes?has_content>
+<#if t_gateway_plugin_route?has_content>
   route:
-<#list t_gateway_plugin_routes as r>
-  - "${r?j_string}"
-</#list>
+  - "${t_gateway_plugin_route}"
 </#if>
 <#if t_gateway_plugin_users?has_content>
   user:

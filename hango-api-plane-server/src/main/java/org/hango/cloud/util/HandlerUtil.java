@@ -100,12 +100,8 @@ public class HandlerUtil {
      * @param plugin 网关插件
      * @return 路由集合
      */
-    public static List<String> getRouteList(GatewayPlugin plugin) {
-        final String routeId = plugin.getRouteId();
-        Integer port = plugin.getPort();
-        return plugin.getHosts().stream()
-                .map(host -> host + ":"+ port + "/" + routeId)
-                .collect(Collectors.toList());
+    public static String getRoute(GatewayPlugin plugin) {
+        return "/" + plugin.getRouteId();
     }
 
     /**

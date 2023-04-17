@@ -259,7 +259,7 @@ public interface TemplateConst {
     String GATEWAY_PLUGIN_HOSTS = "t_gateway_plugin_hosts";
     String GATEWAY_PLUGIN_SERVICES = "t_gateway_plugin_services";
     String GATEWAY_PLUGIN_PLUGINS = "t_gateway_plugin_plugins";
-    String GATEWAY_PLUGIN_ROUTES = "t_gateway_plugin_routes";
+    String GATEWAY_PLUGIN_ROUTE = "t_gateway_plugin_route";
     String GATEWAY_PLUGIN_USERS = "t_gateway_plugin_users";
 
 

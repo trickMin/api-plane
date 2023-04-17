@@ -6,14 +6,8 @@ import org.hango.cloud.core.template.TemplateParams;
 import org.hango.cloud.meta.GatewayPlugin;
 import org.hango.cloud.util.HandlerUtil;
 import org.hango.cloud.util.constant.PluginConstant;
-import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Arrays;
-import java.util.stream.Collectors;
+import java.util.*;
 
 /**
  * 路由插件CRD处理器
@@ -49,7 +43,7 @@ public class GatewayPluginDataHandler implements DataHandler<GatewayPlugin> {
         // 路由和全局插件模板渲染数据区分填充
         if (plugin.isRoutePlugin()) {
             gatewayPluginParams
-                    .put(TemplateConst.GATEWAY_PLUGIN_ROUTES, HandlerUtil.getRouteList(plugin))
+                    .put(TemplateConst.GATEWAY_PLUGIN_ROUTE, HandlerUtil.getRoute(plugin))
                     .put(TemplateConst.RESOURCE_IDENTITY, HandlerUtil.getIdentity(plugin))
                     .put(TemplateConst.SERVICE_INFO_API_SERVICE, PluginConstant.DEFAULT_SERVICE_NAME)
                     .put(TemplateConst.SERVICE_INFO_API_GATEWAY, plugin.getGateway())

@@ -22,7 +22,6 @@ public class GatewayPluginDTO {
     @JsonProperty(value = "PluginType")
     private String pluginType;
 
-    @NotEmpty(message = "Hosts")
     @JsonProperty(value = "Hosts")
     private List<String> hosts;
 
