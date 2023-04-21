@@ -114,7 +114,7 @@ public class HandlerUtil {
         String pluginName = PluginConstant.DEFAULT_PLUGIN_NAME;
 
         if (plugin.isRoutePlugin()) {
-            pluginName = plugin.getRouteId() + "-" + plugin.getGateway();
+            pluginName = plugin.getRouteId();
         } else if (plugin.isGlobalPlugin()) {
             pluginName = plugin.getCode().toLowerCase();
         }

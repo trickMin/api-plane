@@ -96,10 +96,6 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
         return collect;
     }
 
-    String buildVirtualServiceName(String apiName, String projectId, String gw) {
-        return String.format("%s-%s-%s", apiName, projectId, gw);
-    }
-
     String productExtra(TemplateParams params) {
         return subModelProcessor.process(API_VIRTUAL_SERVICE_EXTRA, params);
     }
