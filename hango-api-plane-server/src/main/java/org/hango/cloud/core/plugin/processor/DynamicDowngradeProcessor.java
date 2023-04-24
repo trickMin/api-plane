@@ -115,7 +115,7 @@ public class DynamicDowngradeProcessor extends AbstractSchemaProcessor implement
             String matchType = source.getValue("$.condition.response.code.match_type", String.class);
             String code = source.getValue("$.condition.response.code.value", String.class);
             if (nonNull(code)) {
-                builder.addJsonElement("$.downgrade_rpx.headers", String.format(safe_regex_string_match, ":status", code+"|"));
+                builder.addJsonElement("$.downgrade_rpx.headers", String.format(safe_regex_string_match, ":status", code + "|"));
             }
         }
     }
@@ -126,7 +126,7 @@ public class DynamicDowngradeProcessor extends AbstractSchemaProcessor implement
             String mathchType = source.getValue("$.cache.condition.response.code.match_type");
             String code = source.getValue("$.cache.condition.response.code.value");
             if (nonNull(code)) {
-                builder.addJsonElement("$.cache_rpx_rpx.headers", String.format(safe_regex_string_match, ":status", code+"|"));
+                builder.addJsonElement("$.cache_rpx_rpx.headers", String.format(safe_regex_string_match, ":status", code + "|"));
             }
         }
         if (source.contain("$.cache.condition.response.headers")) {
@@ -193,8 +193,54 @@ public class DynamicDowngradeProcessor extends AbstractSchemaProcessor implement
         if (source.contain("$.httpx.remote") && source.getValue("$.httpx.remote.requestSwitch", Boolean.class)) {
             builder.createOrUpdateJson("$", "override_remote", "{}");
             // 服务案例: "outbound|80|dynamic-5314-demo-gateway|istio-e2e-app.apigw-demo.svc.cluster.local"
-            builder.createOrUpdateValue("$.override_remote", "cluster", source.getValue("$.httpx.remote.cluster"));
+            String publishType = source.getValue("$.httpx.remote.cluster.PublishType");
+            Integer projectId = source.getValue("$.httpx.remote.cluster.ProjectId");
+            String serviceName = source.getValue("$.httpx.remote.cluster.Name");
+            String gwClusterName = source.getValue("$.httpx.remote.cluster.GwClusterName");
+            String virtualGwCode = source.getValue("$.httpx.remote.cluster.VirtualGwCode");
+            Integer port = source.getValue("$.httpx.remote.cluster.Port");
+            String backendService = source.getValue("$.httpx.remote.cluster.BackendService");
+
+            String destinationRuleName = genDestinationRuleName(publishType, String.valueOf(projectId), serviceName, gwClusterName, virtualGwCode);
+            String cluster = genCluster(String.valueOf(port), destinationRuleName, backendService, serviceName, String.valueOf(projectId));
+
+            builder.createOrUpdateValue("$.override_remote", "cluster", cluster);
             builder.createOrUpdateValue("$.override_remote", "timeout", source.getValue("$.httpx.remote.timeout", Integer.class) + "s");
         }
+    }
+
+    /**
+     * 生成DR名称
+     *
+     * @param publishType   发布类型（dynamic/static）
+     * @param projectId     项目ID
+     * @param serviceName   服务名称（项目网关下唯一）
+     * @param gwClusterName 网关集群名称
+     * @param virtualGwCode 虚拟网关标识
+     * @return DR名称
+     */
+    private String genDestinationRuleName(String publishType, String projectId, String serviceName, String gwClusterName, String virtualGwCode) {
+        return (publishType + '-' + projectId + '-' + serviceName + '-' + gwClusterName + '-' + virtualGwCode).toLowerCase();
+    }
+
+    /**
+     * 生成envoy cluster
+     * 服务案例: "outbound|80|dynamic-5314-demo-gateway|istio-e2e-app.apigw-demo.svc.cluster.local"
+     *
+     * @param port                端口
+     * @param destinationRuleName DR名称
+     * @param backendService      对应服务Host
+     * @return cluster
+     */
+    private String genCluster(String port, String destinationRuleName, String backendService, String serviceName, String projectId) {
+        String cluster = "";
+        if (destinationRuleName.startsWith("dynamic")) {
+            cluster = "outbound|" + port + "|" + destinationRuleName + "|" + backendService;
+        } else {
+            // 静态服务特殊处理
+            backendService = "com.netease.static-" + projectId + "-" + serviceName;
+            cluster = "outbound|" + port + "|" + destinationRuleName + "|" + backendService;
+        }
+        return cluster;
     }
 }
