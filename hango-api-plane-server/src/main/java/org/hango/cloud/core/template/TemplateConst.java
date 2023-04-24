@@ -10,11 +10,6 @@ public interface TemplateConst {
     String LABEL_TAG = "(?m)^#@(.*)=(.*)$";
     String BLANK_LINE = "(?m)^\\s*$(?:\\n|\\r\\n)";
     String IGNORE_SCHEME = "(?m)^(?!#)(.*)$";
-
-
-    String LABEL_RESOURCE_IDENTITY = "skiff-api-plane-resource-identity";
-    String LABEL_API_PLANE_TYPE = "skiff-api-plane-type";
-    String LABEL_API_PLANE_VERSION = "skiff-api-plane-version";
     String LABLE_ISTIO_REV = "istio.io/rev";
     /** ---------- 模板占位符名 begin ---------- **/
 
@@ -29,7 +24,6 @@ public interface TemplateConst {
     String VERSION = "t_version";
     String API_SERVICE = "t_api_service";
     String API_NAME = "t_api_name";
-    String RESOURCE_IDENTITY = "t_resource_identity";
     /**
      * API唯一标识，用于api name重复时
      */

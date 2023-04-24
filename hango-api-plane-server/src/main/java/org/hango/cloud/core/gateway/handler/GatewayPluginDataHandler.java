@@ -44,7 +44,6 @@ public class GatewayPluginDataHandler implements DataHandler<GatewayPlugin> {
         if (plugin.isRoutePlugin()) {
             gatewayPluginParams
                     .put(TemplateConst.GATEWAY_PLUGIN_ROUTE, HandlerUtil.getRoute(plugin))
-                    .put(TemplateConst.RESOURCE_IDENTITY, HandlerUtil.getIdentity(plugin))
                     .put(TemplateConst.SERVICE_INFO_API_SERVICE, PluginConstant.DEFAULT_SERVICE_NAME)
                     .put(TemplateConst.SERVICE_INFO_API_GATEWAY, plugin.getGateway())
                     .put(TemplateConst.SERVICE_INFO_API_NAME, plugin.getRouteId());

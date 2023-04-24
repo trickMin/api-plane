@@ -43,8 +43,7 @@ public class SmartLimiterDataHandler implements DataHandler<GatewayPlugin> {
         // 路由和全局插件模板渲染数据区分填充
         if (plugin.isRoutePlugin()) {
             gatewayPluginParams
-                    .put(TemplateConst.GATEWAY_PLUGIN_ROUTE, HandlerUtil.getRoute(plugin))
-                    .put(TemplateConst.RESOURCE_IDENTITY, HandlerUtil.getIdentity(plugin));
+                    .put(TemplateConst.GATEWAY_PLUGIN_ROUTE, HandlerUtil.getRoute(plugin));
         } else if (plugin.isGlobalPlugin()) {
             gatewayPluginParams.put(TemplateConst.GATEWAY_PLUGIN_HOSTS, HandlerUtil.completeHosts(plugin));
         }

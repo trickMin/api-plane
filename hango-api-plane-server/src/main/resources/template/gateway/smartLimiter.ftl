@@ -9,9 +9,6 @@ metadata:
 <#if t_version?has_content>
     hango-data-version: ${t_version}
 </#if>
-<#if t_resource_identity?has_content>
-    skiff-api-plane-resource-identity: ${t_resource_identity}
-</#if>
 spec:
   gateway: true
   target:

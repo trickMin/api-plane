@@ -139,8 +139,6 @@ public class McpConfigStore implements ConfigStore {
             }
             HashMap<String, String> oldLabels = metadata.getLabels() == null ?
                     new HashMap<>() : new HashMap<>(metadata.getLabels());
-            oldLabels.put("skiff-api-plane-type", globalConfig.getApiPlaneType());
-            oldLabels.put("skiff-api-plane-version", globalConfig.getApiPlaneVersion());
             metadata.setLabels(oldLabels);
         }
     }

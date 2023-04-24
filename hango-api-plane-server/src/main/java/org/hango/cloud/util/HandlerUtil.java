@@ -84,16 +84,6 @@ public class HandlerUtil {
     }
 
     /**
-     * 获取网关插件CR中的Identity字符串
-     *
-     * @param plugin 网关插件
-     * @return Identity字符串
-     */
-    public static String getIdentity(GatewayPlugin plugin) {
-        return String.format("%s-%s", plugin.getRouteId(), plugin.getGateway());
-    }
-
-    /**
      * 获取网关插件CR中的路由集合，案例如下
      * [127.0.0.1/1000, 127.0.0.1/1001, 127.0.0.1/1002]
      *
