@@ -82,7 +82,7 @@ public class BaseVirtualServiceAPIDataHandler extends APIDataHandler {
                             .put(VERSION, api.getVersion())
                             .put(GATEWAY_NAME, buildGatewayName(api.getService(), gw))
                             .put(VIRTUAL_GATEWAY_CODE, api.getVirtualClusterName())
-                            .put(VIRTUAL_SERVICE_NAME, buildVirtualServiceName(api.getName(), api.getProjectId(), gw))
+                            .put(VIRTUAL_SERVICE_NAME, HandlerUtil.buildVirtualServiceName(api.getName(), api.getProjectId(), gw))
                             .put(VIRTUAL_SERVICE_SUBSET_NAME, subset)
                             .put(VIRTUAL_SERVICE_ROUTE_YAML, route)
                             .put(VIRTUAL_SERVICE_EXTRA_YAML, productExtra(vsParams))

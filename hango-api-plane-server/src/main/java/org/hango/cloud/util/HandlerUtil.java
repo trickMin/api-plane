@@ -126,5 +126,17 @@ public class HandlerUtil {
         }
         return hosts;
     }
+
+    /**
+     * 构建VS名称
+     *
+     * @param apiName 路由名称
+     * @param projectId 项目ID
+     * @param gw 网关标签
+     * @return VS名称
+     */
+    public static String buildVirtualServiceName(String apiName, String projectId, String gw) {
+        return String.format("%s-%s-%s", apiName, projectId, gw);
+    }
 }
 

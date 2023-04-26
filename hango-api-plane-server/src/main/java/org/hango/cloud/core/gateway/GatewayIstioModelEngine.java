@@ -25,6 +25,7 @@ import org.hango.cloud.meta.*;
 import org.hango.cloud.meta.dto.GrpcEnvoyFilterDto;
 import org.hango.cloud.service.PluginService;
 import org.hango.cloud.util.Const;
+import org.hango.cloud.util.HandlerUtil;
 import org.hango.cloud.util.constant.LogConstant;
 import org.hango.cloud.util.function.Subtracter;
 import org.slf4j.Logger;
@@ -128,7 +129,7 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
         logger.info("{}{} start to generate and add k8s resource",
                 LogConstant.TRANSLATE_LOG_NOTE, LogConstant.ROUTE_LOG_NOTE);
         resourcePacks.addAll(generateK8sPack(rawVirtualServices,
-                new GatewayVirtualServiceSubtracter(api.getName()),
+                new GatewayVirtualServiceSubtracter(HandlerUtil.buildVirtualServiceName(api.getName(), api.getProjectId(), api.getGateways().get(0))),
                 r -> r, this::adjust));
         logger.info("{}{} raw virtual services added ok", LogConstant.TRANSLATE_LOG_NOTE, LogConstant.ROUTE_LOG_NOTE);
 

@@ -12,6 +12,7 @@ import org.hango.cloud.meta.PairMatch;
 import org.hango.cloud.meta.UriMatch;
 import org.hango.cloud.meta.dto.DubboInfoDto;
 import org.hango.cloud.util.CommonUtil;
+import org.hango.cloud.util.HandlerUtil;
 import org.hango.cloud.util.PriorityUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +52,7 @@ public abstract class APIDataHandler implements DataHandler<API> {
                 .put(NAMESPACE, api.getNamespace())
                 .put(API_SERVICE, api.getService())
                 .put(API_NAME, api.getName())
-                .put(API_IDENTITY_NAME, buildVirtualServiceName(api.getName(), api.getProjectId(), api.getGateways().get(0)))
+                .put(API_IDENTITY_NAME, HandlerUtil.buildVirtualServiceName(api.getName(), api.getProjectId(), api.getGateways().get(0)))
                 .put(API_LOADBALANCER, api.getLoadBalancer())
                 .put(API_REQUEST_URIS, uriMatchMeta.getUri())
                 .put(VIRTUAL_SERVICE_URL_MATCH, uriMatchMeta.getUriMatch())
@@ -93,9 +94,7 @@ public abstract class APIDataHandler implements DataHandler<API> {
         return handleApiMetaMap(api,tp);
     }
 
-    String buildVirtualServiceName(String apiName, String projectId, String gw) {
-        return String.format("%s-%s-%s", apiName, projectId, gw);
-    }
+
 
     /**
      * 处理VirtualService metadata 数据
