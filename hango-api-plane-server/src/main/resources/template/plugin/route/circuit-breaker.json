@@ -115,7 +115,7 @@
     {
       "key": "lookbackDuration",
       "alias": "统计窗口(秒)",
-      "help": "统计窗口，单位s，默认10s，最大值为120s",
+      "help": "统计窗口，单位s，最大值为120s",
       "type": "input",
       "placeholder": "单位s，范围[1, 120]",
       "rules": [
