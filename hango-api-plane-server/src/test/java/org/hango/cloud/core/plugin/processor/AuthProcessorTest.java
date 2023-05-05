@@ -6,6 +6,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+@SuppressWarnings("java:S106")
 public class AuthProcessorTest extends BasePluginTest {
 
     @Autowired

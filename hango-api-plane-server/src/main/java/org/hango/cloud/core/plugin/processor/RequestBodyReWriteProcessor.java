@@ -1,6 +1,5 @@
 package org.hango.cloud.core.plugin.processor;
 
-import org.hango.cloud.core.plugin.PluginGenerator;
 import org.springframework.stereotype.Component;
 
 @Component

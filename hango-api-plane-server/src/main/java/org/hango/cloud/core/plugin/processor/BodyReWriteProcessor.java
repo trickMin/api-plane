@@ -98,7 +98,8 @@ public abstract class BodyReWriteProcessor extends AbstractSchemaProcessor {
 
     private void processMethodMatcher(PluginGenerator source, PluginGenerator matcher) {
         if (source.contain("$.request.method")) {
-            @SuppressWarnings("unchecked") List<String> method = (List<String>) source.getValue("$.request.method", List.class);
+            @SuppressWarnings("unchecked")
+            List<String> method = source.getValue("$.request.method", List.class);
             if (nonNull(method)) {
                 if (method.size() == 1) {
                     matcher.addJsonElement("$.decoder_matcher.headers", String.format(exact_string_match, ":method", method.get(0)));
@@ -111,7 +112,8 @@ public abstract class BodyReWriteProcessor extends AbstractSchemaProcessor {
 
     private void processRequestHeaderMatcher(PluginGenerator source, PluginGenerator matcher) {
         if (source.contain("$.request.headers")) {
-            @SuppressWarnings("unchecked") List<Map<String, String>> headers = (List<Map<String, String>>) source.getValue("$.request.headers", List.class);
+            @SuppressWarnings("unchecked")
+            List<Map<String, String>> headers = source.getValue("$.request.headers", List.class);
             headers.forEach(item -> {
                 String matchType = item.get("match_type");
                 String headerKey = item.get("headerKey");
@@ -139,7 +141,8 @@ public abstract class BodyReWriteProcessor extends AbstractSchemaProcessor {
 
     private void processResponseHeaderMatcher(PluginGenerator source, PluginGenerator matcher) {
         if (source.contain("$.response.headers")) {
-            @SuppressWarnings("unchecked") List<Map<String, String>> headers = (List<Map<String, String>>) source.getValue("$.response.headers", List.class);
+            @SuppressWarnings("unchecked")
+            List<Map<String, String>> headers = source.getValue("$.response.headers", List.class);
             headers.forEach(item -> {
                 String matchType = item.get("match_type");
                 String headerKey = item.get("headerKey");
@@ -162,7 +165,6 @@ public abstract class BodyReWriteProcessor extends AbstractSchemaProcessor {
 
     private void processResponseCodeMatcher(PluginGenerator source, PluginGenerator matcher) {
         if (source.contain("$.response.code")) {
-            String matchType = source.getValue("$.response.code.match_type", String.class);
             String code = source.getValue("$.response.code.value", String.class);
             if (nonNull(code)) {
                 matcher.addJsonElement("$.encoder_matcher.headers", String.format(safe_regex_string_match, ":status", code+"|"));
@@ -172,7 +174,8 @@ public abstract class BodyReWriteProcessor extends AbstractSchemaProcessor {
 
     private static void processJsonTransformations(PluginGenerator source, PluginGenerator transformation) {
         //ArrayMinLength(1)控制最少一条body转换配置，此处bodyTransformList一定非空
-        @SuppressWarnings("unchecked") List<Map<String, String>> headers = (List<Map<String, String>>) source.getValue("$.bodyTransformList", List.class);
+        @SuppressWarnings("unchecked")
+        List<Map<String, String>> headers =  source.getValue("$.bodyTransformList", List.class);
         headers.forEach(item -> {
             String jsonPointer = item.get("key");
             String jsonValue = item.get("value");

@@ -6,6 +6,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+@SuppressWarnings("java:S1192")
 public class ResponseBodyReWriteProcessorTest extends BasePluginTest {
 
     @Autowired
