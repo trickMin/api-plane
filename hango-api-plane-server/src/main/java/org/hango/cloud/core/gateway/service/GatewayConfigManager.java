@@ -41,11 +41,9 @@ public interface GatewayConfigManager extends ConfigManager {
     void deleteConfig(Service service);
 
     /**
-     * 获取插件优先级
-     * @param pluginOrder
-     * @return
+     * 获取资源
      */
-    HasMetadata getConfig(PluginOrder pluginOrder);
+    HasMetadata getConfig(String kind, String name);
 
     /**
      * 更新插件优先级
@@ -80,12 +78,6 @@ public interface GatewayConfigManager extends ConfigManager {
      */
     void deleteConfig(IstioGateway istioGateway);
 
-    /**
-     * 查询EnvoyFilter
-     * @param envoyFilterOrder
-     * @return
-     */
-    HasMetadata getConfig(EnvoyFilterOrder envoyFilterOrder);
 
     /**
      * 更新EnvoyFilter
@@ -100,14 +92,9 @@ public interface GatewayConfigManager extends ConfigManager {
 
     String generateEnvoyConfigObjectPatch(GrpcEnvoyFilterDto grpcEnvoyFilterDto);
 
-
     /**
      * 更新证书
      */
     void updateConfig(Secret secret);
 
-    /**
-     * 删除证书
-     */
-    void deleteConfig(Secret secret);
 }

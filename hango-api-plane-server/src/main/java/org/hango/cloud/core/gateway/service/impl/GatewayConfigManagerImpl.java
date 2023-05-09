@@ -1,5 +1,9 @@
 package org.hango.cloud.core.gateway.service.impl;
 
+import io.fabric8.kubernetes.api.model.HasMetadata;
+import me.snowdrop.istio.api.IstioResource;
+import me.snowdrop.istio.api.networking.v1alpha3.GatewaySpec;
+import me.snowdrop.istio.api.networking.v1alpha3.ServiceEntry;
 import org.hango.cloud.core.AbstractConfigManagerSupport;
 import org.hango.cloud.core.ConfigStore;
 import org.hango.cloud.core.GlobalConfig;
@@ -12,15 +16,10 @@ import org.hango.cloud.core.k8s.K8sResourceEnum;
 import org.hango.cloud.core.k8s.K8sResourcePack;
 import org.hango.cloud.core.k8s.event.K8sResourceDeleteNotificationEvent;
 import org.hango.cloud.core.k8s.subtracter.ServiceEntryEndpointsSubtracter;
-import org.hango.cloud.meta.*;
 import org.hango.cloud.k8s.K8sTypes;
+import org.hango.cloud.meta.*;
 import org.hango.cloud.meta.dto.GrpcEnvoyFilterDto;
-import org.hango.cloud.util.exception.ApiPlaneException;
 import org.hango.cloud.util.function.Subtracter;
-import io.fabric8.kubernetes.api.model.HasMetadata;
-import me.snowdrop.istio.api.IstioResource;
-import me.snowdrop.istio.api.networking.v1alpha3.GatewaySpec;
-import me.snowdrop.istio.api.networking.v1alpha3.ServiceEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -130,10 +129,8 @@ public class GatewayConfigManagerImpl extends AbstractConfigManagerSupport imple
     }
 
     @Override
-    public HasMetadata getConfig(PluginOrder pluginOrder) {
-        List<K8sResourcePack> resources = modelEngine.translate(pluginOrder);
-        if (CollectionUtils.isEmpty(resources) || resources.size() != 1) throw new ApiPlaneException();
-        return configStore.get(resources.get(0).getResource());
+    public HasMetadata getConfig(String kind, String name) {
+        return configStore.get(kind, null, name);
     }
 
     @Override
@@ -188,14 +185,6 @@ public class GatewayConfigManagerImpl extends AbstractConfigManagerSupport imple
         update(resources);
     }
 
-    @Override
-    public HasMetadata getConfig(EnvoyFilterOrder envoyFilterOrder) {
-        List<K8sResourcePack> resources = modelEngine.translate(envoyFilterOrder);
-        if (CollectionUtils.isEmpty(resources) || resources.size() != 1) {
-            throw new ApiPlaneException();
-        }
-        return configStore.get(resources.get(0).getResource());
-    }
 
     @Override
     public void updateConfig(EnvoyFilterOrder envoyFilterOrder) {
@@ -220,12 +209,6 @@ public class GatewayConfigManagerImpl extends AbstractConfigManagerSupport imple
         update(resources);
     }
 
-    @Override
-    public void deleteConfig(Secret secret) {
-        List<K8sResourcePack> resources = modelEngine.translate(secret);
-        delete(resources);
-    }
-
     private void delete(List<K8sResourcePack> resources, Subtracter<HasMetadata> fun) {
         delete(resources, (i1, i2) -> 0, fun, configStore, modelEngine);
     }
@@ -234,12 +217,6 @@ public class GatewayConfigManagerImpl extends AbstractConfigManagerSupport imple
         delete(resources, (i1, i2) -> 0, null, configStore, modelEngine);
     }
 
-    private Subtracter<HasMetadata> clearResource() {
-        return resource -> {
-            resource.setApiVersion(null);
-            return resource;
-        };
-    }
 
 
     @Override

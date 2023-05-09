@@ -1,18 +1,7 @@
 package org.hango.cloud.service;
 
-import org.hango.cloud.meta.PluginSupportConfig;
 import org.hango.cloud.meta.ServiceHealth;
-import org.hango.cloud.meta.dto.DubboMetaDto;
-import org.hango.cloud.meta.dto.EnvoyFilterDTO;
-import org.hango.cloud.meta.dto.GatewayPluginDTO;
-import org.hango.cloud.meta.dto.GrpcEnvoyFilterDto;
-import org.hango.cloud.meta.dto.PluginOrderDTO;
-import org.hango.cloud.meta.dto.PortalAPIDTO;
-import org.hango.cloud.meta.dto.PortalAPIDeleteDTO;
-import org.hango.cloud.meta.dto.PortalIstioGatewayDTO;
-import org.hango.cloud.meta.dto.PortalSecretDTO;
-import org.hango.cloud.meta.dto.PortalServiceDTO;
-import org.hango.cloud.meta.dto.ServiceAndPortDTO;
+import org.hango.cloud.meta.dto.*;
 import org.hango.cloud.util.errorcode.ErrorCode;
 
 import java.util.List;
@@ -40,12 +29,6 @@ public interface GatewayService {
     ErrorCode checkUpdateService(PortalServiceDTO service);
 
     void deleteService(PortalServiceDTO service);
-
-    PluginOrderDTO getPluginOrder(PluginOrderDTO pluginOrderDto);
-
-    void updatePluginOrder(PluginOrderDTO pluginOrderDto);
-
-    void deletePluginOrder(PluginOrderDTO pluginOrderDTO);
 
     void deleteEnvoyFilter(EnvoyFilterDTO envoyFilterOrder);
 
@@ -82,18 +65,11 @@ public interface GatewayService {
 
     void deleteSecret(PortalSecretDTO portalSecretDTO);
 
-    /**
-     * 根据网关类型获取该类型所支持的插件列表
-     *
-     * @param gatewayKind
-     * @return
-     */
-    PluginSupportConfig getPluginSupportConfig(String gatewayKind);
+    PluginOrderDTO getPluginOrder(PluginOrderDTO pluginOrderDto);
 
-    /**
-     * 根据网关类型获取PluginManagerTemplate
-     * @param gatewayKind
-     * @return
-     */
-    PluginOrderDTO getPluginOrderTemplate(String gatewayKind);
+    void updatePluginOrder(PluginOrderDTO pluginOrderDto);
+
+    void publishPluginOrder(PluginOrderDTO pluginOrderDto);
+
+    void deletePluginOrder(PluginOrderDTO pluginOrderDTO);
 }

@@ -68,7 +68,7 @@
       {"schema": "basic-rbac","plugin": "envoy.filters.http.rbac","display": true},
       {"schema": "waf","plugin": "proxy.filters.http.waf","display": true},
       {"schema": "resty","plugin": "proxy.filters.http.rider","display": true},
-      {"schema": "traffic-mark","plugin": "proxy.filters.http.traffic_mark","display": false},
+      {"schema": "traffic-mark","plugin": "proxy.filters.http.traffic_mark","display": true},
       {"schema": "parameters-validate","plugin": "proxy.filters.http.parameter_validate","display": true},
 
       {"schema": "","plugin": "proxy.filters.http.metadatahub","display": false},

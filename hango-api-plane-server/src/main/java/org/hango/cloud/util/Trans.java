@@ -4,12 +4,14 @@ import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang3.BooleanUtils;
 import org.hango.cloud.core.editor.ResourceGenerator;
 import org.hango.cloud.core.editor.ResourceType;
+import org.hango.cloud.k8s.K8sTypes;
 import org.hango.cloud.meta.*;
 import org.hango.cloud.meta.dto.*;
 import org.hango.cloud.util.exception.ApiPlaneException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import slime.microservice.plugin.v1alpha1.PluginManagerOuterClass;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -281,6 +283,25 @@ public class Trans {
         }
         po.setPlugins(orderItems);
         return po;
+    }
+
+    public static PluginOrderDTO trans(K8sTypes.PluginManager pluginManager){
+        PluginOrderDTO dto = new PluginOrderDTO();
+        dto.setGatewayLabels(pluginManager.getSpec().getWorkloadLabels());
+        dto.setPlugins(new ArrayList<>());
+        List<PluginManagerOuterClass.Plugin> plugins = pluginManager.getSpec().getPluginList();
+        if (CollectionUtils.isEmpty(plugins)) {
+            return dto;
+        }
+        plugins.forEach(p -> {
+            PluginOrderItemDTO itemDTO = new PluginOrderItemDTO();
+            itemDTO.setEnable(p.getEnable());
+            itemDTO.setName(p.getName());
+            itemDTO.setInline(p.getInline());
+            itemDTO.setPort(p.getPort());
+            dto.getPlugins().add(itemDTO);
+        });
+        return dto;
     }
 
     public static Secret secretDTO2Secret(PortalSecretDTO portalSecretDTO) {
