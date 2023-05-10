@@ -1,7 +1,6 @@
 package org.hango.cloud.util;
 
 import com.google.common.collect.ImmutableList;
-import org.apache.commons.lang3.BooleanUtils;
 import org.hango.cloud.core.editor.ResourceGenerator;
 import org.hango.cloud.core.editor.ResourceType;
 import org.hango.cloud.k8s.K8sTypes;
@@ -85,9 +84,6 @@ public class Trans {
         IstioGateway istioGateway = new IstioGateway();
         istioGateway.setName(portalGateway.getName());
         istioGateway.setGwCluster(portalGateway.getGwCluster());
-        istioGateway.setCustomIpAddressHeader(portalGateway.getCustomIpAddressHeader());
-        istioGateway.setUseRemoteAddress(portalGateway.getUseRemoteAddress() == null ? null : String.valueOf(portalGateway.getUseRemoteAddress()));
-        istioGateway.setXffNumTrustedHops(portalGateway.getXffNumTrustedHops() == null ? null : (portalGateway.getXffNumTrustedHops() - 1));
         if (CollectionUtils.isEmpty(portalGateway.getServers())){
             return istioGateway;
         }
@@ -115,21 +111,6 @@ public class Trans {
         istioGateway.setServers(istioGatewayServers);
         return istioGateway;
     }
-
-    public static PortalIstioGatewayDTO GW2portal(IstioGateway istioGateway) {
-        if (istioGateway == null) {
-            return null;
-        }
-        PortalIstioGatewayDTO portalIstioGatewayDTO = new PortalIstioGatewayDTO();
-        portalIstioGatewayDTO.setName(istioGateway.getName());
-        portalIstioGatewayDTO.setGwCluster(istioGateway.getGwCluster());
-        portalIstioGatewayDTO.setCustomIpAddressHeader(istioGateway.getCustomIpAddressHeader());
-        portalIstioGatewayDTO.setUseRemoteAddress(BooleanUtils.toBooleanObject(istioGateway.getUseRemoteAddress()));
-        portalIstioGatewayDTO.setXffNumTrustedHops(istioGateway.getXffNumTrustedHops() == null ? 1 : (istioGateway.getXffNumTrustedHops() + 1));
-
-        return portalIstioGatewayDTO;
-    }
-
 
     public static Service portalRouteService2Service(PortalRouteServiceDTO portalRouteService) {
         Service s = new Service();
@@ -313,22 +294,14 @@ public class Trans {
         return secret;
     }
 
-    public static EnvoyFilterOrder envoyFilterOrderDTO2EnvoyFilter(EnvoyFilterDTO envoyFilterDTO) {
+    public static EnvoyFilterOrder transEnvoyFilter(EnvoyFilterDTO envoyFilterDTO) {
         EnvoyFilterOrder efo = new EnvoyFilterOrder();
-        efo.setWorkloadSelector(envoyFilterDTO.getWorkloadSelector());
-        efo.setNamespace(envoyFilterDTO.getNamespace());
         efo.setPortNumber(envoyFilterDTO.getPortNumber());
-        if (!CollectionUtils.isEmpty(envoyFilterDTO.getConfigPatches())) {
-            List<String> orderItems = new ArrayList<>();
-            for (String yamlString : envoyFilterDTO.getConfigPatches()) {
-                if (!StringUtils.isEmpty(yamlString)) {
-                    orderItems.add(yamlString);
-                }
-            }
-            efo.setConfigPatches(orderItems);
-        }
+        efo.setName(envoyFilterDTO.getName());
+        efo.setGwCluster(envoyFilterDTO.getGwCluster());
         return efo;
     }
+
     private static List<PairMatch> pairsDTO2Pairs(List<PairMatchDTO> pairMatchDTOS) {
         if (CollectionUtils.isEmpty(pairMatchDTOS)) return Collections.emptyList();
         return pairMatchDTOS.stream()

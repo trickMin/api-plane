@@ -1,8 +1,6 @@
 package org.hango.cloud.meta;
 
 
-import istio.networking.v1alpha3.SidecarOuterClass;
-
 import java.util.List;
 
 /**
@@ -11,12 +9,15 @@ import java.util.List;
  */
 public class EnvoyFilterOrder {
 
-    private int portNumber;
+    private String name;
+
     private String namespace;
 
-    private List<String> configPatches;
+    private Integer portNumber;
 
-    private SidecarOuterClass.WorkloadSelector workloadSelector;
+    private String gwCluster;
+
+    private List<String> configPatches;
 
     public int getPortNumber() {
         return portNumber;
@@ -42,11 +43,23 @@ public class EnvoyFilterOrder {
         this.configPatches = configPatches;
     }
 
-    public SidecarOuterClass.WorkloadSelector getWorkloadSelector() {
-        return workloadSelector;
+    public String getGwCluster() {
+        return gwCluster;
     }
 
-    public void setWorkloadSelector(SidecarOuterClass.WorkloadSelector workloadSelector) {
-        this.workloadSelector = workloadSelector;
+    public void setGwCluster(String gwCluster) {
+        this.gwCluster = gwCluster;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setPortNumber(Integer portNumber) {
+        this.portNumber = portNumber;
     }
 }

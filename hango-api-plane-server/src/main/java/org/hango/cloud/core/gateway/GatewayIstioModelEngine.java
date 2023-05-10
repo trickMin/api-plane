@@ -22,7 +22,8 @@ import org.hango.cloud.core.template.TemplateTranslator;
 import org.hango.cloud.k8s.K8sTypes;
 import org.hango.cloud.k8s.K8sTypes.VirtualService;
 import org.hango.cloud.meta.*;
-import org.hango.cloud.meta.dto.GrpcEnvoyFilterDto;
+import org.hango.cloud.meta.dto.GrpcEnvoyFilterDTO;
+import org.hango.cloud.meta.dto.IpSourceEnvoyFilterDTO;
 import org.hango.cloud.service.PluginService;
 import org.hango.cloud.util.Const;
 import org.hango.cloud.util.HandlerUtil;
@@ -92,6 +93,7 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
     private static final String SMART_LIMITER = "gateway/smartLimiter";
     private static final String ENVOY_FILTER = "gateway/envoyFilter";
     private static final String GRPC_CONFIG_PATCH = "gateway/grpcConfigPatch";
+    private static final String IP_SOURCE_CONFIG_PATCH = "gateway/ipSourceConfigPatch";
     private static final String VIRTUAL_SERVICE = "VirtualService";
     private static final String SECRET = "gateway/secret";
 
@@ -335,7 +337,11 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
         };
     }
 
-    public String generateEnvoyConfigObjectPatch(GrpcEnvoyFilterDto grpcEnvoyFilterDto) {
-        return defaultModelProcessor.process(GRPC_CONFIG_PATCH, new GrpcEnvoyFilterDataHandler().handle(grpcEnvoyFilterDto).get(0));
+    public List<String> generateEnvoyConfigObjectPatch(GrpcEnvoyFilterDTO grpcEnvoyFilterDto) {
+        return defaultModelProcessor.process(GRPC_CONFIG_PATCH, new GrpcEnvoyFilterDataHandler().handle(grpcEnvoyFilterDto));
+    }
+
+    public List<String> generateEnvoyConfigObjectPatch(IpSourceEnvoyFilterDTO ipSourceEnvoyFilterDTO) {
+        return defaultModelProcessor.process(IP_SOURCE_CONFIG_PATCH, new IpSourceEnvoyFilterDataHandler().handle(ipSourceEnvoyFilterDTO));
     }
 }

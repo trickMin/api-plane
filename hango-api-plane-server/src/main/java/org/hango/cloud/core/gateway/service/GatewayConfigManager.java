@@ -1,9 +1,12 @@
 package org.hango.cloud.core.gateway.service;
 
-import org.hango.cloud.core.ConfigManager;
 import io.fabric8.kubernetes.api.model.HasMetadata;
+import org.hango.cloud.core.ConfigManager;
 import org.hango.cloud.meta.*;
-import org.hango.cloud.meta.dto.GrpcEnvoyFilterDto;
+import org.hango.cloud.meta.dto.GrpcEnvoyFilterDTO;
+import org.hango.cloud.meta.dto.IpSourceEnvoyFilterDTO;
+
+import java.util.List;
 
 /**
  *  API配置客户端，用于发送配置
@@ -58,13 +61,6 @@ public interface GatewayConfigManager extends ConfigManager {
     void deleteConfig(PluginOrder pluginOrder);
 
     /**
-     * 查询网关
-     * @param istioGateway
-     * @return
-     */
-    HasMetadata getConfig(IstioGateway istioGateway);
-
-    /**
      * 更新网关
      * @param istioGateway
      * @return
@@ -90,11 +86,13 @@ public interface GatewayConfigManager extends ConfigManager {
      */
     void deleteConfig(EnvoyFilterOrder envoyFilterOrder);
 
-    String generateEnvoyConfigObjectPatch(GrpcEnvoyFilterDto grpcEnvoyFilterDto);
-
     /**
      * 更新证书
      */
     void updateConfig(Secret secret);
+
+    List<String> generateEnvoyConfigObjectPatch(GrpcEnvoyFilterDTO grpcEnvoyFilterDto);
+
+    List<String> generateEnvoyConfigObjectPatch(IpSourceEnvoyFilterDTO ipSourceEnvoyFilterDTO);
 
 }

@@ -7,7 +7,7 @@ match:
         name: envoy.filters.network.http_connection_manager
         subFilter:
           name: envoy.filters.http.router
-    portNumber: ${t_grpc_config_patch_port_number}
+    portNumber: ${t_envoy_filter_port_number}
 patch:
   operation: INSERT_BEFORE
   value:

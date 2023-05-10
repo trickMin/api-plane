@@ -30,8 +30,6 @@ public interface GatewayService {
 
     void deleteService(PortalServiceDTO service);
 
-    void deleteEnvoyFilter(EnvoyFilterDTO envoyFilterOrder);
-
     List<String> getServiceList();
 
     List<String> getRegistryList();
@@ -41,12 +39,6 @@ public interface GatewayService {
 
     List<ServiceHealth> getServiceHealthList(String host, List<String> subsets, String gateway);
 
-    void updateIstioGateway(PortalIstioGatewayDTO portalGateway);
-
-    void deleteIstioGateway(PortalIstioGatewayDTO portalGateway);
-
-    PortalIstioGatewayDTO getIstioGateway(String clusterName);
-
     /**
      * 获取Dubbo Meta元数据信息
      *
@@ -55,11 +47,12 @@ public interface GatewayService {
      */
     List<DubboMetaDto> getDubboMeta(String igv);
 
-    void updateEnvoyFilter(EnvoyFilterDTO grpcEnvoyFilterDTO);
 
-    void updateGrpcEnvoyFilter(GrpcEnvoyFilterDto grpcEnvoyFilterDto);
+    void updateGrpcEnvoyFilter(GrpcEnvoyFilterDTO grpcEnvoyFilterDto);
 
-    void deleteGrpcEnvoyFilter(GrpcEnvoyFilterDto grpcEnvoyFilterDto);
+    void deleteEnvoyFilter(EnvoyFilterDTO envoyFilterDTO);
+
+    void updateIpSourceEnvoyFilter(IpSourceEnvoyFilterDTO ipSourceEnvoyFilterDto);
 
     void updateSecret(PortalSecretDTO portalSecretDTO);
 
@@ -72,4 +65,8 @@ public interface GatewayService {
     void publishPluginOrder(PluginOrderDTO pluginOrderDto);
 
     void deletePluginOrder(PluginOrderDTO pluginOrderDTO);
+
+    void updateIstioGateway(PortalIstioGatewayDTO portalGateway);
+
+    void deleteIstioGateway(PortalIstioGatewayDTO portalGateway);
 }

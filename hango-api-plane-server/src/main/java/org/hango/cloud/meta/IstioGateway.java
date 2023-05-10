@@ -25,21 +25,6 @@ public class IstioGateway {
     private String gwCluster;
 
     /**
-     * 自定义Ip地址获取方式
-     */
-    private String customIpAddressHeader;
-
-    /**
-     * 配置记录XFF右起第几跳IP(默认为 0 )
-     */
-    private Integer xffNumTrustedHops;
-
-    /**
-     * 配置是否记录上一代理的地址(默认false)
-     */
-    private String useRemoteAddress;
-
-    /**
      * server配置
      */
     private List<IstioGatewayServer> servers;
@@ -59,30 +44,6 @@ public class IstioGateway {
 
     public void setGwCluster(String gwCluster) {
         this.gwCluster = gwCluster;
-    }
-
-    public String getCustomIpAddressHeader() {
-        return customIpAddressHeader;
-    }
-
-    public void setCustomIpAddressHeader(String customIpAddressHeader) {
-        this.customIpAddressHeader = customIpAddressHeader;
-    }
-
-    public Integer getXffNumTrustedHops() {
-        return xffNumTrustedHops;
-    }
-
-    public void setXffNumTrustedHops(Integer xffNumTrustedHops) {
-        this.xffNumTrustedHops = xffNumTrustedHops;
-    }
-
-    public String getUseRemoteAddress() {
-        return useRemoteAddress;
-    }
-
-    public void setUseRemoteAddress(String useRemoteAddress) {
-        this.useRemoteAddress = useRemoteAddress;
     }
 
     public List<IstioGatewayServer> getServers() {

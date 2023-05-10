@@ -2,10 +2,6 @@ package org.hango.cloud.service.impl;
 
 import freemarker.template.Configuration;
 import io.fabric8.kubernetes.api.model.HasMetadata;
-import istio.networking.v1alpha3.SidecarOuterClass;
-import me.snowdrop.istio.api.IstioResource;
-import me.snowdrop.istio.api.networking.v1alpha3.GatewaySpec;
-import me.snowdrop.istio.api.networking.v1alpha3.Server;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -42,30 +38,14 @@ public class GatewayServiceImpl implements GatewayService {
 
     private static final Logger logger = LoggerFactory.getLogger(GatewayServiceImpl.class);
 
-    private static final String COLON = ":";
-    private static final String SERVICE_LOADBALANCER_SIMPLE = "Simple";
     private static final String SERVICE_LOADBALANCER_SIMPLE_ROUND_ROBIN = "ROUND_ROBIN";
     private static final String SERVICE_LOADBALANCER_SIMPLE_LEAST_CONN = "LEAST_CONN";
     private static final String SERVICE_LOADBALANCER_SIMPLE_RANDOM = "RANDOM";
-    private static final String SERVICE_LOADBALANCER_HASH = "ConsistentHash";
-    private static final String SERVICE_LOADBALANCER_HASH_HTTPHEADERNAME = "HttpHeaderName";
-    private static final String SERVICE_LOADBALANCER_HASH_HTTPCOOKIE = "HttpCookie";
-    private static final String SERVICE_LOADBALANCER_HASH_USESOURCEIP = "UseSourceIp";
     private static final String DUBBO_TELNET_COMMAND_TEMPLATE = "ls -l %s";
     private static final String DUBBO_TELNET_COMMAND_END_PATTERN = "dubbo>";
     private static final Pattern DUBBO_INFO_PATTRERN = Pattern.compile("^(\\S*) (\\S*)\\((\\S*)\\)$");
     private static final Pattern DUBBO_TELNET_RETURN_PATTERN = Pattern.compile("[\\s\\S]*?\\(as (provider|consumer)\\):");
-    private static final String GRPC_CONFIG_PATCH = "gateway/grpcConfigPatch";
-    private static final String PORT_NUMBER = "portNumber";
-    private static final String PROTO_DESCRIPTOR_BIN = "proto_descriptor_bin";
-    private static final String SERVICES = "services";
-
-    private static final String PLUGIN_SUPPORT_KIND = "kind";
-    private static final String PLUGIN_SUPPORT_PLUGINS = "plugins";
     public static final String GW_CLUSTER = "gw_cluster";
-
-
-
 
     private ResourceManager resourceManager;
 
@@ -251,41 +231,24 @@ public class GatewayServiceImpl implements GatewayService {
         configManager.updateConfig(secret);
     }
 
+
     @Override
-    public void updateEnvoyFilter(EnvoyFilterDTO grpcEnvoyFilterDTO) {
-        EnvoyFilterOrder envoyFilterOrder = Trans.envoyFilterOrderDTO2EnvoyFilter(grpcEnvoyFilterDTO);
+    public void updateGrpcEnvoyFilter(GrpcEnvoyFilterDTO grpcEnvoyFilterDto) {
+        EnvoyFilterOrder envoyFilterOrder = Trans.transEnvoyFilter(grpcEnvoyFilterDto);
+        envoyFilterOrder.setConfigPatches(configManager.generateEnvoyConfigObjectPatch(grpcEnvoyFilterDto));
         configManager.updateConfig(envoyFilterOrder);
     }
 
     @Override
-    public void updateGrpcEnvoyFilter(GrpcEnvoyFilterDto grpcEnvoyFilterDto) {
-        EnvoyFilterDTO envoyFilterDTO = new EnvoyFilterDTO();
-        envoyFilterDTO.setNamespace(globalConfig.getResourceNamespace());
-        envoyFilterDTO.setPortNumber(grpcEnvoyFilterDto.getPortNumber());
-        envoyFilterDTO.setWorkloadSelector(SidecarOuterClass.WorkloadSelector.newBuilder()
-                .putLabels(GW_CLUSTER, grpcEnvoyFilterDto.getGwCluster())
-                .build());
-        String grpcEnvoyFilter = configManager.generateEnvoyConfigObjectPatch(grpcEnvoyFilterDto);
-        logger.info("generateEnvoyConfigObjectPatch result : {}", grpcEnvoyFilter);
-        envoyFilterDTO.setConfigPatches(Collections.singletonList(grpcEnvoyFilter));
-        updateEnvoyFilter(envoyFilterDTO);
+    public void updateIpSourceEnvoyFilter(IpSourceEnvoyFilterDTO ipSourceEnvoyFilterDto) {
+        EnvoyFilterOrder envoyFilterOrder = Trans.transEnvoyFilter(ipSourceEnvoyFilterDto);
+        envoyFilterOrder.setConfigPatches(configManager.generateEnvoyConfigObjectPatch(ipSourceEnvoyFilterDto));
+        configManager.updateConfig(envoyFilterOrder);
     }
 
     @Override
-    public void deleteGrpcEnvoyFilter(GrpcEnvoyFilterDto grpcEnvoyFilterDto) {
-        EnvoyFilterDTO envoyFilterDTO = new EnvoyFilterDTO();
-        envoyFilterDTO.setNamespace(globalConfig.getResourceNamespace());
-        envoyFilterDTO.setPortNumber(grpcEnvoyFilterDto.getPortNumber());
-        envoyFilterDTO.setWorkloadSelector(SidecarOuterClass.WorkloadSelector.newBuilder()
-                .putLabels(GW_CLUSTER, grpcEnvoyFilterDto.getGwCluster())
-                .build());
-        deleteEnvoyFilter(envoyFilterDTO);
-    }
-
-    @Override
-    public void deleteEnvoyFilter(EnvoyFilterDTO envoyFilterDTO) {
-        EnvoyFilterOrder envoyFilterOrder = Trans.envoyFilterOrderDTO2EnvoyFilter(envoyFilterDTO);
-        configManager.deleteConfig(envoyFilterOrder);
+    public void deleteEnvoyFilter(EnvoyFilterDTO envoyFilterDto) {
+        configManager.deleteConfig(Trans.transEnvoyFilter(envoyFilterDto));
     }
 
     @Override
@@ -336,39 +299,6 @@ public class GatewayServiceImpl implements GatewayService {
         return false;
     }
 
-    @Override
-    public void updateIstioGateway(PortalIstioGatewayDTO portalGateway) {
-        configManager.updateConfig(Trans.portalGW2GW(portalGateway));
-    }
-
-    @Override
-    public void deleteIstioGateway(PortalIstioGatewayDTO portalGateway) {
-        configManager.deleteConfig(Trans.portalGW2GW(portalGateway));
-    }
-
-    @Override
-    public PortalIstioGatewayDTO getIstioGateway(String clusterName) {
-        IstioGateway istioGateway = new IstioGateway();
-        istioGateway.setGwCluster(clusterName);
-        IstioResource config = (IstioResource) configManager.getConfig(istioGateway);
-        if (config == null) {
-            return null;
-        }
-        GatewaySpec spec = (GatewaySpec) config.getSpec();
-        Map<String, String> selector = spec.getSelector();
-        if (CollectionUtils.isEmpty(selector)) {
-            selector.get(GW_CLUSTER);
-        }
-        istioGateway.setName(config.getMetadata().getName());
-        if (CollectionUtils.isEmpty(spec.getServers()) || spec.getServers().get(0) == null) {
-            return null;
-        }
-        Server server = spec.getServers().get(0);
-        istioGateway.setXffNumTrustedHops(server.getXffNumTrustedHops());
-        istioGateway.setCustomIpAddressHeader(server.getCustomIpAddressHeader());
-        istioGateway.setUseRemoteAddress(server.getUseRemoteAddress() == null ? null : String.valueOf(server.getUseRemoteAddress()));
-        return Trans.GW2portal(istioGateway);
-    }
 
     @Override
     public List<DubboMetaDto> getDubboMeta(String igv) {
@@ -430,6 +360,16 @@ public class GatewayServiceImpl implements GatewayService {
     public void deletePluginOrder(PluginOrderDTO pluginOrderDTO) {
         PluginOrder pluginOrder = Trans.pluginOrderDTO2PluginOrder(pluginOrderDTO);
         configManager.deleteConfig(pluginOrder);
+    }
+
+    @Override
+    public void updateIstioGateway(PortalIstioGatewayDTO portalGateway) {
+        configManager.updateConfig(Trans.portalGW2GW(portalGateway));
+    }
+
+    @Override
+    public void deleteIstioGateway(PortalIstioGatewayDTO portalGateway) {
+        configManager.deleteConfig(Trans.portalGW2GW(portalGateway));
     }
 
 

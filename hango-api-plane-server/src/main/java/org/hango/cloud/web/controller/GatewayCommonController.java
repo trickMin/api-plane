@@ -1,7 +1,8 @@
 package org.hango.cloud.web.controller;
 
 import com.google.common.collect.ImmutableMap;
-import org.hango.cloud.meta.dto.GrpcEnvoyFilterDto;
+import org.hango.cloud.meta.dto.GrpcEnvoyFilterDTO;
+import org.hango.cloud.meta.dto.IpSourceEnvoyFilterDTO;
 import org.hango.cloud.service.GatewayService;
 import org.hango.cloud.util.errorcode.ApiPlaneErrorCode;
 import org.hango.cloud.util.errorcode.ErrorCode;
@@ -49,31 +50,36 @@ public class GatewayCommonController extends BaseController {
                 ImmutableMap.of("ServiceList", gatewayService.getServiceAndPortList(name, type, registry, filters)));
     }
 
-
-
-
     @RequestMapping(params = "Action=PublishGrpcEnvoyFilter", method = RequestMethod.POST)
-    public String publishGrpcEnvoyFilter(@RequestBody @Valid GrpcEnvoyFilterDto envoyFilterOrderDTO) {
+    public String publishGrpcEnvoyFilter(@RequestBody @Valid GrpcEnvoyFilterDTO envoyFilterOrderDTO) {
 
         gatewayService.updateGrpcEnvoyFilter(envoyFilterOrderDTO);
         return apiReturn(ApiPlaneErrorCode.Success);
     }
 
-
-
     @RequestMapping(params = "Action=DeleteGrpcEnvoyFilter", method = RequestMethod.POST)
-    public String deleteGrpcEnvoyFilter(@RequestBody @Valid GrpcEnvoyFilterDto grpcEnvoyFilterDto) {
-        gatewayService.deleteGrpcEnvoyFilter(grpcEnvoyFilterDto);
+    public String deleteGrpcEnvoyFilter(@RequestBody @Valid GrpcEnvoyFilterDTO grpcEnvoyFilterDto) {
+        gatewayService.deleteEnvoyFilter(grpcEnvoyFilterDto);
+        return apiReturn(ApiPlaneErrorCode.Success);
+    }
+
+    @RequestMapping(params = "Action=PublishIpSource", method = RequestMethod.POST)
+    public String publishIpSource(@RequestBody @Valid IpSourceEnvoyFilterDTO ipSourceEnvoyFilterDto) {
+        gatewayService.updateIpSourceEnvoyFilter(ipSourceEnvoyFilterDto);
+        return apiReturn(ApiPlaneErrorCode.Success);
+    }
+
+    @RequestMapping(params = "Action=DeleteIpSource", method = RequestMethod.POST)
+    public String deleteIpSource(@RequestBody @Valid IpSourceEnvoyFilterDTO ipSourceEnvoyFilterDto) {
+        gatewayService.deleteEnvoyFilter(ipSourceEnvoyFilterDto);
         return apiReturn(ApiPlaneErrorCode.Success);
     }
 
     @RequestMapping(params = "Action=GetDubboMeta", method = RequestMethod.GET)
     public String getDubboMeta(@RequestParam(name = "Igv") String igv) {
-
         Map<String, Object> result = new HashMap<>();
         result.put(RESULT, gatewayService.getDubboMeta(igv));
         return apiReturn(result);
-
     }
 
     @RequestMapping(params = "Action=GetRegistryList", method = RequestMethod.GET)

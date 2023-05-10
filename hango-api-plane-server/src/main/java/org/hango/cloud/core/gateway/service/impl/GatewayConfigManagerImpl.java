@@ -1,8 +1,6 @@
 package org.hango.cloud.core.gateway.service.impl;
 
 import io.fabric8.kubernetes.api.model.HasMetadata;
-import me.snowdrop.istio.api.IstioResource;
-import me.snowdrop.istio.api.networking.v1alpha3.GatewaySpec;
 import me.snowdrop.istio.api.networking.v1alpha3.ServiceEntry;
 import org.hango.cloud.core.AbstractConfigManagerSupport;
 import org.hango.cloud.core.ConfigStore;
@@ -18,7 +16,8 @@ import org.hango.cloud.core.k8s.event.K8sResourceDeleteNotificationEvent;
 import org.hango.cloud.core.k8s.subtracter.ServiceEntryEndpointsSubtracter;
 import org.hango.cloud.k8s.K8sTypes;
 import org.hango.cloud.meta.*;
-import org.hango.cloud.meta.dto.GrpcEnvoyFilterDto;
+import org.hango.cloud.meta.dto.GrpcEnvoyFilterDTO;
+import org.hango.cloud.meta.dto.IpSourceEnvoyFilterDTO;
 import org.hango.cloud.util.function.Subtracter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +25,10 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class GatewayConfigManagerImpl extends AbstractConfigManagerSupport implements
@@ -146,33 +148,6 @@ public class GatewayConfigManagerImpl extends AbstractConfigManagerSupport imple
     }
 
     @Override
-    public HasMetadata getConfig(IstioGateway istioGateway) {
-        if (StringUtils.isEmpty(istioGateway.getGwCluster())) {
-            return null;
-        }
-        final String gwClusgterKey = "gw_cluster";
-        //获取所有Gateway资源
-        List<HasMetadata> istioResources = configStore.get("Gateway", globalConfig.getResourceNamespace());
-        Optional<HasMetadata> first = istioResources.stream().filter(g ->
-        {
-            IstioResource ir = (IstioResource) g;
-            GatewaySpec spec = (GatewaySpec) ir.getSpec();
-            if (spec == null) {
-                return false;
-            }
-            Map<String, String> selector = spec.getSelector();
-            if (selector == null) {
-                return false;
-            }
-            return istioGateway.getGwCluster().equals(selector.get(gwClusgterKey));
-        }).findFirst();
-        if (first.isPresent()) {
-            return first.get();
-        }
-        return null;
-    }
-
-    @Override
     public void updateConfig(IstioGateway istioGateway) {
         List<K8sResourcePack> resources = modelEngine.translate(istioGateway);
         update(resources);
@@ -184,7 +159,6 @@ public class GatewayConfigManagerImpl extends AbstractConfigManagerSupport imple
         List<K8sResourcePack> resources = modelEngine.translate(istioGateway);
         update(resources);
     }
-
 
     @Override
     public void updateConfig(EnvoyFilterOrder envoyFilterOrder) {
@@ -199,8 +173,13 @@ public class GatewayConfigManagerImpl extends AbstractConfigManagerSupport imple
     }
 
     @Override
-    public String generateEnvoyConfigObjectPatch(GrpcEnvoyFilterDto grpcEnvoyFilterDto) {
+    public List<String> generateEnvoyConfigObjectPatch(GrpcEnvoyFilterDTO grpcEnvoyFilterDto) {
         return modelEngine.generateEnvoyConfigObjectPatch(grpcEnvoyFilterDto);
+    }
+
+    @Override
+    public List<String> generateEnvoyConfigObjectPatch(IpSourceEnvoyFilterDTO ipSourceEnvoyFilterDTO) {
+        return modelEngine.generateEnvoyConfigObjectPatch(ipSourceEnvoyFilterDTO);
     }
 
     @Override

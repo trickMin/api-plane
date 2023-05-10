@@ -234,15 +234,15 @@ public interface TemplateConst {
     String ENVOY_FILTER_NAMESPACE = "t_envoy_filter_namespace";
     String ENVOY_FILTER_WORKLOAD_LABELS = "t_envoy_filter_workload_labels";
     String ENVOY_FILTER_FILTERS = "t_envoy_filter_filters";
+    String ENVOY_FILTER_PORT_NUMBER = "t_envoy_filter_port_number";
 
-    String GRPC_CONFIG_PATCH_PORT_NUMBER = "t_grpc_config_patch_port_number";
     String GRPC_CONFIG_PATCH_PROTO_DESCRIPTOR_BIN = "t_grpc_config_patch_proto_descriptor_bin";
     String GRPC_CONFIG_PATCH_SERVICES = "t_grpc_config_patch_services";
 
-    /**
-     * VersionManager
-     **/
-    String VERSION_MANAGER_WORKLOADS = "t_version_manager_workloads";
+    String IP_CONFIG_PATCH_USE_REMOTE_ADDRESS = "t_ip_config_patch_use_remote_address";
+    String IP_CONFIG_PATCH_CUSTOM_HEADER = "t_ip_config_patch_custom_header";
+    String IP_CONFIG_PATCH_XFF_NUM_TRUSTED_HOPS = "t_ip_config_patch_xff_num_trusted_hops";
+
 
     /**
      * GatewayPlugin

@@ -106,16 +106,6 @@ public class PortalGatewayController extends BaseController {
         return apiReturn(ApiPlaneErrorCode.Success);
     }
 
-    @RequestMapping(value = "/portal", params = "Action=GetIstioGateway", method = RequestMethod.GET)
-    public String getPortalGateway(@RequestParam(name = "GwClusterName") String clusterName) {
-        Map<String, Object> result = new HashMap<>();
-        PortalIstioGatewayDTO istioGateway = gatewayService.getIstioGateway(clusterName);
-        result.put(RESULT, istioGateway);
-
-        return apiReturn(result);
-    }
-
-
     @RequestMapping(value = "/portal", params = "Action=PublishSecret", method = RequestMethod.POST)
     public String updateSecret(@RequestBody @Valid PortalSecretDTO portalSecretDTO) {
         gatewayService.updateSecret(portalSecretDTO);
