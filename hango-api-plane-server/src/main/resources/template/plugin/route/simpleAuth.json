@@ -56,7 +56,7 @@
         {
           "key": "result_cache_ttl",
           "alias": "缓存TTL配置",
-          "help": "指定缓存时间，单位ms",
+          "help": "指定缓存时间，单位s",
           "type": "input",
           "rules": [
             "Required",
