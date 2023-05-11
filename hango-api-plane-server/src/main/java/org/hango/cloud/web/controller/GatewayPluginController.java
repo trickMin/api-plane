@@ -15,10 +15,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -67,7 +64,10 @@ public class GatewayPluginController extends BaseController {
         List<Plugin> plugins = pluginSupportDetails.stream()
                 .map(PluginSupportDetail::getSchema)
                 .filter(pluginMap::containsKey)
-                .filter(o -> !globalConfig.getIgnorePlugins().contains(o))
+                .filter(o -> !Optional.ofNullable(globalConfig)
+                        .map(GlobalConfig::getIgnorePlugins)
+                        .orElse(Collections.emptyList().toString())
+                        .contains(o))
                 .map(pluginMap::get)
                 .collect(Collectors.toList());
         return apiReturn(ImmutableMap.of("Plugins", plugins));
