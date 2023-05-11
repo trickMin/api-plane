@@ -174,12 +174,11 @@ public abstract class APIDataHandler implements DataHandler<API> {
 
     private String getMethods(API api) {
 
-        List<String> methods = new ArrayList<>();
-        for (String m : api.getMethods()) {
-            if (m.equals("*")) return "";
-            methods.add(m);
+        if (CollectionUtils.isEmpty(api.getMethods())) {
+            return "";
         }
-        return String.join("|", methods);
+
+        return String.join("|", api.getMethods());
     }
 
     private List<PairMatch> getVirtualClusterHeaders(API api){

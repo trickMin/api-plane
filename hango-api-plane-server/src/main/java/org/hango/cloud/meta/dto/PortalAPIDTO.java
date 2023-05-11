@@ -43,7 +43,6 @@ public class PortalAPIDTO {
     /**
      * 请求方法,GET、POST...
      */
-    @NotEmpty(message = "http methods")
     @JsonProperty(value = "Methods")
     private List<String> methods;
 
