@@ -3,7 +3,6 @@ package org.hango.cloud.core.plugin.processor.auth;
 @SuppressWarnings("java:S115")
 public enum AuthTypeEnum {
 	JwtAuth("jwt-auth", "jwt_authn_type", "authority"),
-	SignAuth("sign-auth", "aksk_authn_type", "x-nsf-accesske"),
 	Oauth2Auth("oauth2-auth", "oauth2_authn_type", "authority"),
 	SimpleAuth("simple-auth", "proxy.super_authz.authn_policy.token_authn_policy", ""),
 	;

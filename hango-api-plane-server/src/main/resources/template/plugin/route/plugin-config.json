@@ -193,22 +193,6 @@
       "pluginGuidance": ""
     },
     {
-      "name": "sign-auth",
-      "displayName": "签名认证",
-      "schema": "plugin/route/signAuth.json",
-      "description": "",
-      "processor": "AggregateGatewayPluginProcessor",
-      "author": "system",
-      "createTime": "1572537600000",
-      "updateTime": "1572537600000",
-      "pluginScope": "global,routeRule",
-      "pluginPriority": "1700",
-      "instructionForUse": "提供AK/SK签名认证",
-      "categoryKey": "auth",
-      "categoryName": "认证鉴权",
-      "pluginGuidance": ""
-    },
-    {
       "name": "simple-auth",
       "displayName": "简单认证",
       "schema": "plugin/route/simpleAuth.json",
