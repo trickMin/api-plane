@@ -4,16 +4,12 @@ package org.hango.cloud.core.template;
  * 支持TemplateWrapper的regex expression
  *
  **/
+@SuppressWarnings("java:S1214")
 public interface TemplateConst {
     String DESCRIPTION_TAG = "(?m)^#(?!@)(.*)$";
     String LABEL_TAG = "(?m)^#@(.*)=(.*)$";
     String BLANK_LINE = "(?m)^\\s*$(?:\\n|\\r\\n)";
     String IGNORE_SCHEME = "(?m)^(?!#)(.*)$";
-
-
-    String LABEL_RESOURCE_IDENTITY = "skiff-api-plane-resource-identity";
-    String LABEL_API_PLANE_TYPE = "skiff-api-plane-type";
-    String LABEL_API_PLANE_VERSION = "skiff-api-plane-version";
     String LABLE_ISTIO_REV = "istio.io/rev";
     /** ---------- 模板占位符名 begin ---------- **/
 
@@ -28,7 +24,6 @@ public interface TemplateConst {
     String VERSION = "t_version";
     String API_SERVICE = "t_api_service";
     String API_NAME = "t_api_name";
-    String RESOURCE_IDENTITY = "t_resource_identity";
     /**
      * API唯一标识，用于api name重复时
      */
@@ -239,15 +234,15 @@ public interface TemplateConst {
     String ENVOY_FILTER_NAMESPACE = "t_envoy_filter_namespace";
     String ENVOY_FILTER_WORKLOAD_LABELS = "t_envoy_filter_workload_labels";
     String ENVOY_FILTER_FILTERS = "t_envoy_filter_filters";
+    String ENVOY_FILTER_PORT_NUMBER = "t_envoy_filter_port_number";
 
-    String GRPC_CONFIG_PATCH_PORT_NUMBER = "t_grpc_config_patch_port_number";
     String GRPC_CONFIG_PATCH_PROTO_DESCRIPTOR_BIN = "t_grpc_config_patch_proto_descriptor_bin";
     String GRPC_CONFIG_PATCH_SERVICES = "t_grpc_config_patch_services";
 
-    /**
-     * VersionManager
-     **/
-    String VERSION_MANAGER_WORKLOADS = "t_version_manager_workloads";
+    String IP_CONFIG_PATCH_USE_REMOTE_ADDRESS = "t_ip_config_patch_use_remote_address";
+    String IP_CONFIG_PATCH_CUSTOM_HEADER = "t_ip_config_patch_custom_header";
+    String IP_CONFIG_PATCH_XFF_NUM_TRUSTED_HOPS = "t_ip_config_patch_xff_num_trusted_hops";
+
 
     /**
      * GatewayPlugin
@@ -259,7 +254,7 @@ public interface TemplateConst {
     String GATEWAY_PLUGIN_HOSTS = "t_gateway_plugin_hosts";
     String GATEWAY_PLUGIN_SERVICES = "t_gateway_plugin_services";
     String GATEWAY_PLUGIN_PLUGINS = "t_gateway_plugin_plugins";
-    String GATEWAY_PLUGIN_ROUTES = "t_gateway_plugin_routes";
+    String GATEWAY_PLUGIN_ROUTE = "t_gateway_plugin_route";
     String GATEWAY_PLUGIN_USERS = "t_gateway_plugin_users";
 
 

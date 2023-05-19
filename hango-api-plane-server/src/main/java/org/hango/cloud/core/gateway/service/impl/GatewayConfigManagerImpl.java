@@ -1,5 +1,7 @@
 package org.hango.cloud.core.gateway.service.impl;
 
+import io.fabric8.kubernetes.api.model.HasMetadata;
+import me.snowdrop.istio.api.networking.v1alpha3.ServiceEntry;
 import org.hango.cloud.core.AbstractConfigManagerSupport;
 import org.hango.cloud.core.ConfigStore;
 import org.hango.cloud.core.GlobalConfig;
@@ -12,22 +14,21 @@ import org.hango.cloud.core.k8s.K8sResourceEnum;
 import org.hango.cloud.core.k8s.K8sResourcePack;
 import org.hango.cloud.core.k8s.event.K8sResourceDeleteNotificationEvent;
 import org.hango.cloud.core.k8s.subtracter.ServiceEntryEndpointsSubtracter;
-import org.hango.cloud.meta.*;
 import org.hango.cloud.k8s.K8sTypes;
-import org.hango.cloud.meta.dto.GrpcEnvoyFilterDto;
-import org.hango.cloud.util.exception.ApiPlaneException;
+import org.hango.cloud.meta.*;
+import org.hango.cloud.meta.dto.GrpcEnvoyFilterDTO;
+import org.hango.cloud.meta.dto.IpSourceEnvoyFilterDTO;
 import org.hango.cloud.util.function.Subtracter;
-import io.fabric8.kubernetes.api.model.HasMetadata;
-import me.snowdrop.istio.api.IstioResource;
-import me.snowdrop.istio.api.networking.v1alpha3.GatewaySpec;
-import me.snowdrop.istio.api.networking.v1alpha3.ServiceEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class GatewayConfigManagerImpl extends AbstractConfigManagerSupport implements
@@ -130,10 +131,8 @@ public class GatewayConfigManagerImpl extends AbstractConfigManagerSupport imple
     }
 
     @Override
-    public HasMetadata getConfig(PluginOrder pluginOrder) {
-        List<K8sResourcePack> resources = modelEngine.translate(pluginOrder);
-        if (CollectionUtils.isEmpty(resources) || resources.size() != 1) throw new ApiPlaneException();
-        return configStore.get(resources.get(0).getResource());
+    public HasMetadata getConfig(String kind, String name) {
+        return configStore.get(kind, null, name);
     }
 
     @Override
@@ -146,33 +145,6 @@ public class GatewayConfigManagerImpl extends AbstractConfigManagerSupport imple
     public void deleteConfig(PluginOrder pluginOrder) {
         List<K8sResourcePack> resources = modelEngine.translate(pluginOrder);
         delete(resources,(p)->{((K8sTypes.PluginManager) p).setSpec(null);return p;});
-    }
-
-    @Override
-    public HasMetadata getConfig(IstioGateway istioGateway) {
-        if (StringUtils.isEmpty(istioGateway.getGwCluster())) {
-            return null;
-        }
-        final String gwClusgterKey = "gw_cluster";
-        //获取所有Gateway资源
-        List<HasMetadata> istioResources = configStore.get("Gateway", globalConfig.getResourceNamespace());
-        Optional<HasMetadata> first = istioResources.stream().filter(g ->
-        {
-            IstioResource ir = (IstioResource) g;
-            GatewaySpec spec = (GatewaySpec) ir.getSpec();
-            if (spec == null) {
-                return false;
-            }
-            Map<String, String> selector = spec.getSelector();
-            if (selector == null) {
-                return false;
-            }
-            return istioGateway.getGwCluster().equals(selector.get(gwClusgterKey));
-        }).findFirst();
-        if (first.isPresent()) {
-            return first.get();
-        }
-        return null;
     }
 
     @Override
@@ -189,15 +161,6 @@ public class GatewayConfigManagerImpl extends AbstractConfigManagerSupport imple
     }
 
     @Override
-    public HasMetadata getConfig(EnvoyFilterOrder envoyFilterOrder) {
-        List<K8sResourcePack> resources = modelEngine.translate(envoyFilterOrder);
-        if (CollectionUtils.isEmpty(resources) || resources.size() != 1) {
-            throw new ApiPlaneException();
-        }
-        return configStore.get(resources.get(0).getResource());
-    }
-
-    @Override
     public void updateConfig(EnvoyFilterOrder envoyFilterOrder) {
         List<K8sResourcePack> resources = modelEngine.translate(envoyFilterOrder);
         update(resources);
@@ -210,20 +173,19 @@ public class GatewayConfigManagerImpl extends AbstractConfigManagerSupport imple
     }
 
     @Override
-    public String generateEnvoyConfigObjectPatch(GrpcEnvoyFilterDto grpcEnvoyFilterDto) {
+    public List<String> generateEnvoyConfigObjectPatch(GrpcEnvoyFilterDTO grpcEnvoyFilterDto) {
         return modelEngine.generateEnvoyConfigObjectPatch(grpcEnvoyFilterDto);
+    }
+
+    @Override
+    public List<String> generateEnvoyConfigObjectPatch(IpSourceEnvoyFilterDTO ipSourceEnvoyFilterDTO) {
+        return modelEngine.generateEnvoyConfigObjectPatch(ipSourceEnvoyFilterDTO);
     }
 
     @Override
     public void updateConfig(Secret secret) {
         List<K8sResourcePack> resources = modelEngine.translate(secret);
         update(resources);
-    }
-
-    @Override
-    public void deleteConfig(Secret secret) {
-        List<K8sResourcePack> resources = modelEngine.translate(secret);
-        delete(resources);
     }
 
     private void delete(List<K8sResourcePack> resources, Subtracter<HasMetadata> fun) {
@@ -234,12 +196,6 @@ public class GatewayConfigManagerImpl extends AbstractConfigManagerSupport imple
         delete(resources, (i1, i2) -> 0, null, configStore, modelEngine);
     }
 
-    private Subtracter<HasMetadata> clearResource() {
-        return resource -> {
-            resource.setApiVersion(null);
-            return resource;
-        };
-    }
 
 
     @Override

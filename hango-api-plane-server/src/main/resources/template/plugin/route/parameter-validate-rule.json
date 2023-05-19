@@ -7,6 +7,9 @@
       "key": "parametersValidateRules",
       "alias": "参数校验规则",
       "type": "array",
+      "rules": [
+        "ArrayMinLength(1)"
+      ],
       "layouts": [
         {
           "key": "parameterFrom",

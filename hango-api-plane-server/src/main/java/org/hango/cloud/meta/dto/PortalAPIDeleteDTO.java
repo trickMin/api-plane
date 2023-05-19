@@ -18,6 +18,10 @@ public class PortalAPIDeleteDTO {
     @JsonProperty(value = "Code")
     private String code;
 
+    @NotEmpty(message = "projectId")
+    @JsonProperty(value = "ProjectId")
+    private String projectId;
+
     /**
      * 插件
      */
@@ -38,6 +42,14 @@ public class PortalAPIDeleteDTO {
 
     public void setCode(String code) {
         this.code = code;
+    }
+
+    public String getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(String projectId) {
+        this.projectId = projectId;
     }
 
     public List<String> getPlugins() {

@@ -12,6 +12,7 @@ import org.hango.cloud.meta.PairMatch;
 import org.hango.cloud.meta.UriMatch;
 import org.hango.cloud.meta.dto.DubboInfoDto;
 import org.hango.cloud.util.CommonUtil;
+import org.hango.cloud.util.HandlerUtil;
 import org.hango.cloud.util.PriorityUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +52,7 @@ public abstract class APIDataHandler implements DataHandler<API> {
                 .put(NAMESPACE, api.getNamespace())
                 .put(API_SERVICE, api.getService())
                 .put(API_NAME, api.getName())
-                .put(API_IDENTITY_NAME, apiName)
+                .put(API_IDENTITY_NAME, HandlerUtil.buildVirtualServiceName(api.getName(), api.getProjectId(), api.getGateways().get(0)))
                 .put(API_LOADBALANCER, api.getLoadBalancer())
                 .put(API_REQUEST_URIS, uriMatchMeta.getUri())
                 .put(VIRTUAL_SERVICE_URL_MATCH, uriMatchMeta.getUriMatch())
@@ -70,7 +71,7 @@ public abstract class APIDataHandler implements DataHandler<API> {
                 .put(VIRTUAL_SERVICE_SERVICE_TAG, api.getServiceTag())
                 .put(GATEWAY_NS, api.getNamespace())
                 .put(VIRTUAL_SERVICE_API_ID, api.getApiId())
-                .put(VIRTUAL_SERVICE_API_NAME, api.getApiName())
+                .put(VIRTUAL_SERVICE_API_NAME, api.getName())
                 .put(VIRTUAL_SERVICE_TENANT_ID, api.getTenantId())
                 .put(VIRTUAL_SERVICE_PROJECT_ID, api.getProjectId())
                 .put(VIRTUAL_SERVICE_HOST_HEADERS, hostHeaders)
@@ -92,6 +93,8 @@ public abstract class APIDataHandler implements DataHandler<API> {
 
         return handleApiMetaMap(api,tp);
     }
+
+
 
     /**
      * 处理VirtualService metadata 数据
@@ -171,12 +174,11 @@ public abstract class APIDataHandler implements DataHandler<API> {
 
     private String getMethods(API api) {
 
-        List<String> methods = new ArrayList<>();
-        for (String m : api.getMethods()) {
-            if (m.equals("*")) return "";
-            methods.add(m);
+        if (CollectionUtils.isEmpty(api.getMethods())) {
+            return "";
         }
-        return String.join("|", methods);
+
+        return String.join("|", api.getMethods());
     }
 
     private List<PairMatch> getVirtualClusterHeaders(API api){

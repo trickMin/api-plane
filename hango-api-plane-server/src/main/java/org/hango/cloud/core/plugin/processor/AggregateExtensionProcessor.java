@@ -37,7 +37,7 @@ public class AggregateExtensionProcessor extends AbstractSchemaProcessor impleme
         FragmentHolder holder;
         String kind = rg.getValue("$.kind", String.class);
         PluginMapping mapping = PluginMapping.getBymappingName(kind);
-        holder = getProcessor(mapping.getProcessorClass()).process(plugin,serviceInfo);
+        holder = getProcessor(mapping.getProcessorName()).process(plugin,serviceInfo);
         if (StringUtils.hasText(mapping.getName())){
             if (PluginMapping.ianus_router.getMappingName().equals(kind)) {
                 coverToExtensionPlugin(holder, mapping.getName(), true, "ROOT");

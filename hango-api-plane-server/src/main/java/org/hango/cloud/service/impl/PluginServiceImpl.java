@@ -1,7 +1,10 @@
 package org.hango.cloud.service.impl;
 
-import org.assertj.core.util.Lists;
-import org.hango.cloud.core.GlobalConfig;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import freemarker.template.Configuration;
+import freemarker.template.Template;
 import org.hango.cloud.core.editor.EditorContext;
 import org.hango.cloud.core.editor.ResourceGenerator;
 import org.hango.cloud.core.editor.ResourceType;
@@ -13,10 +16,10 @@ import org.hango.cloud.meta.Plugin;
 import org.hango.cloud.meta.PluginSupportConfig;
 import org.hango.cloud.meta.PluginSupportDetail;
 import org.hango.cloud.meta.ServiceInfo;
-import org.hango.cloud.service.GatewayService;
+import org.hango.cloud.meta.dto.PluginOrderDTO;
+import org.hango.cloud.meta.dto.PluginOrderItemDTO;
 import org.hango.cloud.service.PluginService;
 import org.hango.cloud.util.exception.ApiPlaneException;
-import freemarker.template.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +31,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -55,7 +57,13 @@ public class PluginServiceImpl implements PluginService {
     private EditorContext editorContext;
 
     @Autowired
+    ObjectMapper objectMapper;
+
+    @Autowired
     private List<SchemaProcessor> processors;
+
+    private static final String PLUGIN_MANAGER_TEMPLATE = "plugin/manager/plugin-manager-template.json";
+    private static final String PLUGIN_SUPPORT_CONFIG = "plugin/manager/plugin-support-config.json";
 
 
     @Override
@@ -82,27 +90,47 @@ public class PluginServiceImpl implements PluginService {
     }
 
     @Override
-    public List<FragmentHolder> processGlobalPlugin(List<String> plugins, ServiceInfo serviceInfo) {
-        return processPlugin(globalEnv, plugins, serviceInfo);
+    public List<PluginSupportDetail> getPluginSupportConfig(String gatewayKind) {
+        Template support = TemplateUtils.getTemplate(PLUGIN_SUPPORT_CONFIG, configuration);
+        List<PluginSupportConfig> supportList;
+        try {
+            supportList = objectMapper.readValue(String.valueOf(support), new TypeReference<List<PluginSupportConfig>>() {});
+        } catch (JsonProcessingException e) {
+            logger.error("error support content , {}", gatewayKind);
+            return new ArrayList<>();
+
+        }
+        Optional<PluginSupportConfig> gatewaySupport = supportList.stream().filter(s -> s.getGatewayKind().equals(gatewayKind)).findFirst();
+        if (!gatewaySupport.isPresent()) {
+            logger.info("error gateway kind , {}", gatewayKind);
+            return new ArrayList<>();
+        }
+        return gatewaySupport.get().getPlugins();
     }
+
 
     @Override
-    public List<String> extractService(List<String> plugins) {
-        List<String> ret = new ArrayList<>();
-        plugins.stream().forEach(plugin -> {
-            ResourceGenerator rg = ResourceGenerator.newInstance(plugin, ResourceType.JSON, editorContext);
-            ret.addAll(rg.getValue("$.rule[*].action.target"));
-            ret.addAll(rg.getValue("$.rule[*].action.pass_proxy_target[*].url"));
-        });
-        return ret.stream().distinct().filter(Objects::nonNull)
-                .filter(item -> Pattern.compile("(.*?)\\.(.*?)\\.svc.(.*?)\\.(.*?)").matcher(item).find())
-                .filter(item -> {
-                    logger.info("extract service:{}", item);
-                    return true;
-                })
-                .collect(Collectors.toList());
+    public PluginOrderDTO getPluginOrderTemplate(String gatewayKind) {
+        //查询pluginSupport配置
+        List<PluginSupportDetail> pluginSupportDetails = getPluginSupportConfig(gatewayKind);
+        if (CollectionUtils.isEmpty(pluginSupportDetails)){
+            return null;
+        }
+        //查询pluginManager配置
+        Template manager = TemplateUtils.getTemplate(PLUGIN_MANAGER_TEMPLATE, configuration);
+        PluginOrderDTO pluginOrderDTO;
+        try {
+            pluginOrderDTO =  objectMapper.readValue(manager.toString(), PluginOrderDTO.class);
+        } catch (JsonProcessingException e) {
+            logger.error("parse plugin order template error, content:{}", manager, e);
+            throw new ApiPlaneException("get plugin order template error");
+        }
+        //过滤插件
+        List<String> supportPlugins = pluginSupportDetails.stream().map(PluginSupportDetail::getPlugin).collect(Collectors.toList());
+        List<PluginOrderItemDTO> pluginOrderItemDTOS = pluginOrderDTO.getPlugins().stream().filter(p -> supportPlugins.contains(p.getName())).collect(Collectors.toList());
+        pluginOrderDTO.setPlugins(pluginOrderItemDTOS);
+        return pluginOrderDTO;
     }
-
 
     private List<FragmentHolder> processPlugin(String env, List<String> plugins, ServiceInfo serviceInfo) {
         List<FragmentHolder> ret = new ArrayList<>();
@@ -159,4 +187,5 @@ public class PluginServiceImpl implements PluginService {
         }
         return processor.get();
     }
+
 }

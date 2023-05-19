@@ -36,24 +36,7 @@ public class PortalGatewayDataHandler extends GatewayDataHandler {
                 .put(TemplateConst.GATEWAY_NAME, istioGateway.getName())
                 .put(TemplateConst.GATEWAY_HTTP_10, enableHttp10)
                 .put(TemplateConst.GATEWAY_GW_CLUSTER, istioGateway.getGwCluster())
-                .put(TemplateConst.GATEWAY_CUSTOM_IP_HEADER, istioGateway.getCustomIpAddressHeader())
-                .put(TemplateConst.GATEWAY_XFF_NUM_TRUSTED_HOPS, istioGateway.getXffNumTrustedHops())
-                .put(TemplateConst.GATEWAY_USE_REMOTE_ADDRESS, istioGateway.getUseRemoteAddress())
                 .put(TemplateConst.GATEWAY_SERVERS, istioGateway.getServers());
         return Arrays.asList(params);
-    }
-
-    private  void setCredentialName(IstioGateway istioGateway){
-        List<IstioGatewayServer> servers = istioGateway.getServers();
-        if (CollectionUtils.isEmpty(servers)){
-            return;
-        }
-        for (IstioGatewayServer server : servers) {
-            IstioGatewayTLS istioGatewayTLS = server.getIstioGatewayTLS();
-            if (istioGatewayTLS != null){
-                String credentialName = CREDENTIAL_NAME_PREFIX + gatewayNamespace + "/" + istioGatewayTLS.getCredentialName();
-                istioGatewayTLS.setCredentialName(credentialName);
-            }
-        }
     }
 }

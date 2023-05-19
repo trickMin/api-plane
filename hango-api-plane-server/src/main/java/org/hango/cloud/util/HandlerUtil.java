@@ -84,28 +84,14 @@ public class HandlerUtil {
     }
 
     /**
-     * 获取网关插件CR中的Identity字符串
-     *
-     * @param plugin 网关插件
-     * @return Identity字符串
-     */
-    public static String getIdentity(GatewayPlugin plugin) {
-        return String.format("%s-%s", plugin.getRouteId(), plugin.getGateway());
-    }
-
-    /**
      * 获取网关插件CR中的路由集合，案例如下
      * [127.0.0.1/1000, 127.0.0.1/1001, 127.0.0.1/1002]
      *
      * @param plugin 网关插件
      * @return 路由集合
      */
-    public static List<String> getRouteList(GatewayPlugin plugin) {
-        final String routeId = plugin.getRouteId();
-        Integer port = plugin.getPort();
-        return plugin.getHosts().stream()
-                .map(host -> host + ":"+ port + "/" + routeId)
-                .collect(Collectors.toList());
+    public static String getRoute(GatewayPlugin plugin) {
+        return "/" + plugin.getRouteId();
     }
 
     /**
@@ -118,7 +104,7 @@ public class HandlerUtil {
         String pluginName = PluginConstant.DEFAULT_PLUGIN_NAME;
 
         if (plugin.isRoutePlugin()) {
-            pluginName = plugin.getRouteId() + "-" + plugin.getGateway();
+            pluginName = plugin.getRouteId();
         } else if (plugin.isGlobalPlugin()) {
             pluginName = plugin.getCode().toLowerCase();
         }
@@ -139,6 +125,18 @@ public class HandlerUtil {
             hosts = plugin.getHosts().stream().map(host -> host + ":" + port).collect(Collectors.toList());
         }
         return hosts;
+    }
+
+    /**
+     * 构建VS名称
+     *
+     * @param apiName 路由名称
+     * @param projectId 项目ID
+     * @param gw 网关标签
+     * @return VS名称
+     */
+    public static String buildVirtualServiceName(String apiName, String projectId, String gw) {
+        return String.format("%s-%s-%s", apiName, projectId, gw);
     }
 }
 

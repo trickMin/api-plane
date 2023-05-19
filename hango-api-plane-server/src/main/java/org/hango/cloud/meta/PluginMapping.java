@@ -32,8 +32,8 @@ public enum PluginMapping {
     redis_cache("redis-cache","proxy.filters.http.redis_cache","RedisCache"),
     // 兼容21.0.x版本认证插件，22.0.x版本认证插件已拆分为sign-auth、jwt-auth和oauth2-auth
     super_auth("super-auth","proxy.filters.http.super_authz","PreviousVersionSuperAuth"),
-    sign_auth("sign-auth","proxy.filters.http.super_authz","SuperAuth"),
-    oauth2_auth("oauth2-auth","proxy.filters.http.super_authz","SuperAuth"),
+    oauth2_auth("oauth2-auth","proxy.filters.http.super_authz","Oauth2Auth"),
+    simple_auth("simple-auth","proxy.filters.http.super_authz","SimpleAuth"),
     jwt_auth("jwt-auth","envoy.filters.http.jwt_authn","JwtAuth"),
     basic_rbac("basic-rbac","envoy.filters.http.rbac","BasicRbac"),
     request_transformer("request-transformer","proxy.filters.http.transformation","DefaultProcessor"),
@@ -43,6 +43,9 @@ public enum PluginMapping {
     ianus_router("ianus-router","envoy.filters.http.fault","RouteProcessor"),
     waf("waf","proxy.filters.http.waf","WafProcessor"),
     trace("trace","proxy.filters.http.rider","RestyProcessor"),
+    request_body_rewrite("request-body-rewrite","proxy.filters.http.request_body_transformation","RequestBodyReWriteProcessor"),
+    response_body_rewrite("response-body-rewrite","proxy.filters.http.response_body_transformation","ResponseBodyReWriteProcessor"),
+
 
     //默认处理
     resty("resty","proxy.filters.http.rider","RestyProcessor"),
@@ -60,14 +63,14 @@ public enum PluginMapping {
     private String name;
 
     /**
-     * 插件处理类名
+     * 插件处理processor名称
      */
-    private String processorClass;
+    private String processorName;
 
-    PluginMapping(String mappingName, String name, String processorClass) {
+    PluginMapping(String mappingName, String name, String processorName) {
         this.mappingName = mappingName;
         this.name = name;
-        this.processorClass = processorClass;
+        this.processorName = processorName;
     }
 
     public String getMappingName() {
@@ -78,8 +81,8 @@ public enum PluginMapping {
         return name;
     }
 
-    public String getProcessorClass() {
-        return processorClass;
+    public String getProcessorName() {
+        return processorName;
     }
 
     public static PluginMapping getBymappingName(String mappingName){

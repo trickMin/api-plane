@@ -39,7 +39,7 @@
                   "value": "prefix_match"
                 },
                 {
-                  "text": "正则表达式",
+                  "text": "正则匹配",
                   "value": "safe_regex_match"
                 },
                 {

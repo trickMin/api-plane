@@ -1,9 +1,8 @@
 package org.hango.cloud.web.controller;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
-import org.hango.cloud.meta.dto.GrpcEnvoyFilterDto;
-import org.hango.cloud.meta.dto.PluginOrderDTO;
+import org.hango.cloud.meta.dto.GrpcEnvoyFilterDTO;
+import org.hango.cloud.meta.dto.IpSourceEnvoyFilterDTO;
 import org.hango.cloud.service.GatewayService;
 import org.hango.cloud.util.errorcode.ApiPlaneErrorCode;
 import org.hango.cloud.util.errorcode.ErrorCode;
@@ -51,50 +50,36 @@ public class GatewayCommonController extends BaseController {
                 ImmutableMap.of("ServiceList", gatewayService.getServiceAndPortList(name, type, registry, filters)));
     }
 
-
-    @RequestMapping(params = "Action=GetPluginOrder", method = RequestMethod.POST)
-    public String getPluginOrder(@RequestBody PluginOrderDTO pluginOrderDTO) {
-        Map<String, Object> result = new HashMap<>();
-
-        result.put(RESULT, gatewayService.getPluginOrder(pluginOrderDTO));
-        ErrorCode code = ApiPlaneErrorCode.Success;
-        return apiReturn(code.getStatusCode(), code.getCode(), null, result);
-    }
-
-    @RequestMapping(params = "Action=PublishPluginOrder", method = RequestMethod.POST)
-    public String publishPluginOrder(@RequestBody @Valid PluginOrderDTO pluginOrderDTO) {
-
-        gatewayService.updatePluginOrder(pluginOrderDTO);
-        return apiReturn(ApiPlaneErrorCode.Success);
-    }
-
     @RequestMapping(params = "Action=PublishGrpcEnvoyFilter", method = RequestMethod.POST)
-    public String publishGrpcEnvoyFilter(@RequestBody @Valid GrpcEnvoyFilterDto envoyFilterOrderDTO) {
+    public String publishGrpcEnvoyFilter(@RequestBody @Valid GrpcEnvoyFilterDTO envoyFilterOrderDTO) {
 
         gatewayService.updateGrpcEnvoyFilter(envoyFilterOrderDTO);
         return apiReturn(ApiPlaneErrorCode.Success);
     }
 
-    @RequestMapping(params = "Action=DeletePluginOrder", method = RequestMethod.POST)
-    public String deletePluginOrder(@RequestBody PluginOrderDTO pluginOrderDTO) {
-
-        gatewayService.deletePluginOrder(pluginOrderDTO);
+    @RequestMapping(params = "Action=DeleteGrpcEnvoyFilter", method = RequestMethod.POST)
+    public String deleteGrpcEnvoyFilter(@RequestBody @Valid GrpcEnvoyFilterDTO grpcEnvoyFilterDto) {
+        gatewayService.deleteEnvoyFilter(grpcEnvoyFilterDto);
         return apiReturn(ApiPlaneErrorCode.Success);
     }
 
-    @RequestMapping(params = "Action=DeleteGrpcEnvoyFilter", method = RequestMethod.POST)
-    public String deleteGrpcEnvoyFilter(@RequestBody @Valid GrpcEnvoyFilterDto grpcEnvoyFilterDto) {
-        gatewayService.deleteGrpcEnvoyFilter(grpcEnvoyFilterDto);
+    @RequestMapping(params = "Action=PublishIpSource", method = RequestMethod.POST)
+    public String publishIpSource(@RequestBody @Valid IpSourceEnvoyFilterDTO ipSourceEnvoyFilterDto) {
+        gatewayService.updateIpSourceEnvoyFilter(ipSourceEnvoyFilterDto);
+        return apiReturn(ApiPlaneErrorCode.Success);
+    }
+
+    @RequestMapping(params = "Action=DeleteIpSource", method = RequestMethod.POST)
+    public String deleteIpSource(@RequestBody @Valid IpSourceEnvoyFilterDTO ipSourceEnvoyFilterDto) {
+        gatewayService.deleteEnvoyFilter(ipSourceEnvoyFilterDto);
         return apiReturn(ApiPlaneErrorCode.Success);
     }
 
     @RequestMapping(params = "Action=GetDubboMeta", method = RequestMethod.GET)
     public String getDubboMeta(@RequestParam(name = "Igv") String igv) {
-
         Map<String, Object> result = new HashMap<>();
         result.put(RESULT, gatewayService.getDubboMeta(igv));
         return apiReturn(result);
-
     }
 
     @RequestMapping(params = "Action=GetRegistryList", method = RequestMethod.GET)
@@ -103,13 +88,4 @@ public class GatewayCommonController extends BaseController {
         result.put(RESULT, gatewayService.getRegistryList());
         return apiReturn(result);
     }
-
-    @RequestMapping(params = "Action=GetPluginOrderTemplate", method = RequestMethod.GET)
-    public String getPluginOrderTemplate(@RequestParam(name = "GatewayKind") String gatewayKind) {
-        Map<String, Object> result = Maps.newHashMap();
-        result.put(RESULT, gatewayService.getPluginOrderTemplate(gatewayKind));
-        ErrorCode code = ApiPlaneErrorCode.Success;
-        return apiReturn(code.getStatusCode(), code.getCode(), null, result);
-    }
-
 }

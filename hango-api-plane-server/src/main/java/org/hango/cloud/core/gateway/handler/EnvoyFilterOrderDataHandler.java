@@ -3,13 +3,14 @@ package org.hango.cloud.core.gateway.handler;
 import org.hango.cloud.core.template.TemplateParams;
 import org.hango.cloud.meta.EnvoyFilterOrder;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.hango.cloud.core.template.TemplateConst.*;
+import static org.hango.cloud.service.impl.GatewayServiceImpl.GW_CLUSTER;
 
 /**
  * @author xin li
@@ -17,38 +18,18 @@ import static org.hango.cloud.core.template.TemplateConst.*;
  */
 public class EnvoyFilterOrderDataHandler implements DataHandler<EnvoyFilterOrder> {
 
-    private static final String DEFAULT_ENVOY_FILTER_NAME = "grpc-envoy-filter";
 
     @Override
     public List<TemplateParams> handle(EnvoyFilterOrder envoyFilterOrder) {
-        String name = getDefaultEnvoyFilterName(envoyFilterOrder);
+
         TemplateParams efParams = TemplateParams.instance()
-                .put(ENVOY_FILTER_NAME, name)
+                .put(ENVOY_FILTER_NAME, envoyFilterOrder.getName())
                 .put(ENVOY_FILTER_NAMESPACE, envoyFilterOrder.getNamespace())
-                .put(ENVOY_FILTER_WORKLOAD_LABELS, envoyFilterOrder.getWorkloadSelector().getLabelsMap());
+                .put(ENVOY_FILTER_WORKLOAD_LABELS, Collections.singletonMap(GW_CLUSTER, envoyFilterOrder.getGwCluster()));
         if (!CollectionUtils.isEmpty(envoyFilterOrder.getConfigPatches())) {
-            efParams.put(ENVOY_FILTER_FILTERS, envoyFilterOrder.getConfigPatches());
+            List<String> configPatch = envoyFilterOrder.getConfigPatches().stream().filter(StringUtils::hasText).collect(Collectors.toList());
+            efParams.put(ENVOY_FILTER_FILTERS, configPatch);
         }
         return Collections.singletonList(efParams);
-    }
-
-
-    @SuppressWarnings("unused")
-    private String getDefaultEnvoyFilterName(EnvoyFilterOrder envoyFilterOrder) {
-        String name = CollectionUtils.isEmpty(envoyFilterOrder.getWorkloadSelector().getLabelsMap()) ? DEFAULT_ENVOY_FILTER_NAME : joinLabelMap(envoyFilterOrder.getWorkloadSelector().getLabelsMap());
-        name = name.replaceAll("_", "-") + "-envoy-filter";
-        return name;
-    }
-
-    /**
-     * 将map中的key value用 "-" 连接
-     * 比如 k1-v1-k2-v2
-     *
-     * @param labelMap
-     * @return
-     */
-    private String joinLabelMap(Map<String, String> labelMap) {
-        List<String> labels = labelMap.entrySet().stream().map(e -> e.getKey() + "-" + e.getValue()).collect(Collectors.toList());
-        return String.join("-", labels);
     }
 }

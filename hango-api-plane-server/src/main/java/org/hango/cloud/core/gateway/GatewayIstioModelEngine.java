@@ -22,9 +22,11 @@ import org.hango.cloud.core.template.TemplateTranslator;
 import org.hango.cloud.k8s.K8sTypes;
 import org.hango.cloud.k8s.K8sTypes.VirtualService;
 import org.hango.cloud.meta.*;
-import org.hango.cloud.meta.dto.GrpcEnvoyFilterDto;
+import org.hango.cloud.meta.dto.GrpcEnvoyFilterDTO;
+import org.hango.cloud.meta.dto.IpSourceEnvoyFilterDTO;
 import org.hango.cloud.service.PluginService;
 import org.hango.cloud.util.Const;
+import org.hango.cloud.util.HandlerUtil;
 import org.hango.cloud.util.constant.LogConstant;
 import org.hango.cloud.util.function.Subtracter;
 import org.slf4j.Logger;
@@ -91,6 +93,7 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
     private static final String SMART_LIMITER = "gateway/smartLimiter";
     private static final String ENVOY_FILTER = "gateway/envoyFilter";
     private static final String GRPC_CONFIG_PATCH = "gateway/grpcConfigPatch";
+    private static final String IP_SOURCE_CONFIG_PATCH = "gateway/ipSourceConfigPatch";
     private static final String VIRTUAL_SERVICE = "VirtualService";
     private static final String SECRET = "gateway/secret";
 
@@ -128,7 +131,7 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
         logger.info("{}{} start to generate and add k8s resource",
                 LogConstant.TRANSLATE_LOG_NOTE, LogConstant.ROUTE_LOG_NOTE);
         resourcePacks.addAll(generateK8sPack(rawVirtualServices,
-                new GatewayVirtualServiceSubtracter(api.getName()),
+                new GatewayVirtualServiceSubtracter(HandlerUtil.buildVirtualServiceName(api.getName(), api.getProjectId(), api.getGateways().get(0))),
                 r -> r, this::adjust));
         logger.info("{}{} raw virtual services added ok", LogConstant.TRANSLATE_LOG_NOTE, LogConstant.ROUTE_LOG_NOTE);
 
@@ -334,7 +337,11 @@ public class GatewayIstioModelEngine extends IstioModelEngine {
         };
     }
 
-    public String generateEnvoyConfigObjectPatch(GrpcEnvoyFilterDto grpcEnvoyFilterDto) {
-        return defaultModelProcessor.process(GRPC_CONFIG_PATCH, new GrpcEnvoyFilterDataHandler().handle(grpcEnvoyFilterDto).get(0));
+    public List<String> generateEnvoyConfigObjectPatch(GrpcEnvoyFilterDTO grpcEnvoyFilterDto) {
+        return defaultModelProcessor.process(GRPC_CONFIG_PATCH, new GrpcEnvoyFilterDataHandler().handle(grpcEnvoyFilterDto));
+    }
+
+    public List<String> generateEnvoyConfigObjectPatch(IpSourceEnvoyFilterDTO ipSourceEnvoyFilterDTO) {
+        return defaultModelProcessor.process(IP_SOURCE_CONFIG_PATCH, new IpSourceEnvoyFilterDataHandler().handle(ipSourceEnvoyFilterDTO));
     }
 }

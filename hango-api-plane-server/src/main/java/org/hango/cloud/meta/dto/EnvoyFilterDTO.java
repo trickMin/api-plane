@@ -1,9 +1,6 @@
 package org.hango.cloud.meta.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import istio.networking.v1alpha3.SidecarOuterClass;
-
-import java.util.List;
 
 /**
  * EnvoyFilter dto
@@ -13,17 +10,38 @@ import java.util.List;
  * @date 2022/5/13 14:29
  */
 public class EnvoyFilterDTO {
+    /**
+     * filter名称
+     */
+    @JsonProperty(value = "Name")
+    private String name;
 
-    @JsonProperty("PortNumber")
+    /**
+     * 网关
+     */
+    @JsonProperty(value = "GwCluster")
+    private String gwCluster;
+    /**
+     * 网关的端口号
+     */
+    @JsonProperty(value = "PortNumber")
     private int portNumber;
-    @JsonProperty("Namespace")
-    private String namespace;
 
-    @JsonProperty("ConfigPatches")
-    private List<String> configPatches;
+    public String getName() {
+        return name;
+    }
 
-    @JsonProperty(value = "WorkloadSelector")
-    private SidecarOuterClass.WorkloadSelector workloadSelector;
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getGwCluster() {
+        return gwCluster;
+    }
+
+    public void setGwCluster(String gwCluster) {
+        this.gwCluster = gwCluster;
+    }
 
     public int getPortNumber() {
         return portNumber;
@@ -31,29 +49,5 @@ public class EnvoyFilterDTO {
 
     public void setPortNumber(int portNumber) {
         this.portNumber = portNumber;
-    }
-
-    public String getNamespace() {
-        return namespace;
-    }
-
-    public void setNamespace(String namespace) {
-        this.namespace = namespace;
-    }
-
-    public List<String> getConfigPatches() {
-        return configPatches;
-    }
-
-    public void setConfigPatches(List<String> configPatches) {
-        this.configPatches = configPatches;
-    }
-
-    public SidecarOuterClass.WorkloadSelector getWorkloadSelector() {
-        return workloadSelector;
-    }
-
-    public void setWorkloadSelector(SidecarOuterClass.WorkloadSelector workloadSelector) {
-        this.workloadSelector = workloadSelector;
     }
 }

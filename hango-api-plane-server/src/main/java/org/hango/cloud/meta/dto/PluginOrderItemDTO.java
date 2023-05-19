@@ -27,6 +27,14 @@ public class PluginOrderItemDTO {
     @JsonProperty("listenerType")
     private String listenerType = Const.GATEWAY;
 
+    public String getListenerType() {
+        return listenerType;
+    }
+
+    public void setListenerType(String listenerType) {
+        this.listenerType = listenerType;
+    }
+
     public Boolean getEnable() {
         return enable;
     }
@@ -59,11 +67,4 @@ public class PluginOrderItemDTO {
         this.inline = inline;
     }
 
-    public String getListenerType() {
-        return listenerType;
-    }
-
-    public void setListenerType(String listenerType) {
-        this.listenerType = listenerType;
-    }
 }

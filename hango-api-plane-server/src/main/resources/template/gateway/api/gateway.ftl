@@ -27,12 +27,3 @@ spec:
 </#if>
 </#list>
 </#if>
-<#if t_custom_ip_header ??>
-  customIpAddressHeader: ${t_custom_ip_header}
-</#if>
-<#if t_xff_num_trusted_hops ??>
-  xffNumTrustedHops: ${t_xff_num_trusted_hops}
-</#if>
-<#if t_use_remote_address ??>
-  useRemoteAddress: ${t_use_remote_address}
-</#if>

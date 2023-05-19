@@ -9,9 +9,6 @@ metadata:
 <#if t_version?has_content>
     hango-data-version: ${t_version}
 </#if>
-<#if t_resource_identity?has_content>
-    skiff-api-plane-resource-identity: ${t_resource_identity}
-</#if>
 spec:
   gateway: true
   target:
@@ -22,11 +19,9 @@ spec:
     - "${h?j_string}"
 </#list>
 </#if>
-<#if t_gateway_plugin_routes?has_content>
+<#if t_gateway_plugin_route?has_content>
     route:
-<#list t_gateway_plugin_routes as r>
-    - "${r?j_string}"
-</#list>
+    - "${t_gateway_plugin_route}"
 </#if>
 <#if t_gateway_plugin_plugins?has_content>
   sets:
